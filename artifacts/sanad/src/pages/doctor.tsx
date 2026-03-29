@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search, Shield, Activity, AlertCircle, Syringe, Clock,
   User as UserIcon, Pill, FlaskConical, Building2, X, Stethoscope, CalendarDays,
@@ -24,6 +24,7 @@ import {
   useGetPatientPredictions,
 } from "@workspace/api-client-react";
 import { useAiDecision, useAuditLog } from "@/hooks/use-ai-decision";
+import { useQuery } from "@tanstack/react-query";
 import { format, isValid } from "date-fns";
 
 type PredictionWarning = {
@@ -60,8 +61,33 @@ type TimelineEvent = {
 
 export default function DoctorDashboard() {
   const [searchId, setSearchId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const { data: nameSearchResults } = useQuery({
+    queryKey: ["patient-name-search", searchQuery],
+    queryFn: async () => {
+      if (searchQuery.length < 2) return { patients: [] };
+      const res = await fetch(`/api/patients?search=${encodeURIComponent(searchQuery)}&limit=6`);
+      if (!res.ok) return { patients: [] };
+      return res.json();
+    },
+    enabled: searchQuery.length >= 2 && !/^\d+$/.test(searchQuery),
+  });
+  const searchPatients: any[] = nameSearchResults?.patients ?? [];
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const { data: patient, isLoading } = useGetPatientByNationalId(
     patientId || "",
@@ -97,7 +123,15 @@ export default function DoctorDashboard() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchId.trim()) { setPatientId(searchId.trim()); setActiveTab("overview"); }
+    if (searchId.trim()) { setPatientId(searchId.trim()); setActiveTab("overview"); setShowDropdown(false); }
+  };
+
+  const handleSelectPatient = (nationalId: string, name: string) => {
+    setSearchId(nationalId);
+    setSearchQuery(name);
+    setPatientId(nationalId);
+    setActiveTab("overview");
+    setShowDropdown(false);
   };
 
   const activeMeds = patient?.medications?.filter(m => m.isActive) ?? [];
@@ -200,16 +234,44 @@ export default function DoctorDashboard() {
           subtitle="Patient clinical records, prescribing, AI-assisted risk analysis, and predictive alerts."
         />
         <form onSubmit={handleSearch} className="flex items-center gap-2 shrink-0 ml-6">
-          <div className="relative">
+          <div className="relative" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="National ID..."
-              className="pl-9 w-52"
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
+              placeholder="Name or National ID..."
+              className="pl-9 w-64"
+              value={searchQuery || searchId}
+              onChange={(e) => {
+                const v = e.target.value;
+                setSearchQuery(v);
+                setSearchId(v);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
             />
+            {showDropdown && searchPatients.length > 0 && (
+              <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-2xl shadow-xl border border-black/[0.07] z-50 overflow-hidden">
+                {searchPatients.map((p: any) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleSelectPatient(p.nationalId, p.fullName)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-secondary text-left transition-colors"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <UserIcon className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-foreground truncate">{p.fullName}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
+                    </div>
+                    {p.riskLevel === "critical" && <span className="text-[9px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full shrink-0">Critical</span>}
+                    {p.riskLevel === "high" && <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full shrink-0">High Risk</span>}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <Button type="submit" size="md">Load Patient</Button>
+          <Button type="submit" size="md">Load</Button>
         </form>
       </div>
 

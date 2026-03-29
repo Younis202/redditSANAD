@@ -6,7 +6,38 @@ import {
 } from "@/components/shared";
 import { useGetPatientByNationalId } from "@workspace/api-client-react";
 import { useAiDecision } from "@/hooks/use-ai-decision";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+
+async function fetchDepartments() {
+  const res = await fetch("/api/appointments/departments");
+  if (!res.ok) throw new Error("Failed");
+  return res.json() as Promise<{ departments: string[]; services: Record<string, string[]> }>;
+}
+async function fetchHospitals() {
+  const res = await fetch("/api/appointments/hospitals");
+  if (!res.ok) throw new Error("Failed");
+  return res.json() as Promise<{ hospitals: string[] }>;
+}
+async function fetchSlots(date: string, hospital: string, department: string) {
+  const p = new URLSearchParams({ date, hospital, department });
+  const res = await fetch(`/api/appointments/slots?${p}`);
+  if (!res.ok) throw new Error("Failed");
+  return res.json() as Promise<{ slots: string[] }>;
+}
+async function fetchPatientAppointments(patientId: number) {
+  const res = await fetch(`/api/appointments/patient/${patientId}`);
+  if (!res.ok) throw new Error("Failed");
+  return res.json() as Promise<{ appointments: any[] }>;
+}
+async function bookAppointment(payload: object) {
+  const res = await fetch("/api/appointments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Failed to book"); }
+  return res.json();
+}
 import {
   Bell, FileText, Activity, Pill, FlaskConical, User, Lock, CalendarDays,
   AlertCircle, Heart, TrendingUp, TrendingDown, CheckCircle2, ShieldAlert,
@@ -225,6 +256,228 @@ function generateRecommendations(patient: {
   return recs.slice(0, 8);
 }
 
+function AppointmentBooking({ patientId }: { patientId: number }) {
+  const today = new Date().toISOString().split("T")[0]!;
+  const [hospital, setHospital] = useState("");
+  const [department, setDepartment] = useState("");
+  const [date, setDate] = useState(today);
+  const [time, setTime] = useState("");
+  const [notes, setNotes] = useState("");
+  const [booked, setBooked] = useState<any>(null);
+  const [bookingError, setBookingError] = useState("");
+
+  const { data: hospData } = useQuery({ queryKey: ["apt-hospitals"], queryFn: fetchHospitals });
+  const { data: deptData } = useQuery({ queryKey: ["apt-departments"], queryFn: fetchDepartments });
+  const { data: slotsData } = useQuery({
+    queryKey: ["apt-slots", date, hospital, department],
+    queryFn: () => fetchSlots(date, hospital, department),
+    enabled: !!(date && hospital && department),
+  });
+  const { data: myApts, refetch: refetchApts } = useQuery({
+    queryKey: ["apt-patient", patientId],
+    queryFn: () => fetchPatientAppointments(patientId),
+    enabled: !!patientId,
+  });
+
+  const bookMutation = useMutation({
+    mutationFn: bookAppointment,
+    onSuccess: (res) => {
+      setBooked(res.appointment);
+      setTime("");
+      setNotes("");
+      setBookingError("");
+      refetchApts();
+    },
+    onError: (e: any) => setBookingError(e.message),
+  });
+
+  const services = deptData?.services?.[department] ?? [];
+  const [service, setService] = useState("");
+  const slots = slotsData?.slots ?? [];
+
+  const handleBook = () => {
+    if (!hospital || !department || !date || !time) return;
+    setBookingError("");
+    bookMutation.mutate({ patientId, hospital, department, service: service || department, date, time, notes });
+  };
+
+  const myAppointments = myApts?.appointments ?? [];
+
+  return (
+    <div className="p-5 space-y-5">
+      {/* Upcoming Appointments */}
+      {myAppointments.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+            <CalendarDays className="w-3.5 h-3.5" /> My Appointments
+          </p>
+          <div className="space-y-2">
+            {myAppointments.map((apt: any) => (
+              <div key={apt.id} className={`flex items-start gap-4 p-4 rounded-2xl border ${apt.status === "confirmed" ? "bg-emerald-50 border-emerald-200" : "bg-secondary border-border"}`}>
+                <div className="w-10 h-10 rounded-xl bg-white flex flex-col items-center justify-center shrink-0 border border-border">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase">{new Date(apt.date).toLocaleString("en", { month: "short" })}</p>
+                  <p className="text-lg font-bold text-foreground leading-none">{new Date(apt.date).getDate()}</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-bold text-foreground">{apt.department}</p>
+                    <Badge variant={apt.status === "confirmed" ? "success" : "outline"} className="text-[9px]">{apt.status}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{apt.hospital}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{apt.time} · Ref: {apt.referenceNo}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Success Banner */}
+      {booked && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300">
+          <div className="flex items-start gap-3 mb-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-emerald-800">Appointment Confirmed!</p>
+              <p className="text-xs text-emerald-700 mt-0.5">Reference: <span className="font-mono font-bold">{booked.referenceNo}</span></p>
+            </div>
+            <button onClick={() => setBooked(null)} className="ml-auto text-muted-foreground hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-white/70 rounded-xl p-2.5 text-center">
+              <p className="text-[9px] text-muted-foreground">Date</p>
+              <p className="text-xs font-bold text-foreground">{booked.date}</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-2.5 text-center">
+              <p className="text-[9px] text-muted-foreground">Time</p>
+              <p className="text-xs font-bold text-foreground">{booked.time}</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-2.5 text-center">
+              <p className="text-[9px] text-muted-foreground">Department</p>
+              <p className="text-xs font-bold text-foreground">{booked.department}</p>
+            </div>
+          </div>
+          {booked.aiReminders && (
+            <div className="space-y-1.5">
+              {booked.aiReminders.map((r: string, i: number) => (
+                <div key={i} className="flex items-start gap-2 px-3 py-1.5 bg-white/50 rounded-xl">
+                  <Sparkles className="w-3 h-3 text-emerald-600 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-emerald-800">{r}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Booking Form */}
+      <div>
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+          <Stethoscope className="w-3.5 h-3.5" /> Book New Appointment
+        </p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Hospital *</p>
+            <select
+              className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              value={hospital}
+              onChange={e => { setHospital(e.target.value); setTime(""); }}
+            >
+              <option value="">Select hospital...</option>
+              {hospData?.hospitals?.map((h: string) => <option key={h} value={h}>{h}</option>)}
+            </select>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Department *</p>
+            <select
+              className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              value={department}
+              onChange={e => { setDepartment(e.target.value); setService(""); setTime(""); }}
+            >
+              <option value="">Select department...</option>
+              {deptData?.departments?.map((d: string) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          {services.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-1.5">Service</p>
+              <select
+                className="w-full px-3 py-2 text-sm border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                value={service}
+                onChange={e => setService(e.target.value)}
+              >
+                <option value="">General consultation...</option>
+                {services.map((s: string) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          )}
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Date *</p>
+            <Input
+              type="date"
+              value={date}
+              min={today}
+              onChange={e => { setDate(e.target.value); setTime(""); }}
+            />
+          </div>
+        </div>
+
+        {/* Time Slots */}
+        {hospital && department && date && (
+          <div className="mb-3">
+            <p className="text-xs font-semibold text-muted-foreground mb-2">Available Time Slots *</p>
+            {slots.length === 0 ? (
+              <p className="text-sm text-muted-foreground bg-secondary px-4 py-3 rounded-xl">No available slots for this date. Please try another date.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {slots.map((s: string) => (
+                  <button
+                    key={s}
+                    onClick={() => setTime(s)}
+                    className={`px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all border ${
+                      time === s
+                        ? "bg-primary text-white border-primary"
+                        : "bg-background border-border text-foreground hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-muted-foreground mb-1.5">Notes (optional)</p>
+          <Input
+            placeholder="Any specific concerns or reason for visit..."
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+          />
+        </div>
+
+        {bookingError && (
+          <div className="mb-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+            {bookingError}
+          </div>
+        )}
+
+        <Button
+          onClick={handleBook}
+          disabled={!hospital || !department || !date || !time || bookMutation.isPending}
+          className="w-full"
+        >
+          <CalendarDays className="w-4 h-4" />
+          {bookMutation.isPending ? "Booking appointment..." : "Confirm Appointment"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function CitizenPortal() {
   const [loginId, setLoginId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -436,6 +689,7 @@ export default function CitizenPortal() {
           tabs={[
             { id: "health-score", label: "Health Score & AI Tips" },
             { id: "digital-twin", label: "🧠 My Health Forecast" },
+            { id: "appointments", label: "📅 Book Appointment" },
             { id: "summary", label: "Health Summary" },
             { id: "medications", label: "Prescriptions", count: activeMeds.length },
             { id: "labs", label: "Lab Results", count: labResults.length },
@@ -657,6 +911,10 @@ export default function CitizenPortal() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === "appointments" && (
+          <AppointmentBooking patientId={(patient as any).id} />
         )}
 
         {activeTab === "summary" && (

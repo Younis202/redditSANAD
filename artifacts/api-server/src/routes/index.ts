@@ -11,6 +11,11 @@ import adminRouter from "./admin.js";
 import labRouter from "./lab.js";
 import pharmacyRouter from "./pharmacy.js";
 import hospitalRouter from "./hospital.js";
+import insuranceRouter from "./insurance.js";
+import aiControlRouter from "./ai_control.js";
+import researchRouter from "./research.js";
+import familyRouter from "./family.js";
+import supplyChainRouter from "./supply_chain.js";
 
 const router: IRouter = Router();
 
@@ -26,5 +31,10 @@ router.use("/admin", adminRouter);
 router.use("/lab", labRouter);
 router.use("/pharmacy", pharmacyRouter);
 router.use("/hospital", hospitalRouter);
+router.use("/insurance", insuranceRouter);
+router.use("/ai-control", aiControlRouter);
+router.use("/research", researchRouter);
+router.use("/family", familyRouter);
+router.use("/supply-chain", supplyChainRouter);
 
 export default router;

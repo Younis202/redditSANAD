@@ -11,6 +11,11 @@ import AdminDashboard from "./pages/admin";
 import LabPortal from "./pages/lab";
 import PharmacyPortal from "./pages/pharmacy";
 import HospitalPortal from "./pages/hospital";
+import InsurancePortal from "./pages/insurance";
+import AiControlCenter from "./pages/ai-control";
+import ResearchPortal from "./pages/research";
+import FamilyPortal from "./pages/family";
+import SupplyChainPortal from "./pages/supply-chain";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +42,11 @@ function Router() {
       <Route path="/lab" component={LabPortal} />
       <Route path="/pharmacy" component={PharmacyPortal} />
       <Route path="/hospital" component={HospitalPortal} />
+      <Route path="/insurance" component={InsurancePortal} />
+      <Route path="/ai-control" component={AiControlCenter} />
+      <Route path="/research" component={ResearchPortal} />
+      <Route path="/family" component={FamilyPortal} />
+      <Route path="/supply-chain" component={SupplyChainPortal} />
       <Route component={NotFound} />
     </Switch>
   );

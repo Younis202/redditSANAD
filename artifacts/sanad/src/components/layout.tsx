@@ -3,11 +3,12 @@ import { Link, useLocation } from "wouter";
 import {
   ShieldAlert, HeartPulse, User, Building2,
   LayoutDashboard, LogOut, Bell, Settings, LifeBuoy,
-  Activity, FlaskConical, Pill, BedDouble
+  Activity, FlaskConical, Pill, BedDouble,
+  Shield, Brain, Users, Package
 } from "lucide-react";
 import { cn } from "./shared";
 
-type Role = "emergency" | "doctor" | "citizen" | "admin" | "lab" | "pharmacy" | "hospital";
+type Role = "emergency" | "doctor" | "citizen" | "admin" | "lab" | "pharmacy" | "hospital" | "insurance" | "ai-control" | "research" | "family" | "supply-chain";
 
 const roleConfigs: Record<Role, {
   label: string;
@@ -109,6 +110,71 @@ const roleConfigs: Record<Role, {
     userInitial: "O",
     nav: [
       { href: "/hospital", icon: BedDouble, label: "Hospital Overview" },
+    ],
+  },
+  insurance: {
+    label: "Sanad",
+    sublabel: "Insurance Operations",
+    icon: Shield,
+    accentBg: "bg-violet-600",
+    accentText: "text-white",
+    user: "Nora Al-Qahtani",
+    userRole: "Insurance Operations Lead",
+    userInitial: "N",
+    nav: [
+      { href: "/insurance", icon: Shield, label: "Claims & Fraud Detection" },
+    ],
+  },
+  "ai-control": {
+    label: "Sanad",
+    sublabel: "AI Control Center",
+    icon: Brain,
+    accentBg: "bg-violet-700",
+    accentText: "text-white",
+    user: "Dr. Khalid Al-Mansouri",
+    userRole: "AI Systems Lead",
+    userInitial: "K",
+    nav: [
+      { href: "/ai-control", icon: Brain, label: "Engine Monitor" },
+    ],
+  },
+  research: {
+    label: "Sanad",
+    sublabel: "Clinical Research",
+    icon: FlaskConical,
+    accentBg: "bg-teal-700",
+    accentText: "text-white",
+    user: "Dr. Reem Al-Zahrani",
+    userRole: "Health Data Scientist",
+    userInitial: "R",
+    nav: [
+      { href: "/research", icon: Microscope, label: "Research Insights" },
+    ],
+  },
+  family: {
+    label: "Sanad",
+    sublabel: "Family Health Portal",
+    icon: Users,
+    accentBg: "bg-pink-700",
+    accentText: "text-white",
+    user: "Family Health Coordinator",
+    userRole: "Preventive Care Unit",
+    userInitial: "F",
+    nav: [
+      { href: "/family", icon: Users, label: "Family Health Map" },
+    ],
+  },
+  "supply-chain": {
+    label: "Sanad",
+    sublabel: "Supply Chain Intel",
+    icon: Package,
+    accentBg: "bg-orange-600",
+    accentText: "text-white",
+    user: "Faisal Al-Harbi",
+    userRole: "Drug Supply Chain Manager",
+    userInitial: "F",
+    nav: [
+      { href: "/supply-chain", icon: Package, label: "Inventory & Logistics" },
     ],
   },
 };

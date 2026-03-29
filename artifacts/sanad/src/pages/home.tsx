@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "wouter";
 import {
   ShieldAlert, HeartPulse, User, Building2, ArrowUpRight,
-  Shield, Cpu, Globe, Activity, Zap, FlaskConical, Pill, BedDouble, Brain
+  Shield, Cpu, Globe, Activity, Zap, FlaskConical, Pill, BedDouble, Brain,
+  Package, Users
 } from "lucide-react";
 
 export default function Home() {
@@ -117,7 +118,7 @@ export default function Home() {
 
           {/* ─── Role Cards Row 2 ─── */}
           <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.12em] mb-3 mt-2">Operational Portals</p>
-          <div className="grid grid-cols-3 gap-3.5 mb-8">
+          <div className="grid grid-cols-3 gap-3.5 mb-3.5">
             <RoleCard
               href="/lab"
               icon={FlaskConical}
@@ -144,6 +145,56 @@ export default function Home() {
               accent="#2563eb"
               accentBg="rgba(37,99,235,0.08)"
               tag="Hospital Managers"
+            />
+          </div>
+
+          {/* ─── Role Cards Row 3 ─── */}
+          <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.12em] mb-3 mt-2">Intelligence & Support Portals</p>
+          <div className="grid grid-cols-5 gap-3 mb-8">
+            <RoleCard
+              href="/insurance"
+              icon={Shield}
+              label="Insurance Portal"
+              description="AI-powered claims management, fraud detection, risk-based premium pricing, and policy analytics."
+              accent="#7c3aed"
+              accentBg="rgba(124,58,237,0.08)"
+              tag="Insurers"
+            />
+            <RoleCard
+              href="/ai-control"
+              icon={Brain}
+              label="AI Control Center"
+              description="Monitor all 9 AI engines — confidence scores, model drift, latency, retraining status, and system health."
+              accent="#6d28d9"
+              accentBg="rgba(109,40,217,0.08)"
+              tag="AI Engineers"
+            />
+            <RoleCard
+              href="/research"
+              icon={FlaskConical}
+              label="Research Portal"
+              description="Anonymized population analytics, disease prevalence, lab abnormality rates, and AI-detected clinical insights."
+              accent="#0f766e"
+              accentBg="rgba(15,118,110,0.08)"
+              tag="Researchers"
+            />
+            <RoleCard
+              href="/family"
+              icon={Users}
+              label="Family Health Portal"
+              description="Map hereditary disease risks across families, coordinate screenings, and track genetic risk inheritance patterns."
+              accent="#be185d"
+              accentBg="rgba(190,24,93,0.08)"
+              tag="Care Coordinators"
+            />
+            <RoleCard
+              href="/supply-chain"
+              icon={Package}
+              label="Supply Chain"
+              description="Real-time drug inventory tracking, AI shortage prediction, automated reorder alerts, and distribution management."
+              accent="#c2410c"
+              accentBg="rgba(194,65,12,0.08)"
+              tag="Logistics"
             />
           </div>
 

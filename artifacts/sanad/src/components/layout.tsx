@@ -148,7 +148,7 @@ const roleConfigs: Record<Role, {
     userRole: "Health Data Scientist",
     userInitial: "R",
     nav: [
-      { href: "/research", icon: Microscope, label: "Research Insights" },
+      { href: "/research", icon: FlaskConical, label: "Research Insights" },
     ],
   },
   family: {

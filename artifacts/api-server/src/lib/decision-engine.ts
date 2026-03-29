@@ -60,8 +60,32 @@ function getAge(dob: string): number {
   return new Date().getFullYear() - new Date(dob).getFullYear();
 }
 
+const ARABIC_TO_ENGLISH: Record<string, string> = {
+  "السكري من النوع الثاني": "type 2 diabetes",
+  "السكري من النوع الأول": "type 1 diabetes",
+  "السكري": "diabetes",
+  "ارتفاع ضغط الدم": "hypertension",
+  "أمراض القلب التاجية": "coronary artery disease",
+  "فشل القلب": "heart failure",
+  "قصور القلب": "heart failure",
+  "الفشل الكلوي المزمن": "chronic kidney disease",
+  "مرض الكلى المزمن": "chronic kidney disease",
+  "ckd": "ckd",
+  "مرض الانسداد الرئوي المزمن": "copd",
+  "الربو": "asthma",
+  "قصور الغدة الدرقية": "hypothyroidism",
+  "فرط نشاط الغدة الدرقية": "hyperthyroidism",
+  "السرطان": "cancer",
+  "الرجفان الأذيني": "atrial fibrillation",
+  "السكتة الدماغية": "stroke",
+  "تشمع الكبد": "cirrhosis",
+  "الاكتئاب": "depression",
+  "نقص صفيحات الدم": "thrombocytopenia",
+};
+
 function normalizeName(name: string): string {
-  return name.toLowerCase().trim();
+  const lower = name.toLowerCase().trim();
+  return ARABIC_TO_ENGLISH[name.trim()] ?? ARABIC_TO_ENGLISH[lower] ?? lower;
 }
 
 export function runDecisionEngine(input: DecisionInput): AiDecisionResult {

@@ -82,6 +82,31 @@ const INTERACTION_DATABASE: Record<string, Array<{
   ],
 };
 
+const ARABIC_CONDITIONS_MAP: Record<string, string> = {
+  "السكري من النوع الثاني": "type 2 diabetes",
+  "السكري من النوع الأول": "type 1 diabetes",
+  "السكري": "diabetes",
+  "ارتفاع ضغط الدم": "hypertension",
+  "أمراض القلب التاجية": "coronary artery disease",
+  "فشل القلب": "heart failure",
+  "قصور القلب": "heart failure",
+  "الفشل الكلوي المزمن": "chronic kidney disease",
+  "مرض الكلى المزمن": "chronic kidney disease",
+  "مرض الانسداد الرئوي المزمن": "copd",
+  "الربو": "asthma",
+  "قصور الغدة الدرقية": "hypothyroidism",
+  "فرط نشاط الغدة الدرقية": "hyperthyroidism",
+  "السرطان": "cancer",
+  "الرجفان الأذيني": "atrial fibrillation",
+  "السكتة الدماغية": "stroke",
+  "تشمع الكبد": "cirrhosis",
+  "الاكتئاب": "depression",
+};
+
+function normalizeCondition(name: string): string {
+  return ARABIC_CONDITIONS_MAP[name.trim()] ?? ARABIC_CONDITIONS_MAP[name.toLowerCase().trim()] ?? name.toLowerCase().trim();
+}
+
 function normalizeDrug(drug: string): string {
   return drug.toLowerCase().trim().replace(/[^a-z0-9]/g, "");
 }
@@ -173,12 +198,12 @@ export function calculateRiskScore(patient: {
   const moderateRiskConditions = ["hypertension", "diabetes", "hypothyroidism", "hyperthyroidism", "asthma", "atrial fibrillation", "stroke", "depression"];
 
   for (const cond of conditions) {
-    const lower = cond.toLowerCase();
-    if (highRiskConditions.some(h => lower.includes(h))) {
+    const normalized = normalizeCondition(cond);
+    if (highRiskConditions.some(h => normalized.includes(h))) {
       score += 20;
       factors.push({ factor: `Chronic Condition: ${cond}`, impact: "high", description: `${cond} significantly increases medical risk.` });
       recommendations.push(`Regular specialist follow-up for ${cond} management.`);
-    } else if (moderateRiskConditions.some(m => lower.includes(m))) {
+    } else if (moderateRiskConditions.some(m => normalized.includes(m))) {
       score += 10;
       factors.push({ factor: `Chronic Condition: ${cond}`, impact: "moderate", description: `${cond} requires ongoing management.` });
     }

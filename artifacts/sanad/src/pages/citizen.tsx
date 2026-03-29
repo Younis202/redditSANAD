@@ -2,15 +2,21 @@ import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, PageHeader, Badge, StatusDot, Tabs, DataLabel
+  Input, Button, PageHeader, Badge, StatusDot, Tabs, DataLabel, Select
 } from "@/components/shared";
 import { useGetPatientByNationalId } from "@workspace/api-client-react";
 import { useAiDecision } from "@/hooks/use-ai-decision";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Bell, FileText, Activity, Pill, FlaskConical, User, Lock, CalendarDays,
   AlertCircle, Heart, TrendingUp, TrendingDown, CheckCircle2, ShieldAlert,
-  Lightbulb, Star, ArrowRight, Stethoscope, Minus, Info, Brain, ArrowUpRight
+  Lightbulb, Star, ArrowRight, Stethoscope, Minus, Info, Brain, ArrowUpRight,
+  Building2, Clock, X, MapPin, Sparkles
 } from "lucide-react";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  ResponsiveContainer, ReferenceLine
+} from "recharts";
 import { format } from "date-fns";
 
 function computeHealthScore(patient: {

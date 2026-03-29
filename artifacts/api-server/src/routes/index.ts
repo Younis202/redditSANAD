@@ -16,6 +16,7 @@ import aiControlRouter from "./ai_control.js";
 import researchRouter from "./research.js";
 import familyRouter from "./family.js";
 import supplyChainRouter from "./supply_chain.js";
+import appointmentsRouter from "./appointments.js";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use("/ai-control", aiControlRouter);
 router.use("/research", researchRouter);
 router.use("/family", familyRouter);
 router.use("/supply-chain", supplyChainRouter);
+router.use("/appointments", appointmentsRouter);
 
 export default router;

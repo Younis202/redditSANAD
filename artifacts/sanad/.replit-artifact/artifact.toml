@@ -1,0 +1,23 @@
+kind = "web"
+previewPath = "/"
+title = "SANAD — National AI Health Platform"
+version = "1.0.0"
+id = "sanad_health_platform_v3"
+
+[[services]]
+localPort = 26138
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "PORT=26138 BASE_PATH=/ pnpm --filter @workspace/sanad run dev"
+
+[services.production]
+serve = "static"
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/sanad", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+BASE_PATH = "/"

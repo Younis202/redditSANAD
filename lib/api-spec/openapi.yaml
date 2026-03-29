@@ -1,0 +1,973 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Sanad National Health Infrastructure API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health check
+  - name: patients
+    description: Patient management
+  - name: emergency
+    description: Emergency access
+  - name: medications
+    description: Medication management
+  - name: visits
+    description: Visit history
+  - name: lab-results
+    description: Lab results
+  - name: alerts
+    description: Patient alerts
+  - name: admin
+    description: Admin analytics
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /patients:
+    get:
+      operationId: listPatients
+      tags: [patients]
+      summary: List all patients (admin)
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of patients
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientListResponse"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Create a new patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePatientRequest"
+      responses:
+        "201":
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientDetail"
+        "404":
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /patients/national/{nationalId}:
+    get:
+      operationId: getPatientByNationalId
+      tags: [patients]
+      summary: Get patient by national ID
+      parameters:
+        - name: nationalId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientDetail"
+        "404":
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /emergency/{nationalId}:
+    get:
+      operationId: emergencyLookup
+      tags: [emergency]
+      summary: Emergency patient lookup - returns critical data only
+      parameters:
+        - name: nationalId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Emergency patient data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyPatientData"
+        "404":
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /medications:
+    get:
+      operationId: listMedications
+      tags: [medications]
+      summary: List medications for a patient
+      parameters:
+        - name: patientId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of medications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicationListResponse"
+    post:
+      operationId: prescribeMedication
+      tags: [medications]
+      summary: Prescribe a medication with AI interaction check
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrescribeMedicationRequest"
+      responses:
+        "201":
+          description: Medication prescribed (may include interaction warnings)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrescribeMedicationResponse"
+
+  /visits:
+    get:
+      operationId: listVisits
+      tags: [visits]
+      summary: List visits for a patient
+      parameters:
+        - name: patientId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of visits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitListResponse"
+    post:
+      operationId: createVisit
+      tags: [visits]
+      summary: Record a new visit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVisitRequest"
+      responses:
+        "201":
+          description: Visit recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+
+  /lab-results:
+    get:
+      operationId: listLabResults
+      tags: [lab-results]
+      summary: List lab results for a patient
+      parameters:
+        - name: patientId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of lab results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabResultListResponse"
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts for a patient
+      parameters:
+        - name: patientId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertListResponse"
+
+  /ai/risk-score/{patientId}:
+    get:
+      operationId: getPatientRiskScore
+      tags: [patients]
+      summary: Get AI-calculated risk score for a patient
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Risk score and analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskScoreResponse"
+
+  /ai/check-interaction:
+    post:
+      operationId: checkDrugInteraction
+      tags: [medications]
+      summary: Check drug interaction before prescribing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DrugInteractionRequest"
+      responses:
+        "200":
+          description: Interaction check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DrugInteractionResponse"
+
+  /ai/predictions/{patientId}:
+    get:
+      operationId: getPatientPredictions
+      tags: [patients]
+      summary: Get AI-generated clinical predictions for a patient
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Clinical predictions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionsResponse"
+
+  /alerts/{id}/read:
+    patch:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark an alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alert marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /alerts/read-all:
+    patch:
+      operationId: markAllAlertsRead
+      tags: [alerts]
+      summary: Mark all alerts as read for a patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patientId:
+                  type: integer
+              required: [patientId]
+      responses:
+        "200":
+          description: All alerts marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get overall system statistics
+      responses:
+        "200":
+          description: System statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/population-health:
+    get:
+      operationId: getPopulationHealth
+      tags: [admin]
+      summary: Get population health overview
+      responses:
+        "200":
+          description: Population health data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PopulationHealthResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required: [error, message]
+
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+        nationalId:
+          type: string
+        fullName:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        bloodType:
+          type: string
+        phone:
+          type: string
+        emergencyContact:
+          type: string
+        emergencyPhone:
+          type: string
+        chronicConditions:
+          type: array
+          items:
+            type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - nationalId
+        - fullName
+        - dateOfBirth
+        - gender
+        - bloodType
+
+    PatientDetail:
+      allOf:
+        - $ref: "#/components/schemas/Patient"
+        - type: object
+          properties:
+            medications:
+              type: array
+              items:
+                $ref: "#/components/schemas/Medication"
+            visits:
+              type: array
+              items:
+                $ref: "#/components/schemas/Visit"
+            labResults:
+              type: array
+              items:
+                $ref: "#/components/schemas/LabResult"
+            alerts:
+              type: array
+              items:
+                $ref: "#/components/schemas/Alert"
+            riskScore:
+              type: integer
+
+    PatientListResponse:
+      type: object
+      properties:
+        patients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [patients, total, page, limit]
+
+    CreatePatientRequest:
+      type: object
+      properties:
+        nationalId:
+          type: string
+        fullName:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        bloodType:
+          type: string
+        phone:
+          type: string
+        emergencyContact:
+          type: string
+        emergencyPhone:
+          type: string
+        chronicConditions:
+          type: array
+          items:
+            type: string
+        allergies:
+          type: array
+          items:
+            type: string
+      required: [nationalId, fullName, dateOfBirth, gender, bloodType]
+
+    EmergencyPatientData:
+      type: object
+      properties:
+        id:
+          type: integer
+        nationalId:
+          type: string
+        fullName:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        bloodType:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        chronicConditions:
+          type: array
+          items:
+            type: string
+        currentMedications:
+          type: array
+          items:
+            type: string
+        emergencyContact:
+          type: string
+        emergencyPhone:
+          type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high, critical]
+        riskScore:
+          type: integer
+        criticalAlerts:
+          type: array
+          items:
+            type: string
+        clinicalActions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClinicalAction"
+      required: [id, nationalId, fullName, bloodType, allergies, chronicConditions, currentMedications, riskLevel, criticalAlerts]
+
+    Medication:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        drugName:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        prescribedBy:
+          type: string
+        hospital:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        isActive:
+          type: boolean
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required: [id, patientId, drugName, dosage, frequency, prescribedBy, hospital, startDate, isActive]
+
+    MedicationListResponse:
+      type: object
+      properties:
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+      required: [medications]
+
+    PrescribeMedicationRequest:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        drugName:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        prescribedBy:
+          type: string
+        hospital:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        notes:
+          type: string
+      required: [patientId, drugName, dosage, frequency, prescribedBy, hospital, startDate]
+
+    PrescribeMedicationResponse:
+      type: object
+      properties:
+        medication:
+          $ref: "#/components/schemas/Medication"
+        interactionWarnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/InteractionWarning"
+        safeToDispense:
+          type: boolean
+      required: [medication, interactionWarnings, safeToDispense]
+
+    InteractionWarning:
+      type: object
+      properties:
+        severity:
+          type: string
+          enum: [low, moderate, high, critical]
+        conflictingDrug:
+          type: string
+        description:
+          type: string
+        recommendation:
+          type: string
+      required: [severity, conflictingDrug, description, recommendation]
+
+    DrugInteractionRequest:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        newDrug:
+          type: string
+      required: [patientId, newDrug]
+
+    DrugInteractionResponse:
+      type: object
+      properties:
+        safe:
+          type: boolean
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/InteractionWarning"
+      required: [safe, warnings]
+
+    Visit:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        visitDate:
+          type: string
+        hospital:
+          type: string
+        department:
+          type: string
+        doctor:
+          type: string
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        visitType:
+          type: string
+          enum: [emergency, outpatient, inpatient, follow-up]
+        createdAt:
+          type: string
+      required: [id, patientId, visitDate, hospital, department, doctor, diagnosis, visitType]
+
+    VisitListResponse:
+      type: object
+      properties:
+        visits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Visit"
+      required: [visits]
+
+    CreateVisitRequest:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        visitDate:
+          type: string
+        hospital:
+          type: string
+        department:
+          type: string
+        doctor:
+          type: string
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        visitType:
+          type: string
+          enum: [emergency, outpatient, inpatient, follow-up]
+      required: [patientId, visitDate, hospital, department, doctor, diagnosis, visitType]
+
+    LabResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        testName:
+          type: string
+        testDate:
+          type: string
+        result:
+          type: string
+        unit:
+          type: string
+        referenceRange:
+          type: string
+        status:
+          type: string
+          enum: [normal, abnormal, critical]
+        hospital:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required: [id, patientId, testName, testDate, result, status, hospital]
+
+    LabResultListResponse:
+      type: object
+      properties:
+        labResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabResult"
+      required: [labResults]
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        alertType:
+          type: string
+          enum: [drug-interaction, critical-lab, risk-score, predictive, allergy]
+        severity:
+          type: string
+          enum: [low, moderate, high, critical]
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, patientId, alertType, severity, title, message, isRead, createdAt]
+
+    AlertListResponse:
+      type: object
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+      required: [alerts]
+
+    RiskScoreResponse:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        riskScore:
+          type: integer
+        riskLevel:
+          type: string
+          enum: [low, medium, high, critical]
+        factors:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskFactor"
+        recommendations:
+          type: array
+          items:
+            type: string
+      required: [patientId, riskScore, riskLevel, factors, recommendations]
+
+    RiskFactor:
+      type: object
+      properties:
+        factor:
+          type: string
+        impact:
+          type: string
+          enum: [low, moderate, high]
+        description:
+          type: string
+      required: [factor, impact, description]
+
+    AdminStats:
+      type: object
+      properties:
+        totalPatients:
+          type: integer
+        totalVisitsToday:
+          type: integer
+        activeAlerts:
+          type: integer
+        drugInteractionsBlocked:
+          type: integer
+        highRiskPatients:
+          type: integer
+        systemUptime:
+          type: string
+        hospitalsConnected:
+          type: integer
+      required:
+        - totalPatients
+        - totalVisitsToday
+        - activeAlerts
+        - drugInteractionsBlocked
+        - highRiskPatients
+        - systemUptime
+        - hospitalsConnected
+
+    PopulationHealthResponse:
+      type: object
+      properties:
+        conditionBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConditionStat"
+        ageDistribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgeStat"
+        bloodTypeDistribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodTypeStat"
+        monthlyVisitTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyVisitStat"
+      required: [conditionBreakdown, ageDistribution, bloodTypeDistribution, monthlyVisitTrend]
+
+    ConditionStat:
+      type: object
+      properties:
+        condition:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+      required: [condition, count, percentage]
+
+    AgeStat:
+      type: object
+      properties:
+        ageGroup:
+          type: string
+        count:
+          type: integer
+      required: [ageGroup, count]
+
+    BloodTypeStat:
+      type: object
+      properties:
+        bloodType:
+          type: string
+        count:
+          type: integer
+      required: [bloodType, count]
+
+    MonthlyVisitStat:
+      type: object
+      properties:
+        month:
+          type: string
+        visits:
+          type: integer
+        emergency:
+          type: integer
+      required: [month, visits, emergency]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required: [success]
+
+    ClinicalAction:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [DO_NOT_GIVE, MONITOR, URGENT_REVIEW, ALERT_FAMILY, PREPARE_EQUIPMENT, HOLD_MEDICATION]
+        priority:
+          type: string
+          enum: [immediate, urgent, standard]
+        description:
+          type: string
+        reason:
+          type: string
+      required: [action, priority, description, reason]
+
+    PredictionWarning:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [deterioration, pattern, risk_escalation, adherence, complication]
+        severity:
+          type: string
+          enum: [low, moderate, high, critical]
+        title:
+          type: string
+        description:
+          type: string
+        recommendation:
+          type: string
+        confidence:
+          type: string
+          enum: [low, moderate, high]
+      required: [type, severity, title, description, recommendation, confidence]
+
+    PredictionsResponse:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        predictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredictionWarning"
+      required: [patientId, predictions]

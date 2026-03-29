@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "I3DMWF_uYz-jiRFoTbpWt"
+uri = "file://sanad-project.tar.gz"
+type = "unspecified"
+title = "Sanad — Project Source Code"

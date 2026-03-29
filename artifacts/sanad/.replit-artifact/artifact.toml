@@ -5,12 +5,12 @@ version = "1.0.0"
 id = "sanad_health_platform_v3"
 
 [[services]]
-localPort = 26138
+localPort = 5173
 name = "web"
 paths = ["/"]
 
 [services.development]
-run = "PORT=26138 BASE_PATH=/ pnpm --filter @workspace/sanad run dev"
+run = "PORT=5173 BASE_PATH=/ pnpm --filter @workspace/sanad run dev"
 
 [services.production]
 serve = "static"

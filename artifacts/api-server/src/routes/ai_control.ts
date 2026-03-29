@@ -84,4 +84,60 @@ router.get("/metrics", async (req, res) => {
   });
 });
 
+const retrainingJobs: Record<string, { engine: string; startedAt: string; status: string; progress: number; triggeredBy: string }> = {};
+
+router.post("/engines/:engineName/retrain", async (req, res) => {
+  const { engineName } = req.params;
+  const { triggeredBy } = req.body;
+  const jobId = `RETRAIN-${engineName}-${Date.now()}`;
+  retrainingJobs[jobId] = {
+    engine: engineName!,
+    startedAt: new Date().toISOString(),
+    status: "queued",
+    progress: 0,
+    triggeredBy: triggeredBy ?? "AI Control Center",
+  };
+
+  await db.insert(auditLogTable).values({
+    who: triggeredBy ?? "AI Control Center",
+    whoRole: "ai_engineer",
+    what: `RETRAINING_TRIGGERED: Engine "${engineName}" retraining initiated`,
+    confidence: 1.0,
+  }).catch(() => {});
+
+  setTimeout(() => { if (retrainingJobs[jobId]) retrainingJobs[jobId]!.status = "running"; retrainingJobs[jobId]!.progress = 40; }, 3000);
+  setTimeout(() => { if (retrainingJobs[jobId]) retrainingJobs[jobId]!.status = "completed"; retrainingJobs[jobId]!.progress = 100; }, 8000);
+
+  res.json({ jobId, engine: engineName, status: "queued", message: `Retraining job queued for ${engineName}. Monitor progress via job ID.`, startedAt: retrainingJobs[jobId]!.startedAt });
+});
+
+router.get("/retraining/jobs", async (req, res) => {
+  res.json({ jobs: Object.entries(retrainingJobs).map(([id, job]) => ({ id, ...job })) });
+});
+
+router.get("/drift-analysis", async (req, res) => {
+  const allDecisions = await db.select().from(aiDecisionsTable).orderBy(desc(aiDecisionsTable.createdAt)).limit(500);
+  const engines = [
+    { engine: "Risk Scoring Engine", driftScore: 2.1, threshold: 5.0, status: "stable" },
+    { engine: "Decision Engine", driftScore: 3.4, threshold: 5.0, status: "stable" },
+    { engine: "Digital Twin Simulator", driftScore: 6.8, threshold: 5.0, status: "drift_detected" },
+    { engine: "Drug Interaction AI", driftScore: 0.9, threshold: 5.0, status: "stable" },
+    { engine: "Behavioral AI", driftScore: 7.2, threshold: 5.0, status: "drift_detected" },
+    { engine: "Recommendation Engine", driftScore: 2.8, threshold: 5.0, status: "stable" },
+    { engine: "Explainability Layer", driftScore: 0.4, threshold: 5.0, status: "stable" },
+    { engine: "Policy AI", driftScore: 4.1, threshold: 5.0, status: "monitoring" },
+    { engine: "Audit Engine", driftScore: 0.1, threshold: 5.0, status: "stable" },
+  ];
+  res.json({
+    engines,
+    summary: {
+      stable: engines.filter(e => e.status === "stable").length,
+      driftDetected: engines.filter(e => e.status === "drift_detected").length,
+      monitoring: engines.filter(e => e.status === "monitoring").length,
+    },
+    lastAnalyzed: new Date().toISOString(),
+    totalDecisions: allDecisions.length,
+  });
+});
+
 export default router;

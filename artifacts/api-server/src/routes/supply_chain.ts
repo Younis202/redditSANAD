@@ -82,4 +82,42 @@ router.get("/inventory", async (req, res) => {
   });
 });
 
+const purchaseOrders: { id: string; drug: string; quantity: number; supplier: string; status: string; createdAt: string; estimatedDelivery: string; totalValue: number }[] = [];
+
+router.post("/reorder", async (req, res) => {
+  const { drugName, quantity, supplier, requestedBy } = req.body;
+  if (!drugName || !quantity) {
+    return res.status(400).json({ error: "drugName and quantity are required" });
+  }
+  const drug = DRUG_INVENTORY.find(d => d.drugName === drugName);
+  const orderId = `PO-${Date.now()}`;
+  const leadDays = drug?.leadTimeDays ?? 7;
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + leadDays);
+  const totalValue = Math.round((drug?.price ?? 1) * quantity);
+
+  const order = {
+    id: orderId,
+    drug: drugName,
+    quantity,
+    supplier: supplier ?? drug?.supplier ?? "Unknown Supplier",
+    status: "submitted",
+    createdAt: new Date().toISOString(),
+    estimatedDelivery: deliveryDate.toISOString().split("T")[0]!,
+    totalValue,
+  };
+  purchaseOrders.push(order);
+
+  setTimeout(() => {
+    const o = purchaseOrders.find(p => p.id === orderId);
+    if (o) o.status = "confirmed";
+  }, 5000);
+
+  res.json({ ...order, message: `Purchase order ${orderId} submitted. Estimated delivery in ${leadDays} days.`, requestedBy: requestedBy ?? "Supply Chain Manager" });
+});
+
+router.get("/purchase-orders", async (req, res) => {
+  res.json({ orders: purchaseOrders.slice().reverse() });
+});
+
 export default router;

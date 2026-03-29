@@ -104,4 +104,44 @@ router.get("/insights", async (req, res) => {
   });
 });
 
+router.get("/export", async (req, res) => {
+  const format = req.query["format"] ?? "csv";
+  const [allPatients, allLabs, allConditions] = await Promise.all([
+    db.select().from(patientsTable),
+    db.select().from(labResultsTable).orderBy(desc(labResultsTable.testDate)).limit(200),
+    db.select().from(patientsTable),
+  ]);
+
+  if (format === "csv") {
+    const header = "AnonymizedID,AgeGroup,Gender,RiskScore,ChronicConditions,LabCount\n";
+    const rows = allPatients.map((p, i) => {
+      const age = new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear();
+      const ageGroup = age < 18 ? "0-17" : age < 35 ? "18-34" : age < 50 ? "35-49" : age < 65 ? "50-64" : "65+";
+      const labCount = allLabs.filter(l => l.patientId === p.id).length;
+      return `ANON-${String(i + 1).padStart(4, "0")},${ageGroup},${p.gender},${p.riskScore ?? 0},"${(p.chronicConditions ?? []).join(";")}",${labCount}`;
+    });
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=\"sanad-research-export.csv\"");
+    return res.send(header + rows.join("\n"));
+  }
+
+  const anonymized = allPatients.map((p, i) => {
+    const age = new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear();
+    const ageGroup = age < 18 ? "0-17" : age < 35 ? "18-34" : age < 50 ? "35-49" : age < 65 ? "50-64" : "65+";
+    return {
+      anonymizedId: `ANON-${String(i + 1).padStart(4, "0")}`,
+      ageGroup,
+      gender: p.gender,
+      riskScore: p.riskScore,
+      conditionCount: (p.chronicConditions ?? []).length,
+      conditions: p.chronicConditions,
+      labResults: allLabs.filter(l => l.patientId === p.id).map(l => ({ test: l.testName, status: l.status })),
+    };
+  });
+
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Content-Disposition", "attachment; filename=\"sanad-research-export.json\"");
+  res.json({ exportedAt: new Date().toISOString(), totalRecords: anonymized.length, records: anonymized });
+});
+
 export default router;

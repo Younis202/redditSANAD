@@ -98,4 +98,32 @@ router.get("/dashboard", async (req, res) => {
   });
 });
 
+const claimOverrides: Record<string, { status: string; reviewedBy: string; reviewedAt: string; notes: string }> = {};
+
+router.post("/claim/:claimId/review", async (req, res) => {
+  const { claimId } = req.params;
+  const { action, notes, reviewedBy } = req.body;
+  if (!action || !["approve", "reject", "flag"].includes(action)) {
+    return res.status(400).json({ error: "action must be approve, reject, or flag" });
+  }
+  const statusMap: Record<string, string> = { approve: "approved", reject: "rejected", flag: "under_review" };
+  claimOverrides[claimId!] = {
+    status: statusMap[action]!,
+    reviewedBy: reviewedBy ?? "Insurance Analyst",
+    reviewedAt: new Date().toISOString(),
+    notes: notes ?? "",
+  };
+  res.json({
+    claimId,
+    newStatus: statusMap[action],
+    reviewedBy: reviewedBy ?? "Insurance Analyst",
+    reviewedAt: claimOverrides[claimId!].reviewedAt,
+    message: `Claim ${claimId} has been ${statusMap[action]}.`,
+  });
+});
+
+router.get("/claim-overrides", async (req, res) => {
+  res.json({ overrides: claimOverrides });
+});
+
 export default router;

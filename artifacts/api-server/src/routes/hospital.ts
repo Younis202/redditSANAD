@@ -89,6 +89,38 @@ router.get("/overview", async (req, res) => {
     `AI recommends pre-emptive discharge planning for ${inpatientVisits.length > 20 ? "top 10" : "top 5"} longest-stay patients to free general ward capacity.`,
   ];
 
+  const icuAlerts = priorityQueue
+    .filter(p => p.priority === "immediate" || p.suggestedWard === "ICU")
+    .slice(0, 6)
+    .map(p => ({
+      patientId: p.id,
+      name: p.name,
+      nationalId: p.nationalId,
+      riskScore: p.riskScore,
+      conditions: p.chronicConditions.slice(0, 2),
+      alertType: p.riskScore >= 90 ? "Immediate Transfer Required" : "ICU Review Pending",
+      severity: p.riskScore >= 90 ? "critical" : "high",
+      timeWindow: p.riskScore >= 90 ? "≤ 15 min" : "≤ 2 hours",
+    }));
+
+  const orSchedule = [
+    { id: "OR-001", patient: "Patient #1000000003", procedure: "Coronary Bypass Graft", surgeon: "Dr. Al-Rashidi", room: "OR-3", scheduledTime: "08:00", status: "in_progress", estimatedDuration: "4h 30m" },
+    { id: "OR-002", patient: "Patient #1000000007", procedure: "Knee Arthroplasty", surgeon: "Dr. Al-Zahrani", room: "OR-1", scheduledTime: "10:30", status: "scheduled", estimatedDuration: "2h 15m" },
+    { id: "OR-003", patient: "Patient #1000000012", procedure: "Cholecystectomy", surgeon: "Dr. Al-Ghamdi", room: "OR-2", scheduledTime: "13:00", status: "scheduled", estimatedDuration: "1h 45m" },
+    { id: "OR-004", patient: "Patient #1000000019", procedure: "Appendectomy (Emergency)", surgeon: "Dr. Al-Harbi", room: "OR-4", scheduledTime: "14:30", status: "emergency", estimatedDuration: "1h 00m" },
+    { id: "OR-005", patient: "Patient #1000000025", procedure: "Hip Replacement", surgeon: "Dr. Al-Otaibi", room: "OR-1", scheduledTime: "16:00", status: "scheduled", estimatedDuration: "3h 00m" },
+  ];
+
+  const readmissionRisks = priorityQueue.slice(0, 5).map(p => ({
+    patientId: p.id,
+    name: p.name,
+    nationalId: p.nationalId,
+    readmissionRisk: Math.min(95, Math.round(p.riskScore * 0.85 + Math.random() * 10)),
+    lastDischarge: p.lastVisit?.date ?? "N/A",
+    primaryReason: p.chronicConditions[0] ?? "General",
+    recommendedAction: p.riskScore >= 80 ? "Schedule follow-up within 48h" : "Outpatient follow-up in 1 week",
+  }));
+
   res.json({
     hospitalName: HOSPITAL_NAME,
     bedStatus,
@@ -98,10 +130,13 @@ router.get("/overview", async (req, res) => {
     priorityQueue,
     staffKPIs,
     aiCapacityInsights,
+    icuAlerts,
+    orSchedule,
+    readmissionRisks,
     admissionsToday: recentAdmissions.filter(v => new Date(v.visitDate).toDateString() === today.toDateString()).length,
     dischargesToday: 8,
     avgLengthOfStay: 4.2,
-    pendingSurgeries: 23,
+    pendingSurgeries: orSchedule.length,
   });
 });
 

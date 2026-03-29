@@ -153,6 +153,16 @@ router.post("/result", async (req, res) => {
     processedBy: "AI Lab Interpreter v2.0",
   }).catch(() => {});
 
+  if (status === "critical" || status === "abnormal") {
+    const { alertsTable: alerts } = await import("@workspace/db/schema");
+    const severity = status === "critical" ? "critical" : "warning";
+    const title = status === "critical"
+      ? `CRITICAL LAB: ${testName} requires immediate action`
+      : `Abnormal Lab Result: ${testName} outside normal range`;
+    const message = `${testName} = ${result} ${unit ?? ""}. ${interpretation.significance} Action: ${interpretation.action}`;
+    await db.insert(alerts).values({ patientId, alertType: "lab_critical", severity, title, message }).catch(() => {});
+  }
+
   await db.insert(auditLogTable).values({
     who: "Lab Technician (Lab Portal)",
     whoRole: "lab_technician",

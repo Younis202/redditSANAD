@@ -68,17 +68,10 @@ router.patch("/:id/read", async (req, res) => {
   res.json({ success: true });
 });
 
-router.patch("/read-all", async (req, res) => {
-  const patientId = parseInt(req.body?.patientId as string);
-  if (isNaN(patientId)) {
-    res.status(400).json({ error: "INVALID_PARAM", message: "patientId is required" });
-    return;
-  }
-
+router.patch("/read-all", async (_req, res) => {
   await db
     .update(alertsTable)
-    .set({ isRead: true })
-    .where(eq(alertsTable.patientId, patientId));
+    .set({ isRead: true });
 
   res.json({ success: true });
 });

@@ -6,7 +6,7 @@ import {
 } from "@/components/shared";
 import {
   Pill, Search, AlertTriangle, CheckCircle2, Shield, ShieldAlert,
-  Brain, CreditCard, Zap, Clock, X
+  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -31,6 +31,7 @@ export default function PharmacyPortal() {
   const [nationalId, setNationalId] = useState("");
   const [dispensing, setDispensing] = useState<number | null>(null);
   const [dispensedResults, setDispensedResults] = useState<Record<number, any>>({});
+  const [expandedWarnings, setExpandedWarnings] = useState<Record<number, boolean>>({});
 
   const qc = useQueryClient();
 
@@ -212,8 +213,58 @@ export default function PharmacyPortal() {
                           <span className="text-[10px] font-mono text-muted-foreground ml-auto">Confidence: {Math.round(check.confidenceScore * 100)}%</span>
                         </div>
                         {check.warnings.map((w: string, i: number) => (
-                          <p key={i} className="text-xs font-semibold text-foreground">{w}</p>
+                          <p key={i} className="text-xs font-semibold text-foreground mb-1">{w}</p>
                         ))}
+
+                        {/* Detailed Clinical References */}
+                        {check.detailedWarnings && check.detailedWarnings.length > 0 && (
+                          <div className="mt-2">
+                            <button
+                              onClick={() => setExpandedWarnings(prev => ({ ...prev, [presc.id]: !prev[presc.id] }))}
+                              className="flex items-center gap-1.5 text-[10px] font-bold text-violet-700 hover:text-violet-900 transition-colors"
+                            >
+                              <BookOpen className="w-3 h-3" />
+                              {expandedWarnings[presc.id] ? "Hide" : "Show"} Clinical References ({check.detailedWarnings.length})
+                              {expandedWarnings[presc.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                            </button>
+
+                            {expandedWarnings[presc.id] && (
+                              <div className="mt-2 space-y-2">
+                                {check.detailedWarnings.map((dw: any, wi: number) => (
+                                  <div key={wi} className="rounded-xl bg-white/80 border border-red-100 p-3">
+                                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <FlaskConical className="w-3 h-3 text-red-500 shrink-0" />
+                                        <p className="text-[11px] font-bold text-foreground">{dw.drugA} ↔ {dw.drugB}</p>
+                                      </div>
+                                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                                        dw.severity === "CONTRAINDICATED" ? "bg-red-600 text-white" :
+                                        dw.severity === "MAJOR" ? "bg-red-100 text-red-700" :
+                                        dw.severity === "MODERATE" ? "bg-amber-100 text-amber-700" :
+                                        "bg-yellow-100 text-yellow-700"
+                                      }`}>{dw.severity}</span>
+                                    </div>
+                                    <p className="text-[11px] text-muted-foreground mb-1">
+                                      <span className="font-semibold text-foreground">Mechanism: </span>{dw.mechanism}
+                                    </p>
+                                    <p className="text-[11px] text-muted-foreground mb-1">
+                                      <span className="font-semibold text-foreground">Clinical basis: </span>{dw.clinicalBasis}
+                                    </p>
+                                    <div className="flex items-start gap-1.5 mb-1">
+                                      <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
+                                      <p className="text-[11px] font-semibold text-foreground">{dw.recommendation}</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1 mt-1.5">
+                                      {dw.sources?.map((src: string, si: number) => (
+                                        <span key={si} className="text-[9px] font-mono bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded-md">{src}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Insurance */}

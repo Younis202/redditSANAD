@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
@@ -6,9 +6,13 @@ import {
 } from "@/components/shared";
 import {
   FlaskConical, Search, AlertTriangle, CheckCircle2, Zap,
-  Brain, TrendingUp, TrendingDown, Minus, ArrowRight, Plus, X
+  Brain, TrendingUp, TrendingDown, Minus, ArrowRight, Plus, X, Activity
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, ReferenceLine, Legend
+} from "recharts";
 
 async function fetchLabPatient(nationalId: string) {
   const res = await fetch(`/api/lab/patient/${nationalId}`);
@@ -65,6 +69,55 @@ export default function LabPortal() {
     e.preventDefault();
     if (searchId.trim()) setNationalId(searchId.trim());
   };
+
+  const trendChartData = useMemo(() => {
+    if (!data?.labs?.length) return {};
+    const grouped: Record<string, { date: string; value: number; status: string }[]> = {};
+    for (const lab of data.labs) {
+      const val = parseFloat(lab.result);
+      if (isNaN(val)) continue;
+      if (!grouped[lab.testName]) grouped[lab.testName] = [];
+      grouped[lab.testName]!.push({
+        date: lab.testDate?.split("T")[0] ?? lab.testDate,
+        value: val,
+        status: lab.status,
+      });
+    }
+    for (const key of Object.keys(grouped)) {
+      grouped[key] = grouped[key]!.sort((a, b) => a.date.localeCompare(b.date));
+    }
+    return grouped;
+  }, [data]);
+
+  const CHART_TESTS = [
+    "HbA1c", "Fasting Glucose", "Fasting Blood Glucose", "Total Cholesterol",
+    "LDL Cholesterol", "Creatinine", "Hemoglobin", "eGFR", "Potassium", "Sodium"
+  ];
+  const CHART_COLORS: Record<string, string> = {
+    "HbA1c": "#e11d48",
+    "Fasting Glucose": "#f59e0b", "Fasting Blood Glucose": "#f59e0b",
+    "Total Cholesterol": "#8b5cf6",
+    "LDL Cholesterol": "#3b82f6",
+    "Creatinine": "#10b981",
+    "Hemoglobin": "#f97316",
+    "eGFR": "#06b6d4",
+    "Potassium": "#84cc16",
+    "Sodium": "#a855f7",
+  };
+  const NORMAL_RANGES: Record<string, { min: number; max: number; unit: string }> = {
+    "HbA1c": { min: 4.0, max: 5.7, unit: "%" },
+    "Fasting Glucose": { min: 70, max: 100, unit: "mg/dL" },
+    "Fasting Blood Glucose": { min: 70, max: 100, unit: "mg/dL" },
+    "Total Cholesterol": { min: 0, max: 200, unit: "mg/dL" },
+    "LDL Cholesterol": { min: 0, max: 100, unit: "mg/dL" },
+    "Creatinine": { min: 0.6, max: 1.2, unit: "mg/dL" },
+    "Hemoglobin": { min: 12, max: 17, unit: "g/dL" },
+    "eGFR": { min: 60, max: 120, unit: "mL/min" },
+    "Potassium": { min: 3.5, max: 5.0, unit: "mEq/L" },
+    "Sodium": { min: 135, max: 145, unit: "mEq/L" },
+  };
+
+  const chartsToShow = CHART_TESTS.filter(t => (trendChartData[t]?.length ?? 0) >= 1);
 
   const statusColor = (status: string) => ({
     normal: "success", abnormal: "warning", critical: "destructive"
@@ -166,6 +219,100 @@ export default function LabPortal() {
               </Button>
             </div>
           </div>
+
+          {/* ─── Trend Charts ─── */}
+          {chartsToShow.length > 0 && (
+            <Card>
+              <CardHeader>
+                <Activity className="w-4 h-4 text-teal-600" />
+                <CardTitle>Lab Trends — Clinical Progression</CardTitle>
+                <span className="ml-auto text-[11px] font-medium text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
+                  {chartsToShow.length} test{chartsToShow.length > 1 ? "s" : ""} charted
+                </span>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 gap-5">
+                  {chartsToShow.map(testName => {
+                    const points = trendChartData[testName]!;
+                    const color = CHART_COLORS[testName] ?? "#6366f1";
+                    const range = NORMAL_RANGES[testName];
+                    const latest = points[points.length - 1];
+                    const previous = points.length >= 2 ? points[points.length - 2] : null;
+                    const isWorsening = previous && latest && latest.value > previous.value && latest.status !== "normal";
+                    const isImproving = previous && latest && latest.value < previous.value && latest.status === "normal";
+
+                    return (
+                      <div key={testName} className="rounded-2xl border border-border p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="text-[13px] font-bold text-foreground">{testName}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              Latest: <span className="font-bold" style={{ color }}>{latest?.value} {range?.unit ?? ""}</span>
+                              {range && (
+                                <span className="ml-1 text-muted-foreground/70">
+                                  (Normal: {range.min}–{range.max})
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {isWorsening && (
+                              <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3" /> WORSENING
+                              </span>
+                            )}
+                            {isImproving && (
+                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <TrendingDown className="w-3 h-3" /> IMPROVING
+                              </span>
+                            )}
+                            {!isWorsening && !isImproving && points.length > 1 && (
+                              <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Minus className="w-3 h-3" /> STABLE
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <ResponsiveContainer width="100%" height={140}>
+                          <LineChart data={points} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
+                            <XAxis
+                              dataKey="date"
+                              tick={{ fontSize: 10, fill: "#94a3b8" }}
+                              tickFormatter={d => d.slice(5)}
+                            />
+                            <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                            <Tooltip
+                              contentStyle={{ borderRadius: 10, border: "1px solid rgba(0,0,0,0.08)", fontSize: 11 }}
+                              formatter={(val: any) => [`${val} ${range?.unit ?? ""}`, testName]}
+                            />
+                            {range && range.max > 0 && (
+                              <ReferenceLine y={range.max} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: "Max", fill: "#f59e0b", fontSize: 9 }} />
+                            )}
+                            {range && range.min > 0 && (
+                              <ReferenceLine y={range.min} stroke="#10b981" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: "Min", fill: "#10b981", fontSize: 9 }} />
+                            )}
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={color}
+                              strokeWidth={2.5}
+                              dot={(props: any) => {
+                                const { cx, cy, payload } = props;
+                                const fill = payload.status === "critical" ? "#ef4444" : payload.status === "abnormal" ? "#f59e0b" : "#10b981";
+                                return <circle key={`dot-${cx}-${cy}`} cx={cx} cy={cy} r={5} fill={fill} stroke="white" strokeWidth={2} />;
+                              }}
+                              activeDot={{ r: 7, strokeWidth: 2 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardBody>
+            </Card>
+          )}
 
           {/* AI Interpretation of last submitted result */}
           {lastResult && (

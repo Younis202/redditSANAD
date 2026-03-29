@@ -17,7 +17,7 @@ lib/
   api-zod/        — Zod schemas generated from OpenAPI spec
   api-client-react/ — TanStack Query hooks generated from OpenAPI spec
 scripts/
-  src/seed.ts     — Database seeder (50 demo patients with medications, visits, labs, alerts)
+  src/seed.ts     — Database seeder (50 demo patients + 20 lab results + medications + visits + alerts + 21 historical lab points for trend charts)
 ```
 
 ### Tech Stack

@@ -31,7 +31,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 };
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (req.path === "/health" || req.path === "/" || req.path.startsWith("/events/stream")) {
+  if (req.path === "/healthz" || req.path === "/health" || req.path === "/" || req.path.startsWith("/events/stream")) {
     return next();
   }
 

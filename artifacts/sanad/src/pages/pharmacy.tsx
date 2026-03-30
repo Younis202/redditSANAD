@@ -6,9 +6,10 @@ import {
 } from "@/components/shared";
 import {
   Pill, Search, AlertTriangle, CheckCircle2, Shield, ShieldAlert,
-  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical
+  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical, Bell
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
 async function fetchPharmacyPatient(nationalId: string) {
   const res = await fetch(`/api/pharmacy/patient/${nationalId}`);
@@ -32,6 +33,8 @@ export default function PharmacyPortal() {
   const [dispensing, setDispensing] = useState<number | null>(null);
   const [dispensedResults, setDispensedResults] = useState<Record<number, any>>({});
   const [expandedWarnings, setExpandedWarnings] = useState<Record<number, boolean>>({});
+  const [showSsePanel, setShowSsePanel] = useState(true);
+  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("pharmacy");
 
   const qc = useQueryClient();
 
@@ -58,10 +61,75 @@ export default function PharmacyPortal() {
 
   return (
     <Layout role="pharmacy">
-      <PageHeader
-        title="Pharmacy Portal"
-        subtitle="Prescription dispensing · AI drug safety · Insurance verification"
-      />
+      {/* Live Alert Bell */}
+      <div className="flex items-center justify-between mb-4">
+        <PageHeader
+          title="Pharmacy Portal"
+          subtitle="Prescription dispensing · AI drug safety · Insurance verification"
+        />
+        <div className="flex items-center gap-2 shrink-0 ml-4">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary border border-border text-muted-foreground">
+            <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
+            {sseConnected ? "Live" : "Connecting..."}
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowSsePanel(p => !p)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                sseUnread > 0 ? "bg-orange-50 border-orange-200 hover:bg-orange-100" : "bg-white border-border hover:bg-secondary"
+              }`}
+            >
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-orange-600" : "text-muted-foreground"}`} />
+              {sseUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {sseUnread > 9 ? "9+" : sseUnread}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* SSE Drug Interaction Alert Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-orange-200 bg-orange-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+              <span className="font-bold text-sm text-orange-800">Live Drug Safety Alerts</span>
+              <Badge variant="warning" className="text-[10px]">{sseUnread} new</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-orange-600 hover:text-orange-800 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-orange-400 hover:text-orange-700"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="divide-y divide-orange-200 max-h-56 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-orange-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-orange-900">{alert.title}</p>
+                  <p className="text-xs text-orange-700 mt-0.5">
+                    Patient: {alert.patientName}
+                    {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
+                  </p>
+                  {alert.recommendation && <p className="text-xs text-orange-600 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-orange-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <button
+                    onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); markSseRead(alert.id); }}
+                    className="text-[10px] font-semibold text-orange-700 bg-orange-100 hover:bg-orange-200 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    Load Patient
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <Card className="mb-5">
@@ -235,14 +303,14 @@ export default function PharmacyPortal() {
                                     <div className="flex items-start justify-between gap-2 mb-1.5">
                                       <div className="flex items-center gap-1.5">
                                         <FlaskConical className="w-3 h-3 text-red-500 shrink-0" />
-                                        <p className="text-[11px] font-bold text-foreground">{dw.drugA} ↔ {dw.drugB}</p>
+                                        <p className="text-[11px] font-bold text-foreground">{dw.text}</p>
                                       </div>
                                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                                        dw.severity === "CONTRAINDICATED" ? "bg-red-600 text-white" :
-                                        dw.severity === "MAJOR" ? "bg-red-100 text-red-700" :
-                                        dw.severity === "MODERATE" ? "bg-amber-100 text-amber-700" :
+                                        dw.severity === "critical" ? "bg-red-600 text-white" :
+                                        dw.severity === "high" ? "bg-red-100 text-red-700" :
+                                        dw.severity === "moderate" ? "bg-amber-100 text-amber-700" :
                                         "bg-yellow-100 text-yellow-700"
-                                      }`}>{dw.severity}</span>
+                                      }`}>{dw.severity?.toUpperCase()}</span>
                                     </div>
                                     <p className="text-[11px] text-muted-foreground mb-1">
                                       <span className="font-semibold text-foreground">Mechanism: </span>{dw.mechanism}
@@ -255,7 +323,7 @@ export default function PharmacyPortal() {
                                       <p className="text-[11px] font-semibold text-foreground">{dw.recommendation}</p>
                                     </div>
                                     <div className="flex flex-wrap gap-1 mt-1.5">
-                                      {dw.sources?.map((src: string, si: number) => (
+                                      {(dw.source ? dw.source.split(" · ") : dw.sources ?? []).map((src: string, si: number) => (
                                         <span key={si} className="text-[9px] font-mono bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded-md">{src}</span>
                                       ))}
                                     </div>

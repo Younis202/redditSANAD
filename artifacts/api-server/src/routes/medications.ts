@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { medicationsTable, patientsTable, alertsTable } from "@workspace/db/schema";
+import { medicationsTable, patientsTable, alertsTable, auditLogTable, eventsTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { checkDrugInteractions } from "../lib/ai-engine.js";
+import { broadcastToRole } from "../lib/sse.js";
 
 const router = Router();
 
@@ -70,9 +71,50 @@ router.post("/", async (req, res) => {
         title: `Drug Interaction: ${body.drugName} + ${warning.conflictingDrug}`,
         message: warning.description,
         isRead: false,
+      }).catch(() => {});
+
+      broadcastToRole("doctor", "drug_interaction_alert", {
+        patientId,
+        patientName: patient[0]?.fullName ?? "Unknown",
+        nationalId: patient[0]?.nationalId ?? "",
+        drugName: body.drugName,
+        conflictingDrug: warning.conflictingDrug,
+        severity: warning.severity,
+        description: warning.description,
+        recommendation: warning.recommendation,
+        title: `Drug Interaction: ${body.drugName} ↔ ${warning.conflictingDrug}`,
+        timestamp: new Date().toISOString(),
+      });
+
+      broadcastToRole("pharmacy", "drug_interaction_alert", {
+        patientId,
+        patientName: patient[0]?.fullName ?? "Unknown",
+        nationalId: patient[0]?.nationalId ?? "",
+        drugName: body.drugName,
+        conflictingDrug: warning.conflictingDrug,
+        severity: warning.severity,
+        description: warning.description,
+        recommendation: warning.recommendation,
+        title: `Drug Interaction: ${body.drugName} ↔ ${warning.conflictingDrug}`,
+        timestamp: new Date().toISOString(),
       });
     }
   }
+
+  await db.insert(eventsTable).values({
+    eventType: "DRUG_PRESCRIBED",
+    patientId,
+    payload: { drugName: body.drugName, dosage: body.dosage, interactionWarnings: interactionWarnings.length },
+    source: "doctor_portal",
+  }).catch(() => {});
+
+  await db.insert(auditLogTable).values({
+    who: body.prescribedBy ?? "Physician (Doctor Portal)",
+    whoRole: "doctor",
+    what: `MEDICATION_PRESCRIBED: ${body.drugName} ${body.dosage ?? ""} — ${interactionWarnings.length} interaction warning(s)`,
+    patientId,
+    confidence: interactionWarnings.length === 0 ? 0.99 : 0.75,
+  }).catch(() => {});
 
   const safeToDispense = !interactionWarnings.some(
     w => w.severity === "critical" || w.severity === "high"

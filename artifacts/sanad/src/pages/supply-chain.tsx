@@ -176,7 +176,7 @@ export default function SupplyChainPortal() {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-secondary/50 border-b border-border">
-                      {["Drug", "Category", "Stock", "Min Required", "Days Remaining", "Status"].map(h => (
+                      {["Drug", "Category", "Stock", "Monthly Demand", "Days Remaining", "Status"].map(h => (
                         <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{h}</th>
                       ))}
                     </tr>
@@ -198,7 +198,13 @@ export default function SupplyChainPortal() {
                             <p className="text-[10px] text-muted-foreground">{item.unit}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-xs text-muted-foreground">{item.minStock.toLocaleString()}</p>
+                            <p className="text-xs font-bold text-foreground">{item.avgMonthlyDemand?.toLocaleString()}</p>
+                            {item.demandAdjusted && item.activePrescriptions > 0 && (
+                              <p className="text-[9px] text-emerald-600 font-semibold flex items-center gap-0.5 mt-0.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                                {item.activePrescriptions} active Rx · DB-driven
+                              </p>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">

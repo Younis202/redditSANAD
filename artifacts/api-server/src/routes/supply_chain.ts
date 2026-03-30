@@ -77,26 +77,40 @@ function computeAiPredictions(drugs: typeof DRUG_INVENTORY) {
 }
 
 router.get("/inventory", async (req, res) => {
-  const allMeds = await db.select().from(medicationsTable).limit(1000);
+  const allMeds = await db.select().from(medicationsTable).limit(5000);
 
   const activePrescriptions: Record<string, number> = {};
-  for (const m of allMeds.filter(m => m.isActive)) {
+  const totalPrescriptions: Record<string, number> = {};
+  for (const m of allMeds) {
     const key = m.drugName.split(" ")[0]?.toLowerCase() ?? "";
-    activePrescriptions[key] = (activePrescriptions[key] || 0) + 1;
+    totalPrescriptions[key] = (totalPrescriptions[key] || 0) + 1;
+    if (m.isActive) {
+      activePrescriptions[key] = (activePrescriptions[key] || 0) + 1;
+    }
   }
 
+  const totalActive = allMeds.filter(m => m.isActive).length || 1;
+
   const inventory = DRUG_INVENTORY.map(drug => {
-    const daysOfStock = Math.round(drug.stock / (drug.avgMonthlyDemand / 30));
+    const drugKey = drug.drugName.split(" ")[0]?.toLowerCase() ?? "";
+    const activeCount = activePrescriptions[drugKey] ?? 0;
+    const demandMultiplier = activeCount > 0 ? Math.max(0.7, Math.min(2.5, 1 + (activeCount / totalActive) * 50)) : 1;
+    const adjustedDemand = Math.round(drug.avgMonthlyDemand * demandMultiplier);
+    const daysOfStock = Math.round(drug.stock / (adjustedDemand / 30));
     const status = drug.stock < drug.minStock ? "critical" : drug.stock < drug.minStock * 1.5 ? "low" : "adequate";
     const reorderNeeded = drug.stock < drug.minStock * 1.3;
-    const projectedStockoutDays = Math.round((drug.stock - drug.minStock) / (drug.avgMonthlyDemand / 30));
+    const projectedStockoutDays = Math.round((drug.stock - drug.minStock) / (adjustedDemand / 30));
     return {
       ...drug,
+      avgMonthlyDemand: adjustedDemand,
+      activePrescriptions: activeCount,
+      totalPrescriptions: totalPrescriptions[drugKey] ?? 0,
+      demandAdjusted: activeCount > 0,
       daysOfStock,
       status,
       reorderNeeded,
       projectedStockoutDays: status === "critical" ? projectedStockoutDays : null,
-      monthlyValue: Math.round(drug.avgMonthlyDemand * drug.price),
+      monthlyValue: Math.round(adjustedDemand * drug.price),
     };
   });
 

@@ -234,13 +234,13 @@ export default function DoctorDashboard() {
         </AlertBanner>
       )}
 
-      {/* SSE Real-time Lab Alerts Panel */}
+      {/* SSE Real-time Alerts Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <div className="mx-0 mb-4 rounded-2xl border border-red-200 bg-red-50 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2 border-b border-red-200 bg-red-100/60">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-bold text-sm text-red-800">Live Lab Alerts</span>
+              <span className="font-bold text-sm text-red-800">Live Clinical Alerts</span>
               <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -253,11 +253,22 @@ export default function DoctorDashboard() {
           <div className="divide-y divide-red-200 max-h-64 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : "bg-amber-500"}`} />
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-orange-500" : "bg-amber-500"}`} />
                 <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                      alert.type === "drug_interaction_alert" ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"
+                    }`}>
+                      {alert.type === "drug_interaction_alert" ? "💊 Drug Interaction" : alert.type === "risk_escalation" ? "⚠ Risk Escalation" : "🧪 Lab Alert"}
+                    </span>
+                  </div>
                   <p className="font-bold text-sm text-red-900">{alert.title}</p>
-                  <p className="text-xs text-red-700 mt-0.5">{alert.patientName} · {alert.result}</p>
-                  <p className="text-xs text-red-600 mt-0.5">{alert.action}</p>
+                  <p className="text-xs text-red-700 mt-0.5">
+                    {alert.patientName}
+                    {alert.result ? ` · ${alert.result}` : ""}
+                    {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
+                  </p>
+                  <p className="text-xs text-red-600 mt-0.5">{alert.action ?? alert.recommendation}</p>
                   <p className="text-[10px] text-red-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
@@ -761,6 +772,107 @@ export default function DoctorDashboard() {
                           <ReferenceLine y={6.5} stroke="#ef4444" strokeDasharray="4 2" label={{ value: "6.5% DM threshold", fontSize: 9, fill: "#ef4444", position: "insideTopLeft" }} />
                           <ReferenceLine y={5.7} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "5.7% Pre-DM", fontSize: 9, fill: "#f59e0b", position: "insideTopLeft" }} />
                           <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#hba1cGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })()}
+
+                {/* Glucose Trend Chart */}
+                {(() => {
+                  const glucKey = Object.keys(labsByName).find(k => k.toLowerCase().includes("glucose") || k.toLowerCase().includes("blood sugar") || k.toLowerCase().includes("fasting glucose"));
+                  const glucGroup = glucKey ? labsByName[glucKey] : [];
+                  if (!glucGroup || glucGroup.length < 2) return null;
+                  const glucData = [...glucGroup].reverse().map(l => ({ date: format(safeDate(l.testDate), "MMM yy"), val: parseFloat(l.result), status: l.status })).filter(d => !isNaN(d.val));
+                  if (glucData.length < 2) return null;
+                  const latest = glucData[glucData.length - 1]!;
+                  const first = glucData[0]!;
+                  const delta = latest.val - first.val;
+                  const isWorsening = delta > 5;
+                  const isImproving = delta < -5;
+                  const areaColor = isWorsening ? "#f97316" : isImproving ? "#22c55e" : "#6366f1";
+                  const trend = isWorsening ? "↑ RISING" : isImproving ? "↓ FALLING" : "→ STABLE";
+                  return (
+                    <div className={`mx-5 my-3 rounded-2xl border p-4 ${isWorsening ? "border-orange-200 bg-orange-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-violet-200 bg-violet-50/40"}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-orange-500" : isImproving ? "text-emerald-500" : "text-violet-500"}`} />
+                            <span className="font-bold text-sm">Blood Glucose Trajectory</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-orange-100 text-orange-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-violet-100 text-violet-700"}`}>{trend}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{glucData.length} readings · {first.date} → {latest.date} · Δ {delta > 0 ? "+" : ""}{delta.toFixed(0)} {glucGroup[0]?.unit ?? "mg/dL"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-2xl font-black ${latest.val > 126 ? "text-orange-600" : latest.val > 100 ? "text-amber-600" : "text-emerald-600"}`}>{latest.val}</p>
+                          <p className="text-[10px] text-muted-foreground">{latest.val > 126 ? "Diabetic range" : latest.val > 100 ? "Pre-diabetic" : "Normal"}</p>
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={100}>
+                        <AreaChart data={glucData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                          <defs>
+                            <linearGradient id="glucGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={areaColor} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={areaColor} stopOpacity={0.03} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
+                          <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {glucGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
+                          <ReferenceLine y={126} stroke="#f97316" strokeDasharray="4 2" label={{ value: "126 DM threshold", fontSize: 9, fill: "#f97316", position: "insideTopLeft" }} />
+                          <ReferenceLine y={100} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "100 Pre-DM", fontSize: 9, fill: "#f59e0b", position: "insideTopLeft" }} />
+                          <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#glucGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })()}
+
+                {/* Creatinine Trend Chart */}
+                {(() => {
+                  const creatKey = Object.keys(labsByName).find(k => k.toLowerCase().includes("creatinine") && !k.toLowerCase().includes("urine"));
+                  const creatGroup = creatKey ? labsByName[creatKey] : [];
+                  if (!creatGroup || creatGroup.length < 2) return null;
+                  const creatData = [...creatGroup].reverse().map(l => ({ date: format(safeDate(l.testDate), "MMM yy"), val: parseFloat(l.result), status: l.status })).filter(d => !isNaN(d.val));
+                  if (creatData.length < 2) return null;
+                  const latest = creatData[creatData.length - 1]!;
+                  const first = creatData[0]!;
+                  const delta = latest.val - first.val;
+                  const isWorsening = delta > 0.1;
+                  const isImproving = delta < -0.1;
+                  const areaColor = isWorsening ? "#ef4444" : isImproving ? "#22c55e" : "#38bdf8";
+                  const trend = isWorsening ? "↑ WORSENING — Renal Stress" : isImproving ? "↓ IMPROVING" : "→ STABLE";
+                  return (
+                    <div className={`mx-5 my-3 rounded-2xl border p-4 ${isWorsening ? "border-red-200 bg-red-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-sky-200 bg-sky-50/40"}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-red-500" : isImproving ? "text-emerald-500" : "text-sky-500"}`} />
+                            <span className="font-bold text-sm">Creatinine — Renal Function Trend</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-red-100 text-red-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-sky-100 text-sky-700"}`}>{trend}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{creatData.length} readings · {first.date} → {latest.date} · Δ {delta > 0 ? "+" : ""}{delta.toFixed(2)} {creatGroup[0]?.unit ?? "mg/dL"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-2xl font-black ${latest.val > 1.2 ? "text-red-600" : "text-emerald-600"}`}>{latest.val}</p>
+                          <p className="text-[10px] text-muted-foreground">{latest.val > 1.2 ? "Elevated — renal stress" : "Normal range"}</p>
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={100}>
+                        <AreaChart data={creatData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                          <defs>
+                            <linearGradient id="creatGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={areaColor} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={areaColor} stopOpacity={0.03} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
+                          <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {creatGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
+                          <ReferenceLine y={1.2} stroke="#ef4444" strokeDasharray="4 2" label={{ value: "1.2 upper limit", fontSize: 9, fill: "#ef4444", position: "insideTopLeft" }} />
+                          <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#creatGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>

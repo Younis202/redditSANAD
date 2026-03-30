@@ -4,6 +4,7 @@ import { patientsTable, medicationsTable, labResultsTable, visitsTable, aiDecisi
 import { eq, desc } from "drizzle-orm";
 import { checkDrugInteractions, calculateRiskScore, generatePredictions } from "../lib/ai-engine.js";
 import { runDecisionEngine } from "../lib/decision-engine.js";
+import { broadcastToRole } from "../lib/sse.js";
 
 const router = Router();
 
@@ -213,6 +214,23 @@ router.get("/decision/:patientId", async (req, res) => {
     aiDecisionId: saved?.id,
     confidence: decision.confidence,
   });
+
+  if (decision.urgency === "immediate" || decision.urgency === "urgent") {
+    broadcastToRole("doctor", "risk_escalation", {
+      patientId,
+      patientName: patient.fullName,
+      nationalId: patient.nationalId,
+      riskScore: decision.riskScore,
+      riskLevel: decision.riskLevel,
+      urgency: decision.urgency,
+      primaryAction: decision.primaryAction,
+      timeWindow: decision.timeWindow,
+      title: `Risk Escalation: ${patient.fullName} — ${decision.urgency.toUpperCase()} (${decision.riskScore}/100)`,
+      severity: decision.urgency === "immediate" ? "critical" : "high",
+      action: decision.primaryAction,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   res.json({
     patientId,

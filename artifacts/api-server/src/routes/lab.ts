@@ -179,6 +179,19 @@ router.post("/result", async (req, res) => {
       action: interpretation.action,
       timestamp: new Date().toISOString(),
     });
+
+    if (status === "critical") {
+      broadcastToRole("doctor", "risk_escalation", {
+        patientId,
+        patientName,
+        nationalId,
+        title: `⚠ Critical Lab: ${patientName} — ${testName} = ${result} ${unit ?? ""}`,
+        severity: "critical",
+        action: interpretation.action,
+        description: interpretation.significance,
+        timestamp: new Date().toISOString(),
+      });
+    }
   }
 
   await db.insert(auditLogTable).values({

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
@@ -6,7 +6,8 @@ import {
 } from "@/components/shared";
 import {
   Pill, Search, AlertTriangle, CheckCircle2, Shield, ShieldAlert,
-  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical, Bell
+  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical, Bell,
+  Package, AlertCircle
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
@@ -14,6 +15,12 @@ import { useSseAlerts } from "@/hooks/use-sse-alerts";
 async function fetchPharmacyPatient(nationalId: string) {
   const res = await fetch(`/api/pharmacy/patient/${nationalId}`);
   if (!res.ok) throw new Error("Patient not found");
+  return res.json();
+}
+
+async function fetchSupplyInventory() {
+  const res = await fetch("/api/supply-chain/inventory");
+  if (!res.ok) throw new Error("Failed to fetch inventory");
   return res.json();
 }
 
@@ -27,6 +34,17 @@ async function dispenseMed(medicationId: number, pharmacistName: string) {
   return res.json();
 }
 
+function getStockStatus(inventory: any[] | undefined, drugName: string): { status: string; daysOfStock: number; stock: number; unit: string } | null {
+  if (!inventory) return null;
+  const key = drugName.split(" ")[0]?.toLowerCase() ?? "";
+  const match = inventory.find((item: any) => {
+    const itemKey = item.drugName.split(" ")[0]?.toLowerCase() ?? "";
+    return itemKey === key || item.drugName.toLowerCase().includes(key) || drugName.toLowerCase().includes(itemKey);
+  });
+  if (!match) return null;
+  return { status: match.status, daysOfStock: match.daysOfStock, stock: match.stock, unit: match.unit };
+}
+
 export default function PharmacyPortal() {
   const [searchId, setSearchId] = useState("");
   const [nationalId, setNationalId] = useState("");
@@ -37,6 +55,13 @@ export default function PharmacyPortal() {
   const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("pharmacy");
 
   const qc = useQueryClient();
+
+  const { data: supplyData } = useQuery({
+    queryKey: ["supply-inventory-pharmacy"],
+    queryFn: fetchSupplyInventory,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["pharmacy-patient", nationalId],
@@ -231,6 +256,7 @@ export default function PharmacyPortal() {
                   const isDispensed = !!dispensedResult;
                   const check = presc.dispenseCheck;
                   const ins = presc.insurance;
+                  const stock = getStockStatus(supplyData?.inventory, presc.drugName);
 
                   return (
                     <div key={presc.id} className={`p-5 ${!check.safe ? "bg-red-50/40" : ""}`}>
@@ -241,6 +267,18 @@ export default function PharmacyPortal() {
                             {!check.safe && <Badge variant="destructive" className="text-[9px]">⚠ CONFLICT</Badge>}
                             {check.safe && <Badge variant="success" className="text-[9px]">✓ SAFE</Badge>}
                             {isDispensed && <Badge variant="info" className="text-[9px]">DISPENSED</Badge>}
+                            {stock && (
+                              <span className={`flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                                stock.status === "critical" ? "bg-red-100 text-red-700" :
+                                stock.status === "low" ? "bg-amber-100 text-amber-700" :
+                                "bg-emerald-100 text-emerald-700"
+                              }`}>
+                                <Package className="w-2.5 h-2.5" />
+                                {stock.status === "critical" ? `CRITICAL — ${stock.daysOfStock}d left` :
+                                 stock.status === "low" ? `LOW — ${stock.daysOfStock}d left` :
+                                 `In Stock · ${stock.daysOfStock}d`}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="font-mono font-bold text-foreground">{presc.dosage}</span>

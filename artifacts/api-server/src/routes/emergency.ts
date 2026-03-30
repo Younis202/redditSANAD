@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { patientsTable, medicationsTable, alertsTable, labResultsTable, visitsTable } from "@workspace/db/schema";
+import { patientsTable, medicationsTable, alertsTable, labResultsTable, visitsTable, eventsTable, auditLogTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { calculateRiskScore, generateClinicalActions } from "../lib/ai-engine.js";
+import { broadcastToRole } from "../lib/sse.js";
 
 const router = Router();
 
@@ -56,6 +57,35 @@ router.get("/:nationalId", async (req, res) => {
   );
 
   const age = new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear();
+
+  await db.insert(eventsTable).values({
+    eventType: "EMERGENCY_ACCESS",
+    patientId: p.id,
+    payload: { nationalId, riskScore: riskData.riskScore, riskLevel: riskData.riskLevel, scannedAt: new Date().toISOString() },
+    source: "emergency_portal",
+  }).catch(() => {});
+
+  await db.insert(auditLogTable).values({
+    who: "Emergency Responder",
+    whoRole: "emergency",
+    what: `EMERGENCY_SCAN: Patient ${p.fullName} (ID: ${nationalId}) — Risk ${riskData.riskScore}/100 ${riskData.riskLevel.toUpperCase()}`,
+    patientId: p.id,
+  }).catch(() => {});
+
+  if (riskData.riskLevel === "critical" || riskData.riskLevel === "high") {
+    broadcastToRole("doctor", "risk_escalation", {
+      patientId: p.id,
+      patientName: p.fullName,
+      nationalId: p.nationalId,
+      riskScore: riskData.riskScore,
+      riskLevel: riskData.riskLevel,
+      urgency: riskData.riskLevel === "critical" ? "immediate" : "urgent",
+      primaryAction: clinicalActions[0]?.description ?? "Immediate clinical assessment required",
+      title: `🚑 Emergency Scan: ${p.fullName} — ${riskData.riskLevel.toUpperCase()} (${riskData.riskScore}/100)`,
+      severity: riskData.riskLevel === "critical" ? "critical" : "high",
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   res.json({
     id: p.id,

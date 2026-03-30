@@ -124,12 +124,16 @@ Legacy columns (name_ar, name_en, city, name, prescribed_date, value, normal_ran
 - Decision Engine tab — Urgency strip, WHY factors, recommendations, Digital Twin, Behavioral AI
 - Audit Trail tab — Immutable WHO·WHAT·WHEN·WHY log
 - AI Predictions tab, Risk Analysis tab, Alerts tab
+- Lab trend charts — HbA1c, Glucose, Creatinine (12-month sparklines via Recharts)
+- Real-time SSE notifications: lab_alert (critical/abnormal labs), drug_interaction_alert, risk_escalation
+- Receives risk_escalation when emergency portal scans high/critical patient or when AI flags urgency
 
 ### Emergency Portal (`/emergency`)
 - High-speed patient lookup by National ID
 - Triage Level Strip — Color-coded risk level (CRITICAL/HIGH/MEDIUM), risk score, SLA window
 - Critical clinical action flow (DO_NOT_GIVE, MONITOR, URGENT_REVIEW, etc.)
 - Drug interactions, vitals, allergies, active medications
+- Scanning a HIGH/CRITICAL patient broadcasts risk_escalation SSE event to all logged-in doctors
 
 ### Admin Portal (`/admin`)
 - Ministry dashboard: KPIs, risk distribution, regional stats, population health charts
@@ -142,7 +146,9 @@ Legacy columns (name_ar, name_en, city, name, prescribed_date, value, normal_ran
 ### Pharmacy Portal (`/pharmacy`)
 - Drug dispensing with AI safety checks
 - Insurance verification per prescription
-- Drug interaction detection
+- Drug interaction detection with clinical references
+- Real-time drug interaction alerts via SSE (live bell notification)
+- Supply chain stock availability badge per prescription (critical/low/adequate status)
 
 ### Hospital Portal (`/hospital`)
 - Bed management, capacity tracking

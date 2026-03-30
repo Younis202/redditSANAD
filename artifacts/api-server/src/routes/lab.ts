@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { patientsTable, labResultsTable, eventsTable, auditLogTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { broadcastToRole } from "../lib/sse.js";
 
 const router = Router();
 
@@ -112,7 +113,6 @@ router.get("/patient/:nationalId", async (req, res) => {
       allergies: patient.allergies,
       chronicConditions: patient.chronicConditions,
       riskScore: patient.riskScore,
-      
     },
     labs: labsWithInterpretation,
     summary: {
@@ -161,6 +161,24 @@ router.post("/result", async (req, res) => {
       : `Abnormal Lab Result: ${testName} outside normal range`;
     const message = `${testName} = ${result} ${unit ?? ""}. ${interpretation.significance} Action: ${interpretation.action}`;
     await db.insert(alerts).values({ patientId, alertType: "lab_critical", severity, title, message }).catch(() => {});
+
+    const patients = await db.select({ fullName: patientsTable.fullName, nationalId: patientsTable.nationalId }).from(patientsTable).where(eq(patientsTable.id, patientId)).limit(1);
+    const patientName = patients[0]?.fullName ?? "Unknown Patient";
+    const nationalId = patients[0]?.nationalId ?? "";
+
+    broadcastToRole("doctor", "lab_alert", {
+      patientId,
+      patientName,
+      nationalId,
+      testName,
+      result: `${result} ${unit ?? ""}`.trim(),
+      status,
+      severity,
+      title,
+      significance: interpretation.significance,
+      action: interpretation.action,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   await db.insert(auditLogTable).values({

@@ -44,12 +44,36 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 const SESSION_KEY = "sanad_session";
+const ROLE_HEADER = "x-user-role";
+
+let _currentRole: string | null = null;
+const _nativeFetch = window.fetch.bind(window);
+
+function patchFetch(role: string | null) {
+  _currentRole = role;
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : (input as Request).url;
+    if (_currentRole && url.startsWith("/api")) {
+      const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+      if (!headers.has(ROLE_HEADER)) {
+        headers.set(ROLE_HEADER, _currentRole);
+      }
+      const nextInit = input instanceof Request
+        ? new Request(input, { headers })
+        : { ...init, headers };
+      return _nativeFetch(input instanceof Request ? new Request(input.url, { ...input, headers }) : input, nextInit as RequestInit);
+    }
+    return _nativeFetch(input, init);
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
       const stored = localStorage.getItem(SESSION_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const u = stored ? JSON.parse(stored) : null;
+      if (u?.role) patchFetch(u.role);
+      return u;
     } catch {
       return null;
     }
@@ -59,11 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const u = ROLE_USERS[role];
     setUser(u);
     localStorage.setItem(SESSION_KEY, JSON.stringify(u));
+    patchFetch(role);
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem(SESSION_KEY);
+    patchFetch(null);
+    window.fetch = _nativeFetch;
   };
 
   return (

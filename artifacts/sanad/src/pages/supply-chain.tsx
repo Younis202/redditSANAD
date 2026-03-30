@@ -36,13 +36,7 @@ const STATUS_CFG: Record<string, { bg: string; border: string; text: string; bad
   Low: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "destructive" as const, dot: "bg-red-500" },
 };
 
-const SHORTAGE_PREDICTIONS = [
-  { drug: "Warfarin 5mg", day30: 850, day60: 320, day90: 0, current: 1200, min: 2000 },
-  { drug: "Amiodarone 200mg", day30: 540, day60: 180, day90: 0, current: 850, min: 1500 },
-  { drug: "Insulin Glargine", day30: 1900, day60: 1200, day90: 600, current: 2400, min: 2000 },
-  { drug: "Amlodipine 5mg", day30: 5800, day60: 5200, day90: 4600, current: 6200, min: 3000 },
-  { drug: "Metformin 500mg", day30: 11200, day60: 10100, day90: 9100, current: 12400, min: 5000 },
-];
+type ShortagePrediction = { drug: string; day30: number; day60: number; day90: number; current: number; min: number };
 
 const REGIONAL_DISTRIBUTION = [
   { region: "Riyadh", stock: 78, demand: 92, gap: -14, color: "#ef4444" },
@@ -320,7 +314,7 @@ export default function SupplyChainPortal() {
             <CardBody>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={SHORTAGE_PREDICTIONS} layout="vertical" margin={{ top: 0, right: 30, left: 140, bottom: 0 }}>
+                  <BarChart data={(data?.shortagePredictions ?? []) as ShortagePrediction[]} layout="vertical" margin={{ top: 0, right: 30, left: 140, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
                     <YAxis dataKey="drug" type="category" axisLine={false} tickLine={false} tick={{ fill: "#374151", fontSize: 10, fontWeight: 500 }} width={135} />

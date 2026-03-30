@@ -286,6 +286,23 @@ router.post("/dispense/:medicationId", async (req, res) => {
     confidence: dispenseCheck.confidenceScore,
   }).catch(() => {});
 
+  const DRUG_INVENTORY_KEY: Record<string, { stock: number; unit: string; status: string }> = {
+    "warfarin": { stock: 1200, unit: "tablets", status: "critical" },
+    "amiodarone": { stock: 850, unit: "tablets", status: "critical" },
+    "insulin": { stock: 2400, unit: "pens", status: "low" },
+    "metformin": { stock: 12400, unit: "tablets", status: "adequate" },
+    "amlodipine": { stock: 6200, unit: "tablets", status: "adequate" },
+    "lisinopril": { stock: 7800, unit: "tablets", status: "adequate" },
+    "atorvastatin": { stock: 9100, unit: "tablets", status: "adequate" },
+    "aspirin": { stock: 18000, unit: "tablets", status: "adequate" },
+    "metoprolol": { stock: 5800, unit: "tablets", status: "adequate" },
+    "omeprazole": { stock: 11200, unit: "tablets", status: "adequate" },
+    "salbutamol": { stock: 3100, unit: "inhalers", status: "adequate" },
+  };
+
+  const drugKey = med.drugName.toLowerCase().split(" ")[0] ?? "";
+  const supplyStatus = DRUG_INVENTORY_KEY[drugKey] ?? null;
+
   res.json({
     dispensed: true,
     medication: med,
@@ -293,6 +310,18 @@ router.post("/dispense/:medicationId", async (req, res) => {
     insurance,
     event: "DRUG_DISPENSED",
     auditId: Date.now(),
+    supplyChainStatus: supplyStatus
+      ? {
+          stock: supplyStatus.stock,
+          unit: supplyStatus.unit,
+          status: supplyStatus.status,
+          warning: supplyStatus.status === "critical"
+            ? `⚠️ SUPPLY ALERT: ${med.drugName} is at critical stock level (${supplyStatus.stock} ${supplyStatus.unit} remaining). Contact supply chain immediately.`
+            : supplyStatus.status === "low"
+            ? `Low stock warning: ${med.drugName} stock is below optimal level.`
+            : null,
+        }
+      : null,
   });
 });
 

@@ -17,10 +17,12 @@ import researchRouter from "./research.js";
 import familyRouter from "./family.js";
 import supplyChainRouter from "./supply_chain.js";
 import appointmentsRouter from "./appointments.js";
+import eventsRouter from "./events.js";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use("/events", eventsRouter);
 router.use("/patients", patientsRouter);
 router.use("/emergency", emergencyRouter);
 router.use("/medications", medicationsRouter);

@@ -3,11 +3,12 @@ import {
   Search, Shield, Activity, AlertCircle, Syringe, Clock,
   User as UserIcon, Pill, FlaskConical, Building2, X, Stethoscope, CalendarDays,
   TrendingUp, TrendingDown, Minus, Brain, Bell, BellOff, CheckCheck,
-  TriangleAlert, Zap, ArrowUpRight, ArrowDownRight, ChevronRight, Lightbulb
+  TriangleAlert, Zap, ArrowUpRight, ArrowDownRight, ChevronRight, Lightbulb,
+  Wifi, WifiOff
 } from "lucide-react";
 import {
   LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip,
-  ReferenceLine,
+  ReferenceLine, XAxis, YAxis, CartesianGrid, Area, AreaChart,
 } from "recharts";
 import { Layout } from "@/components/layout";
 import {
@@ -24,6 +25,8 @@ import {
   useGetPatientPredictions,
 } from "@workspace/api-client-react";
 import { useAiDecision, useAuditLog } from "@/hooks/use-ai-decision";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery } from "@tanstack/react-query";
 import { format, isValid } from "date-fns";
 
@@ -65,7 +68,10 @@ export default function DoctorDashboard() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSsePanel, setShowSsePanel] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts(user?.role ?? "");
 
   const { data: nameSearchResults } = useQuery({
     queryKey: ["patient-name-search", searchQuery],
@@ -228,12 +234,78 @@ export default function DoctorDashboard() {
         </AlertBanner>
       )}
 
+      {/* SSE Real-time Lab Alerts Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mx-0 mb-4 rounded-2xl border border-red-200 bg-red-50 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-red-200 bg-red-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="font-bold text-sm text-red-800">Live Lab Alerts</span>
+              <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-red-600 hover:text-red-800 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-red-400 hover:text-red-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="divide-y divide-red-200 max-h-64 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : "bg-amber-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-red-900">{alert.title}</p>
+                  <p className="text-xs text-red-700 mt-0.5">{alert.patientName} · {alert.result}</p>
+                  <p className="text-xs text-red-600 mt-0.5">{alert.action}</p>
+                  <p className="text-[10px] text-red-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <button
+                    onClick={() => { handleSelectPatient(alert.nationalId, alert.patientName); markSseRead(alert.id); }}
+                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    View Patient
+                  </button>
+                  {!alert.read && (
+                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-red-400 hover:text-red-700">Dismiss</button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-start justify-between mb-6">
         <PageHeader
           title="Physician Dashboard"
           subtitle="Patient clinical records, prescribing, AI-assisted risk analysis, and predictive alerts."
         />
-        <form onSubmit={handleSearch} className="flex items-center gap-2 shrink-0 ml-6">
+        <div className="flex items-center gap-2 shrink-0 ml-6">
+          {/* SSE Real-time Alert Bell */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSsePanel(p => !p)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                sseUnread > 0 ? "bg-red-50 border-red-200 hover:bg-red-100" : "bg-white border-border hover:bg-secondary"
+              }`}
+              title={sseConnected ? "Live alerts connected" : "Connecting to live alerts..."}
+            >
+              {sseUnread > 0 ? (
+                <Bell className="w-4.5 h-4.5 text-red-600" />
+              ) : (
+                <Bell className="w-4.5 h-4.5 text-muted-foreground" />
+              )}
+              {sseUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                  {sseUnread > 9 ? "9+" : sseUnread}
+                </span>
+              )}
+            </button>
+            <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${sseConnected ? "bg-emerald-400" : "bg-gray-300"}`} title={sseConnected ? "Live" : "Offline"} />
+          </div>
+        <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
@@ -273,6 +345,7 @@ export default function DoctorDashboard() {
           </div>
           <Button type="submit" size="md">Load</Button>
         </form>
+        </div>
       </div>
 
       {!patientId && !isLoading && (
@@ -614,6 +687,86 @@ export default function DoctorDashboard() {
                   {abnormalLabs > 0 && <Badge variant="warning">{abnormalLabs} Abnormal</Badge>}
                   <span className="text-xs text-muted-foreground ml-auto">{labResults.length} results · sparkline shows value trend over time</span>
                 </div>
+
+                {/* HbA1c Explicit Trend — Priority Glycemic Control Chart */}
+                {(() => {
+                  const hba1cKey = Object.keys(labsByName).find(k => k.toLowerCase().includes("hba1c") || k.toLowerCase().includes("hemoglobin a1c") || k.toLowerCase().includes("haemoglobin a1c"));
+                  const hba1cGroup = hba1cKey ? labsByName[hba1cKey] : [];
+                  if (!hba1cGroup || hba1cGroup.length < 2) return null;
+
+                  const hba1cData = [...hba1cGroup].reverse().map(l => ({
+                    date: format(safeDate(l.testDate), "MMM yy"),
+                    val: parseFloat(l.result),
+                    status: l.status,
+                  })).filter(d => !isNaN(d.val));
+
+                  const latest = hba1cData[hba1cData.length - 1]!;
+                  const first = hba1cData[0]!;
+                  const delta = latest.val - first.val;
+                  const isWorsening = delta > 0.2;
+                  const isImproving = delta < -0.2;
+                  const areaColor = isWorsening ? "#ef4444" : isImproving ? "#22c55e" : "#6366f1";
+                  const trend = isWorsening ? "↑ WORSENING" : isImproving ? "↓ IMPROVING" : "→ STABLE";
+
+                  return (
+                    <div className={`mx-5 my-4 rounded-2xl border p-4 ${isWorsening ? "border-red-200 bg-red-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-violet-200 bg-violet-50/40"}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-red-500" : isImproving ? "text-emerald-500" : "text-violet-500"}`} />
+                            <span className="font-bold text-sm">HbA1c Glycemic Trajectory</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-red-100 text-red-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-violet-100 text-violet-700"}`}>
+                              {trend}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {hba1cData.length} readings · {first.date} → {latest.date} · Δ {delta > 0 ? "+" : ""}{delta.toFixed(1)}%
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-2xl font-black ${latest.val >= 7.0 ? "text-red-600" : latest.val >= 5.7 ? "text-amber-600" : "text-emerald-600"}`}>
+                            {latest.val}%
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{latest.val >= 7.0 ? "Diabetic range" : latest.val >= 5.7 ? "Pre-diabetic" : "Normal"}</p>
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={120}>
+                        <AreaChart data={hba1cData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                          <defs>
+                            <linearGradient id="hba1cGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={areaColor} stopOpacity={0.3} />
+                              <stop offset="95%" stopColor={areaColor} stopOpacity={0.03} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
+                          <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                          <RechartsTooltip
+                            content={({ active, payload }) => {
+                              if (active && payload?.length) {
+                                const d = payload[0]?.payload;
+                                return (
+                                  <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs">
+                                    <p className="font-bold text-foreground">{d?.val}% HbA1c</p>
+                                    <p className="text-muted-foreground">{d?.date}</p>
+                                    <p className={`font-medium mt-0.5 ${d?.val >= 7.0 ? "text-red-600" : d?.val >= 5.7 ? "text-amber-600" : "text-emerald-600"}`}>
+                                      {d?.val >= 7.0 ? "Diabetic range" : d?.val >= 5.7 ? "Pre-diabetic" : "Normal"}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <ReferenceLine y={6.5} stroke="#ef4444" strokeDasharray="4 2" label={{ value: "6.5% DM threshold", fontSize: 9, fill: "#ef4444", position: "insideTopLeft" }} />
+                          <ReferenceLine y={5.7} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "5.7% Pre-DM", fontSize: 9, fill: "#f59e0b", position: "insideTopLeft" }} />
+                          <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#hba1cGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })()}
+
                 <div className="divide-y divide-border">
                   {Object.entries(labsByName).map(([testName, group]) => {
                     const latest = group[0]!;

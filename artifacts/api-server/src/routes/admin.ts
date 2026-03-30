@@ -6,19 +6,19 @@ import { count, eq, desc, gte } from "drizzle-orm";
 const router = Router();
 
 const SAUDI_REGIONS = [
-  { region: "Riyadh", hospitals: 78, coverage: "97%", population: 7_676_000 },
-  { region: "Makkah", hospitals: 64, coverage: "95%", population: 8_557_000 },
-  { region: "Eastern Province", hospitals: 52, coverage: "93%", population: 4_900_000 },
-  { region: "Madinah", hospitals: 38, coverage: "91%", population: 2_132_000 },
-  { region: "Qassim", hospitals: 29, coverage: "88%", population: 1_423_000 },
-  { region: "Asir", hospitals: 31, coverage: "86%", population: 2_211_000 },
-  { region: "Tabuk", hospitals: 18, coverage: "84%", population: 910_000 },
-  { region: "Hail", hospitals: 14, coverage: "82%", population: 714_000 },
-  { region: "Northern Borders", hospitals: 11, coverage: "79%", population: 375_000 },
-  { region: "Jazan", hospitals: 22, coverage: "85%", population: 1_634_000 },
-  { region: "Najran", hospitals: 12, coverage: "78%", population: 582_000 },
-  { region: "Al Bahah", hospitals: 9, coverage: "76%", population: 476_000 },
-  { region: "Al Jouf", hospitals: 10, coverage: "77%", population: 508_000 },
+  { region: "Riyadh", hospitals: 78, coverage: "97%", population: 7_676_000, riskMultiplier: 1.12 },
+  { region: "Makkah", hospitals: 64, coverage: "95%", population: 8_557_000, riskMultiplier: 1.05 },
+  { region: "Eastern Province", hospitals: 52, coverage: "93%", population: 4_900_000, riskMultiplier: 1.18 },
+  { region: "Madinah", hospitals: 38, coverage: "91%", population: 2_132_000, riskMultiplier: 0.92 },
+  { region: "Qassim", hospitals: 29, coverage: "88%", population: 1_423_000, riskMultiplier: 0.95 },
+  { region: "Asir", hospitals: 31, coverage: "86%", population: 2_211_000, riskMultiplier: 0.88 },
+  { region: "Tabuk", hospitals: 18, coverage: "84%", population: 910_000, riskMultiplier: 0.85 },
+  { region: "Hail", hospitals: 14, coverage: "82%", population: 714_000, riskMultiplier: 0.80 },
+  { region: "Northern Borders", hospitals: 11, coverage: "79%", population: 375_000, riskMultiplier: 0.75 },
+  { region: "Jazan", hospitals: 22, coverage: "85%", population: 1_634_000, riskMultiplier: 1.08 },
+  { region: "Najran", hospitals: 12, coverage: "78%", population: 582_000, riskMultiplier: 0.78 },
+  { region: "Al Bahah", hospitals: 9, coverage: "76%", population: 476_000, riskMultiplier: 0.72 },
+  { region: "Al Jouf", hospitals: 10, coverage: "77%", population: 508_000, riskMultiplier: 0.76 },
 ];
 
 const REGION_WEIGHTS = [0.28, 0.22, 0.15, 0.09, 0.06, 0.05, 0.04, 0.03, 0.02, 0.03, 0.01, 0.01, 0.01];
@@ -53,12 +53,14 @@ router.get("/stats", async (req, res) => {
   ];
 
   const totalForRegions = allPatients.length;
+  const baseNationalRiskRate = totalForRegions > 0 ? (highRiskPatients / totalForRegions) * 100 : 0;
+
   const regionalStats = SAUDI_REGIONS.map((r, i) => {
     const weight = REGION_WEIGHTS[i] ?? 0.01;
     const patientShare = Math.round(totalForRegions * weight);
-    const highRiskShare = Math.round(highRiskPatients * weight);
-    const criticalShare = Math.round(criticalPatients * weight);
-    const riskRate = totalForRegions > 0 ? Math.round((highRiskPatients / totalForRegions) * 100) : 0;
+    const regionRiskRate = Math.min(95, Math.round(baseNationalRiskRate * r.riskMultiplier));
+    const highRiskShare = Math.round(patientShare * (regionRiskRate / 100));
+    const criticalShare = Math.round(highRiskShare * 0.35);
     return {
       region: r.region,
       patients: patientShare,
@@ -67,8 +69,8 @@ router.get("/stats", async (req, res) => {
       critical: criticalShare,
       coverage: r.coverage,
       population: r.population,
-      riskRate,
-      riskLevel: riskRate >= 40 ? "critical" : riskRate >= 25 ? "high" : riskRate >= 10 ? "medium" : "low",
+      riskRate: regionRiskRate,
+      riskLevel: regionRiskRate >= 40 ? "critical" : regionRiskRate >= 25 ? "high" : regionRiskRate >= 10 ? "medium" : "low",
     };
   });
 

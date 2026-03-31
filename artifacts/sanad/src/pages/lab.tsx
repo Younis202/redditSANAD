@@ -372,7 +372,7 @@ export default function LabPortal() {
             };
             const panels = [
               {
-                name: "Metabolic Panel", icon: "🧪", tests: [
+                name: "Metabolic Panel", icon: "MET", tests: [
                   { label: "HbA1c", v: get("HbA1c"), normal: "<5.7%", hi: "≥6.5% = Diabetes" },
                   { label: "Fasting Glucose", v: get("Glucose"), normal: "70–100 mg/dL", hi: ">126 = Diabetes" },
                   { label: "Creatinine", v: get("Creatinine"), normal: "0.6–1.2 mg/dL", hi: ">1.5 = CKD risk" },
@@ -381,7 +381,7 @@ export default function LabPortal() {
                 insight: "Metabolic function screen — diabetes, renal function, and glycaemic control",
               },
               {
-                name: "Lipid Panel", icon: "💉", tests: [
+                name: "Lipid Panel", icon: "LIP", tests: [
                   { label: "Total Cholesterol", v: get("Cholesterol"), normal: "<200 mg/dL", hi: ">240 = High risk" },
                   { label: "LDL", v: get("LDL"), normal: "<100 mg/dL", hi: ">160 = High" },
                   { label: "HDL", v: get("HDL"), normal: ">40 mg/dL", hi: "<40 = Low" },
@@ -390,7 +390,7 @@ export default function LabPortal() {
                 insight: "Cardiovascular lipid risk assessment — ATP III guidelines",
               },
               {
-                name: "CBC — Blood Count", icon: "🩸", tests: [
+                name: "CBC — Blood Count", icon: "CBC", tests: [
                   { label: "Hemoglobin", v: get("Hemoglobin"), normal: "12–17 g/dL", hi: "<12 = Anemia" },
                   { label: "WBC", v: get("WBC"), normal: "4–11 K/μL", hi: ">11 = Infection?" },
                   { label: "Platelets", v: get("Platelet"), normal: "150–400 K/μL", hi: "<150 = Thrombocytopenia" },
@@ -418,7 +418,7 @@ export default function LabPortal() {
                       return (
                         <div key={pi} className={`p-4 rounded-2xl border-2 ${panelStatus === "critical" ? "bg-red-50 border-red-300" : panelStatus === "abnormal" ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"}`}>
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-lg">{panel.icon}</span>
+                            <span className="text-[9px] font-black text-muted-foreground">{panel.icon}</span>
                             <div>
                               <p className="text-sm font-bold text-foreground">{panel.name}</p>
                               <p className="text-[9px] text-muted-foreground">{presentTests.length} results · {abnormal.length} abnormal</p>

@@ -420,7 +420,7 @@ export default function SupplyChainPortal() {
                     disabled={reorderMutation.isPending || !!reorderResults[item.drugName]}
                     className={`mt-3 w-full text-xs font-semibold py-1.5 rounded-xl transition-colors ${reorderResults[item.drugName] ? "bg-emerald-100 text-emerald-700" : "bg-red-600 hover:bg-red-700 text-white"}`}
                   >
-                    {reorderResults[item.drugName] ? `✓ Order Placed: ${reorderResults[item.drugName]?.orderId}` : "Issue Emergency Order"}
+                    {reorderResults[item.drugName] ? `Order Placed: ${reorderResults[item.drugName]?.orderId}` : "Issue Emergency Order"}
                   </button>
                 </div>
               );

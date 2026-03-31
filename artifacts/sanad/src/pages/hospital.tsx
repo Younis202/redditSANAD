@@ -448,7 +448,7 @@ export default function HospitalPortal() {
                           />
                         </div>
                         <span className={`text-[11px] font-bold tabular-nums w-8 text-right ${slot.surge ? "text-red-600" : "text-foreground"}`}>{displayValue}</span>
-                        <span className="text-[9px] text-muted-foreground w-16 shrink-0">{isPast ? "✓ actual" : "⏳ forecast"}</span>
+                        <span className="text-[9px] text-muted-foreground w-16 shrink-0">{isPast ? "Actual" : "Forecast"}</span>
                         {slot.surge && <span className="text-[8px] font-black text-white bg-red-500 px-1.5 py-0.5 rounded shrink-0">SURGE</span>}
                       </div>
                     );

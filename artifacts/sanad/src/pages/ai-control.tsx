@@ -566,7 +566,7 @@ export default function AIControlCenter() {
                         className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl transition-colors"
                       >
                         <RotateCcw className="w-3 h-3" />
-                        {retrainResult[engine.name] ? "Retraining Queued ✓" : "Trigger Retraining"}
+                        {retrainResult[engine.name] ? "Retraining Queued" : "Trigger Retraining"}
                       </button>
                     )}
                   </CardBody>

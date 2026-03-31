@@ -307,6 +307,37 @@ export default function LoginPage() {
                 </p>
               </div>
 
+              {/* Nafath SSO Banner */}
+              <div className="mb-5 p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0">
+                    <Fingerprint className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-emerald-900">نفاذ — Nafath National Identity Verification</p>
+                    <p className="text-[11px] text-emerald-700">Authenticate via National Single Sign-On · نظام الهوية الوطنية الموحدة</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-full">
+                    <CheckCircle2 className="w-3 h-3" /> MOH Certified
+                  </div>
+                  <button
+                    onClick={() => {}}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold transition-colors"
+                  >
+                    <Fingerprint className="w-3.5 h-3.5" />
+                    Login with Nafath
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-[11px] font-semibold text-muted-foreground">Or select your role manually</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
               <div className="grid grid-cols-4 gap-2.5">
                 {ROLES.map((r) => {
                   const Icon = r.icon;

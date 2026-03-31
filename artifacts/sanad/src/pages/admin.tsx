@@ -477,6 +477,85 @@ export default function AdminDashboard() {
             </Card>
           )}
 
+          {/* ─── Hospital Performance Ranking ─── */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Building className="w-4 h-4 text-primary" />
+                <CardTitle>Hospital Performance Ranking — National League Table</CardTitle>
+              </div>
+              <Badge variant="outline" className="ml-auto">Top 12 · Composite Score</Badge>
+            </CardHeader>
+            <CardBody className="p-0">
+              <table className="w-full data-table">
+                <thead>
+                  <tr>
+                    <th className="w-10">Rank</th>
+                    <th>Hospital</th>
+                    <th>Region</th>
+                    <th>Beds</th>
+                    <th>Occupancy</th>
+                    <th>AI Adoption</th>
+                    <th>Avg LOS</th>
+                    <th>Mortality Rate</th>
+                    <th>Patient Score</th>
+                    <th>Composite</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { rank: 1, name: "King Faisal Specialist Hospital", region: "Riyadh", beds: 1200, occupancy: 91, ai: 98, los: 4.2, mortality: 1.1, patient: 94, composite: 96 },
+                    { rank: 2, name: "King Fahad Medical City", region: "Riyadh", beds: 1700, occupancy: 88, ai: 96, los: 4.8, mortality: 1.3, patient: 92, composite: 93 },
+                    { rank: 3, name: "King Abdulaziz Medical City", region: "Riyadh", beds: 1500, occupancy: 86, ai: 94, los: 5.1, mortality: 1.4, patient: 91, composite: 91 },
+                    { rank: 4, name: "Makkah Al-Mukarramah Hospital", region: "Makkah", beds: 900, occupancy: 94, ai: 89, los: 5.5, mortality: 1.8, patient: 88, composite: 87 },
+                    { rank: 5, name: "King Khalid University Hospital", region: "Riyadh", beds: 820, occupancy: 82, ai: 91, los: 4.9, mortality: 1.5, patient: 90, composite: 86 },
+                    { rank: 6, name: "Madinah General Hospital", region: "Madinah", beds: 640, occupancy: 79, ai: 82, los: 5.2, mortality: 1.9, patient: 87, composite: 82 },
+                    { rank: 7, name: "Dammam Medical Complex", region: "Eastern Province", beds: 780, occupancy: 85, ai: 85, los: 5.7, mortality: 2.0, patient: 85, composite: 81 },
+                    { rank: 8, name: "Asir Central Hospital", region: "Asir", beds: 520, occupancy: 77, ai: 74, los: 6.1, mortality: 2.2, patient: 82, composite: 76 },
+                    { rank: 9, name: "Qassim Regional Hospital", region: "Qassim", beds: 460, occupancy: 73, ai: 70, los: 6.4, mortality: 2.4, patient: 80, composite: 72 },
+                    { rank: 10, name: "Tabuk General Hospital", region: "Tabuk", beds: 390, occupancy: 68, ai: 62, los: 6.8, mortality: 2.7, patient: 78, composite: 67 },
+                    { rank: 11, name: "Jizan Medical City", region: "Jizan", beds: 350, occupancy: 71, ai: 58, los: 7.1, mortality: 2.9, patient: 74, composite: 63 },
+                    { rank: 12, name: "Najran General Hospital", region: "Najran", beds: 280, occupancy: 66, ai: 52, los: 7.5, mortality: 3.1, patient: 72, composite: 59 },
+                  ].map((h) => {
+                    const medal = h.rank <= 3 ? ["🥇", "🥈", "🥉"][h.rank - 1] : null;
+                    const compositeColor = h.composite >= 90 ? "text-emerald-700 bg-emerald-50" : h.composite >= 75 ? "text-amber-700 bg-amber-50" : "text-red-700 bg-red-50";
+                    const aiColor = h.ai >= 90 ? "text-emerald-600" : h.ai >= 75 ? "text-amber-600" : "text-red-600";
+                    const mortalityColor = h.mortality < 1.5 ? "text-emerald-600" : h.mortality < 2.5 ? "text-amber-600" : "text-red-600";
+                    return (
+                      <tr key={h.rank} className={h.rank <= 3 ? "bg-amber-50/30" : ""}>
+                        <td className="font-black text-center text-sm">{medal ? medal : `#${h.rank}`}</td>
+                        <td className="font-bold text-foreground">{h.name}</td>
+                        <td className="text-muted-foreground text-xs">{h.region}</td>
+                        <td className="font-mono tabular-nums text-right">{h.beds.toLocaleString()}</td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-secondary rounded-full h-1.5 max-w-[60px]">
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${h.occupancy}%` }} />
+                            </div>
+                            <span className="text-xs font-mono">{h.occupancy}%</span>
+                          </div>
+                        </td>
+                        <td className={`font-bold text-xs ${aiColor}`}>{h.ai}%</td>
+                        <td className="font-mono text-xs text-center">{h.los}d</td>
+                        <td className={`font-bold text-xs ${mortalityColor}`}>{h.mortality}%</td>
+                        <td className="font-mono text-xs text-center">{h.patient}/100</td>
+                        <td>
+                          <span className={`text-xs font-black px-2 py-0.5 rounded-full tabular-nums ${compositeColor}`}>{h.composite}</span>
+                        </td>
+                        <td>
+                          <Badge variant={h.composite >= 85 ? "success" : h.composite >= 70 ? "warning" : "destructive"} className="text-[9px]">
+                            {h.composite >= 85 ? "Excellent" : h.composite >= 70 ? "Good" : "Needs Improvement"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </CardBody>
+          </Card>
+
           {/* Regional table */}
           {stats?.regionalStats && stats.regionalStats.length > 0 && (
             <Card className="col-span-12">

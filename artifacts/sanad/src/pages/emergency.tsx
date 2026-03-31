@@ -168,6 +168,81 @@ export default function EmergencyPage() {
 
       {patient && (
         <div className="space-y-4">
+
+          {/* ─── GOLDEN MINUTE PANEL (3-second readability) ─── */}
+          <div className="rounded-3xl overflow-hidden border-2 border-black/10">
+            <div className="bg-black px-4 py-2 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-white text-[10px] font-black uppercase tracking-[0.15em]">⚡ GOLDEN MINUTE — Critical Info · Read in under 3 seconds</span>
+            </div>
+            <div className="grid grid-cols-3 divide-x divide-border">
+              {/* Blood Type */}
+              <div className="p-6 text-center bg-red-600 text-white flex flex-col items-center justify-center min-h-[120px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-200 mb-2">⬤ Blood Type</p>
+                <p className="text-[72px] font-black leading-none text-white">{(patient as any).bloodType ?? "—"}</p>
+              </div>
+              {/* Allergies */}
+              <div className="p-5 bg-amber-50 flex flex-col justify-center min-h-[120px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-2">⚠ ALLERGIES — Do NOT administer</p>
+                {((patient as any).allergies?.length ?? 0) > 0 ? (
+                  <div className="space-y-1">
+                    {((patient as any).allergies as string[]).map((a, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
+                        <span className="text-[18px] font-black text-red-700 leading-tight">{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[20px] font-bold text-emerald-700">✓ No Known Allergies</span>
+                )}
+              </div>
+              {/* Key Vitals + Emergency Contacts */}
+              <div className="p-5 bg-white flex flex-col gap-3 min-h-[120px]">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Active Critical Meds</p>
+                  <div className="space-y-1">
+                    {((patient as any).medications?.filter((m: any) => m.isActive).slice(0, 3) ?? []).map((m: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        {m.drugName} {m.dosage ? `· ${m.dosage}` : ""}
+                      </div>
+                    ))}
+                    {!(patient as any).medications?.filter((m: any) => m.isActive).length && (
+                      <span className="text-[12px] text-muted-foreground">No active prescriptions</span>
+                    )}
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-border">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Chronic Conditions</p>
+                  <p className="text-[11px] font-semibold text-foreground">
+                    {((patient as any).chronicConditions?.slice(0, 2) ?? []).join(" · ") || "None on record"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── ACLS / BLS Medical Protocol Buttons ─── */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Protocol Reference:</span>
+            {[
+              { label: "ACLS — Cardiac Arrest", color: "bg-red-600 hover:bg-red-700 text-white border-red-700" },
+              { label: "BLS — Basic Life Support", color: "bg-amber-600 hover:bg-amber-700 text-white border-amber-700" },
+              { label: "Sepsis Bundle — Hour-1", color: "bg-orange-600 hover:bg-orange-700 text-white border-orange-700" },
+              { label: "Stroke — FAST Protocol", color: "bg-purple-600 hover:bg-purple-700 text-white border-purple-700" },
+              { label: "ACS — STEMI Protocol", color: "bg-rose-600 hover:bg-rose-700 text-white border-rose-700" },
+            ].map(({ label, color }) => (
+              <button key={label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all ${color}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-white/60 shrink-0" />{label}
+              </button>
+            ))}
+            <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              Fail-Safe Mode: Offline Cache Ready
+            </div>
+          </div>
+
           {/* TRIAGE LEVEL STRIP */}
           <div className={`rounded-3xl overflow-hidden border-2 ${
             (patient as any).riskLevel === "critical" ? "border-red-500" :

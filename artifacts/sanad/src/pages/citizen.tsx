@@ -42,7 +42,8 @@ import {
   Bell, FileText, Activity, Pill, FlaskConical, User, Lock, CalendarDays,
   AlertCircle, Heart, TrendingUp, TrendingDown, CheckCircle2, ShieldAlert,
   Lightbulb, Star, ArrowRight, Stethoscope, Minus, Info, Brain, ArrowUpRight,
-  Building2, Clock, X, MapPin, Sparkles, Users, Network, Shield, Truck
+  Building2, Clock, X, MapPin, Sparkles, Users, Network, Shield, Truck,
+  ShieldCheck, HeartHandshake, BarChart2
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -732,9 +733,9 @@ export default function CitizenPortal() {
         <Tabs
           tabs={[
             { id: "health-score", label: "Health Score & AI Tips" },
-            { id: "digital-twin", label: "🧠 My Health Forecast" },
-            { id: "appointments", label: "📅 Book Appointment" },
-            { id: "journey", label: "🔗 Health Journey" },
+            { id: "digital-twin", label: "AI Health Forecast" },
+            { id: "appointments", label: "Book Appointment" },
+            { id: "journey", label: "Health Journey" },
             { id: "summary", label: "Health Summary" },
             { id: "medications", label: "Prescriptions", count: activeMeds.length },
             { id: "labs", label: "Lab Results", count: labResults.length },
@@ -963,13 +964,13 @@ export default function CitizenPortal() {
               const hasLabs = (patient.labResults ?? []).length > 0;
               const hasVisit = (patient.visits ?? []).length > 0;
               const goodScore = healthScore.score >= 70;
-              const achievements: Array<{ icon: string; title: string; desc: string; earned: boolean; color: string }> = [
-                { icon: "💊", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50 border-violet-200" },
-                { icon: "🔬", title: "Lab Tracker", desc: "Lab results on record and monitored", earned: hasLabs, color: "bg-sky-50 border-sky-200" },
-                { icon: "🏥", title: "Health Checkup", desc: "Clinical visit recorded this year", earned: hasVisit, color: "bg-teal-50 border-teal-200" },
-                { icon: "🛡️", title: "Health Warrior", desc: "Health score ≥ 70 / Good standing", earned: goodScore, color: "bg-emerald-50 border-emerald-200" },
-                { icon: "🤝", title: "Chronic Manager", desc: "Managing chronic conditions with AI", earned: conditions.length > 0, color: "bg-indigo-50 border-indigo-200" },
-                { icon: "📊", title: "SANAD Connected", desc: "National health record fully linked", earned: true, color: "bg-amber-50 border-amber-200" },
+              const achievements: Array<{ icon: React.ElementType; iconColor: string; iconBg: string; title: string; desc: string; earned: boolean; color: string }> = [
+                { icon: Pill,           iconColor: "text-violet-600", iconBg: "bg-violet-100", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50 border-violet-200" },
+                { icon: FlaskConical,   iconColor: "text-sky-600",    iconBg: "bg-sky-100",    title: "Lab Tracker",         desc: "Lab results on record and monitored",  earned: hasLabs,         color: "bg-sky-50 border-sky-200" },
+                { icon: Building2,      iconColor: "text-teal-600",   iconBg: "bg-teal-100",   title: "Health Checkup",      desc: "Clinical visit recorded this year",     earned: hasVisit,        color: "bg-teal-50 border-teal-200" },
+                { icon: ShieldCheck,    iconColor: "text-emerald-600",iconBg: "bg-emerald-100",title: "Health Warrior",      desc: "Health score ≥ 70 / Good standing",     earned: goodScore,       color: "bg-emerald-50 border-emerald-200" },
+                { icon: HeartHandshake, iconColor: "text-indigo-600", iconBg: "bg-indigo-100", title: "Chronic Manager",     desc: "Managing chronic conditions with AI",   earned: conditions.length > 0, color: "bg-indigo-50 border-indigo-200" },
+                { icon: BarChart2,      iconColor: "text-amber-600",  iconBg: "bg-amber-100",  title: "SANAD Connected",     desc: "National health record fully linked",   earned: true,            color: "bg-amber-50 border-amber-200" },
               ];
               return (
                 <div>
@@ -977,9 +978,13 @@ export default function CitizenPortal() {
                     <Star className="w-3.5 h-3.5 text-amber-500" /> Health Achievements · الإنجازات الصحية
                   </p>
                   <div className="grid grid-cols-3 gap-2">
-                    {achievements.map((a, i) => (
+                    {achievements.map((a, i) => {
+                      const AIcon = a.icon;
+                      return (
                       <div key={i} className={`relative flex items-start gap-2.5 p-3 rounded-2xl border ${a.earned ? a.color : "bg-secondary border-border opacity-50"}`}>
-                        <span className={`text-2xl shrink-0 ${a.earned ? "" : "grayscale"}`}>{a.icon}</span>
+                        <div className={`w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 ${a.earned ? a.iconBg : "bg-secondary"}`}>
+                          <AIcon className={`w-3.5 h-3.5 ${a.earned ? a.iconColor : "text-muted-foreground"}`} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[12px] font-bold text-foreground leading-snug">{a.title}</p>
                           <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{a.desc}</p>
@@ -995,7 +1000,8 @@ export default function CitizenPortal() {
                           </div>
                         )}
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 </div>
               );

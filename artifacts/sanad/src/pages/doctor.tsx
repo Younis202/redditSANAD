@@ -293,7 +293,7 @@ export default function DoctorDashboard() {
                     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
                       alert.type === "drug_interaction_alert" ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"
                     }`}>
-                      {alert.type === "drug_interaction_alert" ? "💊 Drug Interaction" : alert.type === "risk_escalation" ? "⚠ Risk Escalation" : "🧪 Lab Alert"}
+                      {alert.type === "drug_interaction_alert" ? "Drug Interaction" : alert.type === "risk_escalation" ? "Risk Escalation" : "Lab Alert"}
                     </span>
                   </div>
                   <p className="font-bold text-sm text-red-900">{alert.title}</p>
@@ -549,7 +549,7 @@ export default function DoctorDashboard() {
             <Tabs
               tabs={[
                 { id: "overview", label: "Clinical Overview" },
-                { id: "decision", label: "🧠 Decision Engine" },
+                { id: "decision", label: "AI Decision Engine" },
                 { id: "timeline", label: "Timeline" },
                 { id: "medications", label: "Medications", count: activeMeds.length },
                 { id: "labs", label: "Lab Results", count: labResults.length },
@@ -1454,7 +1454,7 @@ export default function DoctorDashboard() {
                         {/* ─── Treatment Simulation Scenarios ─── */}
                         <div>
                           <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-2.5 flex items-center gap-1.5">
-                            <span className="w-3.5 h-3.5 inline-flex items-center justify-center bg-violet-600 rounded text-white text-[7px] font-black">⚡</span>
+                            <span className="w-3.5 h-3.5 inline-flex items-center justify-center bg-violet-600 rounded text-white text-[7px] font-black">AI</span>
                             Treatment Simulation Engine — AI-Projected Outcomes
                           </p>
                           <div className="overflow-hidden rounded-xl border border-border">

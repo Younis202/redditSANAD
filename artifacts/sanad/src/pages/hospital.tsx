@@ -202,15 +202,15 @@ export default function HospitalPortal() {
             <CardBody>
               <div className="space-y-3">
                 {[
-                  { label: "Total Doctors", value: data?.staffKPIs?.doctors, icon: "👨‍⚕️" },
-                  { label: "Total Nurses", value: data?.staffKPIs?.nurses, icon: "👩‍⚕️" },
-                  { label: "Specialists", value: data?.staffKPIs?.specialists, icon: "🧠" },
-                  { label: "Currently On Duty", value: data?.staffKPIs?.onDuty, icon: "✅" },
-                  { label: "Available for Call", value: data?.staffKPIs?.available, icon: "📞" },
+                  { label: "Total Doctors", value: data?.staffKPIs?.doctors, dot: "bg-blue-500" },
+                  { label: "Total Nurses", value: data?.staffKPIs?.nurses, dot: "bg-pink-500" },
+                  { label: "Specialists", value: data?.staffKPIs?.specialists, dot: "bg-violet-500" },
+                  { label: "Currently On Duty", value: data?.staffKPIs?.onDuty, dot: "bg-emerald-500" },
+                  { label: "Available for Call", value: data?.staffKPIs?.available, dot: "bg-sky-500" },
                 ].map(item => (
                   <div key={item.label} className="flex items-center justify-between px-3.5 py-2.5 bg-secondary rounded-2xl">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{item.icon}</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${item.dot}`} />
                       <p className="text-xs font-semibold text-foreground">{item.label}</p>
                     </div>
                     <p className="text-sm font-bold tabular-nums text-foreground">{item.value?.toLocaleString()}</p>
@@ -502,19 +502,19 @@ export default function HospitalPortal() {
               <CardBody>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { title: "Transfer 2 stable ICU patients to Step-Down Unit", impact: "Frees 2 ICU beds · Saves SAR 8,400/day", severity: "urgent", icon: "🏥" },
-                    { title: "Convert Conference Room D to temporary observation bay (4 beds)", impact: "Required by 17:00 for surge capacity", severity: "urgent", icon: "⚡" },
-                    { title: "Cancel 3 elective surgical cases scheduled for tomorrow AM", impact: "Risk: OR blocked by emergency cases · 78% probability", severity: "warning", icon: "✂️" },
-                    { title: "Activate on-call nursing pool — request 12 additional RNs", impact: "Nurse:patient ratio will breach 1:6 during peak", severity: "warning", icon: "👩‍⚕️" },
-                    { title: "Pre-position portable monitoring equipment in ER corridor", impact: "Surge prediction confidence: 94%", severity: "info", icon: "📊" },
-                    { title: "Notify blood bank: O+ and A+ units likely needed by 18:00", impact: "Based on trauma admission patterns + ED forecast", severity: "info", icon: "🩸" },
+                    { title: "Transfer 2 stable ICU patients to Step-Down Unit", impact: "Frees 2 ICU beds · Saves SAR 8,400/day", severity: "urgent" },
+                    { title: "Convert Conference Room D to temporary observation bay (4 beds)", impact: "Required by 17:00 for surge capacity", severity: "urgent" },
+                    { title: "Cancel 3 elective surgical cases scheduled for tomorrow AM", impact: "Risk: OR blocked by emergency cases · 78% probability", severity: "warning" },
+                    { title: "Activate on-call nursing pool — request 12 additional RNs", impact: "Nurse:patient ratio will breach 1:6 during peak", severity: "warning" },
+                    { title: "Pre-position portable monitoring equipment in ER corridor", impact: "Surge prediction confidence: 94%", severity: "info" },
+                    { title: "Notify blood bank: O+ and A+ units likely needed by 18:00", impact: "Based on trauma admission patterns + ED forecast", severity: "info" },
                   ].map((rec, i) => (
                     <div key={i} className={`p-4 rounded-2xl border ${rec.severity === "urgent" ? "bg-red-50 border-red-200" : rec.severity === "warning" ? "bg-amber-50 border-amber-200" : "bg-secondary border-border"}`}>
                       <div className="flex items-start gap-2 mb-2">
-                        <span className="text-base shrink-0">{rec.icon}</span>
+                        <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${rec.severity === "urgent" ? "bg-red-500" : rec.severity === "warning" ? "bg-amber-500" : "bg-primary"}`} />
                         <p className="text-xs font-bold text-foreground">{rec.title}</p>
                       </div>
-                      <p className={`text-[10px] ${rec.severity === "urgent" ? "text-red-700" : rec.severity === "warning" ? "text-amber-700" : "text-muted-foreground"}`}>{rec.impact}</p>
+                      <p className={`text-[10px] pl-4 ${rec.severity === "urgent" ? "text-red-700" : rec.severity === "warning" ? "text-amber-700" : "text-muted-foreground"}`}>{rec.impact}</p>
                     </div>
                   ))}
                 </div>

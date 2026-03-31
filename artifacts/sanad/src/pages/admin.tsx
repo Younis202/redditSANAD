@@ -649,14 +649,14 @@ export default function AdminDashboard() {
             <CardBody>
               <div className="grid grid-cols-4 gap-4 mb-5">
                 {[
-                  { label: "NCA CSF Score", value: "94.2", sub: "Cyber Security Framework v2.0", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", icon: "🔐" },
-                  { label: "PDPL Compliance", value: "97.8%", sub: "Personal Data Protection Law", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200", icon: "⚖️" },
-                  { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200", icon: "📋" },
-                  { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", icon: "🛡️" },
+                  { label: "NCA CSF Score", value: "94.2", sub: "Cyber Security Framework v2.0", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500" },
+                  { label: "PDPL Compliance", value: "97.8%", sub: "Personal Data Protection Law", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200", dot: "bg-blue-500" },
+                  { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200", dot: "bg-violet-500" },
+                  { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500" },
                 ].map((item, i) => (
                   <div key={i} className={`p-4 rounded-2xl border ${item.bg} ${item.border}`}>
                     <div className="flex items-start justify-between mb-2">
-                      <span className="text-xl">{item.icon}</span>
+                      <span className={`w-2.5 h-2.5 rounded-full mt-1 ${item.dot}`} />
                       <span className={`text-2xl font-black tabular-nums ${item.color}`}>{item.value}</span>
                     </div>
                     <p className="text-sm font-bold text-foreground">{item.label}</p>

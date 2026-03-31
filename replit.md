@@ -3,7 +3,14 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.2 — SANAD Neural Fabric: Full Cross-Portal Integration (Latest)
+## v3.3 — Premium Apple/iOS Design Overhaul (Latest)
+1. **Home Page** — Complete redesign: premium deep-blue hero card spanning full width with live stats (34.2M+, 450+, SAR 4.7B, 847K), 4×3 uniform portal grid (all 12 portals equal size), security clearance badges (PUBLIC/RESTRICTED/CONFIDENTIAL/SECRET), clean footer. No more uneven 4+3+5 grid.
+2. **Emoji-free UI** — All emoji removed from every portal: citizen.tsx tabs, doctor.tsx tabs & alert badges, hospital.tsx staff/recommendations, admin.tsx compliance cards, emergency.tsx header, ai-control.tsx cascade indicator, supply-chain.tsx seasonal headers, citizen.tsx health achievements (replaced with Lucide icons)
+3. **Design System** — Better CSS: Apple-inspired background (hsl(220 14% 96%)), thinner scrollbar, smoother data-table, card hover lift animation, refined transitions
+4. **Shared Components** — Tabs now support icon prop (React.ElementType), KpiCard has trendUp prop, new SectionDivider component, more refined spacing and typography
+5. **Layout** — Cleaner sidebar (216px, better typography, accent-colored active state), improved topbar with breadcrumb navigation, refined alert dropdown with better empty state
+
+## v3.2 — SANAD Neural Fabric: Full Cross-Portal Integration
 1. **AI Control → "Neural Fabric" tab** — Visual cascade chain showing how a single patient event (HbA1c 9.2%) triggers 7 portals in 234ms. Cross-portal 8x8 dependency matrix. Portal ecosystem cards (sends/receives data).
 2. **AI Control → "Live Intelligence Stream" tab** — Real-time auto-updating feed of AI decisions from all portals (new event every 2.8s). Portal activity heatmap. Live KPIs (847 events/min, 2,841 cascades/hour, 2.8s decision time).
 3. **Doctor → Cross-Portal Intelligence Panel** — After LACE+ card: shows Insurance coverage for current meds, Supply Chain drug availability, Research trial eligibility (3 active trials), Family genetic risk cascade (3 family members).

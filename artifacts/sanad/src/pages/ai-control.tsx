@@ -1049,7 +1049,7 @@ export default function AIControlCenter() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {ev.cascades > 0 && (
-                      <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">⚡{ev.cascades} cascades</span>
+                      <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{ev.cascades} cascades</span>
                     )}
                     <Badge variant={ev.badge} className="text-[9px]">{ev.badge === "success" ? "APPROVED" : ev.badge === "destructive" ? "CRITICAL" : ev.badge === "warning" ? "FLAGGED" : ev.badge === "purple" ? "DATA" : "INFO"}</Badge>
                     <span className="text-[9px] font-mono text-muted-foreground">{i === 0 ? "just now" : `${(i * 2.8).toFixed(0)}s ago`}</span>

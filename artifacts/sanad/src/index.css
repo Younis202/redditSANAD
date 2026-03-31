@@ -30,53 +30,49 @@
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
 
-  --radius-sm:  0.625rem;
-  --radius-md:  0.875rem;
-  --radius-lg:  1.125rem;
-  --radius-xl:  1.375rem;
-  --radius-2xl: 1.75rem;
-  --radius-3xl: 2rem;
+  --radius-sm:  0.5rem;
+  --radius-md:  0.75rem;
+  --radius-lg:  1rem;
+  --radius-xl:  1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
 }
 
 :root {
-  /* iOS system background — very faint cool gray */
-  --background: 240 6% 97%;
-  --foreground: 240 10% 8%;
+  /* Apple-inspired system background */
+  --background: 220 14% 96%;
+  --foreground: 220 20% 10%;
 
-  /* Pure white cards */
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 8%;
+  --card-foreground: 220 20% 10%;
 
-  /* iOS blue — #007AFF */
+  /* iOS Blue — #007AFF */
   --primary: 211 100% 50%;
   --primary-foreground: 0 0% 100%;
 
-  /* Ultra-light fill */
-  --secondary: 240 6% 95%;
-  --secondary-foreground: 240 8% 25%;
+  --secondary: 220 14% 94%;
+  --secondary-foreground: 220 10% 30%;
 
-  --muted: 240 5% 94%;
-  --muted-foreground: 240 5% 52%;
+  --muted: 220 13% 93%;
+  --muted-foreground: 220 8% 50%;
 
   --accent: 211 100% 50%;
   --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 85% 57%;
+  --destructive: 4 86% 55%;
   --destructive-foreground: 0 0% 100%;
 
-  --warning: 35 95% 50%;
+  --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
-  --success: 142 71% 40%;
+  --success: 142 71% 38%;
   --success-foreground: 0 0% 100%;
 
-  /* White sidebar */
   --sidebar: 0 0% 100%;
-  --sidebar-foreground: 240 10% 10%;
+  --sidebar-foreground: 220 15% 12%;
 
-  /* Very soft border */
-  --border: 240 6% 91%;
-  --input: 240 6% 91%;
+  --border: 220 13% 90%;
+  --input: 220 13% 90%;
   --ring: 211 100% 50%;
 }
 
@@ -86,45 +82,64 @@
     @apply bg-background text-foreground font-sans antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   }
   h1, h2, h3, h4, h5, h6 { @apply font-semibold tracking-tight; }
 }
 
-/* ─── iOS-style Card shadow (no harsh border) ─── */
-.ios-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+/* ─── Scrollbar — thin, elegant ─── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
 }
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.20); }
 
-/* ─── Data table — iOS style ─── */
+/* ─── Hide scrollbar for sidebar ─── */
+.sidebar-scroll { scrollbar-width: none; }
+.sidebar-scroll::-webkit-scrollbar { width: 0; display: none; }
+
+/* ─── Data table ─── */
 .data-table {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
 }
 .data-table th {
-  @apply px-5 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-widest;
-  background: hsl(240 6% 97%);
-  border-bottom: 1px solid hsl(240 6% 91%);
+  @apply px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.08em];
+  color: hsl(220 8% 50%);
+  background: hsl(220 14% 97%);
+  border-bottom: 1px solid hsl(220 13% 91%);
 }
+.data-table th:first-child { border-radius: 0; }
 .data-table td {
-  @apply px-5 py-3.5 text-sm;
-  border-bottom: 1px solid hsl(240 6% 93%);
+  @apply px-5 py-3.5 text-[13px];
+  border-bottom: 1px solid hsl(220 13% 93%);
+  color: hsl(220 20% 12%);
 }
 .data-table tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover td { background: hsl(240 6% 97%); transition: background 0.15s ease; }
+.data-table tbody tr { transition: background 0.1s ease; }
+.data-table tbody tr:hover td { background: hsl(220 14% 98%); }
 
-/* ─── Sidebar scrollbar ─── */
-.sidebar-scroll { scrollbar-width: none; }
-.sidebar-scroll::-webkit-scrollbar { width: 0; display: none; }
-
-/* ─── Smooth transitions ─── */
-* { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-
-/* ─── Page fade-in ─── */
+/* ─── Page enter animation ─── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.page-enter { animation: fadeUp 0.25s ease both; }
+.page-enter { animation: fadeUp 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
+/* ─── Smooth transitions ─── */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ─── Card hover lift ─── */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+}

@@ -4,7 +4,7 @@ import {
   ShieldAlert, HeartPulse, User, Building2,
   LayoutDashboard, LogOut, Bell, Settings, LifeBuoy,
   Activity, FlaskConical, Pill, BedDouble,
-  Shield, Brain, Users, Package, AlertTriangle, CheckCircle2, X
+  Shield, Brain, Users, Package, AlertTriangle, CheckCircle2, X, ChevronRight
 } from "lucide-react";
 import { cn } from "./shared";
 import { useAuth } from "@/contexts/auth-context";
@@ -18,6 +18,7 @@ const roleConfigs: Record<Role, {
   icon: React.ElementType;
   accentBg: string;
   accentText: string;
+  accentHex: string;
   nav: { href: string; icon: React.ElementType; label: string }[];
   user: string;
   userRole: string;
@@ -29,6 +30,7 @@ const roleConfigs: Record<Role, {
     icon: ShieldAlert,
     accentBg: "bg-red-500",
     accentText: "text-white",
+    accentHex: "#ef4444",
     user: "Unit 7 — Riyadh Central",
     userRole: "First Responder",
     userInitial: "U",
@@ -42,6 +44,7 @@ const roleConfigs: Record<Role, {
     icon: HeartPulse,
     accentBg: "bg-primary",
     accentText: "text-white",
+    accentHex: "#007AFF",
     user: "Dr. Ahmed Al-Rashidi",
     userRole: "Physician · King Fahd MC",
     userInitial: "A",
@@ -55,6 +58,7 @@ const roleConfigs: Record<Role, {
     icon: User,
     accentBg: "bg-amber-500",
     accentText: "text-white",
+    accentHex: "#f59e0b",
     user: "Citizen Portal",
     userRole: "National Health Record",
     userInitial: "C",
@@ -68,6 +72,7 @@ const roleConfigs: Record<Role, {
     icon: Building2,
     accentBg: "bg-primary",
     accentText: "text-white",
+    accentHex: "#007AFF",
     user: "Ministry Admin",
     userRole: "Population Health Intelligence",
     userInitial: "M",
@@ -81,6 +86,7 @@ const roleConfigs: Record<Role, {
     icon: FlaskConical,
     accentBg: "bg-teal-500",
     accentText: "text-white",
+    accentHex: "#14b8a6",
     user: "Lab Tech. Sara Al-Otaibi",
     userRole: "Senior Lab Technician",
     userInitial: "S",
@@ -94,6 +100,7 @@ const roleConfigs: Record<Role, {
     icon: Pill,
     accentBg: "bg-purple-500",
     accentText: "text-white",
+    accentHex: "#a855f7",
     user: "Hassan Al-Ghamdi",
     userRole: "Clinical Pharmacist",
     userInitial: "H",
@@ -107,6 +114,7 @@ const roleConfigs: Record<Role, {
     icon: BedDouble,
     accentBg: "bg-blue-600",
     accentText: "text-white",
+    accentHex: "#2563eb",
     user: "Operations Manager",
     userRole: "King Fahd Medical City",
     userInitial: "O",
@@ -120,6 +128,7 @@ const roleConfigs: Record<Role, {
     icon: Shield,
     accentBg: "bg-violet-600",
     accentText: "text-white",
+    accentHex: "#7c3aed",
     user: "Nora Al-Qahtani",
     userRole: "Insurance Operations Lead",
     userInitial: "N",
@@ -133,6 +142,7 @@ const roleConfigs: Record<Role, {
     icon: Brain,
     accentBg: "bg-violet-700",
     accentText: "text-white",
+    accentHex: "#6d28d9",
     user: "Dr. Khalid Al-Mansouri",
     userRole: "AI Systems Lead",
     userInitial: "K",
@@ -146,6 +156,7 @@ const roleConfigs: Record<Role, {
     icon: FlaskConical,
     accentBg: "bg-teal-700",
     accentText: "text-white",
+    accentHex: "#0f766e",
     user: "Dr. Reem Al-Zahrani",
     userRole: "Health Data Scientist",
     userInitial: "R",
@@ -159,6 +170,7 @@ const roleConfigs: Record<Role, {
     icon: Users,
     accentBg: "bg-pink-700",
     accentText: "text-white",
+    accentHex: "#be185d",
     user: "Family Health Coordinator",
     userRole: "Preventive Care Unit",
     userInitial: "F",
@@ -172,6 +184,7 @@ const roleConfigs: Record<Role, {
     icon: Package,
     accentBg: "bg-orange-600",
     accentText: "text-white",
+    accentHex: "#ea580c",
     user: "Faisal Al-Harbi",
     userRole: "Drug Supply Chain Manager",
     userInitial: "F",
@@ -222,39 +235,38 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
   const systemAlerts = alertsData?.alerts ?? [];
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "hsl(240 6% 97%)" }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: "hsl(220 14% 96%)" }}>
 
       {/* ─── Sidebar ─── */}
       <aside
-        className="w-[220px] shrink-0 flex flex-col h-full"
+        className="w-[216px] shrink-0 flex flex-col h-full"
         style={{
           background: "white",
           borderRight: "1px solid rgba(0,0,0,0.06)",
-          boxShadow: "1px 0 0 rgba(0,0,0,0.03)",
         }}
       >
-        {/* Logo block */}
-        <div className="h-[60px] flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        {/* Logo */}
+        <div className="h-[58px] flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
           <div className={cn(
-            "w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0",
+            "w-[30px] h-[30px] rounded-[9px] flex items-center justify-center shrink-0",
             config.accentBg
           )}>
             <img
               src={`${import.meta.env.BASE_URL}images/sanad-logo.png`}
               alt="Sanad"
-              className="w-4 h-4 object-contain brightness-0 invert"
+              className="w-[15px] h-[15px] object-contain brightness-0 invert"
             />
           </div>
           <div>
-            <p className="text-[15px] font-bold text-foreground leading-none tracking-tight">{config.label}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">{config.sublabel}</p>
+            <p className="text-[14px] font-bold text-foreground leading-none tracking-tight">{config.label}</p>
+            <p className="text-[9.5px] text-muted-foreground mt-0.5 font-medium leading-tight">{config.sublabel}</p>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 pt-4 pb-2 space-y-0.5 overflow-y-auto sidebar-scroll">
-          <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.1em] px-2.5 mb-2 ml-0.5">
-            Menu
+        <nav className="flex-1 px-3 pt-4 pb-2 overflow-y-auto sidebar-scroll">
+          <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.1em] px-2 mb-2">
+            Navigation
           </p>
           {config.nav.map((item) => {
             const Icon = item.icon;
@@ -262,20 +274,22 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
             return (
               <Link key={item.href} href={item.href}>
                 <div className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-[13px] font-medium cursor-pointer transition-all duration-150",
+                  "flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] text-[12.5px] font-medium cursor-pointer transition-all duration-150 mb-0.5",
                   isActive
-                    ? "bg-primary text-white shadow-sm shadow-primary/25"
+                    ? "text-white shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
-                )}>
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.label}</span>
+                )}
+                style={isActive ? { background: config.accentHex } : undefined}
+                >
+                  <Icon className="w-[15px] h-[15px] shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </div>
               </Link>
             );
           })}
 
-          <div className="pt-5 pb-1">
-            <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-[0.1em] px-2.5 mb-2 ml-0.5">
+          <div className="mt-5 mb-2">
+            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.1em] px-2">
               System
             </p>
           </div>
@@ -286,19 +300,19 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] cursor-pointer transition-all duration-150"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] text-[12.5px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] cursor-pointer transition-all duration-150 mb-0.5"
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className="w-[15px] h-[15px] shrink-0" />
               <span>{label}</span>
             </div>
           ))}
         </nav>
 
-        {/* User block */}
-        <div className="px-3 pb-4" style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "12px" }}>
+        {/* User */}
+        <div className="px-3 pb-4 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <div
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-[14px] mb-1"
-            style={{ background: "hsl(240 6% 97%)" }}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] mb-1"
+            style={{ background: "hsl(220 14% 96%)" }}
           >
             <div className={cn(
               "w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold",
@@ -307,13 +321,13 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
               {authUser?.initial ?? config.userInitial}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-semibold text-foreground truncate leading-tight">{authUser?.name ?? config.user}</p>
-              <p className="text-[10px] text-muted-foreground leading-tight truncate mt-0.5">{authUser?.jobTitle ?? config.userRole}</p>
+              <p className="text-[11.5px] font-semibold text-foreground truncate leading-tight">{authUser?.name ?? config.user}</p>
+              <p className="text-[9.5px] text-muted-foreground leading-tight truncate mt-0.5">{authUser?.jobTitle ?? config.userRole}</p>
             </div>
           </div>
           <div
             onClick={() => { logout(); window.location.href = "/login"; }}
-            className="flex items-center gap-3 px-3 py-2 rounded-[10px] text-muted-foreground hover:text-red-600 hover:bg-red-50 text-[12px] font-medium cursor-pointer transition-all duration-150"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-muted-foreground hover:text-red-600 hover:bg-red-50 text-[12px] font-medium cursor-pointer transition-all duration-150"
           >
             <LogOut className="w-3.5 h-3.5 shrink-0" />
             <span>Sign Out</span>
@@ -326,37 +340,37 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
 
         {/* Topbar */}
         <header
-          className="h-[60px] shrink-0 flex items-center justify-between px-7"
+          className="h-[58px] shrink-0 flex items-center justify-between px-7"
           style={{
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
+            background: "rgba(255,255,255,0.88)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
-              {config.sublabel}
-            </span>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Activity className="w-3.5 h-3.5" />
+            <span className="text-[12.5px] font-medium">{config.sublabel}</span>
+            <ChevronRight className="w-3 h-3 opacity-40" />
+            <span className="text-[12.5px] font-medium text-foreground">{config.nav[0]?.label}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
               All Systems Operational
             </div>
 
-            {/* Alerts Bell */}
+            {/* Bell */}
             <div className="relative">
               <button
                 ref={bellRef}
                 onClick={() => setShowAlerts(v => !v)}
                 className="relative w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-black/[0.05] hover:text-foreground transition-all"
               >
-                <Bell className="w-4 h-4" />
+                <Bell className="w-[15px] h-[15px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
@@ -365,25 +379,25 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
               {showAlerts && (
                 <div
                   ref={dropdownRef}
-                  className="absolute right-0 top-10 w-[340px] bg-white rounded-2xl shadow-2xl border border-black/[0.07] z-50 overflow-hidden"
+                  className="absolute right-0 top-[42px] w-[340px] bg-white rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-black/[0.07] z-50 overflow-hidden"
                 >
                   <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.06]">
                     <div>
                       <p className="text-[13px] font-bold text-foreground">System Alerts</p>
                       {unreadCount > 0 && (
-                        <p className="text-[11px] text-muted-foreground">{unreadCount} unread</p>
+                        <p className="text-[10px] text-muted-foreground">{unreadCount} unread notification{unreadCount > 1 ? "s" : ""}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (
                         <button
                           onClick={() => markAllReadMutation.mutate()}
-                          className="text-[11px] font-medium text-primary hover:text-primary/80"
+                          className="text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
                         >
                           Mark all read
                         </button>
                       )}
-                      <button onClick={() => setShowAlerts(false)} className="text-muted-foreground hover:text-foreground">
+                      <button onClick={() => setShowAlerts(false)} className="text-muted-foreground hover:text-foreground p-0.5 rounded transition-colors">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -391,9 +405,10 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
 
                   <div className="max-h-[360px] overflow-y-auto">
                     {systemAlerts.length === 0 ? (
-                      <div className="flex flex-col items-center py-8 text-muted-foreground">
+                      <div className="flex flex-col items-center py-10 text-muted-foreground">
                         <CheckCircle2 className="w-8 h-8 mb-2 text-emerald-400" />
-                        <p className="text-[13px] font-medium">No alerts</p>
+                        <p className="text-[13px] font-semibold text-foreground">All clear</p>
+                        <p className="text-[11px] mt-0.5">No system alerts at this time</p>
                       </div>
                     ) : (
                       systemAlerts.map((alert: any) => (
@@ -401,7 +416,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
                           key={alert.id}
                           className={cn(
                             "px-4 py-3 border-b border-black/[0.04] last:border-0 transition-colors",
-                            !alert.isRead ? "bg-blue-50/60" : ""
+                            !alert.isRead ? "bg-blue-50/50" : ""
                           )}
                         >
                           <div className="flex items-start gap-2.5">
@@ -425,7 +440,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
                               </div>
                               {alert.patientName && (
                                 <p className="text-[10px] text-muted-foreground font-mono mb-0.5">
-                                  Patient: {alert.patientName} · {alert.patientNationalId}
+                                  {alert.patientName} · {alert.patientNationalId}
                                 </p>
                               )}
                               <p className="text-[11px] text-muted-foreground leading-snug">{alert.message}</p>
@@ -440,7 +455,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
             </div>
 
             <div className={cn(
-              "w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ml-1",
+              "w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ml-0.5",
               config.accentBg, config.accentText
             )}>
               {authUser?.initial ?? config.userInitial}

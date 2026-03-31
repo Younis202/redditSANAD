@@ -617,7 +617,7 @@ export default function SupplyChainPortal() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
-                    <span className="text-lg">🌙</span>
+                    <span className="text-[15px] font-bold text-emerald-700">☽</span>
                   </div>
                   <div>
                     <CardTitle>Ramadan Surge Plan 1446H</CardTitle>
@@ -690,7 +690,7 @@ export default function SupplyChainPortal() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
-                    <span className="text-lg">🕋</span>
+                    <MapPin className="w-4 h-4 text-amber-700" />
                   </div>
                   <div>
                     <CardTitle>Hajj Medical Stockpile 1446H</CardTitle>

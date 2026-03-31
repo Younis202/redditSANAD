@@ -173,7 +173,7 @@ export default function EmergencyPage() {
           <div className="rounded-3xl overflow-hidden border-2 border-black/10">
             <div className="bg-black px-4 py-2 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-white text-[10px] font-black uppercase tracking-[0.15em]">⚡ GOLDEN MINUTE — Critical Info · Read in under 3 seconds</span>
+              <span className="text-white text-[10px] font-black uppercase tracking-[0.15em]">GOLDEN MINUTE — Critical Info · Read in under 3 seconds</span>
             </div>
             <div className="grid grid-cols-3 divide-x divide-border">
               {/* Blood Type */}

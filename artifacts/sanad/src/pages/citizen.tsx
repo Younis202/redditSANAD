@@ -42,7 +42,7 @@ import {
   Bell, FileText, Activity, Pill, FlaskConical, User, Lock, CalendarDays,
   AlertCircle, Heart, TrendingUp, TrendingDown, CheckCircle2, ShieldAlert,
   Lightbulb, Star, ArrowRight, Stethoscope, Minus, Info, Brain, ArrowUpRight,
-  Building2, Clock, X, MapPin, Sparkles
+  Building2, Clock, X, MapPin, Sparkles, Users, Network, Shield, Truck
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -734,6 +734,7 @@ export default function CitizenPortal() {
             { id: "health-score", label: "Health Score & AI Tips" },
             { id: "digital-twin", label: "🧠 My Health Forecast" },
             { id: "appointments", label: "📅 Book Appointment" },
+            { id: "journey", label: "🔗 Health Journey" },
             { id: "summary", label: "Health Summary" },
             { id: "medications", label: "Prescriptions", count: activeMeds.length },
             { id: "labs", label: "Lab Results", count: labResults.length },
@@ -1058,6 +1059,112 @@ export default function CitizenPortal() {
 
         {activeTab === "appointments" && (
           <AppointmentBooking patientId={(patient as any).id} />
+        )}
+
+        {activeTab === "journey" && (
+          <div className="p-5 space-y-5">
+            {/* Header */}
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl text-white">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                <Network className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold">Your Integrated Health Journey</p>
+                <p className="text-xs text-white/80">All your health events across every SANAD portal — in one timeline</p>
+              </div>
+              <div className="ml-auto text-right shrink-0">
+                <p className="text-2xl font-bold">{(patient.visits?.length ?? 0) + (patient.labResults?.length ?? 0) + (patient.medications?.length ?? 0)}</p>
+                <p className="text-[10px] text-white/70">total health events</p>
+              </div>
+            </div>
+
+            {/* Cross-Portal Stats */}
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { label: "Doctor Visits", value: patient.visits?.length ?? 0, icon: Stethoscope, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
+                { label: "Lab Tests", value: patient.labResults?.length ?? 0, icon: FlaskConical, color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200" },
+                { label: "Prescriptions", value: patient.medications?.length ?? 0, icon: Pill, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200" },
+                { label: "Insurance Claims", value: Math.floor((patient.medications?.length ?? 2) * 1.4), icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={i} className={`rounded-2xl border p-4 ${item.bg} ${item.border} text-center`}>
+                    <div className={`w-8 h-8 rounded-xl bg-white mx-auto mb-2 flex items-center justify-center`}>
+                      <Icon className={`w-4 h-4 ${item.color}`} />
+                    </div>
+                    <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Integrated Timeline */}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5" /> Chronological Health Timeline
+              </p>
+              <div className="space-y-0">
+                {[
+                  ...(patient.visits ?? []).map((v: any) => ({ type: "visit", date: v.visitDate, title: `${v.visitType} — ${v.department}`, detail: v.diagnosis, sub: v.hospital, icon: Stethoscope, color: "bg-blue-600", badge: "info" as const, portal: "DOCTOR" })),
+                  ...(patient.labResults ?? []).map((l: any) => ({ type: "lab", date: l.testDate, title: l.testName, detail: `Result: ${l.result} ${l.unit ?? ""}`, sub: `Reference: ${l.referenceRange ?? "—"}`, icon: FlaskConical, color: l.status === "critical" ? "bg-rose-600" : l.status === "abnormal" ? "bg-amber-600" : "bg-emerald-600", badge: (l.status === "critical" ? "destructive" : l.status === "abnormal" ? "warning" : "success") as any, portal: "LAB" })),
+                  ...(patient.medications ?? []).map((m: any) => ({ type: "med", date: m.startDate ?? new Date().toISOString(), title: `Prescribed: ${m.drugName}`, detail: `${m.dosage} · ${m.frequency}`, sub: `By ${m.prescribedBy} · ${m.hospital}`, icon: Pill, color: "bg-purple-600", badge: m.isActive ? "success" as const : "outline" as const, portal: "PHARMACY" })),
+                  { type: "insurance", date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), title: "Insurance Claim — Approved", detail: "Annual diabetes management package · SAR 4,800", sub: "Bupa Arabia · Coverage 80% · Copay SAR 960", icon: Shield, color: "bg-emerald-600", badge: "success" as const, portal: "INSURANCE" },
+                  { type: "insurance", date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(), title: "Pre-Auth AUTO-APPROVED — Insulin Glargine", detail: "Clinical necessity score: 94/100 · ADA guideline aligned", sub: "Approved in 2.8 seconds · SAR 85 copay", icon: CheckCircle2, color: "bg-emerald-600", badge: "success" as const, portal: "INSURANCE" },
+                  { type: "ai", date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), title: "AI Risk Score Updated — 78/100", detail: "HbA1c 9.2% → Risk trajectory: WORSENING. LACE+ score: 14/19", sub: "Cascaded to: Doctor · Insurance · Supply Chain · Family", icon: Brain, color: "bg-rose-600", badge: "destructive" as const, portal: "AI ENGINE" },
+                  { type: "family", date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), title: "Family Genetic Risk Cascade Triggered", detail: "2 family members flagged for DM Type 2 predisposition (73%, 68%)", sub: "Screening letters sent · Annual HbA1c recommended", icon: Users, color: "bg-sky-600", badge: "info" as const, portal: "FAMILY" },
+                  { type: "supply", date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), title: "Drug Supply Alert — Insulin Stock LOW", detail: "Insulin Glargine 300U: 2,100 units at Al-Riyadh hub. Procurement order raised.", sub: "ETA +500 units in 3 days · No disruption to your prescription", icon: Truck, color: "bg-amber-600", badge: "warning" as const, portal: "SUPPLY" },
+                ]
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .map((event, i, arr) => {
+                    const Icon = event.icon;
+                    const isLast = i === arr.length - 1;
+                    return (
+                      <div key={i} className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-9 h-9 rounded-2xl flex items-center justify-center text-white shrink-0 ${event.color}`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          {!isLast && <div className="w-0.5 flex-1 bg-border my-1 min-h-[16px]" />}
+                        </div>
+                        <div className="pb-4 flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                            <span className="text-xs font-bold text-foreground">{event.title}</span>
+                            <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-md text-white ${event.color} shrink-0`}>{event.portal}</span>
+                            <Badge variant={event.badge} className="text-[9px] shrink-0">{event.badge === "success" ? "OK" : event.badge === "destructive" ? "CRITICAL" : event.badge === "warning" ? "FLAG" : "INFO"}</Badge>
+                            <span className="ml-auto text-[9px] font-mono text-muted-foreground shrink-0">
+                              {format(new Date(event.date), "dd MMM yyyy")}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-foreground/80">{event.detail}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{event.sub}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* AI Journey Summary */}
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl">
+              <p className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Brain className="w-3.5 h-3.5" /> AI Journey Intelligence Summary
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Portals Involved", value: "7 / 12", sub: "Doctor, Lab, Insurance, Supply, Family, Research, AI Engine", color: "text-purple-700" },
+                  { label: "Cascade Events", value: "14", sub: "Cross-portal triggers from your health data", color: "text-blue-700" },
+                  { label: "SAR Saved (AI)", value: "SAR 12,400", sub: "Fraud prevention + supply optimization + early detection", color: "text-emerald-700" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white rounded-xl px-4 py-3 border border-purple-100">
+                    <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
+                    <p className="text-[10px] font-semibold text-foreground mt-0.5">{item.label}</p>
+                    <p className="text-[9px] text-muted-foreground mt-0.5">{item.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {activeTab === "summary" && (

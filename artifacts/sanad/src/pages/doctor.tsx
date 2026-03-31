@@ -4,7 +4,7 @@ import {
   User as UserIcon, Pill, FlaskConical, Building2, X, Stethoscope, CalendarDays,
   TrendingUp, TrendingDown, Minus, Brain, Bell, BellOff, CheckCheck,
   TriangleAlert, Zap, ArrowUpRight, ArrowDownRight, ChevronRight, Lightbulb,
-  Wifi, WifiOff
+  Wifi, WifiOff, Network, Users, CheckCircle2
 } from "lucide-react";
 import {
   LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip,
@@ -1962,6 +1962,133 @@ export default function DoctorDashboard() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
+          {/* ─── CROSS-PORTAL INTELLIGENCE PANEL ─── */}
+          {patient && (
+            <Card className="mt-5 border-2 border-purple-200">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Network className="w-4 h-4 text-purple-700" />
+                  </div>
+                  <CardTitle>Cross-Portal Intelligence</CardTitle>
+                  <Badge variant="purple" className="text-[10px]">SANAD Neural Fabric</Badge>
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 gap-4">
+
+                  {/* Insurance Coverage */}
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                    <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Shield className="w-3 h-3" /> Insurance Portal — Live Coverage
+                    </p>
+                    <div className="space-y-2">
+                      {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between bg-white rounded-xl px-3 py-2 border border-emerald-100">
+                          <div>
+                            <p className="text-[10px] font-bold text-foreground">{med.drugName}</p>
+                            <p className="text-[9px] text-muted-foreground">{med.dosage}</p>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant="success" className="text-[9px]">COVERED</Badge>
+                            <p className="text-[9px] text-muted-foreground mt-0.5">80% · SAR {Math.floor(45 + i * 30)} copay</p>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between px-3 py-2 bg-emerald-100 rounded-xl">
+                        <p className="text-[10px] font-semibold text-emerald-800">Annual deductible</p>
+                        <p className="text-[10px] font-bold text-emerald-700">SAR 2,400 / SAR 8,000</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Supply Chain */}
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Pill className="w-3 h-3" /> Supply Chain — Drug Availability
+                    </p>
+                    <div className="space-y-2">
+                      {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => {
+                        const stock = i === 0 ? { label: "LOW", color: "text-red-600", bg: "bg-red-50 border-red-100", units: "2,100" } : i === 1 ? { label: "CRITICAL", color: "text-red-700", bg: "bg-red-50 border-red-200", units: "480" } : { label: "SUFFICIENT", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-100", units: "18,400" };
+                        return (
+                          <div key={i} className={`flex items-center justify-between bg-white rounded-xl px-3 py-2 border ${i < 2 ? "border-amber-200" : "border-emerald-200"}`}>
+                            <div>
+                              <p className="text-[10px] font-bold text-foreground">{med.drugName}</p>
+                              <p className="text-[9px] text-muted-foreground">Al-Riyadh Hub</p>
+                            </div>
+                            <div className="text-right">
+                              <p className={`text-[9px] font-bold ${stock.color}`}>{stock.label}</p>
+                              <p className="text-[9px] text-muted-foreground">{stock.units} units</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between px-3 py-2 bg-amber-100 rounded-xl">
+                        <p className="text-[10px] font-semibold text-amber-800">Next delivery ETA</p>
+                        <p className="text-[10px] font-bold text-amber-700">3 days · PO raised</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Research Eligibility */}
+                  <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                    <p className="text-[10px] font-bold text-violet-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <FlaskConical className="w-3 h-3" /> Research Portal — Trial Eligibility
+                    </p>
+                    <div className="space-y-2">
+                      {[
+                        { trial: "HbA1c Variability-CKD Study", id: "NCT-SA-2025-0447", eligible: true, phase: "Phase III", sites: "12 hospitals" },
+                        { trial: "SGLT2i Renal Protection", id: "NCT-SA-2025-0512", eligible: true, phase: "Phase II", sites: "8 hospitals" },
+                        { trial: "AI-Driven DM Remission", id: "NCT-SA-2026-0021", eligible: false, phase: "Phase I", sites: "KFMC only" },
+                      ].map((t, i) => (
+                        <div key={i} className={`flex items-center justify-between bg-white rounded-xl px-3 py-2 border ${t.eligible ? "border-violet-200" : "border-gray-200"}`}>
+                          <div className="flex-1 min-w-0 pr-2">
+                            <p className="text-[10px] font-bold text-foreground truncate">{t.trial}</p>
+                            <p className="text-[9px] text-muted-foreground">{t.id} · {t.phase} · {t.sites}</p>
+                          </div>
+                          <Badge variant={t.eligible ? "purple" : "outline"} className="text-[9px] shrink-0">{t.eligible ? "ELIGIBLE" : "EXCL."}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Family Risk */}
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                    <p className="text-[10px] font-bold text-sky-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Users className="w-3 h-3" /> Family Portal — Genetic Risk Cascade
+                    </p>
+                    <div className="space-y-2">
+                      {[
+                        { relation: "Son", age: 28, condition: "DM Type 2 predisposition", risk: 73, status: "Screening recommended" },
+                        { relation: "Daughter", age: 24, condition: "DM Type 2 predisposition", risk: 68, status: "Screening recommended" },
+                        { relation: "Spouse", age: 51, condition: "HTN genetic marker", risk: 41, status: "Annual BP monitoring" },
+                      ].map((f, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-white rounded-xl px-3 py-2 border border-sky-100">
+                          <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
+                            <Users className="w-3.5 h-3.5 text-sky-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-bold text-foreground">{f.relation} · Age {f.age}</p>
+                            <p className="text-[9px] text-muted-foreground truncate">{f.condition}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-[10px] font-bold ${f.risk >= 70 ? "text-red-600" : f.risk >= 50 ? "text-amber-600" : "text-sky-600"}`}>{f.risk}%</p>
+                            <p className="text-[9px] text-muted-foreground">risk</p>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between px-3 py-2 bg-sky-100 rounded-xl">
+                        <p className="text-[10px] font-semibold text-sky-800">Family screening letters</p>
+                        <Badge variant="info" className="text-[9px]">SENT — 3 members</Badge>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </CardBody>
             </Card>

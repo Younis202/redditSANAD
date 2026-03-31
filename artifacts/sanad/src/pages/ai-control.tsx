@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } from "@/components/shared";
 import {
   Brain, Activity, AlertTriangle, CheckCircle2, Zap, TrendingUp,
   RefreshCw, RotateCcw, Shield, Cpu, Database, Clock, Settings, BarChart2,
-  Layers, Eye, AlertCircle, GitBranch, ChevronRight
+  Layers, Eye, AlertCircle, GitBranch, ChevronRight, Network, Radio,
+  ArrowRight, Users, FlaskConical, Pill, Truck, HeartPulse, FileSearch,
+  Building2, ShieldCheck, Stethoscope
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -37,12 +39,79 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string; 
   needs_retraining: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
 };
 
-type ViewTab = "overview" | "engines" | "drift" | "retraining" | "decisions";
+type ViewTab = "overview" | "engines" | "drift" | "retraining" | "decisions" | "fabric" | "stream";
+
+const CASCADE_CHAIN = [
+  { step: 1, portal: "Lab Portal", icon: FlaskConical, action: "RESULT_CRITICAL", badge: "destructive" as const, detail: "HbA1c = 9.2% received for Patient 1000000023 — Critical threshold exceeded (target <7.0%). Creatinine 3.1 mg/dL (Stage 3 CKD flag).", cascade: "→ Triggers: Risk Engine (immediate) · Doctor Portal alert (urgent) · Insurance pre-auth review", latency: "0 ms", color: "bg-rose-600" },
+  { step: 2, portal: "AI Risk Engine", icon: Brain, action: "RISK_SCORED", badge: "purple" as const, detail: "Patient risk score updated: 62 → 78/100 (+16 pts). Trajectory: WORSENING. LACE+ readmission score: 14/19. Diabetes complication probability: 84%.", cascade: "→ Triggers: Doctor alert · Insurance pre-auth · Research data capture · Supply Chain demand signal", latency: "12 ms", color: "bg-purple-600" },
+  { step: 3, portal: "Doctor Portal", icon: Stethoscope, action: "ALERT_DISPATCHED", badge: "info" as const, detail: "Priority alert dispatched to Dr. Reem Al-Ghamdi (Endocrinology). AI recommendation: Intensify insulin regimen + start SGLT2i + nephrology referral.", cascade: "→ AI Copilot suggestion: Switch to Insulin Glargine 300U + Empagliflozin 10mg", latency: "45 ms", color: "bg-blue-600" },
+  { step: 4, portal: "Insurance Portal", icon: ShieldCheck, action: "PRE_AUTH_AUTO", badge: "success" as const, detail: "Pre-authorization auto-review triggered for: Insulin Glargine 300U + Empagliflozin 10mg. AI clinical necessity score: 94/100. ADA guideline alignment: 98%.", cascade: "→ Decision: AUTO-APPROVED in 2.8s · Coverage: 80% · Patient copay: SAR 85", latency: "89 ms", color: "bg-emerald-600" },
+  { step: 5, portal: "Supply Chain", icon: Truck, action: "DEMAND_SIGNAL", badge: "warning" as const, detail: "Insulin Glargine 300U demand +1 unit logged. Al-Riyadh hub stock check: 2,100 units (LOW — reorder threshold 3,000). Empagliflozin: SUFFICIENT (18,400 units).", cascade: "→ Procurement alert raised · Emergency PO triggered: +500 units Insulin · ETA: 3 days", latency: "134 ms", color: "bg-amber-600" },
+  { step: 6, portal: "Family Portal", icon: Users, action: "GENETIC_CASCADE", badge: "info" as const, detail: "Genetic risk cascade triggered. 2 registered family members flagged: Son (age 28) — DM Type 2 predisposition 73%. Daughter (age 24) — predisposition 68%.", cascade: "→ Family screening letters sent · Annual HbA1c + glucose tolerance test recommended", latency: "189 ms", color: "bg-sky-600" },
+  { step: 7, portal: "Research Portal", icon: FileSearch, action: "DATA_CAPTURED", badge: "purple" as const, detail: "Patient data anonymized + captured for HbA1c Variability-CKD Study NCT-SA-2025-0447 (n=18,421 → 18,422). IRB-compliant. PDPL Article 12 compliant.", cascade: "→ Hypothesis confidence: 94.3% → 94.4% · Study statistical power updated", latency: "234 ms", color: "bg-violet-600" },
+];
+
+const MATRIX_PORTALS = ["Doctor", "Lab", "Insurance", "Supply", "Family", "Research", "Admin", "Emergency"];
+const MATRIX_DATA = [
+  [0,3,2,1,2,1,1,3],
+  [3,0,2,1,2,3,2,1],
+  [1,0,0,2,0,0,3,1],
+  [1,0,0,0,0,0,3,2],
+  [2,1,0,0,0,2,1,0],
+  [3,1,0,0,1,0,2,0],
+  [1,1,1,1,0,1,0,1],
+  [3,2,2,2,1,0,2,0],
+];
+
+const PORTAL_CARDS = [
+  { name: "Doctor Portal", icon: Stethoscope, bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconColor: "text-blue-600", sends: "Lab · Insurance · Supply · Research", receives: "Lab · Risk Engine · Insurance", events: "12,400", badge: "info" as const },
+  { name: "Lab Portal", icon: FlaskConical, bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconColor: "text-rose-600", sends: "Doctor · Risk Engine · Research · Family", receives: "Doctor · Admin", events: "34,800", badge: "destructive" as const },
+  { name: "Insurance Portal", icon: ShieldCheck, bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", sends: "Doctor · Admin · Supply", receives: "Doctor · Lab · Emergency", events: "8,200", badge: "success" as const },
+  { name: "Supply Chain", icon: Truck, bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconColor: "text-amber-600", sends: "Doctor · Admin · Hospital", receives: "Doctor · Lab · Emergency", events: "5,100", badge: "warning" as const },
+  { name: "Family Portal", icon: Users, bg: "bg-sky-50", border: "border-sky-200", iconBg: "bg-sky-100", iconColor: "text-sky-600", sends: "Doctor · Research · Admin", receives: "Doctor · Risk Engine · Lab", events: "3,400", badge: "info" as const },
+  { name: "Research Portal", icon: FileSearch, bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconColor: "text-violet-600", sends: "Doctor · Admin", receives: "Doctor · Lab · Family", events: "9,200", badge: "purple" as const },
+  { name: "Admin / Ministry", icon: Building2, bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconColor: "text-gray-600", sends: "Doctor · Insurance · Supply · Research", receives: "ALL portals", events: "2,800", badge: "outline" as const },
+  { name: "Emergency Portal", icon: HeartPulse, bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconColor: "text-red-600", sends: "Doctor · Insurance · Admin · Supply", receives: "Doctor · Lab · Admin", events: "6,700", badge: "destructive" as const },
+];
+
+const STREAM_SEED: Array<{ ms: number; portal: string; portalColor: string; engine: string; patient: string; action: string; outcome: string; cascades: number; badge: "destructive"|"warning"|"success"|"info"|"purple"|"outline" }> = [
+  { ms: 0, portal: "DOCTOR", portalColor: "bg-blue-600", engine: "Risk Engine", patient: "1000000023", action: "HbA1c 9.2% critical", outcome: "Alert → Dr. Reem Al-Ghamdi", cascades: 4, badge: "destructive" },
+  { ms: 2800, portal: "INSURANCE", portalColor: "bg-emerald-600", engine: "Pre-Auth Engine", patient: "1000000004", action: "Insulin Glargine 300U request", outcome: "AUTO-APPROVED · SAR 0 copay", cascades: 1, badge: "success" },
+  { ms: 5600, portal: "LAB", portalColor: "bg-rose-600", engine: "Anomaly Detector", patient: "1000000010", action: "Creatinine 3.8 → CRITICAL", outcome: "Nephrology alert dispatched", cascades: 3, badge: "destructive" },
+  { ms: 8400, portal: "SUPPLY", portalColor: "bg-amber-600", engine: "Demand Forecast", patient: "System-wide", action: "Insulin stock 2,100u (LOW)", outcome: "PO raised +500u · ETA 3d", cascades: 0, badge: "warning" },
+  { ms: 11200, portal: "FAMILY", portalColor: "bg-sky-600", engine: "Genetic Risk", patient: "1000000001", action: "DM Type 2 genetic flag", outcome: "2 family members screened", cascades: 2, badge: "info" },
+  { ms: 14000, portal: "RESEARCH", portalColor: "bg-violet-600", engine: "Data Capture", patient: "1000000023", action: "HbA1c-CKD study NCT-SA-2025", outcome: "n=18,422 · Hypothesis +0.1%", cascades: 0, badge: "purple" },
+  { ms: 16800, portal: "EMERGENCY", portalColor: "bg-red-600", engine: "Triage Engine", patient: "1000000005", action: "Chest pain · ECG STEMI pattern", outcome: "CATH LAB ACTIVATION — 4 min", cascades: 3, badge: "destructive" },
+  { ms: 19600, portal: "DOCTOR", portalColor: "bg-blue-600", engine: "Drug Interaction", patient: "1000000003", action: "Warfarin + Amoxicillin prescribed", outcome: "INTERACTION BLOCKED · Alt given", cascades: 1, badge: "warning" },
+  { ms: 22400, portal: "INSURANCE", portalColor: "bg-emerald-600", engine: "Fraud Detection", patient: "1000000015", action: "Duplicate MRI request (7 days)", outcome: "FLAGGED · Sent to audit", cascades: 0, badge: "warning" },
+  { ms: 25200, portal: "LAB", portalColor: "bg-rose-600", engine: "Trend Analysis", patient: "1000000001", action: "HbA1c improving: 9.1→7.8→7.2", outcome: "Positive trajectory · Risk −18pts", cascades: 2, badge: "success" },
+];
+
+const STREAM_EVENTS_POOL = [
+  { portal: "DOCTOR", portalColor: "bg-blue-600", engine: "Risk Engine", patient: "100000002X", action: "eGFR <30 — CKD Stage 4", outcome: "Nephrology urgent referral", cascades: 3, badge: "destructive" as const },
+  { portal: "SUPPLY", portalColor: "bg-amber-600", engine: "Seasonal Planner", patient: "System-wide", action: "Ramadan D-14 surge forecast", outcome: "Insulin orders +42% approved", cascades: 0, badge: "warning" as const },
+  { portal: "FAMILY", portalColor: "bg-sky-600", engine: "Cascade Engine", patient: "100000003X", action: "BRCA1 variant detected", outcome: "3 family members flagged", cascades: 3, badge: "info" as const },
+  { portal: "RESEARCH", portalColor: "bg-violet-600", engine: "Hypothesis Engine", patient: "Population", action: "New correlation: HTN + CKD n=24k", outcome: "Hypothesis #8 auto-generated", cascades: 0, badge: "purple" as const },
+  { portal: "INSURANCE", portalColor: "bg-emerald-600", engine: "Pre-Auth Engine", patient: "100000004X", action: "MRI lumbar spine L4-L5", outcome: "AUTO-APPROVED · SAR 1,200", cascades: 1, badge: "success" as const },
+  { portal: "EMERGENCY", portalColor: "bg-red-600", engine: "Sepsis Detector", patient: "100000005X", action: "SOFA score 8 — severe sepsis", outcome: "ICU transfer ordered · Abx started", cascades: 4, badge: "destructive" as const },
+  { portal: "LAB", portalColor: "bg-rose-600", engine: "Anomaly Detector", patient: "100000006X", action: "Troponin I 2.8 ng/mL (↑×14)", outcome: "STEMI equivalent alert fired", cascades: 3, badge: "destructive" as const },
+  { portal: "ADMIN", portalColor: "bg-gray-600", engine: "Policy Engine", patient: "National", action: "Diabetes prevalence >22% threshold", outcome: "MOH policy brief auto-drafted", cascades: 0, badge: "info" as const },
+];
 
 export default function AIControlCenter() {
   const [activeTab, setActiveTab] = useState<ViewTab>("overview");
   const [retrainingTarget, setRetrainingTarget] = useState<string | null>(null);
   const [retrainResult, setRetrainResult] = useState<Record<string, any>>({});
+  const [streamEvents, setStreamEvents] = useState<typeof STREAM_SEED>([...STREAM_SEED]);
+  const streamPoolRef = useRef(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      const ev = STREAM_EVENTS_POOL[streamPoolRef.current % STREAM_EVENTS_POOL.length]!;
+      streamPoolRef.current++;
+      setStreamEvents(prev => [{ ...ev, ms: Date.now() }, ...prev].slice(0, 35));
+    }, 2800);
+    return () => clearInterval(id);
+  }, []);
 
   const qc = useQueryClient();
 
@@ -86,6 +155,8 @@ export default function AIControlCenter() {
     { id: "drift", label: "Drift Detection", icon: GitBranch },
     { id: "retraining", label: "Retraining Panel", icon: RotateCcw },
     { id: "decisions", label: "Decision Analysis", icon: BarChart2 },
+    { id: "fabric", label: "Neural Fabric", icon: Network },
+    { id: "stream", label: "Live Intelligence", icon: Radio },
   ];
 
   const driftEngines = drift?.engines ?? [];
@@ -779,6 +850,244 @@ export default function AIControlCenter() {
             </p>
             <Badge variant="success">Audit Active</Badge>
           </div>
+        </div>
+      )}
+
+      {/* ─── NEURAL FABRIC ─── */}
+      {activeTab === "fabric" && (
+        <div className="space-y-5">
+          {/* Header banner */}
+          <div className="flex items-center gap-4 p-5 bg-gradient-to-r from-purple-600 to-rose-600 rounded-3xl text-white">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+              <Network className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-lg">SANAD Neural Fabric</p>
+              <p className="text-sm text-white/80">Cross-portal AI intelligence map — a single lab result cascades through 7 portals and 9 AI engines in under 234ms</p>
+            </div>
+            <div className="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-xl shrink-0">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span className="text-xs font-bold">LIVE</span>
+            </div>
+          </div>
+
+          {/* Cascade Chain */}
+          <Card>
+            <CardHeader>
+              <GitBranch className="w-4 h-4 text-primary" />
+              <CardTitle>AI Cascade Intelligence Chain</CardTitle>
+              <Badge variant="info">Real patient event — Patient 1000000023</Badge>
+              <span className="ml-auto text-[10px] font-mono text-muted-foreground">Total cascade time: 234ms</span>
+            </CardHeader>
+            <CardBody>
+              <p className="text-xs text-muted-foreground mb-5">Trigger event: <span className="font-bold text-foreground">HbA1c 9.2% received from Central Lab → cascades automatically through SANAD AI Fabric</span></p>
+              <div className="space-y-0">
+                {CASCADE_CHAIN.map((step, i) => {
+                  const Icon = step.icon;
+                  return (
+                    <div key={i} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-9 h-9 rounded-2xl flex items-center justify-center text-white shrink-0 ${step.color}`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        {i < CASCADE_CHAIN.length - 1 && <div className="w-0.5 flex-1 bg-border my-1 min-h-[20px]" />}
+                      </div>
+                      <div className="pb-5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-xs font-bold text-foreground">{step.portal}</span>
+                          <Badge variant={step.badge} className="text-[9px] uppercase">{step.action}</Badge>
+                          <span className="ml-auto font-mono text-[10px] text-muted-foreground shrink-0">+{step.latency}</span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mb-2">{step.detail}</p>
+                        <div className="flex items-start gap-2 px-3 py-2 bg-primary/5 border border-primary/15 rounded-xl">
+                          <ArrowRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                          <p className="text-[10px] font-semibold text-primary">{step.cascade}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Cross-Portal Intelligence Matrix */}
+          <Card>
+            <CardHeader>
+              <Layers className="w-4 h-4 text-primary" />
+              <CardTitle>Cross-Portal Intelligence Matrix</CardTitle>
+              <Badge variant="outline">8 portals · dependency strength</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="overflow-x-auto">
+                <table className="w-full text-center text-[10px]">
+                  <thead>
+                    <tr>
+                      <th className="text-left text-muted-foreground font-semibold w-20 pb-2 text-[10px]">FROM ↓ / TO →</th>
+                      {MATRIX_PORTALS.map(p => <th key={p} className="text-muted-foreground font-semibold pb-2 px-0.5 text-[10px] min-w-[50px]">{p}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MATRIX_DATA.map((row, i) => (
+                      <tr key={i}>
+                        <td className="text-left font-bold text-foreground py-1.5 pr-2 text-[10px]">{MATRIX_PORTALS[i]}</td>
+                        {row.map((cell, j) => (
+                          <td key={j} className="py-1.5 px-0.5">
+                            {i === j ? (
+                              <span className="text-muted-foreground/20 text-[8px]">—</span>
+                            ) : (
+                              <span className={`inline-flex items-center justify-center w-7 h-7 rounded-xl text-[9px] font-bold ${
+                                cell === 3 ? "bg-red-100 text-red-700" :
+                                cell === 2 ? "bg-amber-100 text-amber-700" :
+                                cell === 1 ? "bg-sky-100 text-sky-700" :
+                                "bg-secondary text-muted-foreground/30"
+                              }`}>
+                                {cell === 3 ? "HIGH" : cell === 2 ? "MED" : cell === 1 ? "LOW" : "—"}
+                              </span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border flex-wrap">
+                {[{ bg: "bg-red-100 text-red-700", l: "HIGH — strong dependency" }, { bg: "bg-amber-100 text-amber-700", l: "MED — moderate influence" }, { bg: "bg-sky-100 text-sky-700", l: "LOW — weak signal" }, { bg: "bg-secondary text-muted-foreground", l: "No direct link" }].map((x, i) => (
+                  <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold ${x.bg}`}>{x.l}</div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Portal Ecosystem Cards */}
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Portal Ecosystem — Sends / Receives</p>
+            <div className="grid grid-cols-4 gap-3">
+              {PORTAL_CARDS.map((p, i) => {
+                const Icon = p.icon;
+                return (
+                  <div key={i} className={`rounded-2xl border p-4 ${p.bg} ${p.border}`}>
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className={`w-8 h-8 rounded-xl ${p.iconBg} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-4 h-4 ${p.iconColor}`} />
+                      </div>
+                      <p className="text-xs font-bold text-foreground leading-tight">{p.name}</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Sends data to</p>
+                        <p className="text-[10px] font-semibold text-foreground">{p.sends}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Receives from</p>
+                        <p className="text-[10px] font-semibold text-foreground">{p.receives}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-2.5 border-t border-current/10 flex items-center justify-between">
+                      <Badge variant={p.badge} className="text-[9px]">{p.events} events/day</Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── LIVE INTELLIGENCE STREAM ─── */}
+      {activeTab === "stream" && (
+        <div className="space-y-5">
+          {/* Live KPIs */}
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-rose-600 rounded-3xl p-5 text-white text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">AI Events / min</p>
+              <p className="text-4xl font-bold">847</p>
+              <p className="text-[10px] text-white/60 mt-1">across 12 portals</p>
+            </div>
+            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Portals Active Now</p>
+              <p className="text-4xl font-bold text-foreground">12 / 12</p>
+              <p className="text-[10px] text-emerald-600 mt-1 font-semibold">All systems operational</p>
+            </div>
+            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cascades / hour</p>
+              <p className="text-4xl font-bold text-foreground">2,841</p>
+              <p className="text-[10px] text-muted-foreground mt-1">cross-portal triggers</p>
+            </div>
+            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Avg Decision Time</p>
+              <p className="text-4xl font-bold text-foreground">2.8s</p>
+              <p className="text-[10px] text-muted-foreground mt-1">vs. 3 days manual</p>
+            </div>
+          </div>
+
+          {/* Live stream */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                <Radio className="w-4 h-4 text-rose-600" />
+                <CardTitle>Live AI Intelligence Stream</CardTitle>
+              </div>
+              <Badge variant="destructive" className="text-[9px]">LIVE</Badge>
+              <span className="ml-auto text-[10px] text-muted-foreground">{streamEvents.length} events captured · auto-updating every 2.8s</span>
+            </CardHeader>
+            <div className="divide-y divide-border">
+              {streamEvents.map((ev, i) => (
+                <div key={i} className={`flex items-start gap-3 px-5 py-3 transition-colors ${i === 0 ? "bg-primary/5 border-l-4 border-primary" : ""}`}>
+                  <div className={`${ev.portalColor} text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5`}>{ev.portal}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-semibold text-muted-foreground">{ev.engine}</span>
+                      <span className="text-[10px] text-muted-foreground">·</span>
+                      <span className="font-mono text-[10px] font-bold text-foreground">Patient {ev.patient}</span>
+                      <span className="text-[10px] text-muted-foreground">→</span>
+                      <span className="text-[10px] font-semibold text-foreground">{ev.action}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{ev.outcome}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {ev.cascades > 0 && (
+                      <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">⚡{ev.cascades} cascades</span>
+                    )}
+                    <Badge variant={ev.badge} className="text-[9px]">{ev.badge === "success" ? "APPROVED" : ev.badge === "destructive" ? "CRITICAL" : ev.badge === "warning" ? "FLAGGED" : ev.badge === "purple" ? "DATA" : "INFO"}</Badge>
+                    <span className="text-[9px] font-mono text-muted-foreground">{i === 0 ? "just now" : `${(i * 2.8).toFixed(0)}s ago`}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Portal Activity Heatmap */}
+          <Card>
+            <CardHeader>
+              <Activity className="w-4 h-4 text-primary" />
+              <CardTitle>Portal Activity — Last 60 Minutes</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-3">
+                {[
+                  { portal: "Lab Portal", events: 34800, pct: 100, color: "bg-rose-500" },
+                  { portal: "Doctor Portal", events: 12400, pct: 36, color: "bg-blue-500" },
+                  { portal: "Research Portal", events: 9200, pct: 26, color: "bg-violet-500" },
+                  { portal: "Insurance Portal", events: 8200, pct: 24, color: "bg-emerald-500" },
+                  { portal: "Emergency Portal", events: 6700, pct: 19, color: "bg-red-500" },
+                  { portal: "Supply Chain", events: 5100, pct: 15, color: "bg-amber-500" },
+                  { portal: "Family Portal", events: 3400, pct: 10, color: "bg-sky-500" },
+                  { portal: "Admin / Ministry", events: 2800, pct: 8, color: "bg-gray-500" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <p className="text-[10px] font-semibold text-foreground w-28 shrink-0">{item.portal}</p>
+                    <div className="flex-1 bg-secondary rounded-full h-2.5 overflow-hidden">
+                      <div className={`h-full rounded-full ${item.color} transition-all`} style={{ width: `${item.pct}%` }} />
+                    </div>
+                    <p className="text-[10px] font-bold text-foreground w-16 text-right shrink-0">{item.events.toLocaleString()} <span className="font-normal text-muted-foreground">ev/h</span></p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
         </div>
       )}
     </Layout>

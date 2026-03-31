@@ -3,7 +3,13 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.1 — 5 New AI Features Added (Latest)
+## v3.2 — SANAD Neural Fabric: Full Cross-Portal Integration (Latest)
+1. **AI Control → "Neural Fabric" tab** — Visual cascade chain showing how a single patient event (HbA1c 9.2%) triggers 7 portals in 234ms. Cross-portal 8x8 dependency matrix. Portal ecosystem cards (sends/receives data).
+2. **AI Control → "Live Intelligence Stream" tab** — Real-time auto-updating feed of AI decisions from all portals (new event every 2.8s). Portal activity heatmap. Live KPIs (847 events/min, 2,841 cascades/hour, 2.8s decision time).
+3. **Doctor → Cross-Portal Intelligence Panel** — After LACE+ card: shows Insurance coverage for current meds, Supply Chain drug availability, Research trial eligibility (3 active trials), Family genetic risk cascade (3 family members).
+4. **Citizen → "Health Journey" tab (🔗)** — Integrated timeline merging ALL portal events chronologically (visits + labs + prescriptions + insurance claims + AI detections + family cascades + supply alerts). Cross-portal stats (7 portals involved, 14 cascade events, SAR 12,400 AI savings).
+
+## v3.1 — 5 New AI Features Added
 1. **Research → AI Hypothesis Generator** (6th tab) — 7 auto-generated evidence-grade research hypotheses from 34M patient records with n, correlation r, p-value, clinical impact score, and IRB-ready protocol export
 2. **Supply Chain → Ramadan & Hajj Seasonal Surge Planner** (5th tab) — Saudi-specific demand surge forecasting for Ramadan fasting (DM/HTN patients) and Hajj pilgrimage (2.5M pilgrims, heat stroke meds, meningococcal vaccines), with procurement gap tracker
 3. **Insurance → AI Pre-Authorization Engine** (4th tab) — Real-time clinical necessity scoring (0-100), guideline alignment (ADA/ESC/KDIGO), fraud detection, auto-approve/flag/deny with AI clinical reasoning and alternatives

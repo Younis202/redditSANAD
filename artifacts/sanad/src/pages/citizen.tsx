@@ -954,6 +954,105 @@ export default function CitizenPortal() {
                 )}
               </div>
             </div>
+
+            {/* ─── Achievement Badges ─── */}
+            {(() => {
+              const conditions = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());
+              const hasActiveMeds = activeMeds.length > 0;
+              const hasLabs = (patient.labResults ?? []).length > 0;
+              const hasVisit = (patient.visits ?? []).length > 0;
+              const goodScore = healthScore.score >= 70;
+              const achievements: Array<{ icon: string; title: string; desc: string; earned: boolean; color: string }> = [
+                { icon: "💊", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50 border-violet-200" },
+                { icon: "🔬", title: "Lab Tracker", desc: "Lab results on record and monitored", earned: hasLabs, color: "bg-sky-50 border-sky-200" },
+                { icon: "🏥", title: "Health Checkup", desc: "Clinical visit recorded this year", earned: hasVisit, color: "bg-teal-50 border-teal-200" },
+                { icon: "🛡️", title: "Health Warrior", desc: "Health score ≥ 70 / Good standing", earned: goodScore, color: "bg-emerald-50 border-emerald-200" },
+                { icon: "🤝", title: "Chronic Manager", desc: "Managing chronic conditions with AI", earned: conditions.length > 0, color: "bg-indigo-50 border-indigo-200" },
+                { icon: "📊", title: "SANAD Connected", desc: "National health record fully linked", earned: true, color: "bg-amber-50 border-amber-200" },
+              ];
+              return (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Star className="w-3.5 h-3.5 text-amber-500" /> Health Achievements · الإنجازات الصحية
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {achievements.map((a, i) => (
+                      <div key={i} className={`relative flex items-start gap-2.5 p-3 rounded-2xl border ${a.earned ? a.color : "bg-secondary border-border opacity-50"}`}>
+                        <span className={`text-2xl shrink-0 ${a.earned ? "" : "grayscale"}`}>{a.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] font-bold text-foreground leading-snug">{a.title}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{a.desc}</p>
+                        </div>
+                        {a.earned && (
+                          <div className="absolute top-2 right-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                          </div>
+                        )}
+                        {!a.earned && (
+                          <div className="absolute top-2 right-2">
+                            <Lock className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ─── Active Health Challenges ─── */}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                <TrendingUp className="w-3.5 h-3.5 text-primary" /> Active Health Challenges · التحديات الصحية النشطة
+              </p>
+              <div className="space-y-2">
+                {[
+                  { title: "30-Day Medication Streak", desc: "Take all medications on schedule for 30 days", progress: 73, unit: "days", target: 30, color: "bg-violet-500", bg: "bg-violet-50 border-violet-200" },
+                  { title: "7-Day Walking Challenge", desc: "Walk 30 minutes daily — Heart health boost", progress: 57, unit: "days", target: 7, color: "bg-emerald-500", bg: "bg-emerald-50 border-emerald-200" },
+                  { title: "Annual Checkup Reminder", desc: "Book your comprehensive annual health screening", progress: 100, unit: "%", target: 100, color: "bg-sky-500", bg: "bg-sky-50 border-sky-200" },
+                ].map((c, i) => (
+                  <div key={i} className={`p-3.5 rounded-2xl border ${c.bg}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="text-[12px] font-bold text-foreground">{c.title}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{c.desc}</p>
+                      </div>
+                      <span className="text-sm font-black tabular-nums text-foreground ml-3 shrink-0">{c.progress}{c.unit === "%" ? "%" : `/${c.target}d`}</span>
+                    </div>
+                    <div className="w-full bg-white/70 rounded-full h-2">
+                      <div className={`h-full rounded-full ${c.color} transition-all`} style={{ width: `${Math.min(100, (c.progress / c.target) * 100)}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ─── Smart Preventive Reminders ─── */}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Bell className="w-3.5 h-3.5 text-red-500" /> Smart Preventive Reminders · التذكيرات الوقائية
+              </p>
+              <div className="space-y-2">
+                {[
+                  { title: "Annual HbA1c Test Due", desc: "Last test was 3 months ago · Schedule now at King Faisal Specialist", daysLeft: 14, urgent: true },
+                  { title: "Blood Pressure Check", desc: "Weekly self-monitoring recommended — Log to SANAD app", daysLeft: 2, urgent: true },
+                  { title: "Ophthalmology Screening", desc: "Diabetic retinopathy annual exam · مستشفى الملك فيصل التخصصي", daysLeft: 45, urgent: false },
+                  { title: "Medication Refill", desc: "Metformin 500mg prescription expires in 18 days", daysLeft: 18, urgent: false },
+                ].map((r, i) => (
+                  <div key={i} className={`flex items-start gap-3 px-4 py-3 rounded-2xl border ${r.urgent ? "bg-red-50 border-red-200" : "bg-secondary border-border"}`}>
+                    <Bell className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${r.urgent ? "text-red-500" : "text-muted-foreground"}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-[12px] font-bold ${r.urgent ? "text-red-700" : "text-foreground"}`}>{r.title}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{r.desc}</p>
+                    </div>
+                    <span className={`text-[9px] font-black px-2 py-1 rounded-full shrink-0 ${r.daysLeft <= 7 ? "bg-red-600 text-white" : r.daysLeft <= 30 ? "bg-amber-500 text-white" : "bg-secondary text-muted-foreground border border-border"}`}>
+                      {r.daysLeft}d
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
 

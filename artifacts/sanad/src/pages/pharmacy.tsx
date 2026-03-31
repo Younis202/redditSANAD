@@ -34,6 +34,29 @@ async function dispenseMed(medicationId: number, pharmacistName: string) {
   return res.json();
 }
 
+const DRUG_CATEGORIES: Record<string, { category: string; severity: "safe" | "moderate" | "high" | "critical"; label: string; contraindications: string[] }> = {
+  metformin: { category: "B", severity: "safe", label: "Safe in most patients", contraindications: ["eGFR < 30"] },
+  amlodipine: { category: "C", severity: "moderate", label: "Use with caution", contraindications: ["Severe aortic stenosis"] },
+  atorvastatin: { category: "X", severity: "high", label: "Contraindicated in pregnancy", contraindications: ["Pregnancy", "Active liver disease"] },
+  aspirin: { category: "D", severity: "moderate", label: "Avoid in 3rd trimester", contraindications: ["Bleeding disorders", "3rd trimester pregnancy"] },
+  lisinopril: { category: "D", severity: "high", label: "Avoid in pregnancy/CKD", contraindications: ["Pregnancy", "Bilateral renal artery stenosis"] },
+  warfarin: { category: "X", severity: "critical", label: "Critical monitoring required", contraindications: ["Pregnancy", "Active bleeding", "Recent surgery"] },
+  metoprolol: { category: "C", severity: "moderate", label: "Monitor heart rate & BP", contraindications: ["Severe bradycardia", "Cardiogenic shock"] },
+  omeprazole: { category: "C", severity: "safe", label: "Generally well tolerated", contraindications: [] },
+  sitagliptin: { category: "B", severity: "safe", label: "Safe with dose adjustment", contraindications: ["eGFR < 30 (dose reduce)"] },
+  insulin: { category: "B", severity: "safe", label: "Safe — monitor glucose", contraindications: ["Hypoglycemia"] },
+  furosemide: { category: "C", severity: "moderate", label: "Monitor electrolytes", contraindications: ["Anuria", "Sulfonamide allergy"] },
+  clopidogrel: { category: "B", severity: "moderate", label: "Risk of bleeding", contraindications: ["Active bleeding", "Liver disease"] },
+  ramipril: { category: "D", severity: "high", label: "Avoid in pregnancy", contraindications: ["Pregnancy", "Hyperkalemia"] },
+  glimepiride: { category: "C", severity: "moderate", label: "Monitor for hypoglycemia", contraindications: ["Type 1 DM", "Sulfonamide allergy"] },
+  allopurinol: { category: "C", severity: "moderate", label: "Adjust for renal impairment", contraindications: ["Acute gout attack", "Azathioprine co-use"] },
+};
+
+function getDrugCategory(drugName: string) {
+  const key = drugName.toLowerCase().split(" ")[0] ?? "";
+  return DRUG_CATEGORIES[key] ?? null;
+}
+
 function getStockStatus(inventory: any[] | undefined, drugName: string): { status: string; daysOfStock: number; stock: number; unit: string } | null {
   if (!inventory) return null;
   const key = drugName.split(" ")[0]?.toLowerCase() ?? "";
@@ -258,8 +281,47 @@ export default function PharmacyPortal() {
                   const ins = presc.insurance;
                   const stock = getStockStatus(supplyData?.inventory, presc.drugName);
 
+                  const drugCat = getDrugCategory(presc.drugName);
                   return (
                     <div key={presc.id} className={`p-5 ${!check.safe ? "bg-red-50/40" : ""}`}>
+                      {/* ─── SFDA / FDA Drug Classification Panel ─── */}
+                      {drugCat && (
+                        <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl mb-3 border text-xs ${
+                          drugCat.severity === "critical" ? "bg-red-50 border-red-200" :
+                          drugCat.severity === "high" ? "bg-orange-50 border-orange-200" :
+                          drugCat.severity === "moderate" ? "bg-amber-50 border-amber-200" :
+                          "bg-emerald-50 border-emerald-200"
+                        }`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${
+                            drugCat.severity === "critical" ? "bg-red-600 text-white" :
+                            drugCat.severity === "high" ? "bg-orange-500 text-white" :
+                            drugCat.severity === "moderate" ? "bg-amber-500 text-white" :
+                            "bg-emerald-600 text-white"
+                          }`}>{drugCat.category}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-foreground">FDA Category {drugCat.category}</span>
+                              <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${
+                                drugCat.severity === "critical" ? "bg-red-100 text-red-700" :
+                                drugCat.severity === "high" ? "bg-orange-100 text-orange-700" :
+                                drugCat.severity === "moderate" ? "bg-amber-100 text-amber-700" :
+                                "bg-emerald-100 text-emerald-700"
+                              }`}>{drugCat.severity}</span>
+                            </div>
+                            <p className="text-muted-foreground text-[10px] mt-0.5">{drugCat.label}</p>
+                          </div>
+                          {drugCat.contraindications.length > 0 && (
+                            <div className="shrink-0 text-right">
+                              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Contraindicated</p>
+                              <div className="flex flex-wrap gap-1 justify-end">
+                                {drugCat.contraindications.slice(0, 2).map((c, j) => (
+                                  <span key={j} className="text-[8px] font-bold bg-white border border-border px-1.5 py-0.5 rounded text-foreground">{c}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">

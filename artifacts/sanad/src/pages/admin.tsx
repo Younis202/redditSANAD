@@ -477,6 +477,89 @@ export default function AdminDashboard() {
             </Card>
           )}
 
+          {/* ─── National Disease Burden Map ─── */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <Globe className="w-4 h-4 text-primary" />
+              <CardTitle>National Disease Burden — Chronic Condition Prevalence by Region</CardTitle>
+              <Badge variant="outline" className="ml-auto">KSA 34M Citizens · 2025 Data</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-2 gap-6">
+                {/* Disease prevalence bars */}
+                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Top Chronic Conditions — National Prevalence</p>
+                  {[
+                    { condition: "Hypertension", prevalence: 31.4, trend: "↑", patients: "10.6M", color: "bg-red-500" },
+                    { condition: "Type 2 Diabetes", prevalence: 27.6, trend: "↑", patients: "9.4M", color: "bg-amber-500" },
+                    { condition: "Obesity (BMI ≥30)", prevalence: 24.7, trend: "↑", patients: "8.4M", color: "bg-orange-500" },
+                    { condition: "Dyslipidemia", prevalence: 19.3, trend: "→", patients: "6.6M", color: "bg-violet-500" },
+                    { condition: "Coronary Artery Disease", prevalence: 8.2, trend: "↓", patients: "2.8M", color: "bg-rose-500" },
+                    { condition: "Chronic Kidney Disease", prevalence: 6.7, trend: "↑", patients: "2.3M", color: "bg-blue-500" },
+                    { condition: "COPD", prevalence: 4.1, trend: "→", patients: "1.4M", color: "bg-teal-500" },
+                    { condition: "Depression / Mental Health", prevalence: 3.8, trend: "↑", patients: "1.3M", color: "bg-indigo-500" },
+                  ].map((d, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-[11px] font-semibold text-foreground w-44 shrink-0 truncate">{d.condition}</span>
+                      <div className="flex-1 bg-secondary rounded-full h-2">
+                        <div className={`h-full rounded-full ${d.color}`} style={{ width: `${(d.prevalence / 35) * 100}%` }} />
+                      </div>
+                      <span className="text-[11px] font-bold tabular-nums text-foreground w-10 text-right">{d.prevalence}%</span>
+                      <span className={`text-[10px] font-bold w-4 shrink-0 ${d.trend === "↑" ? "text-red-500" : d.trend === "↓" ? "text-emerald-500" : "text-muted-foreground"}`}>{d.trend}</span>
+                      <span className="text-[10px] text-muted-foreground w-10 shrink-0 text-right">{d.patients}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Regional hotspots */}
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">High-Burden Regions — AI Policy Alert Zones</p>
+                  <div className="space-y-2.5">
+                    {[
+                      { region: "Riyadh — الرياض", topCondition: "Diabetes + Hypertension", risk: "CRITICAL", pct: 94, color: "bg-red-600 text-white", bar: "bg-red-500" },
+                      { region: "Makkah — مكة المكرمة", topCondition: "Obesity + Cardiovascular", risk: "HIGH", pct: 81, color: "bg-orange-500 text-white", bar: "bg-orange-400" },
+                      { region: "Madinah — المدينة", topCondition: "Hypertension + CKD", risk: "HIGH", pct: 76, color: "bg-amber-500 text-white", bar: "bg-amber-400" },
+                      { region: "Eastern Province — الشرقية", topCondition: "Dyslipidemia + CAD", risk: "MODERATE", pct: 62, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
+                      { region: "Asir — عسير", topCondition: "COPD + Respiratory", risk: "MODERATE", pct: 57, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
+                      { region: "Jizan — جازان", topCondition: "Infectious Disease + Malaria", risk: "MODERATE", pct: 53, color: "bg-emerald-600 text-white", bar: "bg-emerald-400" },
+                    ].map((r, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`text-[8px] font-black px-1.5 py-0.5 rounded shrink-0 ${r.color}`}>{r.risk}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[11px] font-bold text-foreground truncate">{r.region}</span>
+                            <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{r.topCondition}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-1.5">
+                            <div className={`h-full rounded-full ${r.bar}`} style={{ width: `${r.pct}%` }} />
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-bold tabular-nums text-foreground shrink-0">{r.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Policy Engine Recommendations */}
+                  <div className="mt-4 p-3.5 bg-violet-50 border border-violet-200 rounded-2xl">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-violet-800 mb-2">⚙ Policy Engine — AI Recommendations</p>
+                    <div className="space-y-1.5">
+                      {[
+                        "Deploy 3 mobile diabetes clinics to Riyadh Northern Districts (est. 45K undiagnosed)",
+                        "Expand CKD screening in Madinah — eGFR testing in all primary care centres",
+                        "COPD awareness campaign targeting Jizan and Asir highland zones",
+                      ].map((r, i) => (
+                        <div key={i} className="flex items-start gap-2 text-[10px] text-violet-900">
+                          <span className="shrink-0 font-bold">{i + 1}.</span>
+                          <span>{r}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+
           {/* ─── Hospital Performance Ranking ─── */}
           <Card className="col-span-12">
             <CardHeader>

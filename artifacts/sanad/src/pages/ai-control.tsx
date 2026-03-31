@@ -245,6 +245,84 @@ export default function AIControlCenter() {
             </Card>
           </div>
 
+          {/* ─── Population Learning Engine ─── */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card className="col-span-2">
+              <CardHeader>
+                <Brain className="w-4 h-4 text-rose-600" />
+                <CardTitle>Population Learning Engine — Continuous Training Pipeline</CardTitle>
+                <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active Training
+                </span>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-3">
+                  {[
+                    { label: "Training Samples Processed", value: "4.7M", sub: "+127K this week", pct: 87, color: "bg-rose-500" },
+                    { label: "Model Accuracy Improvement", value: "+3.2%", sub: "vs. baseline Q3 2024", pct: 74, color: "bg-violet-500" },
+                    { label: "Feature Coverage", value: "91%", sub: "Lab + Vitals + Demographics + Medications", pct: 91, color: "bg-blue-500" },
+                    { label: "Bias Mitigation Score", value: "96.4", sub: "Across 13 regions · gender-balanced", pct: 96, color: "bg-emerald-500" },
+                  ].map((item, i) => (
+                    <div key={i}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-muted-foreground">{item.sub}</span>
+                          <span className="text-sm font-bold text-foreground">{item.value}</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-1.5">
+                        <div className={`h-full rounded-full ${item.color}`} style={{ width: `${item.pct}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  {[
+                    { label: "Last Training Run", value: "6h ago", icon: Clock },
+                    { label: "Next Auto-Retrain", value: "18h", icon: RotateCcw },
+                    { label: "Training Epochs", value: "248", icon: Layers },
+                  ].map((m, i) => (
+                    <div key={i} className="px-3 py-2.5 bg-secondary rounded-xl text-center">
+                      <m.icon className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-1" />
+                      <p className="text-sm font-bold text-foreground">{m.value}</p>
+                      <p className="text-[10px] text-muted-foreground">{m.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Database className="w-4 h-4 text-primary" />
+                <CardTitle>Regional Data Contributions</CardTitle>
+              </CardHeader>
+              <CardBody className="space-y-2">
+                {[
+                  { region: "Riyadh", pct: 34, patients: "1.6M" },
+                  { region: "Makkah", pct: 22, patients: "1.0M" },
+                  { region: "Eastern", pct: 14, patients: "657K" },
+                  { region: "Madinah", pct: 11, patients: "516K" },
+                  { region: "Asir", pct: 7, patients: "328K" },
+                  { region: "Others (8)", pct: 12, patients: "563K" },
+                ].map((r, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[11px] text-foreground w-16 shrink-0">{r.region}</span>
+                    <div className="flex-1 bg-secondary rounded-full h-1.5">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${r.pct}%` }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-foreground w-6 text-right">{r.pct}%</span>
+                    <span className="text-[9px] text-muted-foreground w-10 text-right">{r.patients}</span>
+                  </div>
+                ))}
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-[10px] text-muted-foreground text-center">Total: <strong className="text-foreground">4.7M</strong> patient records in training corpus</p>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
               <Layers className="w-4 h-4 text-primary" />

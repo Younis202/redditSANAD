@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { patientsTable, medicationsTable, alertsTable, labResultsTable, visitsTable, eventsTable, auditLogTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { calculateRiskScore, generateClinicalActions } from "../lib/ai-engine.js";
+import { calculateRiskScore, generateClinicalActions, checkDrugInteractions } from "../lib/ai-engine.js";
 import { broadcastToRole } from "../lib/sse.js";
 
 const router = Router();
@@ -56,6 +56,21 @@ router.get("/:nationalId", async (req, res) => {
     p.chronicConditions
   );
 
+  // Cross-check all medication pairs for drug interactions
+  const medNames = activeMeds.map(m => m.drugName);
+  const allInteractions: ReturnType<typeof checkDrugInteractions> = [];
+  for (let i = 0; i < medNames.length; i++) {
+    const drug = medNames[i]!;
+    const others = medNames.filter((_, idx) => idx !== i);
+    const found = checkDrugInteractions(drug, others);
+    for (const interaction of found) {
+      const already = allInteractions.some(
+        ex => ex.conflictingDrug === drug || ex.conflictingDrug === interaction.conflictingDrug
+      );
+      if (!already) allInteractions.push(interaction);
+    }
+  }
+
   const age = new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear();
 
   await db.insert(eventsTable).values({
@@ -101,6 +116,9 @@ router.get("/:nationalId", async (req, res) => {
     emergencyPhone: p.emergencyPhone || "",
     riskLevel: riskData.riskLevel,
     riskScore: riskData.riskScore,
+    riskFactors: riskData.factors,
+    aiRecommendations: riskData.recommendations,
+    drugInteractions: allInteractions,
     criticalAlerts,
     clinicalActions,
   });

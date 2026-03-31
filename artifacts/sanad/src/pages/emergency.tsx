@@ -58,13 +58,16 @@ export default function EmergencyPage() {
     if (nationalId.trim()) setSubmittedId(nationalId.trim());
   };
 
-  const actions        = (patient as any)?.clinicalActions as ClinicalAction[] | undefined;
-  const immediate      = actions?.filter(a => a.priority === "immediate") ?? [];
-  const guidance       = actions?.filter(a => a.priority !== "immediate") ?? [];
-  const riskLevel      = (patient as any)?.riskLevel ?? "low";
-  const riskBadge      = RISK_BADGE[riskLevel] ?? RISK_BADGE.low;
-  const allergies      = (patient as any)?.allergies as string[] ?? [];
-  const chronicConds   = (patient as any)?.chronicConditions as string[] ?? [];
+  const actions          = (patient as any)?.clinicalActions as ClinicalAction[] | undefined;
+  const immediate        = actions?.filter(a => a.priority === "immediate") ?? [];
+  const guidance         = actions?.filter(a => a.priority !== "immediate") ?? [];
+  const riskLevel        = (patient as any)?.riskLevel ?? "low";
+  const riskBadge        = RISK_BADGE[riskLevel] ?? RISK_BADGE.low;
+  const allergies        = (patient as any)?.allergies as string[] ?? [];
+  const chronicConds     = (patient as any)?.chronicConditions as string[] ?? [];
+  const riskFactors      = (patient as any)?.riskFactors as { factor: string; impact: "low"|"moderate"|"high"; description: string }[] ?? [];
+  const aiRecommendations = (patient as any)?.aiRecommendations as string[] ?? [];
+  const drugInteractions = (patient as any)?.drugInteractions as { severity: string; conflictingDrug: string; description: string; recommendation: string }[] ?? [];
 
   return (
     <Layout role="emergency">
@@ -377,7 +380,96 @@ export default function EmergencyPage() {
             </div>
           </div>
 
-          {/* ── 4. IMMEDIATE ACTIONS ── */}
+          {/* ── 4. DRUG INTERACTION WARNINGS ── */}
+          {drugInteractions.length > 0 && (
+            <div className="bg-white rounded-2xl border border-amber-200 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+              <div className="px-5 py-4 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <span className="text-sm font-black text-amber-800">AI Drug Interaction Warning</span>
+                <span className="ml-auto text-[11px] font-bold text-amber-700 bg-amber-200 px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {drugInteractions.map((ix, i) => {
+                  const sev = ix.severity;
+                  const sevColor = sev === "critical" ? "text-red-700 bg-red-100" : sev === "high" ? "text-orange-700 bg-orange-100" : "text-amber-700 bg-amber-100";
+                  return (
+                    <div key={i} className="px-5 py-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full ${sevColor}`}>{sev}</span>
+                            <span className="text-sm font-bold text-slate-800">{ix.conflictingDrug}</span>
+                          </div>
+                          <p className="text-sm text-slate-600 leading-relaxed">{ix.description}</p>
+                          <div className="flex items-start gap-2 mt-2 p-2.5 bg-slate-50 rounded-xl">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wide shrink-0 mt-0.5">Recommendation</span>
+                            <p className="text-xs font-semibold text-slate-700">{ix.recommendation}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── 5. AI TRIAGE INTELLIGENCE ── */}
+          {(riskFactors.length > 0 || aiRecommendations.length > 0) && (
+            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+              <div className="px-5 py-4 border-b border-slate-50 flex items-center gap-2">
+                <Brain className="w-4 h-4 text-violet-500" />
+                <span className="text-sm font-bold text-slate-800">AI Triage Intelligence</span>
+                <span className="ml-auto text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-full">
+                  {riskFactors.length} risk factor{riskFactors.length !== 1 ? "s" : ""} analysed
+                </span>
+              </div>
+
+              {/* Risk Factors */}
+              {riskFactors.length > 0 && (
+                <div className="px-5 pt-4 pb-2">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Why this risk score?</p>
+                  <div className="space-y-2">
+                    {riskFactors.map((f, i) => {
+                      const impactBar = f.impact === "high" ? "bg-red-500 w-full" : f.impact === "moderate" ? "bg-amber-500 w-2/3" : "bg-blue-400 w-1/3";
+                      const impactText = f.impact === "high" ? "text-red-700 bg-red-50" : f.impact === "moderate" ? "text-amber-700 bg-amber-50" : "text-blue-700 bg-blue-50";
+                      return (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-slate-800">{f.factor}</span>
+                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md ${impactText}`}>{f.impact}</span>
+                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">{f.description}</p>
+                            <div className="mt-1.5 h-1 bg-slate-200 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${impactBar}`} />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Recommendations */}
+              {aiRecommendations.length > 0 && (
+                <div className="px-5 pt-3 pb-5">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">AI Recommendations</p>
+                  <div className="space-y-2">
+                    {aiRecommendations.map((rec, i) => (
+                      <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-violet-50 rounded-xl border border-violet-100">
+                        <span className="text-[10px] font-black text-violet-400 tabular-nums shrink-0 mt-0.5">{String(i+1).padStart(2,"0")}</span>
+                        <p className="text-xs font-semibold text-violet-900 leading-relaxed">{rec}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── 6. IMMEDIATE ACTIONS ── */}
           {immediate.length > 0 && (
             <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
               <div className="px-5 py-4 border-b border-red-50 bg-red-50 flex items-center gap-2">

@@ -64,7 +64,7 @@ export default function HospitalPortal() {
   return (
     <Layout role="hospital">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Building2 className="w-3 h-3" />
           Hospital Operations Center
         </div>
@@ -125,7 +125,7 @@ export default function HospitalPortal() {
           { id: "icu", label: `ICU Alerts ${icuCritical > 0 ? `(${icuCritical} critical)` : ""}` },
           { id: "or", label: "OR Schedule" },
           { id: "readmission", label: "Readmission Risk" },
-          { id: "flow", label: "🤖 AI Patient Flow" },
+          { id: "flow", label: "AI Patient Flow" },
         ] as { id: TabId; label: string }[]).map(tab => (
           <button
             key={tab.id}

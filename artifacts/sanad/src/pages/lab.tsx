@@ -225,46 +225,41 @@ export default function LabPortal() {
 
       {data && (
         <div className="space-y-4">
-          {/* Patient Strip */}
-          <div className={`rounded-3xl p-5 flex items-center justify-between gap-5 ${
-            data.patient.riskLevel === "critical" ? "bg-red-600" :
-            data.patient.riskLevel === "high" ? "bg-amber-500" :
-            "bg-teal-500"
-          } text-white`}>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Patient Identified</p>
-              <p className="text-xl font-bold">{data.patient.name}</p>
-              <div className="flex items-center gap-4 mt-1.5 text-sm text-white/80">
-                <span>ID: {data.patient.nationalId}</span>
-                <span>Age: {data.patient.age}</span>
-                <span>Blood: {data.patient.bloodType}</span>
+          {/* Patient Card */}
+          <div className="rounded-3xl border border-border overflow-hidden">
+            {data.patient.allergies?.length > 0 && (
+              <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <p className="text-xs font-bold uppercase tracking-widest">KNOWN ALLERGIES: {data.patient.allergies.join(", ")}</p>
               </div>
-              {data.patient.allergies && data.patient.allergies.length > 0 && (
-                <div className="mt-2 flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">ALLERGIES: {data.patient.allergies.join(", ")}</span>
+            )}
+            <div className="bg-white p-5 flex items-center justify-between gap-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Patient Identified</p>
+                <p className="text-2xl font-bold text-foreground">{data.patient.name}</p>
+                <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+                  <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{data.patient.nationalId}</span>
+                  <span className="text-xs text-muted-foreground">Age {data.patient.age}</span>
+                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-6 shrink-0">
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Labs on Record</p>
-                <p className="text-3xl font-bold">{data.summary.total}</p>
               </div>
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Critical</p>
-                <p className="text-3xl font-bold">{data.summary.critical}</p>
+              <div className="flex items-center gap-6 shrink-0">
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Labs on Record</p>
+                  <p className="text-3xl font-bold tabular-nums text-foreground">{data.summary.total}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Critical</p>
+                  <p className="text-3xl font-bold tabular-nums text-red-600">{data.summary.critical}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Abnormal</p>
+                  <p className="text-3xl font-bold tabular-nums text-amber-600">{data.summary.abnormal}</p>
+                </div>
+                <Button onClick={() => setShowAddForm(true)}>
+                  <Plus className="w-4 h-4" /> Add Result
+                </Button>
               </div>
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Abnormal</p>
-                <p className="text-3xl font-bold">{data.summary.abnormal}</p>
-              </div>
-              <Button
-                onClick={() => setShowAddForm(true)}
-                className="bg-white/20 hover:bg-white/30 text-white border-0"
-              >
-                <Plus className="w-4 h-4" /> Add Result
-              </Button>
             </div>
           </div>
 

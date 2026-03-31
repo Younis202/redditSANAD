@@ -182,7 +182,7 @@ export default function AIControlCenter() {
       )}
 
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-rose-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Brain className="w-3 h-3" />
           AI Control Center
         </div>

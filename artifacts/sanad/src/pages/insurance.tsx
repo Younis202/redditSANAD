@@ -113,7 +113,7 @@ export default function InsurancePortal() {
   return (
     <Layout role="insurance">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-violet-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Shield className="w-3 h-3" /> Insurance Operations Center
         </div>
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">

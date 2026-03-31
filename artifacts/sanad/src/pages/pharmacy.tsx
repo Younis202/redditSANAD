@@ -218,44 +218,52 @@ export default function PharmacyPortal() {
 
       {data && (
         <div className="space-y-4">
-          {/* Patient + Allergy Strip */}
-          <div className={`rounded-3xl p-5 flex items-start justify-between gap-5 ${
-            data.summary.interactions > 0 ? "bg-red-600" : "bg-purple-500"
-          } text-white`}>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Patient Record</p>
-              <p className="text-xl font-bold">{data.patient.name}</p>
-              <div className="flex items-center gap-4 mt-1.5 text-sm text-white/80">
-                <span>ID: {data.patient.nationalId}</span>
-                <span>Age: {data.patient.age}</span>
-                <span>Blood: {data.patient.bloodType}</span>
+          {/* Patient Card */}
+          <div className="rounded-3xl border border-border overflow-hidden">
+            {data.patient.allergies?.length > 0 && (
+              <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <p className="text-xs font-bold uppercase tracking-widest">KNOWN ALLERGIES: {data.patient.allergies.join(", ")}</p>
               </div>
-              {data.patient.chronicConditions?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {data.patient.chronicConditions.map((c: string) => (
-                    <span key={c} className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full">{c}</span>
-                  ))}
+            )}
+            {data.summary.interactions > 0 && (
+              <div className="bg-amber-50 border-b border-amber-200 px-5 py-2 flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <p className="text-xs font-bold text-amber-800 uppercase tracking-widest">
+                  {data.summary.interactions} DRUG INTERACTION{data.summary.interactions > 1 ? "S" : ""} DETECTED
+                </p>
+              </div>
+            )}
+            <div className="bg-white p-5 flex items-start justify-between gap-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Patient Record</p>
+                <p className="text-2xl font-bold text-foreground">{data.patient.name}</p>
+                <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+                  <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{data.patient.nationalId}</span>
+                  <span className="text-xs text-muted-foreground">Age {data.patient.age}</span>
+                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
                 </div>
-              )}
-              {data.patient.allergies?.length > 0 && (
-                <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-xl">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <p className="text-xs font-bold">KNOWN ALLERGIES: {data.patient.allergies.join(", ")}</p>
+                {data.patient.chronicConditions?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {data.patient.chronicConditions.map((c: string) => (
+                      <span key={c} className="text-[10px] font-bold bg-secondary px-2 py-0.5 rounded-full">{c}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-5 shrink-0">
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Active Rx</p>
+                  <p className="text-3xl font-bold tabular-nums text-foreground">{data.summary.active}</p>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-5 shrink-0">
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Active Rx</p>
-                <p className="text-3xl font-bold">{data.summary.active}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Interactions</p>
-                <p className={`text-3xl font-bold ${data.summary.interactions > 0 ? "text-yellow-300" : ""}`}>{data.summary.interactions}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-[10px] text-white/70">Insured</p>
-                <p className="text-3xl font-bold">{data.summary.insuranceCovered}</p>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Interactions</p>
+                  <p className={`text-3xl font-bold tabular-nums ${data.summary.interactions > 0 ? "text-amber-600" : "text-foreground"}`}>{data.summary.interactions}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Insured</p>
+                  <p className="text-3xl font-bold tabular-nums text-foreground">{data.summary.insuranceCovered}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -326,8 +334,8 @@ export default function PharmacyPortal() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-bold text-base text-foreground">{presc.drugName}</p>
-                            {!check.safe && <Badge variant="destructive" className="text-[9px]">⚠ CONFLICT</Badge>}
-                            {check.safe && <Badge variant="success" className="text-[9px]">✓ SAFE</Badge>}
+                            {!check.safe && <Badge variant="destructive" className="text-[9px]">CONFLICT</Badge>}
+                            {check.safe && <Badge variant="success" className="text-[9px]">SAFE</Badge>}
                             {isDispensed && <Badge variant="info" className="text-[9px]">DISPENSED</Badge>}
                             {stock && (
                               <span className={`flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full ${

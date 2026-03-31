@@ -612,25 +612,28 @@ export default function CitizenPortal() {
 
       {/* Identity + Score Row */}
       <div className="grid grid-cols-12 gap-4 mb-5">
-        <Card className="col-span-7">
-          <CardBody className="flex items-center gap-4 p-5">
+        <div className="col-span-7 rounded-3xl border border-border overflow-hidden">
+          {patient.allergies?.length > 0 && (
+            <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <p className="text-xs font-bold uppercase tracking-widest">KNOWN ALLERGIES: {patient.allergies.join(", ")}</p>
+            </div>
+          )}
+          <div className="bg-white flex items-center gap-4 p-5">
             <div className="w-14 h-14 rounded-3xl bg-amber-100 flex items-center justify-center shrink-0">
               <User className="w-7 h-7 text-amber-600" />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-foreground mb-1.5">{patient.fullName}</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-1.5">{patient.fullName}</h2>
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{patient.nationalId}</span>
                 <span className="text-xs text-muted-foreground">DOB: {format(new Date(patient.dateOfBirth), "dd MMM yyyy")}</span>
                 <span className="text-xs text-muted-foreground">· {patient.gender}</span>
-                <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full">Blood: {patient.bloodType}</span>
+                <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {patient.bloodType}</span>
               </div>
             </div>
-            {patient.allergies?.length > 0 && (
-              <Badge variant="destructive">{patient.allergies.length} Allerg{patient.allergies.length > 1 ? "ies" : "y"}</Badge>
-            )}
-          </CardBody>
-        </Card>
+          </div>
+        </div>
 
         {healthScore && (
           <Card className={`col-span-3 ${healthScore.bg} border-${healthScore.bg.replace("bg-", "border-")}`}>
@@ -687,40 +690,52 @@ export default function CitizenPortal() {
       {/* AI Risk Awareness Panel — always visible when AI decision is available */}
       {aiDecision && (() => {
         const urgency = aiDecision.urgency;
-        const bannerStyle =
-          urgency === "immediate" ? "bg-red-600" :
-          urgency === "urgent"    ? "bg-amber-500" :
-          urgency === "soon"      ? "bg-sky-500"   : "bg-emerald-600";
+        const isImmediate = urgency === "immediate";
         const urgencyLabel =
           urgency === "immediate" ? "Immediate Action Required" :
           urgency === "urgent"    ? "Urgent Health Alert" :
           urgency === "soon"      ? "Attention Recommended" : "Health Status — Normal";
+        const iconColor =
+          urgency === "immediate" ? "text-red-600" :
+          urgency === "urgent"    ? "text-amber-600" :
+          urgency === "soon"      ? "text-sky-600"   : "text-emerald-600";
+        const iconBg =
+          urgency === "immediate" ? "bg-red-100" :
+          urgency === "urgent"    ? "bg-amber-100" :
+          urgency === "soon"      ? "bg-sky-100"   : "bg-emerald-100";
+        const cardBorder =
+          urgency === "immediate" ? "border-red-200 bg-red-50" :
+          urgency === "urgent"    ? "border-amber-200 bg-amber-50" :
+          urgency === "soon"      ? "border-sky-200 bg-sky-50"   : "border-emerald-200 bg-emerald-50";
+        const scoreColor =
+          urgency === "immediate" ? "text-red-600" :
+          urgency === "urgent"    ? "text-amber-600" :
+          urgency === "soon"      ? "text-sky-600"   : "text-emerald-600";
         const IconEl = urgency === "immediate" || urgency === "urgent" ? ShieldAlert : Brain;
-        const pulseClass = urgency === "immediate" ? "animate-pulse" : "";
         return (
-          <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 ${bannerStyle} text-white ${pulseClass}`}>
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-              <IconEl className="w-5 h-5 text-white" />
+          <div className={`mb-4 rounded-2xl border p-4 flex items-start gap-4 ${cardBorder} ${isImmediate ? "animate-pulse" : ""}`}>
+            <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
+              <IconEl className={`w-5 h-5 ${iconColor}`} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-0.5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
                 AI Risk Assessment · {urgencyLabel}
               </p>
-              <p className="font-bold text-sm text-white mb-1">{aiDecision.primaryAction}</p>
+              <p className="font-bold text-sm text-foreground mb-1">{aiDecision.primaryAction}</p>
               <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-xs text-white/80 font-semibold">{aiDecision.timeWindow}</p>
-                <span className="text-white/60 text-[10px]">·</span>
-                <p className="text-xs text-white/80 font-semibold">
+                <p className="text-xs text-muted-foreground font-semibold">{aiDecision.timeWindow}</p>
+                <span className="text-muted-foreground text-[10px]">·</span>
+                <p className="text-xs text-muted-foreground font-semibold">
                   Confidence: {Math.round(aiDecision.confidence * 100)}%
                 </p>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-[10px] text-white/60">AI Risk Score</p>
-              <p className="text-3xl font-bold tabular-nums">
-                {aiDecision.riskScore}<span className="text-base text-white/60">/100</span>
+              <p className="text-[10px] text-muted-foreground">AI Risk Score</p>
+              <p className={`text-3xl font-bold tabular-nums ${scoreColor}`}>
+                {aiDecision.riskScore}<span className="text-base text-muted-foreground">/100</span>
               </p>
-              <p className="text-[10px] text-white/70 mt-0.5 uppercase tracking-wide font-bold">
+              <p className={`text-[10px] mt-0.5 uppercase tracking-wide font-bold ${scoreColor}`}>
                 {aiDecision.riskLevel} risk
               </p>
             </div>

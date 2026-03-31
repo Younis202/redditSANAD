@@ -114,7 +114,7 @@ export default function FamilyPortal() {
   return (
     <Layout role="family">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-pink-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Users className="w-3 h-3" /> Family Health Portal
         </div>
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full">

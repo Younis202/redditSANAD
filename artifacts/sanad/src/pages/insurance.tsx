@@ -124,8 +124,8 @@ export default function InsurancePortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-violet-50 border-violet-300 hover:bg-violet-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-violet-50 hover:bg-violet-100" : "bg-secondary hover:bg-border"
               }`}
             >
               <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-violet-600" : "text-muted-foreground"}`} />
@@ -246,7 +246,7 @@ export default function InsurancePortal() {
                   </CardHeader>
                   <CardBody className="space-y-2.5">
                     {dashboard.fraudAlerts?.map((alert: any, i: number) => (
-                      <div key={i} className={`p-3.5 rounded-2xl border ${alert.severity === "high" ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-100"}`}>
+                      <div key={i} className={`p-3.5 rounded-2xl ${alert.severity === "high" ? "bg-red-50" : "bg-amber-50"}`}>
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <div className="flex items-center gap-1.5">
                             <ShieldAlert className={`w-3.5 h-3.5 shrink-0 ${alert.severity === "high" ? "text-red-500" : "text-amber-500"}`} />
@@ -384,7 +384,7 @@ export default function InsurancePortal() {
             </div>
           )}
           {patientError && nationalId && (
-            <Card className="border-red-200 bg-red-50">
+            <Card className="bg-red-50">
               <CardBody className="flex items-center gap-3 p-4">
                 <X className="w-4 h-4 text-red-500" />
                 <p className="text-sm text-red-700">No policy found for <span className="font-mono">{nationalId}</span></p>
@@ -446,7 +446,7 @@ export default function InsurancePortal() {
                   </CardHeader>
                   <CardBody className="space-y-2.5">
                     {patient.anomalyFactors?.map((factor: any, i: number) => (
-                      <div key={i} className={`p-3 rounded-2xl border ${factor.flag ? "bg-red-50 border-red-200" : "bg-secondary border-transparent"}`}>
+                      <div key={i} className={`p-3 rounded-2xl ${factor.flag ? "bg-red-50" : "bg-secondary"}`}>
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <p className={`text-xs font-bold ${factor.flag ? "text-red-700" : "text-foreground"}`}>{factor.label}</p>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${factor.flag ? "bg-red-100 text-red-700" : "bg-secondary text-muted-foreground"}`}>+{factor.weight}pts</span>
@@ -508,7 +508,7 @@ export default function InsurancePortal() {
 
               {/* Fraud Flags */}
               {patient.fraudFlags?.length > 0 && (
-                <div className="flex items-start gap-3 p-4 bg-amber-50 border-2 border-amber-300 rounded-3xl">
+                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-3xl">
                   <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-bold text-amber-800 mb-2">AI Fraud Detection Flags ({patient.fraudFlags.length})</p>
@@ -561,7 +561,7 @@ export default function InsurancePortal() {
                             </div>
                             <div className="text-right shrink-0 mr-2">
                               <p className="text-base font-bold text-foreground">SAR {claim.estimatedCost?.toLocaleString()}</p>
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.color} border ${cfg.border}`}>{cfg.label}</span>
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
                               {canReview && !isReviewing && (
@@ -642,7 +642,7 @@ export default function InsurancePortal() {
       {/* ─── AI PRE-AUTHORIZATION ENGINE ─── */}
       {activeTab === "preauth" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-blue-50 border-2 border-violet-200 rounded-3xl">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-blue-50 rounded-3xl">
             <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
               <FileCheck className="w-6 h-6 text-violet-700" />
             </div>
@@ -897,7 +897,7 @@ export default function InsurancePortal() {
                   { label: "High Risk", value: dashboard.portfolioRisk?.high, color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" },
                   { label: "Critical Risk", value: dashboard.portfolioRisk?.critical, color: "text-red-600", bg: "bg-red-50", border: "border-red-200" },
                 ].map((band, i) => (
-                  <div key={i} className={`p-5 rounded-3xl border ${band.bg} ${band.border}`}>
+                  <div key={i} className={`p-5 rounded-3xl ${band.bg}`}>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{band.label}</p>
                     <p className={`text-4xl font-bold ${band.color}`}>{band.value}</p>
                     <p className="text-xs text-muted-foreground mt-1">policyholders</p>

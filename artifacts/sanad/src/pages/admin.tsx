@@ -312,7 +312,7 @@ export default function AdminDashboard() {
                 {REGIONS.map((region, i) => {
                   const cfg = RISK_CFG[region.risk as keyof typeof RISK_CFG];
                   return (
-                    <div key={i} className={`p-3.5 rounded-2xl border ${cfg.bg} ${cfg.border} flex flex-col gap-2`}>
+                    <div key={i} className={`p-3.5 rounded-2xl ${cfg.bg} flex flex-col gap-2`}>
                       <div className="flex items-start justify-between gap-1">
                         <div>
                           <p className="text-[11px] font-bold text-foreground leading-tight">{region.name}</p>
@@ -392,7 +392,7 @@ export default function AdminDashboard() {
                       { name: "Explainability Layer", status: "online", version: "v2.0" },
                       { name: "Unknown Pattern Detector", status: "standby", version: "v0.9" },
                     ].map((engine, i) => (
-                      <div key={i} className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border ${engine.status === "online" ? "bg-emerald-50 border-emerald-200" : "bg-secondary border-border"}`}>
+                      <div key={i} className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl ${engine.status === "online" ? "bg-emerald-50" : "bg-secondary"}`}>
                         <div className={`w-2 h-2 rounded-full shrink-0 ${engine.status === "online" ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`} />
                         <div>
                           <p className="text-xs font-bold text-foreground">{engine.name}</p>
@@ -411,10 +411,10 @@ export default function AdminDashboard() {
                     </p>
                     <div className="grid grid-cols-2 gap-2.5">
                       {(intelligence as any).epidemicRadar.map((item: any, i: number) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl border ${
-                          item.alert === "high" ? "bg-red-50 border-red-200" :
-                          item.alert === "medium" ? "bg-amber-50 border-amber-200" :
-                          "bg-secondary border-border"
+                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${
+                          item.alert === "high" ? "bg-red-50" :
+                          item.alert === "medium" ? "bg-amber-50" :
+                          "bg-secondary"
                         }`}>
                           <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
                             item.alert === "high" ? "bg-red-500" :
@@ -444,8 +444,8 @@ export default function AdminDashboard() {
                     </p>
                     <div className="space-y-2">
                       {(intelligence as any).policyInsights.map((insight: any, i: number) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl border ${
-                          insight.priority === "high" ? "bg-violet-50 border-violet-200" : "bg-secondary border-border"
+                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${
+                          insight.priority === "high" ? "bg-violet-50" : "bg-secondary"
                         }`}>
                           <Target className="w-4 h-4 shrink-0 mt-0.5 text-violet-600" />
                           <div className="flex-1 min-w-0">
@@ -658,7 +658,7 @@ export default function AdminDashboard() {
                   { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200", dot: "bg-violet-500" },
                   { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500" },
                 ].map((item, i) => (
-                  <div key={i} className={`p-4 rounded-2xl border ${item.bg} ${item.border}`}>
+                  <div key={i} className={`p-4 rounded-2xl ${item.bg}`}>
                     <div className="flex items-start justify-between mb-2">
                       <span className={`w-2.5 h-2.5 rounded-full mt-1 ${item.dot}`} />
                       <span className={`text-2xl font-black tabular-nums ${item.color}`}>{item.value}</span>
@@ -718,7 +718,7 @@ export default function AdminDashboard() {
                       { date: "Mar 15 2026", event: "API rate limit exceeded — Eastern Province node", severity: "MEDIUM", resolved: true },
                       { date: "Mar 04 2026", event: "Certificate rotation — HSM key refresh", severity: "INFO", resolved: true },
                     ].map((ev, i) => (
-                      <div key={i} className={`px-3 py-2.5 rounded-xl border text-xs ${ev.severity === "MEDIUM" ? "bg-amber-50 border-amber-200" : "bg-secondary border-border"}`}>
+                      <div key={i} className={`px-3 py-2.5 rounded-xl text-xs ${ev.severity === "MEDIUM" ? "bg-amber-50" : "bg-secondary"}`}>
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${ev.severity === "MEDIUM" ? "bg-amber-500 text-white" : "bg-sky-500 text-white"}`}>{ev.severity}</span>
                           <span className="text-[10px] text-muted-foreground">{ev.date}</span>

@@ -129,8 +129,8 @@ export default function SupplyChainPortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-lime-50 border-lime-300 hover:bg-lime-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-lime-50 hover:bg-lime-100" : "bg-secondary hover:bg-border"
               }`}
             >
               <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-lime-700" : "text-muted-foreground"}`} />
@@ -291,7 +291,7 @@ export default function SupplyChainPortal() {
                   {data?.distributionCenters?.map((dc: any, i: number) => {
                     const cfg = STATUS_CFG[dc.stock] ?? STATUS_CFG.adequate;
                     return (
-                      <div key={i} className={`px-3.5 py-3 ${cfg.bg} border ${cfg.border} rounded-2xl`}>
+                      <div key={i} className={`px-3.5 py-3 ${cfg.bg} rounded-2xl`}>
                         <div className="flex items-center justify-between mb-1.5">
                           <p className="text-xs font-bold text-foreground">{dc.name}</p>
                           <Badge variant={cfg.badge} className="text-[9px]">{dc.stock}</Badge>
@@ -399,7 +399,7 @@ export default function SupplyChainPortal() {
             {data?.inventory?.filter((i: any) => i.status !== "adequate").map((item: any, idx: number) => {
               const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.adequate;
               return (
-                <div key={idx} className={`px-4 py-3.5 ${cfg.bg} border ${cfg.border} rounded-2xl`}>
+                <div key={idx} className={`px-4 py-3.5 ${cfg.bg} rounded-2xl`}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -465,7 +465,7 @@ export default function SupplyChainPortal() {
               <CardHeader><MapPin className="w-4 h-4 text-primary" /><CardTitle>Gap Analysis by Region</CardTitle></CardHeader>
               <CardBody className="space-y-2.5">
                 {REGIONAL_DISTRIBUTION.map((r, i) => (
-                  <div key={i} className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border ${r.gap < 0 ? "bg-red-50 border-red-100" : "bg-emerald-50 border-emerald-100"}`}>
+                  <div key={i} className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl ${r.gap < 0 ? "bg-red-50" : "bg-emerald-50"}`}>
                     <MapPin className={`w-3.5 h-3.5 shrink-0 ${r.gap < 0 ? "text-red-500" : "text-emerald-500"}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-foreground">{r.region}</p>
@@ -494,7 +494,7 @@ export default function SupplyChainPortal() {
                 { from: "Qassim", to: "Eastern Province", drug: "Amlodipine 5mg", quantity: 800, reason: "Qassim surplus 8% — Eastern Province deficit 16% — 2-day internal transfer feasible", priority: "high" },
                 { from: "Asir", to: "Tabuk", drug: "Lisinopril 10mg", quantity: 500, reason: "Asir surplus 7% — Tabuk deficit 8% — Tabuk growing patient population trend", priority: "medium" },
               ].map((rec, i) => (
-                <div key={i} className={`flex items-start gap-4 px-4 py-3.5 rounded-2xl border ${rec.priority === "high" ? "bg-amber-50 border-amber-200" : "bg-sky-50 border-sky-200"}`}>
+                <div key={i} className={`flex items-start gap-4 px-4 py-3.5 rounded-2xl ${rec.priority === "high" ? "bg-amber-50" : "bg-sky-50"}`}>
                   <Truck className={`w-4 h-4 shrink-0 mt-0.5 ${rec.priority === "high" ? "text-amber-600" : "text-sky-600"}`} />
                   <div className="flex-1">
                     <p className="text-sm font-bold text-foreground">{rec.drug}: {rec.from} → {rec.to}</p>
@@ -598,7 +598,7 @@ export default function SupplyChainPortal() {
       {/* ─── RAMADAN & HAJJ SEASONAL SURGE PLANNER ─── */}
       {activeTab === "seasonal" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-emerald-50 to-amber-50 border-2 border-emerald-300 rounded-3xl">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-emerald-50 to-amber-50 rounded-3xl">
             <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0">
               <Calendar className="w-6 h-6 text-emerald-700" />
             </div>
@@ -613,7 +613,7 @@ export default function SupplyChainPortal() {
 
           <div className="grid grid-cols-2 gap-6">
             {/* ── RAMADAN ── */}
-            <Card className="border-2 border-emerald-200">
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
@@ -686,7 +686,7 @@ export default function SupplyChainPortal() {
             </Card>
 
             {/* ── HAJJ ── */}
-            <Card className="border-2 border-amber-200">
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">

@@ -283,28 +283,24 @@ function PortalCard({ href, icon: Icon, label, description, accent, accentLight,
   return (
     <Link href={href}>
       <div
-        className="group flex flex-col h-full p-5 rounded-[20px] cursor-pointer border"
+        className="group flex flex-col h-full p-5 rounded-[2rem] cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
         style={{
-          background: "white",
-          borderColor: "rgba(0,0,0,0.055)",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          background: "rgba(255,255,255,0.70)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
         }}
         onMouseEnter={e => {
-          const el = e.currentTarget as HTMLElement;
-          el.style.transform = "translateY(-3px)";
-          el.style.boxShadow = "0 16px 40px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.06)";
+          (e.currentTarget as HTMLElement).style.boxShadow = "0 16px 48px rgba(0,0,0,0.10)";
         }}
         onMouseLeave={e => {
-          const el = e.currentTarget as HTMLElement;
-          el.style.transform = "translateY(0)";
-          el.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)";
+          (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(0,0,0,0.05)";
         }}
       >
         {/* Top row */}
         <div className="flex items-start justify-between mb-4">
-          <div className="w-10 h-10 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: accentLight }}>
-            <Icon className="w-[18px] h-[18px]" style={{ color: accent }} />
+          <div className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0" style={{ background: accent }}>
+            <Icon className="w-[20px] h-[20px] text-white" />
           </div>
           <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${CLEARANCE_STYLE[clearance] ?? "bg-secondary text-muted-foreground"}`}>
             {clearance}
@@ -312,18 +308,17 @@ function PortalCard({ href, icon: Icon, label, description, accent, accentLight,
         </div>
 
         {/* Content */}
-        <p className="text-[13px] font-bold text-foreground mb-1 leading-tight tracking-tight">{label}</p>
+        <p className="text-[13px] font-bold text-foreground mb-1.5 leading-tight tracking-tight">{label}</p>
         <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">{description}</p>
 
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-[10px] font-semibold text-muted-foreground">{tag}</span>
           <div
-            className="flex items-center gap-1 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="flex items-center gap-1 text-[11px] font-semibold translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
             style={{ color: accent }}
           >
-            Open
-            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>
       </div>

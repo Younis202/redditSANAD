@@ -176,8 +176,8 @@ export default function LabPortal() {
         />
         <button
           onClick={() => setShowSsePanel(p => !p)}
-          className={`relative flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl border transition-colors ${
-            sseUnread > 0 ? "bg-teal-50 border-teal-200 text-teal-700" : "bg-secondary border-border text-muted-foreground"
+          className={`relative flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl transition-colors ${
+            sseUnread > 0 ? "bg-teal-50 text-teal-700" : "bg-secondary text-muted-foreground"
           }`}
         >
           <Bell className="w-3.5 h-3.5" />
@@ -416,7 +416,7 @@ export default function LabPortal() {
                       const critical = presentTests.filter(t => t.v!.status === "critical");
                       const panelStatus = critical.length > 0 ? "critical" : abnormal.length > 0 ? "abnormal" : "normal";
                       return (
-                        <div key={pi} className={`p-4 rounded-2xl border-2 ${panelStatus === "critical" ? "bg-red-50 border-red-300" : panelStatus === "abnormal" ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"}`}>
+                        <div key={pi} className={`p-4 rounded-2xl ${panelStatus === "critical" ? "bg-red-50" : panelStatus === "abnormal" ? "bg-amber-50" : "bg-emerald-50"}`}>
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-[9px] font-black text-muted-foreground">{panel.icon}</span>
                             <div>
@@ -454,7 +454,7 @@ export default function LabPortal() {
 
           {/* AI Interpretation of last submitted result */}
           {lastResult && (
-            <div className={`rounded-2xl p-5 border-2 ${lastResult.aiAnalysis?.status === "critical" ? "bg-red-50 border-red-300" : lastResult.aiAnalysis?.status === "abnormal" ? "bg-amber-50 border-amber-300" : "bg-emerald-50 border-emerald-300"}`}>
+            <div className={`rounded-2xl p-5 ${lastResult.aiAnalysis?.status === "critical" ? "bg-red-50" : lastResult.aiAnalysis?.status === "abnormal" ? "bg-amber-50" : "bg-emerald-50"}`}>
               <div className="flex items-start gap-3 mb-3">
                 <Brain className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
                 <div>
@@ -599,10 +599,10 @@ export default function LabPortal() {
                           {lab.referenceRange && <p className="text-[10px] text-muted-foreground font-mono bg-secondary px-2 py-0.5 rounded-full">REF: {lab.referenceRange}</p>}
                           <p className="text-[10px] text-muted-foreground">{lab.hospital}</p>
                         </div>
-                        <div className={`px-3 py-2.5 rounded-xl border text-xs ${
-                          lab.status === "critical" ? "bg-red-50 border-red-200" :
-                          lab.status === "abnormal" ? "bg-amber-50 border-amber-200" :
-                          "bg-emerald-50 border-emerald-200"
+                        <div className={`px-3 py-2.5 rounded-xl text-xs ${
+                          lab.status === "critical" ? "bg-red-50" :
+                          lab.status === "abnormal" ? "bg-amber-50" :
+                          "bg-emerald-50"
                         }`}>
                           <div className="flex items-start gap-2">
                             <Brain className="w-3.5 h-3.5 text-violet-600 shrink-0 mt-0.5" />

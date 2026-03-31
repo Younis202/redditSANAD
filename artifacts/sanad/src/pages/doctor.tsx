@@ -332,8 +332,8 @@ export default function DoctorDashboard() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-red-50 border-red-200 hover:bg-red-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-red-50 hover:bg-red-100" : "bg-secondary hover:bg-border"
               }`}
               title={sseConnected ? "Live alerts connected" : "Connecting to live alerts..."}
             >
@@ -807,10 +807,10 @@ export default function DoctorDashboard() {
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> AI Drug Interaction Analysis — {medMatrixData!.interactions.length} conflict{medMatrixData!.interactions.length > 1 ? "s" : ""} found
                     </p>
                     {medMatrixData!.interactions.map((ix, i) => (
-                      <div key={i} className={`rounded-2xl border p-4 ${
-                        ix.severity === "critical" ? "bg-red-50 border-red-200" :
-                        ix.severity === "high" ? "bg-amber-50 border-amber-200" :
-                        "bg-sky-50 border-sky-200"
+                      <div key={i} className={`rounded-2xl p-4 ${
+                        ix.severity === "critical" ? "bg-red-50" :
+                        ix.severity === "high" ? "bg-amber-50" :
+                        "bg-sky-50"
                       }`}>
                         <div className="flex items-start gap-3">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
@@ -914,7 +914,7 @@ export default function DoctorDashboard() {
                   const trend = isWorsening ? "↑ WORSENING" : isImproving ? "↓ IMPROVING" : "→ STABLE";
 
                   return (
-                    <div className={`mx-5 my-4 rounded-2xl border p-4 ${isWorsening ? "border-red-200 bg-red-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-violet-200 bg-violet-50/40"}`}>
+                    <div className={`mx-5 my-4 rounded-2xl p-4 ${isWorsening ? "bg-red-50" : isImproving ? "bg-emerald-50" : "bg-violet-50/40"}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
@@ -987,7 +987,7 @@ export default function DoctorDashboard() {
                   const areaColor = isWorsening ? "#f97316" : isImproving ? "#22c55e" : "#6366f1";
                   const trend = isWorsening ? "↑ RISING" : isImproving ? "↓ FALLING" : "→ STABLE";
                   return (
-                    <div className={`mx-5 my-3 rounded-2xl border p-4 ${isWorsening ? "border-orange-200 bg-orange-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-violet-200 bg-violet-50/40"}`}>
+                    <div className={`mx-5 my-3 rounded-2xl p-4 ${isWorsening ? "bg-orange-50" : isImproving ? "bg-emerald-50" : "bg-violet-50/40"}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
@@ -1038,7 +1038,7 @@ export default function DoctorDashboard() {
                   const areaColor = isWorsening ? "#ef4444" : isImproving ? "#22c55e" : "#38bdf8";
                   const trend = isWorsening ? "↑ WORSENING — Renal Stress" : isImproving ? "↓ IMPROVING" : "→ STABLE";
                   return (
-                    <div className={`mx-5 my-3 rounded-2xl border p-4 ${isWorsening ? "border-red-200 bg-red-50" : isImproving ? "border-emerald-200 bg-emerald-50" : "border-sky-200 bg-sky-50/40"}`}>
+                    <div className={`mx-5 my-3 rounded-2xl p-4 ${isWorsening ? "bg-red-50" : isImproving ? "bg-emerald-50" : "bg-sky-50/40"}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
@@ -1223,7 +1223,7 @@ export default function DoctorDashboard() {
                     {predictions.map((p, i) => {
                       const style = predictionSeverityStyle[p.severity] ?? predictionSeverityStyle.low;
                       return (
-                        <div key={i} className={`p-4 ${style.bg} border ${style.border} rounded-2xl`}>
+                        <div key={i} className={`p-4 ${style.bg} rounded-2xl`}>
                           <div className="flex items-start gap-3">
                             <div className={`w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0`}>
                               {p.severity === "critical" || p.severity === "high" ? (
@@ -1385,11 +1385,11 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-2">
                           {aiDecision.whyFactors.map((f, i) => (
-                            <div key={i} className={`flex items-start gap-3 px-3.5 py-3 rounded-2xl border ${
-                              f.impact === "critical" ? "bg-red-50 border-red-200" :
-                              f.impact === "high" ? "bg-amber-50 border-amber-200" :
-                              f.impact === "moderate" ? "bg-sky-50 border-sky-200" :
-                              "bg-secondary border-border"
+                            <div key={i} className={`flex items-start gap-3 px-3.5 py-3 rounded-2xl ${
+                              f.impact === "critical" ? "bg-red-50" :
+                              f.impact === "high" ? "bg-amber-50" :
+                              f.impact === "moderate" ? "bg-sky-50" :
+                              "bg-secondary"
                             }`}>
                               <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
                                 f.impact === "critical" ? "bg-red-600" :
@@ -1444,11 +1444,11 @@ export default function DoctorDashboard() {
 
                     {/* Digital Twin */}
                     {aiDecision.digitalTwin && (
-                      <div className={`p-5 rounded-2xl border-2 ${
-                        aiDecision.digitalTwin.riskTrajectory === "rapidly_worsening" ? "bg-red-50 border-red-300" :
-                        aiDecision.digitalTwin.riskTrajectory === "worsening" ? "bg-amber-50 border-amber-200" :
-                        aiDecision.digitalTwin.riskTrajectory === "improving" ? "bg-emerald-50 border-emerald-200" :
-                        "bg-secondary border-border"
+                      <div className={`p-5 rounded-2xl ${
+                        aiDecision.digitalTwin.riskTrajectory === "rapidly_worsening" ? "bg-red-50" :
+                        aiDecision.digitalTwin.riskTrajectory === "worsening" ? "bg-amber-50" :
+                        aiDecision.digitalTwin.riskTrajectory === "improving" ? "bg-emerald-50" :
+                        "bg-secondary"
                       }`}>
                         <div className="flex items-start justify-between mb-3">
                           <div>
@@ -1549,10 +1549,10 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-2">
                           {aiDecision.behavioralFlags.map((flag, i) => (
-                            <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl border ${
-                              flag.severity === "high" ? "bg-amber-50 border-amber-200" :
-                              flag.severity === "moderate" ? "bg-sky-50 border-sky-200" :
-                              "bg-secondary border-border"
+                            <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl ${
+                              flag.severity === "high" ? "bg-amber-50" :
+                              flag.severity === "moderate" ? "bg-sky-50" :
+                              "bg-secondary"
                             }`}>
                               <Bell className={`w-4 h-4 shrink-0 mt-0.5 ${
                                 flag.severity === "high" ? "text-amber-600" :
@@ -1620,7 +1620,7 @@ export default function DoctorDashboard() {
                                 "rule-out": { bg: "bg-secondary", border: "border-border", dot: "bg-muted-foreground", text: "text-muted-foreground", badge: "text-[8px] bg-secondary text-muted-foreground px-1.5 py-0.5 rounded-full font-bold border" },
                               }[dx.priority];
                               return (
-                                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${priorityCfg.bg} ${priorityCfg.border}`}>
+                                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${priorityCfg.bg}`}>
                                   <div className="w-7 h-7 rounded-full bg-white border border-current/10 flex items-center justify-center shrink-0">
                                     <span className="text-[11px] font-bold text-foreground">{i + 1}</span>
                                   </div>
@@ -1694,13 +1694,13 @@ export default function DoctorDashboard() {
                       const conds = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());
                       type Ref = { org: string; title: string; year: string; relevance: string; color: string };
                       const refs: Ref[] = [];
-                      if (conds.some(c => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", color: "bg-blue-50 border-blue-200" });
-                      if (conds.some(c => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", color: "bg-violet-50 border-violet-200" });
-                      if (conds.some(c => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", color: "bg-red-50 border-red-200" });
-                      if (conds.some(c => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", color: "bg-teal-50 border-teal-200" });
-                      if (conds.some(c => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", color: "bg-orange-50 border-orange-200" });
-                      if (conds.some(c => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", color: "bg-amber-50 border-amber-200" });
-                      if (conds.some(c => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", color: "bg-pink-50 border-pink-200" });
+                      if (conds.some(c => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", color: "bg-blue-50" });
+                      if (conds.some(c => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", color: "bg-violet-50" });
+                      if (conds.some(c => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", color: "bg-red-50" });
+                      if (conds.some(c => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", color: "bg-teal-50" });
+                      if (conds.some(c => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", color: "bg-orange-50" });
+                      if (conds.some(c => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", color: "bg-amber-50" });
+                      if (conds.some(c => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", color: "bg-pink-50" });
                       if (refs.length === 0) return null;
                       return (
                         <div>
@@ -1709,7 +1709,7 @@ export default function DoctorDashboard() {
                           </p>
                           <div className="grid grid-cols-2 gap-2">
                             {refs.map((r, i) => (
-                              <div key={i} className={`p-3.5 rounded-2xl border ${r.color}`}>
+                              <div key={i} className={`p-3.5 rounded-2xl ${r.color}`}>
                                 <div className="flex items-start gap-2.5">
                                   <div className="shrink-0 font-black text-[10px] bg-white border border-current/10 px-2 py-1 rounded-lg text-foreground min-w-fit">{r.org}</div>
                                   <div className="flex-1 min-w-0">
@@ -1745,7 +1745,7 @@ export default function DoctorDashboard() {
                           </p>
                           <div className="space-y-2">
                             {correlations.map((c, i) => (
-                              <div key={i} className={`p-4 rounded-2xl border ${c.badge === "destructive" ? "bg-red-50 border-red-300" : "bg-amber-50 border-amber-200"}`}>
+                              <div key={i} className={`p-4 rounded-2xl ${c.badge === "destructive" ? "bg-red-50" : "bg-amber-50"}`}>
                                 <div className="flex items-start gap-3">
                                   <div className="shrink-0 flex gap-1 mt-0.5">
                                     {c.labs.map((l, j) => <span key={j} className={`text-[9px] font-black px-1.5 py-0.5 rounded font-mono ${c.badge === "destructive" ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"}`}>{l}</span>)}
@@ -1984,7 +1984,7 @@ export default function DoctorDashboard() {
                           { label: "SANAD AI Reduction", value: "-44%", sub: "vs. non-AI hospitals", color: "text-emerald-600" },
                           { label: "This Patient Risk", value: riskScore ? `${Math.min(82, (riskScore.riskScore || 50) * 0.7 + 18).toFixed(0)}%` : "—", sub: "Estimated", color: "text-amber-600" },
                         ].map((item, i) => (
-                          <div key={i} className="flex items-center justify-between py-1.5 border-b border-violet-100 last:border-0">
+                          <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
                             <p className="text-[10px] text-muted-foreground">{item.label}</p>
                             <div className="text-right">
                               <p className={`text-xs font-bold ${(item as any).color ?? "text-foreground"}`}>{item.value}</p>

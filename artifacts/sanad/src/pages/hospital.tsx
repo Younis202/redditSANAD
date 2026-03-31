@@ -156,10 +156,10 @@ export default function HospitalPortal() {
                 {data?.bedStatus?.map((unit: any) => {
                   const color = UNIT_COLORS[unit.unit] ?? "#007AFF";
                   return (
-                    <div key={unit.unitKey} className={`p-4 rounded-2xl border ${
-                      unit.status === "critical" ? "bg-red-50 border-red-200" :
-                      unit.status === "high" ? "bg-amber-50 border-amber-200" :
-                      "bg-secondary border-border"
+                    <div key={unit.unitKey} className={`p-4 rounded-2xl ${
+                      unit.status === "critical" ? "bg-red-50" :
+                      unit.status === "high" ? "bg-amber-50" :
+                      "bg-secondary"
                     }`}>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-bold text-foreground">{unit.unit}</p>
@@ -310,7 +310,7 @@ export default function HospitalPortal() {
 
       {activeTab === "icu" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-300 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-2xl">
             <HeartPulse className="w-5 h-5 text-red-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-red-800">ICU Alert System — Real-time Patient Monitoring</p>
@@ -320,7 +320,7 @@ export default function HospitalPortal() {
 
           <div className="grid grid-cols-2 gap-4">
             {(data?.icuAlerts ?? []).map((alert: any, i: number) => (
-              <div key={i} className={`p-5 rounded-2xl border-2 ${alert.severity === "critical" ? "bg-red-50 border-red-300" : "bg-amber-50 border-amber-200"}`}>
+              <div key={i} className={`p-5 rounded-2xl ${alert.severity === "critical" ? "bg-red-50" : "bg-amber-50"}`}>
                 <div className="flex items-start gap-3 mb-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${alert.severity === "critical" ? "bg-red-100" : "bg-amber-100"}`}>
                     <AlertTriangle className={`w-5 h-5 ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`} />
@@ -379,7 +379,7 @@ export default function HospitalPortal() {
                 return (
                   <div key={i} className={`p-5 ${op.status === "emergency" ? "bg-red-50/30" : op.status === "in_progress" ? "bg-green-50/30" : ""}`}>
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg} border ${cfg.border}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg}`}>
                         <span className={`w-2.5 h-2.5 rounded-full ${cfg.dot}`} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -509,7 +509,7 @@ export default function HospitalPortal() {
                     { title: "Pre-position portable monitoring equipment in ER corridor", impact: "Surge prediction confidence: 94%", severity: "info" },
                     { title: "Notify blood bank: O+ and A+ units likely needed by 18:00", impact: "Based on trauma admission patterns + ED forecast", severity: "info" },
                   ].map((rec, i) => (
-                    <div key={i} className={`p-4 rounded-2xl border ${rec.severity === "urgent" ? "bg-red-50 border-red-200" : rec.severity === "warning" ? "bg-amber-50 border-amber-200" : "bg-secondary border-border"}`}>
+                    <div key={i} className={`p-4 rounded-2xl ${rec.severity === "urgent" ? "bg-red-50" : rec.severity === "warning" ? "bg-amber-50" : "bg-secondary"}`}>
                       <div className="flex items-start gap-2 mb-2">
                         <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${rec.severity === "urgent" ? "bg-red-500" : rec.severity === "warning" ? "bg-amber-500" : "bg-primary"}`} />
                         <p className="text-xs font-bold text-foreground">{rec.title}</p>

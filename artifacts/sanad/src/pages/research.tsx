@@ -188,8 +188,8 @@ export default function ResearchPortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-teal-50 border-teal-300 hover:bg-teal-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-teal-50 hover:bg-teal-100" : "bg-secondary hover:bg-border"
               }`}
             >
               <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-teal-600" : "text-muted-foreground"}`} />
@@ -296,7 +296,7 @@ export default function ResearchPortal() {
             </CardHeader>
             <CardBody className="space-y-3">
               {data?.clinicalFindings?.map((f: any, i: number) => (
-                <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl border ${f.significance === "high" ? "bg-amber-50 border-amber-200" : "bg-sky-50 border-sky-200"}`}>
+                <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${f.significance === "high" ? "bg-amber-50" : "bg-sky-50"}`}>
                   <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${f.significance === "high" ? "bg-amber-500" : "bg-sky-500"}`} />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">{f.finding}</p>
@@ -350,7 +350,7 @@ export default function ResearchPortal() {
                     {data?.conditionInsights?.map((c: any, i: number) => {
                       const cfg = TREND_CONFIG[c.trend as keyof typeof TREND_CONFIG] ?? TREND_CONFIG.stable;
                       return (
-                        <div key={i} className={`flex items-center gap-3 px-3 py-2.5 ${cfg.bg} border ${cfg.border} rounded-xl`}>
+                        <div key={i} className={`flex items-center gap-3 px-3 py-2.5 ${cfg.bg} rounded-xl`}>
                           <div className={`w-2 h-2 rounded-full ${cfg.dot} shrink-0`} />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold text-foreground truncate">{c.condition}</p>

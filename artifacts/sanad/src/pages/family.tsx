@@ -36,7 +36,7 @@ function FamilyMemberCard({ member, isPatient = false }: { member: any; isPatien
   const riskBg = member.riskScore >= 70 ? "bg-red-50" : member.riskScore >= 40 ? "bg-amber-50" : "bg-emerald-50";
 
   return (
-    <div className={`relative p-4 rounded-2xl border-2 transition-all ${isPatient ? "border-primary bg-primary/5 ring-2 ring-primary/20" : `${statusCfg.border} ${statusCfg.bg} ring-1 ${statusCfg.ringColor}/20`}`}>
+    <div className={`relative p-4 rounded-2xl transition-all ${isPatient ? "bg-primary/5 ring-2 ring-primary/30" : `${statusCfg.bg}`}`}>
       {isPatient && (
         <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold bg-primary text-white px-2.5 py-0.5 rounded-full whitespace-nowrap uppercase tracking-widest">
           INDEX PATIENT
@@ -124,8 +124,8 @@ export default function FamilyPortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-pink-50 border-pink-300 hover:bg-pink-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-pink-50 hover:bg-pink-100" : "bg-secondary hover:bg-border"
               }`}
             >
               <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-pink-600" : "text-muted-foreground"}`} />
@@ -217,7 +217,7 @@ export default function FamilyPortal() {
         </div>
       )}
       {isError && nationalId && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="bg-red-50">
           <CardBody className="flex items-center gap-3 p-4">
             <X className="w-4 h-4 text-red-500" />
             <p className="text-sm text-red-700">Patient not found for <span className="font-mono">{nationalId}</span></p>
@@ -229,7 +229,7 @@ export default function FamilyPortal() {
         <div className="space-y-5">
           {/* Alert Banner */}
           {data.familyRiskAlert && (
-            <div className={`flex items-start gap-3 p-4 border-2 rounded-3xl ${data.summary.overallFamilyRisk === "HIGH" ? "bg-red-50 border-red-300" : "bg-amber-50 border-amber-300"}`}>
+            <div className={`flex items-start gap-3 p-4 rounded-3xl ${data.summary.overallFamilyRisk === "HIGH" ? "bg-red-50" : "bg-amber-50"}`}>
               <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-600" : "text-amber-600"}`} />
               <div>
                 <p className={`text-sm font-bold ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-800" : "text-amber-800"}`}>{data.familyRiskAlert}</p>
@@ -359,7 +359,7 @@ export default function FamilyPortal() {
                 const cfg = RISK_CONFIG[risk.riskLevel as keyof typeof RISK_CONFIG] ?? RISK_CONFIG.low;
                 const isExpanded = expandedRisk === i;
                 return (
-                  <Card key={i} className={`border-2 ${cfg.border} overflow-hidden`}>
+                  <Card key={i} className="overflow-hidden">
                     <div className={`${cfg.bg} px-5 py-4`}>
                       <div className="flex items-start gap-3">
                         <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${cfg.dot}`} />
@@ -530,10 +530,10 @@ export default function FamilyPortal() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {data.screeningRecommendations?.map((rec: any, i: number) => {
-                  const priBg = rec.priority === "high" ? "bg-red-50 border-red-200" : rec.priority === "medium" ? "bg-sky-50 border-sky-200" : "bg-secondary border-border";
+                  const priBg = rec.priority === "high" ? "bg-red-50" : rec.priority === "medium" ? "bg-sky-50" : "bg-secondary";
                   const priIcon = rec.priority === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" /> : rec.priority === "medium" ? <Clock className="w-4 h-4 text-sky-500 shrink-0" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />;
                   return (
-                    <div key={i} className={`p-4 rounded-3xl border ${priBg}`}>
+                    <div key={i} className={`p-4 rounded-3xl ${priBg}`}>
                       <div className="flex items-start gap-3 mb-3">
                         {priIcon}
                         <div className="flex-1 min-w-0">

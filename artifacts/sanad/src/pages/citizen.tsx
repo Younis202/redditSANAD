@@ -335,7 +335,7 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
 
       {/* Success Banner */}
       {booked && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300">
+        <div className="p-4 rounded-2xl bg-emerald-50">
           <div className="flex items-start gap-3 mb-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
@@ -636,7 +636,7 @@ export default function CitizenPortal() {
         </div>
 
         {healthScore && (
-          <Card className={`col-span-3 ${healthScore.bg} border-${healthScore.bg.replace("bg-", "border-")}`}>
+          <Card className={`col-span-3 ${healthScore.bg}`}>
             <CardBody className="flex flex-col items-center justify-center py-5 text-center">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">AI Health Score</p>
               <div className="relative w-24 h-24 mb-2">
@@ -704,16 +704,16 @@ export default function CitizenPortal() {
           urgency === "urgent"    ? "bg-amber-100" :
           urgency === "soon"      ? "bg-sky-100"   : "bg-emerald-100";
         const cardBorder =
-          urgency === "immediate" ? "border-red-200 bg-red-50" :
-          urgency === "urgent"    ? "border-amber-200 bg-amber-50" :
-          urgency === "soon"      ? "border-sky-200 bg-sky-50"   : "border-emerald-200 bg-emerald-50";
+          urgency === "immediate" ? "bg-red-50" :
+          urgency === "urgent"    ? "bg-amber-50" :
+          urgency === "soon"      ? "bg-sky-50"   : "bg-emerald-50";
         const scoreColor =
           urgency === "immediate" ? "text-red-600" :
           urgency === "urgent"    ? "text-amber-600" :
           urgency === "soon"      ? "text-sky-600"   : "text-emerald-600";
         const IconEl = urgency === "immediate" || urgency === "urgent" ? ShieldAlert : Brain;
         return (
-          <div className={`mb-4 rounded-2xl border p-4 flex items-start gap-4 ${cardBorder} ${isImmediate ? "animate-pulse" : ""}`}>
+          <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 ${cardBorder} ${isImmediate ? "animate-pulse" : ""}`}>
             <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
               <IconEl className={`w-5 h-5 ${iconColor}`} />
             </div>
@@ -946,7 +946,7 @@ export default function CitizenPortal() {
                   const cfg = priorityColors[rec.priority];
                   const Icon = rec.icon;
                   return (
-                    <div key={i} className={`flex items-start gap-3.5 p-4 ${cfg.bg} border ${cfg.border} rounded-2xl`}>
+                    <div key={i} className={`flex items-start gap-3.5 p-4 ${cfg.bg} rounded-2xl`}>
                       <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0">
                         <Icon className="w-4 h-4 text-foreground" />
                       </div>
@@ -980,12 +980,12 @@ export default function CitizenPortal() {
               const hasVisit = (patient.visits ?? []).length > 0;
               const goodScore = healthScore.score >= 70;
               const achievements: Array<{ icon: React.ElementType; iconColor: string; iconBg: string; title: string; desc: string; earned: boolean; color: string }> = [
-                { icon: Pill,           iconColor: "text-violet-600", iconBg: "bg-violet-100", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50 border-violet-200" },
-                { icon: FlaskConical,   iconColor: "text-sky-600",    iconBg: "bg-sky-100",    title: "Lab Tracker",         desc: "Lab results on record and monitored",  earned: hasLabs,         color: "bg-sky-50 border-sky-200" },
-                { icon: Building2,      iconColor: "text-teal-600",   iconBg: "bg-teal-100",   title: "Health Checkup",      desc: "Clinical visit recorded this year",     earned: hasVisit,        color: "bg-teal-50 border-teal-200" },
-                { icon: ShieldCheck,    iconColor: "text-emerald-600",iconBg: "bg-emerald-100",title: "Health Warrior",      desc: "Health score ≥ 70 / Good standing",     earned: goodScore,       color: "bg-emerald-50 border-emerald-200" },
-                { icon: HeartHandshake, iconColor: "text-indigo-600", iconBg: "bg-indigo-100", title: "Chronic Manager",     desc: "Managing chronic conditions with AI",   earned: conditions.length > 0, color: "bg-indigo-50 border-indigo-200" },
-                { icon: BarChart2,      iconColor: "text-amber-600",  iconBg: "bg-amber-100",  title: "SANAD Connected",     desc: "National health record fully linked",   earned: true,            color: "bg-amber-50 border-amber-200" },
+                { icon: Pill,           iconColor: "text-violet-600", iconBg: "bg-violet-100", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50" },
+                { icon: FlaskConical,   iconColor: "text-sky-600",    iconBg: "bg-sky-100",    title: "Lab Tracker",         desc: "Lab results on record and monitored",  earned: hasLabs,         color: "bg-sky-50" },
+                { icon: Building2,      iconColor: "text-teal-600",   iconBg: "bg-teal-100",   title: "Health Checkup",      desc: "Clinical visit recorded this year",     earned: hasVisit,        color: "bg-teal-50" },
+                { icon: ShieldCheck,    iconColor: "text-emerald-600",iconBg: "bg-emerald-100",title: "Health Warrior",      desc: "Health score ≥ 70 / Good standing",     earned: goodScore,       color: "bg-emerald-50" },
+                { icon: HeartHandshake, iconColor: "text-indigo-600", iconBg: "bg-indigo-100", title: "Chronic Manager",     desc: "Managing chronic conditions with AI",   earned: conditions.length > 0, color: "bg-indigo-50" },
+                { icon: BarChart2,      iconColor: "text-amber-600",  iconBg: "bg-amber-100",  title: "SANAD Connected",     desc: "National health record fully linked",   earned: true,            color: "bg-amber-50" },
               ];
               return (
                 <div>
@@ -996,7 +996,7 @@ export default function CitizenPortal() {
                     {achievements.map((a, i) => {
                       const AIcon = a.icon;
                       return (
-                      <div key={i} className={`relative flex items-start gap-2.5 p-3 rounded-2xl border ${a.earned ? a.color : "bg-secondary border-border opacity-50"}`}>
+                      <div key={i} className={`relative flex items-start gap-2.5 p-3 rounded-2xl ${a.earned ? a.color : "bg-secondary opacity-50"}`}>
                         <div className={`w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 ${a.earned ? a.iconBg : "bg-secondary"}`}>
                           <AIcon className={`w-3.5 h-3.5 ${a.earned ? a.iconColor : "text-muted-foreground"}`} />
                         </div>
@@ -1029,11 +1029,11 @@ export default function CitizenPortal() {
               </p>
               <div className="space-y-2">
                 {[
-                  { title: "30-Day Medication Streak", desc: "Take all medications on schedule for 30 days", progress: 73, unit: "days", target: 30, color: "bg-violet-500", bg: "bg-violet-50 border-violet-200" },
-                  { title: "7-Day Walking Challenge", desc: "Walk 30 minutes daily — Heart health boost", progress: 57, unit: "days", target: 7, color: "bg-emerald-500", bg: "bg-emerald-50 border-emerald-200" },
-                  { title: "Annual Checkup Reminder", desc: "Book your comprehensive annual health screening", progress: 100, unit: "%", target: 100, color: "bg-sky-500", bg: "bg-sky-50 border-sky-200" },
+                  { title: "30-Day Medication Streak", desc: "Take all medications on schedule for 30 days", progress: 73, unit: "days", target: 30, color: "bg-violet-500", bg: "bg-violet-50" },
+                  { title: "7-Day Walking Challenge", desc: "Walk 30 minutes daily — Heart health boost", progress: 57, unit: "days", target: 7, color: "bg-emerald-500", bg: "bg-emerald-50" },
+                  { title: "Annual Checkup Reminder", desc: "Book your comprehensive annual health screening", progress: 100, unit: "%", target: 100, color: "bg-sky-500", bg: "bg-sky-50" },
                 ].map((c, i) => (
-                  <div key={i} className={`p-3.5 rounded-2xl border ${c.bg}`}>
+                  <div key={i} className={`p-3.5 rounded-2xl ${c.bg}`}>
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <p className="text-[12px] font-bold text-foreground">{c.title}</p>
@@ -1061,7 +1061,7 @@ export default function CitizenPortal() {
                   { title: "Ophthalmology Screening", desc: "Diabetic retinopathy annual exam · King Faisal Specialist Hospital", daysLeft: 45, urgent: false },
                   { title: "Medication Refill", desc: "Metformin 500mg prescription expires in 18 days", daysLeft: 18, urgent: false },
                 ].map((r, i) => (
-                  <div key={i} className={`flex items-start gap-3 px-4 py-3 rounded-2xl border ${r.urgent ? "bg-red-50 border-red-200" : "bg-secondary border-border"}`}>
+                  <div key={i} className={`flex items-start gap-3 px-4 py-3 rounded-2xl ${r.urgent ? "bg-red-50" : "bg-secondary"}`}>
                     <Bell className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${r.urgent ? "text-red-500" : "text-muted-foreground"}`} />
                     <div className="flex-1 min-w-0">
                       <p className={`text-[12px] font-bold ${r.urgent ? "text-red-700" : "text-foreground"}`}>{r.title}</p>
@@ -1109,7 +1109,7 @@ export default function CitizenPortal() {
               ].map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div key={i} className={`rounded-2xl border p-4 ${item.bg} ${item.border} text-center`}>
+                  <div key={i} className={`rounded-2xl p-4 ${item.bg} text-center`}>
                     <div className={`w-8 h-8 rounded-xl bg-white mx-auto mb-2 flex items-center justify-center`}>
                       <Icon className={`w-4 h-4 ${item.color}`} />
                     </div>

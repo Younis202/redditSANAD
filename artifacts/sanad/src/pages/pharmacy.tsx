@@ -123,8 +123,8 @@ export default function PharmacyPortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
-                sseUnread > 0 ? "bg-orange-50 border-orange-200 hover:bg-orange-100" : "bg-white border-border hover:bg-secondary"
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                sseUnread > 0 ? "bg-orange-50 hover:bg-orange-100" : "bg-secondary hover:bg-border"
               }`}
             >
               <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-orange-600" : "text-muted-foreground"}`} />
@@ -227,7 +227,7 @@ export default function PharmacyPortal() {
               </div>
             )}
             {data.summary.interactions > 0 && (
-              <div className="bg-amber-50 border-b border-amber-200 px-5 py-2 flex items-center gap-2">
+              <div className="bg-amber-50 px-5 py-2 flex items-center gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <p className="text-xs font-bold text-amber-800 uppercase tracking-widest">
                   {data.summary.interactions} DRUG INTERACTION{data.summary.interactions > 1 ? "S" : ""} DETECTED
@@ -294,11 +294,11 @@ export default function PharmacyPortal() {
                     <div key={presc.id} className={`p-5 ${!check.safe ? "bg-red-50/40" : ""}`}>
                       {/* ─── SFDA / FDA Drug Classification Panel ─── */}
                       {drugCat && (
-                        <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl mb-3 border text-xs ${
-                          drugCat.severity === "critical" ? "bg-red-50 border-red-200" :
-                          drugCat.severity === "high" ? "bg-orange-50 border-orange-200" :
-                          drugCat.severity === "moderate" ? "bg-amber-50 border-amber-200" :
-                          "bg-emerald-50 border-emerald-200"
+                        <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl mb-3 text-xs ${
+                          drugCat.severity === "critical" ? "bg-red-50" :
+                          drugCat.severity === "high" ? "bg-orange-50" :
+                          drugCat.severity === "moderate" ? "bg-amber-50" :
+                          "bg-emerald-50"
                         }`}>
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${
                             drugCat.severity === "critical" ? "bg-red-600 text-white" :
@@ -382,7 +382,7 @@ export default function PharmacyPortal() {
                       </div>
 
                       {/* AI Safety Check */}
-                      <div className={`px-3.5 py-3 rounded-2xl border mb-2 ${!check.safe ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"}`}>
+                      <div className={`px-3.5 py-3 rounded-2xl mb-2 ${!check.safe ? "bg-red-50" : "bg-emerald-50"}`}>
                         <div className="flex items-center gap-2 mb-1.5">
                           <Brain className="w-3.5 h-3.5 text-violet-600" />
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">AI Dispense Safety Check</p>

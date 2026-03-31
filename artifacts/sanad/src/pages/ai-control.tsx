@@ -498,7 +498,7 @@ export default function AIControlCenter() {
                       </div>
                       <span className="text-xs font-bold text-foreground w-8">{engine.accuracy}%</span>
                       {driftInfo && (
-                        <span className={`text-[10px] font-bold ${driftInfo.driftScore > 5 ? "text-red-600 bg-red-50 border-red-200" : driftInfo.driftScore > 3 ? "text-amber-600 bg-amber-50 border-amber-200" : "text-emerald-600 bg-emerald-50 border-emerald-200"} px-2 py-0.5 rounded-full border`}>
+                        <span className={`text-[10px] font-bold ${driftInfo.driftScore > 5 ? "text-red-600 bg-red-50" : driftInfo.driftScore > 3 ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50"} px-2 py-0.5 rounded-full`}>
                           Drift: {driftInfo.driftScore}
                         </span>
                       )}
@@ -522,7 +522,7 @@ export default function AIControlCenter() {
               const isMonitoring = driftInfo?.status === "monitoring";
               const statusCfg = STATUS_COLORS[hasDrift ? "drift_detected" : isMonitoring ? "monitoring" : engine.status] ?? STATUS_COLORS.operational;
               return (
-                <Card key={i} className={`border ${statusCfg.border}`}>
+                <Card key={i}>
                   <CardBody className="p-4">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div>
@@ -549,7 +549,7 @@ export default function AIControlCenter() {
                       </div>
                     </div>
                     {driftInfo && (
-                      <div className={`${statusCfg.bg} border ${statusCfg.border} rounded-xl px-3 py-2 mb-3`}>
+                      <div className={`${statusCfg.bg} rounded-xl px-3 py-2 mb-3`}>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Drift Score</span>
                           <span className={`text-xs font-bold ${hasDrift ? "text-red-700" : "text-emerald-700"}`}>{driftInfo.driftScore} / {driftInfo.threshold}</span>
@@ -600,7 +600,7 @@ export default function AIControlCenter() {
           {driftDetected.length > 0 && (
             <div className="space-y-3">
               {driftDetected.map((engine: any, i: number) => (
-                <div key={i} className="flex items-start gap-4 px-5 py-4 bg-red-50 border-2 border-red-300 rounded-2xl">
+                <div key={i} className="flex items-start gap-4 px-5 py-4 bg-red-50 rounded-2xl">
                   <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-bold text-red-800">DRIFT DETECTED: {engine.engine}</p>
@@ -638,10 +638,10 @@ export default function AIControlCenter() {
                   const pct = (engine.driftScore / 10) * 100;
                   const color = engine.driftScore > 5 ? "bg-red-500" : engine.driftScore > 3 ? "bg-amber-500" : "bg-emerald-500";
                   const textColor = engine.driftScore > 5 ? "text-red-700" : engine.driftScore > 3 ? "text-amber-700" : "text-emerald-700";
-                  const bg = engine.driftScore > 5 ? "bg-red-50 border-red-100" : engine.driftScore > 3 ? "bg-amber-50 border-amber-100" : "bg-secondary border-border";
+                  const bg = engine.driftScore > 5 ? "bg-red-50" : engine.driftScore > 3 ? "bg-amber-50" : "bg-secondary";
                   const statusCfg = STATUS_COLORS[engine.status] ?? STATUS_COLORS.stable;
                   return (
-                    <div key={i} className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl border ${bg}`}>
+                    <div key={i} className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl ${bg}`}>
                       <div className={`w-2 h-2 rounded-full ${statusCfg.dot} shrink-0`} />
                       <span className="text-xs font-medium text-foreground w-44 truncate shrink-0">{engine.engine}</span>
                       <div className="flex-1 bg-white/60 rounded-full h-2">
@@ -673,7 +673,7 @@ export default function AIControlCenter() {
                 { engine: "Behavioral AI", score: 7.2, cause: "Ramadan seasonal behavior patterns not captured in training data — medication adherence model degraded for observant patient cohort", action: "Augment training data with seasonal behavioral patterns; implement time-aware feature engineering" },
                 { engine: "Policy AI", score: 4.1, cause: "MOH Circular 47/1445 introduced new screening protocols not reflected in current policy ruleset — minor policy drift", action: "Manual rule update + full retrain scheduled for March 2026 review cycle" },
               ].map((item, i) => (
-                <div key={i} className={`px-4 py-3.5 rounded-2xl border ${item.score > 5 ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
+                <div key={i} className={`px-4 py-3.5 rounded-2xl ${item.score > 5 ? "bg-red-50" : "bg-amber-50"}`}>
                   <div className="flex items-center justify-between mb-1.5">
                     <p className="text-sm font-bold text-foreground">{item.engine}</p>
                     <span className={`text-xs font-bold ${item.score > 5 ? "text-red-600" : "text-amber-600"}`}>Score: {item.score}</span>
@@ -967,7 +967,7 @@ export default function AIControlCenter() {
               {PORTAL_CARDS.map((p, i) => {
                 const Icon = p.icon;
                 return (
-                  <div key={i} className={`rounded-2xl border p-4 ${p.bg} ${p.border}`}>
+                  <div key={i} className={`rounded-2xl p-4 ${p.bg}`}>
                     <div className="flex items-center gap-2.5 mb-3">
                       <div className={`w-8 h-8 rounded-xl ${p.iconBg} flex items-center justify-center shrink-0`}>
                         <Icon className={`w-4 h-4 ${p.iconColor}`} />

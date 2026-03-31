@@ -183,16 +183,16 @@ export default function LoginPage() {
   const dateStr = now.toLocaleDateString("en-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "hsl(220 20% 97%)" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "#F5F5F7" }}>
 
       {/* Top bar */}
       <header
-        className="h-14 flex items-center justify-between px-8 sticky top-0 z-20 shrink-0"
+        className="h-20 flex items-center justify-between px-8 sticky top-0 z-20 shrink-0"
         style={{
-          background: "rgba(255,255,255,0.92)",
+          background: "rgba(255,255,255,0.72)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(0,0,0,0.07)",
+          borderBottom: "1px solid rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex items-center gap-3">
@@ -225,8 +225,10 @@ export default function LoginPage() {
         <div
           className="w-[300px] shrink-0 flex flex-col p-8"
           style={{
-            background: "white",
-            borderRight: "1px solid rgba(0,0,0,0.07)",
+            background: "rgba(255,255,255,0.70)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderRight: "1px solid rgba(255,255,255,0.40)",
           }}
         >
           {/* MOH Seal */}

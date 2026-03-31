@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
   ShieldAlert, HeartPulse, User, Building2,
-  LayoutDashboard, LogOut, Bell, Settings, LifeBuoy,
+  LayoutDashboard, LogOut, Bell,
   Activity, FlaskConical, Pill, BedDouble,
-  Shield, Brain, Users, Package, AlertTriangle, CheckCircle2, X, ChevronRight
+  Shield, Brain, Users, Package, AlertTriangle, CheckCircle2, X,
+  Search, Plus, Settings
 } from "lucide-react";
 import { cn } from "./shared";
 import { useAuth } from "@/contexts/auth-context";
@@ -235,151 +236,95 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
   const systemAlerts = alertsData?.alerts ?? [];
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "hsl(220 14% 96%)" }}>
+    <div className="min-h-screen" style={{ background: "#F5F5F7" }}>
 
-      {/* ─── Sidebar ─── */}
-      <aside
-        className="w-[216px] shrink-0 flex flex-col h-full"
+      {/* ─── Fixed Top Navigation ─── */}
+      <header
+        className="fixed top-0 w-full z-50 h-20 flex items-center px-8"
         style={{
-          background: "white",
-          borderRight: "1px solid rgba(0,0,0,0.06)",
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(0,0,0,0.05)",
         }}
       >
-        {/* Logo */}
-        <div className="h-[60px] flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-          <div className={cn(
-            "w-[30px] h-[30px] rounded-[9px] flex items-center justify-center shrink-0",
-            config.accentBg
-          )}>
-            <img
-              src={`${import.meta.env.BASE_URL}images/sanad-logo.png`}
-              alt="Sanad"
-              className="w-[15px] h-[15px] object-contain brightness-0 invert"
-            />
-          </div>
-          <div>
-            <p className="text-[14px] font-bold text-foreground leading-none tracking-tight">{config.label}</p>
-            <p className="text-[9.5px] text-muted-foreground mt-0.5 font-medium leading-tight">{config.sublabel}</p>
-          </div>
-        </div>
+        <nav className="flex justify-between items-center w-full max-w-[1800px] mx-auto">
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 pt-4 pb-2 overflow-y-auto sidebar-scroll">
-          <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.1em] px-2 mb-2">
-            Navigation
-          </p>
-          {config.nav.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <div className={cn(
-                  "flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] text-[12.5px] font-medium cursor-pointer transition-all duration-150 mb-0.5",
-                  isActive
-                    ? "text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
-                )}
-                style={isActive ? { background: config.accentHex } : undefined}
-                >
-                  <Icon className="w-[15px] h-[15px] shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-
-          <div className="mt-5 mb-2">
-            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.1em] px-2">
-              System
-            </p>
-          </div>
-          {[
-            { icon: Bell, label: "Notifications" },
-            { icon: LifeBuoy, label: "Support" },
-            { icon: Settings, label: "Settings" },
-          ].map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] text-[12.5px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] cursor-pointer transition-all duration-150 mb-0.5"
-            >
-              <Icon className="w-[15px] h-[15px] shrink-0" />
-              <span>{label}</span>
+          {/* Left: Logo + nav links */}
+          <div className="flex items-center gap-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+                <img
+                  src={`${import.meta.env.BASE_URL}images/sanad-logo.png`}
+                  alt="Sanad"
+                  className="w-5 h-5 object-contain brightness-0 invert"
+                />
+              </div>
+              <div>
+                <p className="text-xl font-extrabold tracking-tight leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>
+                  SANAD <span className="font-light text-slate-400">HQ</span>
+                </p>
+                <p className="text-[9.5px] text-slate-400 font-medium leading-none mt-0.5">{config.sublabel}</p>
+              </div>
             </div>
-          ))}
-        </nav>
 
-        {/* User */}
-        <div className="px-3 pb-4 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-          <div
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-[11px] mb-1"
-            style={{ background: "hsl(220 14% 96%)" }}
-          >
-            <div className={cn(
-              "w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold",
-              config.accentBg, config.accentText
-            )}>
-              {authUser?.initial ?? config.userInitial}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11.5px] font-semibold text-foreground truncate leading-tight">{authUser?.name ?? config.user}</p>
-              <p className="text-[9.5px] text-muted-foreground leading-tight truncate mt-0.5">{authUser?.jobTitle ?? config.userRole}</p>
+            <div className="hidden lg:flex gap-8">
+              {config.nav.map((item) => {
+                const isActive = location === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-semibold transition-all relative pb-1",
+                      isActive
+                        ? "text-primary after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded-full"
+                        : "text-slate-500 hover:text-primary"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
-          <div
-            onClick={() => { logout(); window.location.href = "/login"; }}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-muted-foreground hover:text-red-600 hover:bg-red-50 text-[12px] font-medium cursor-pointer transition-all duration-150"
-          >
-            <LogOut className="w-3.5 h-3.5 shrink-0" />
-            <span>Sign Out</span>
-          </div>
-        </div>
-      </aside>
 
-      {/* ─── Main Area ─── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Right: Search + Status + Bell + User */}
+          <div className="flex items-center gap-4">
 
-        {/* Topbar */}
-        <header
-          className="h-[60px] shrink-0 flex items-center justify-between px-7"
-          style={{
-            background: "rgba(255,255,255,0.80)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderBottom: "1px solid rgba(0,0,0,0.06)",
-          }}
-        >
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Activity className="w-3.5 h-3.5" />
-            <span className="text-[12.5px] font-medium">{config.sublabel}</span>
-            <ChevronRight className="w-3 h-3 opacity-40" />
-            <span className="text-[12.5px] font-medium text-foreground">{config.nav[0]?.label}</span>
-          </div>
+            {/* Search */}
+            <div className="hidden lg:flex items-center bg-black/[0.05] px-4 py-2.5 rounded-full gap-2.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                className="bg-transparent border-none text-sm w-44 placeholder:text-slate-400 font-medium focus:outline-none"
+                placeholder="Search patients..."
+                type="text"
+              />
+            </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+            {/* All Systems Live */}
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3.5 py-2 rounded-full whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-              All Systems Operational
+              All Systems Live
             </div>
 
-            {/* Bell */}
+            {/* Bell + dropdown */}
             <div className="relative">
               <button
                 ref={bellRef}
                 onClick={() => setShowAlerts(v => !v)}
-                className="relative w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-black/[0.05] hover:text-foreground transition-all"
+                className="relative p-2.5 text-slate-500 hover:bg-black/[0.05] rounded-full transition-all"
               >
-                <Bell className="w-[15px] h-[15px]" />
+                <Bell className="w-[18px] h-[18px]" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
                 )}
               </button>
 
               {showAlerts && (
                 <div
                   ref={dropdownRef}
-                  className="absolute right-0 top-[42px] w-[340px] bg-white rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-black/[0.07] z-50 overflow-hidden"
+                  className="absolute right-0 top-[54px] w-[340px] bg-white rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-black/[0.07] z-50 overflow-hidden"
                 >
                   <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.06]">
                     <div>
@@ -454,20 +399,72 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
               )}
             </div>
 
-            <div className={cn(
-              "w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ml-0.5",
-              config.accentBg, config.accentText
-            )}>
-              {authUser?.initial ?? config.userInitial}
+            {/* User avatar + name */}
+            <div className="flex items-center gap-3 hover:bg-black/[0.05] p-1 pr-4 rounded-full cursor-pointer transition-all">
+              <div className={cn(
+                "w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0",
+                config.accentBg, config.accentText
+              )}>
+                {authUser?.initial ?? config.userInitial}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold leading-none">{authUser?.name ?? config.user}</span>
+                <span className="text-[10px] text-slate-400 font-medium mt-0.5">{authUser?.jobTitle ?? config.userRole}</span>
+              </div>
             </div>
           </div>
-        </header>
+        </nav>
+      </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-7 page-enter">
-          {children}
-        </main>
+      {/* ─── Page Content ─── */}
+      <main className="pt-28 pb-36 px-8 max-w-[1800px] mx-auto page-enter">
+        {children}
+      </main>
+
+      {/* ─── Floating Bottom Action Bar ─── */}
+      <div
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-8 py-4 rounded-[2.5rem] shadow-2xl z-50"
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          border: "1px solid rgba(255,255,255,0.30)",
+        }}
+      >
+        <Link href={config.nav[0]?.href ?? "/"}>
+          <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
+            <LayoutDashboard className="w-4 h-4" />
+            <span className="text-xs font-bold whitespace-nowrap">Overview</span>
+          </div>
+        </Link>
+
+        <div className="w-px h-8 bg-slate-200" />
+
+        <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
+          <Activity className="w-4 h-4" />
+          <span className="text-xs font-bold">Live Feed</span>
+        </div>
+
+        <button className="bg-primary text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-all">
+          <Plus className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
+          <Settings className="w-4 h-4" />
+          <span className="text-xs font-bold">Settings</span>
+        </div>
+
+        <div className="w-px h-8 bg-slate-200" />
+
+        <div
+          onClick={() => { logout(); window.location.href = "/login"; }}
+          className="flex items-center gap-2 text-slate-500 hover:text-red-500 cursor-pointer px-3 py-2 rounded-xl hover:bg-red-50 transition-all"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-xs font-bold">Sign Out</span>
+        </div>
       </div>
+
     </div>
   );
 }

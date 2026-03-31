@@ -138,11 +138,11 @@ const CLEARANCE_STYLE: Record<string, string> = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "hsl(220 14% 96%)" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "#F5F5F7" }}>
 
       {/* ─── Header ─── */}
       <header
-        className="h-[60px] flex items-center justify-between px-10 sticky top-0 z-20"
+        className="h-20 flex items-center justify-between px-10 sticky top-0 z-20"
         style={{
           background: "rgba(255,255,255,0.82)",
           backdropFilter: "blur(20px)",

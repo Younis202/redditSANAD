@@ -7,16 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /* ─── Card ─────────────────────────────────────────────── */
-export function Card({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Card({ className, children, dark, style, ...props }: React.HTMLAttributes<HTMLDivElement> & { dark?: boolean }) {
   return (
     <div
       className={cn(
-        "rounded-[28px]",
-        "shadow-[0_1px_4px_rgba(0,0,0,0.07),0_1px_2px_rgba(0,0,0,0.04)]",
-        "border border-black/[0.055]",
+        dark ? "glass-card-dark" : "glass-card",
+        "rounded-[2rem]",
         className
       )}
-      style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
+      style={style}
       {...props}
     >
       {children}
@@ -171,15 +170,15 @@ export function PageHeader({ title, subtitle, action, breadcrumb }: {
   breadcrumb?: string;
 }) {
   return (
-    <div className="flex items-start justify-between mb-7">
+    <div className="flex items-start justify-between mb-8">
       <div>
         {breadcrumb && (
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-1.5">{breadcrumb}</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-2 px-3 py-1 bg-primary/10 text-primary rounded-full inline-block">{breadcrumb}</p>
         )}
-        <h1 className="text-[21px] font-bold text-foreground tracking-tight leading-tight">{title}</h1>
-        {subtitle && <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{subtitle}</p>}
+        <h1 className="text-5xl font-extrabold text-foreground tracking-tight leading-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>{title}</h1>
+        {subtitle && <p className="mt-2 text-[14px] text-muted-foreground leading-relaxed font-medium">{subtitle}</p>}
       </div>
-      {action && <div className="shrink-0 ml-4">{action}</div>}
+      {action && <div className="shrink-0 ml-4 flex gap-3">{action}</div>}
     </div>
   );
 }
@@ -214,7 +213,7 @@ export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary"
           )}
         </div>
         <p className="text-[9.5px] font-semibold text-muted-foreground uppercase tracking-[0.09em] mb-1">{title}</p>
-        <p className="text-[30px] font-bold text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
+        <p className="text-4xl font-extrabold text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
         {sub && <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{sub}</p>}
       </CardBody>
     </Card>

@@ -79,7 +79,8 @@
 @layer base {
   * { @apply border-border; box-sizing: border-box; }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background: #F5F5F7;
+    @apply text-foreground font-sans antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
@@ -89,6 +90,23 @@
     @apply font-bold tracking-tight;
   }
   h5, h6 { @apply font-semibold tracking-tight; }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.40);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.04);
+  }
+  .glass-card-dark {
+    background: rgba(29, 29, 31, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+  }
 }
 
 /* ─── Scrollbar — thin, elegant ─── */

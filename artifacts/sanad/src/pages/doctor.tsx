@@ -395,15 +395,16 @@ export default function DoctorDashboard() {
 
       {!patientId && !isLoading && (
         <Card>
-          <CardBody className="py-20 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Stethoscope className="w-7 h-7 text-muted-foreground" />
+          <CardBody className="py-24 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-primary/5 flex items-center justify-center mx-auto mb-5 border border-primary/10">
+              <Stethoscope className="w-9 h-9 text-primary/60" />
             </div>
-            <p className="font-bold text-foreground mb-1">No Patient Selected</p>
-            <p className="text-sm text-muted-foreground mb-2">Enter a National ID above to load a patient record.</p>
-            <p className="text-xs text-muted-foreground font-mono bg-secondary inline-block px-3 py-1.5 rounded-xl">
-              Demo: 1000000001 · 1000000003 · 1000000005 · 1000000023
-            </p>
+            <p className="text-xl font-bold text-foreground mb-2">No Patient Loaded</p>
+            <p className="text-sm text-muted-foreground mb-5">Search by name or National ID to access a patient's clinical record.</p>
+            <div className="inline-flex items-center gap-2 bg-secondary rounded-2xl px-4 py-2.5">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Demo IDs</span>
+              <span className="text-xs font-mono text-foreground">1000000001 · 1000000003 · 1000000005 · 1000000023</span>
+            </div>
           </CardBody>
         </Card>
       )}
@@ -417,56 +418,83 @@ export default function DoctorDashboard() {
 
       {patient && (
         <div className="space-y-5">
-          {/* Patient Banner */}
+          {/* Patient Identity Card */}
           <Card>
             <CardBody className="p-0">
-              <div className="flex items-stretch divide-x divide-border">
-                <div className="flex-1 p-5 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <UserIcon className="w-7 h-7 text-primary" />
+              {/* Allergy Alert Strip */}
+              {patient.allergies?.length > 0 && (
+                <div className="bg-red-600 px-5 py-3 flex items-center gap-3 rounded-t-2xl">
+                  <AlertCircle className="w-4 h-4 text-white shrink-0" />
+                  <p className="text-white text-sm font-bold tracking-wide">
+                    ALLERGY ALERT — {patient.allergies.join("  ·  ")}
+                  </p>
+                </div>
+              )}
+
+              <div className="p-5 flex items-start gap-5">
+                {/* Avatar */}
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <UserIcon className="w-8 h-8 text-primary" />
+                </div>
+
+                {/* Identity & Meta */}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold text-foreground leading-tight">{patient.fullName}</h2>
+                  <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                    <span className="text-xs font-mono bg-secondary px-2.5 py-1 rounded-xl">{patient.nationalId}</span>
+                    <span className="text-xs text-muted-foreground">Born {format(safeDate(patient.dateOfBirth), "dd MMM yyyy")}</span>
+                    <span className="text-muted-foreground/40 text-xs">·</span>
+                    <span className="text-xs text-muted-foreground">{patient.gender}</span>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground mb-1">{patient.fullName}</h2>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs bg-secondary px-2.5 py-1 rounded-xl">{patient.nationalId}</span>
-                      <span className="text-xs text-muted-foreground">
-                        DOB: {format(safeDate(patient.dateOfBirth), "dd MMM yyyy")}
-                      </span>
-                      <span className="text-xs text-muted-foreground">· {patient.gender}</span>
-                      {patient.allergies?.length > 0 && (
-                        <Badge variant="destructive">{patient.allergies.length} Allergi{patient.allergies.length > 1 ? "es" : "y"}</Badge>
-                      )}
+
+                  {/* Data Pills Row */}
+                  <div className="mt-3 flex items-center gap-2 flex-wrap">
+                    {/* Blood Type */}
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 rounded-xl">
+                      <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">Blood</span>
+                      <span className="text-sm font-bold text-red-600">{patient.bloodType}</span>
                     </div>
+
+                    {/* AI Risk Score */}
+                    {riskScore && (
+                      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${
+                        riskScore.riskLevel === "critical" ? "bg-red-50 border-red-100" :
+                        riskScore.riskLevel === "high" ? "bg-amber-50 border-amber-100" :
+                        "bg-primary/5 border-primary/10"
+                      }`}>
+                        <Brain className={`w-3.5 h-3.5 ${
+                          riskScore.riskLevel === "critical" ? "text-red-500" :
+                          riskScore.riskLevel === "high" ? "text-amber-500" : "text-primary"
+                        }`} />
+                        <span className="text-[10px] font-semibold text-muted-foreground">AI Risk</span>
+                        <span className={`text-sm font-bold tabular-nums ${
+                          riskScore.riskLevel === "critical" ? "text-red-600" :
+                          riskScore.riskLevel === "high" ? "text-amber-600" : "text-primary"
+                        }`}>{riskScore.riskScore}<span className="text-[10px] font-normal text-muted-foreground">/100</span></span>
+                        <Badge variant={
+                          riskScore.riskLevel === "critical" ? "destructive" :
+                          riskScore.riskLevel === "high" ? "warning" : "success"
+                        } className="text-[9px]">{riskScore.riskLevel?.toUpperCase()}</Badge>
+                      </div>
+                    )}
+
+                    {/* Chronic Conditions (first 2) */}
+                    {patient.chronicConditions?.slice(0, 2).map((c, i) => (
+                      <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-xl">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span className="text-xs font-medium text-foreground">{c}</span>
+                      </div>
+                    ))}
+                    {(patient.chronicConditions?.length ?? 0) > 2 && (
+                      <span className="text-xs text-muted-foreground px-2 py-1.5">
+                        +{patient.chronicConditions!.length - 2} more conditions
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div className="px-6 py-4 flex flex-col items-center justify-center bg-red-50 min-w-[90px]">
-                  <DataLabel label="Blood Type">
-                    <p className="text-3xl font-bold text-red-600">{patient.bloodType}</p>
-                  </DataLabel>
-                </div>
-
-                {riskScore && (
-                  <div className={`px-6 py-4 flex flex-col items-center justify-center min-w-[120px] ${
-                    riskScore.riskLevel === "critical" ? "bg-red-50" :
-                    riskScore.riskLevel === "high" ? "bg-amber-50" : "bg-secondary/40"
-                  }`}>
-                    <DataLabel label="AI Risk Score">
-                      <p className={`text-3xl font-bold tabular-nums ${
-                        riskScore.riskLevel === "critical" ? "text-red-600" :
-                        riskScore.riskLevel === "high" ? "text-amber-600" : "text-primary"
-                      }`}>{riskScore.riskScore}<span className="text-base font-normal text-muted-foreground">/100</span></p>
-                    </DataLabel>
-                    <Badge variant={
-                      riskScore.riskLevel === "critical" ? "destructive" :
-                      riskScore.riskLevel === "high" ? "warning" : "success"
-                    } className="mt-2 text-[10px]">
-                      {riskScore.riskLevel?.toUpperCase()}
-                    </Badge>
-                  </div>
-                )}
-
-                <div className="px-5 py-4 flex flex-col justify-center gap-2 min-w-[160px]">
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-2 shrink-0">
                   <PrescribeModal patientId={patient.id} />
                   <Button variant="outline" size="sm">
                     <CalendarDays className="w-3.5 h-3.5" /> Schedule Visit
@@ -483,17 +511,22 @@ export default function DoctorDashboard() {
                 <button
                   key={i}
                   onClick={() => setActiveTab("decision")}
-                  className={`${item.color} text-white rounded-2xl px-4 py-3 text-left flex items-start gap-3 hover:opacity-90 transition-opacity`}
+                  className="bg-white border border-black/[0.07] rounded-2xl px-4 py-3 text-left flex items-start gap-3 hover:bg-secondary/40 transition-colors"
+                  style={{ borderLeft: `4px solid` }}
                 >
-                  <div className={`w-2 h-2 rounded-full bg-white/60 shrink-0 mt-1.5 ${item.pulse ? "animate-pulse" : ""}`} />
-                  <div className="min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">{item.label}</p>
-                    <p className="text-xs font-semibold text-white leading-snug line-clamp-2">{item.text}</p>
+                  <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${item.color}`}>
+                    {item.pulse ? (
+                      <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-white/80" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">{item.label}</p>
+                    <p className="text-xs font-semibold text-foreground leading-snug line-clamp-2">{item.text}</p>
                   </div>
                   {item.pulse && (
-                    <div className="ml-auto shrink-0 w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                    </div>
+                    <div className={`ml-auto shrink-0 w-2 h-2 rounded-full ${item.color} animate-pulse mt-1.5`} />
                   )}
                 </button>
               ))}
@@ -832,7 +865,7 @@ export default function DoctorDashboard() {
                               {med.drugName}
                               {(hasCritical || hasHigh) && (
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${hasCritical ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                                  {hasCritical ? "⚠ CRITICAL" : "⚠ HIGH"}
+                                  {hasCritical ? "CRITICAL" : "HIGH"}
                                 </span>
                               )}
                             </div>
@@ -1338,8 +1371,9 @@ export default function DoctorDashboard() {
                         </div>
                       </div>
                       {aiDecision.explainability.uncertaintyNote && (
-                        <div className="mt-3 px-3 py-2 bg-white/20 rounded-xl text-xs font-semibold text-white">
-                          ⚠ {aiDecision.explainability.uncertaintyNote}
+                        <div className="mt-3 px-3 py-2 bg-white/20 rounded-xl text-xs font-semibold text-white flex items-center gap-2">
+                          <TriangleAlert className="w-3.5 h-3.5 shrink-0 text-white/80" />
+                          {aiDecision.explainability.uncertaintyNote}
                         </div>
                       )}
                     </div>
@@ -1489,7 +1523,7 @@ export default function DoctorDashboard() {
                                 r3: Math.max(8, aiDecision.digitalTwin.projectedRiskScore - 17),
                                 r6: Math.max(8, aiDecision.digitalTwin.projectedRiskScore - 26),
                                 r12: Math.max(8, aiDecision.digitalTwin.projectedRiskScore - 33),
-                                outcome: "Best outcome ✓ Recommended",
+                                outcome: "Best outcome — Recommended",
                                 rowCls: "bg-emerald-50/60",
                                 scoreCls: "text-emerald-600",
                               },
@@ -1842,7 +1876,7 @@ export default function DoctorDashboard() {
 
           {/* 30-DAY READMISSION RISK — shown when patient is loaded */}
           {patient && (
-            <Card className="mt-5 border-2 border-amber-200">
+            <Card className="mt-5">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -1969,7 +2003,7 @@ export default function DoctorDashboard() {
 
           {/* ─── CROSS-PORTAL INTELLIGENCE PANEL ─── */}
           {patient && (
-            <Card className="mt-5 border-2 border-purple-200">
+            <Card className="mt-5">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center">

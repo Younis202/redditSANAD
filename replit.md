@@ -3,7 +3,14 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.3 — Premium Apple/iOS Design Overhaul (Latest)
+## v3.4 — Doctor Portal iOS Design Overhaul (Latest)
+1. **Patient Identity Card** — Completely redesigned: red full-width allergy alert strip at card top (matching Emergency portal), larger bold patient name (text-2xl), clean data pills row (blood type in red, AI risk score with color-coded badge, first 2 chronic conditions + count)
+2. **AI Priority Strip** — Changed from solid-colored buttons to clean white cards with colored icon squares (left-border accent style), better typography hierarchy
+3. **Empty State** — Premium stethoscope icon card with larger typography and cleaner demo ID bar
+4. **LACE+ & Cross-Portal Cards** — Removed colored borders (border-2 border-amber/purple), now clean standard card borders
+5. **Emoji Cleanup** — Replaced ⚠ text in medication badges and uncertainty notes with TriangleAlert Lucide icon; removed ✓ from treatment simulation
+
+## v3.3 — Premium Apple/iOS Design Overhaul
 1. **Home Page** — Complete redesign: premium deep-blue hero card spanning full width with live stats (34.2M+, 450+, SAR 4.7B, 847K), 4×3 uniform portal grid (all 12 portals equal size), security clearance badges (PUBLIC/RESTRICTED/CONFIDENTIAL/SECRET), clean footer. No more uneven 4+3+5 grid.
 2. **Emoji-free UI** — All emoji removed from every portal: citizen.tsx tabs, doctor.tsx tabs & alert badges, hospital.tsx staff/recommendations, admin.tsx compliance cards, emergency.tsx header, ai-control.tsx cascade indicator, supply-chain.tsx seasonal headers, citizen.tsx health achievements (replaced with Lucide icons)
 3. **Design System** — Better CSS: Apple-inspired background (hsl(220 14% 96%)), thinner scrollbar, smoother data-table, card hover lift animation, refined transitions

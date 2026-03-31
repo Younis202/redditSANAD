@@ -138,8 +138,8 @@ export default function LabPortal() {
     <Layout role="lab">
       {/* SSE Live Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-4 rounded-2xl border border-teal-200 bg-teal-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-teal-200 bg-teal-100/60">
+        <Card className="mb-4 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-teal-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
               <span className="font-bold text-sm text-teal-800">Live Lab Alerts</span>
@@ -166,7 +166,7 @@ export default function LabPortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="flex items-start justify-between mb-5">
@@ -226,7 +226,7 @@ export default function LabPortal() {
       {data && (
         <div className="space-y-4">
           {/* Patient Card */}
-          <div className="rounded-3xl border border-border overflow-hidden">
+          <div className="rounded-[2rem] overflow-hidden" style={{background:"rgba(255,255,255,0.70)",backdropFilter:"blur(20px)",boxShadow:"0 8px 32px rgba(0,0,0,0.04)"}}>
             {data.patient.allergies?.length > 0 && (
               <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -285,7 +285,7 @@ export default function LabPortal() {
                     const isImproving = previous && latest && latest.value < previous.value && latest.status === "normal";
 
                     return (
-                      <div key={testName} className="rounded-2xl border border-border p-4">
+                      <div key={testName} className="rounded-2xl bg-secondary p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <p className="text-[13px] font-bold text-foreground">{testName}</p>

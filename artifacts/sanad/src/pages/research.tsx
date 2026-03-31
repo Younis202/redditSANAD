@@ -176,7 +176,7 @@ export default function ResearchPortal() {
     <Layout role="research">
       {/* Header Strip */}
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <FlaskConical className="w-3 h-3" />
           Research Portal
         </div>
@@ -202,14 +202,14 @@ export default function ResearchPortal() {
           </div>
           <button
             onClick={() => handleExport("csv")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors"
           >
             <Download className="w-3 h-3" />
             Export CSV
           </button>
           <button
             onClick={() => handleExport("json")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-700 bg-violet-50 border border-violet-200 px-3 py-1.5 rounded-full hover:bg-violet-100 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-700 bg-violet-50 px-3 py-1.5 rounded-full hover:bg-violet-100 transition-colors"
           >
             <Database className="w-3 h-3" />
             Export JSON
@@ -219,8 +219,8 @@ export default function ResearchPortal() {
 
       {/* SSE Research Intelligence Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-5 rounded-2xl border border-teal-200 bg-teal-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-teal-200 bg-teal-100/60">
+        <Card className="mb-5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-teal-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
               <span className="font-bold text-sm text-teal-900">Live National Health Intelligence Feed</span>
@@ -250,7 +250,7 @@ export default function ResearchPortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <PageHeader
@@ -430,7 +430,7 @@ export default function ResearchPortal() {
       {/* ─── CLINICAL STUDIES ─── */}
       {activeView === "studies" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-violet-50 border border-violet-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-violet-50 rounded-2xl">
             <BookOpen className="w-5 h-5 text-violet-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-violet-800">SANAD Clinical Research Registry</p>
@@ -447,16 +447,16 @@ export default function ResearchPortal() {
             const cfg = STATUS_CONFIG[study.status] ?? STATUS_CONFIG.active;
             const enrollPct = Math.round((study.enrolled / study.cohortSize) * 100);
             return (
-              <Card key={study.id} className={`border ${cfg.border}`}>
+              <Card key={study.id}>
                 <CardBody className="p-0">
-                  <div className={`px-5 py-4 ${cfg.bg} border-b ${cfg.border}`}>
+                  <div className={`px-5 py-4 ${cfg.bg} rounded-t-[2rem]`}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
                           <span className="font-mono text-[10px] text-muted-foreground">{study.id}</span>
                           <Badge variant={cfg.badge} className="text-[10px]">{cfg.label}</Badge>
-                          <span className="text-[10px] font-semibold text-muted-foreground bg-white/60 border border-border px-2 py-0.5 rounded-full">{study.phase}</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-white/60 px-2 py-0.5 rounded-full">{study.phase}</span>
                         </div>
                         <h3 className="text-sm font-bold text-foreground leading-snug">{study.title}</h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
@@ -511,7 +511,7 @@ export default function ResearchPortal() {
       {/* ─── DISEASE TRENDS ─── */}
       {activeView === "trends" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-2xl">
             <TrendingUp className="w-5 h-5 text-red-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-red-800">National Disease Trend Radar — 12-Month View</p>
@@ -564,12 +564,12 @@ export default function ResearchPortal() {
 
           <div className="grid grid-cols-4 gap-4">
             {[
-              { name: "Type-2 Diabetes", current: "47%", change: "+9%", trend: "rising", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
-              { name: "Hypertension", current: "60%", change: "+8%", trend: "rising", color: "text-red-600", bg: "bg-red-50", border: "border-red-200" },
-              { name: "Chronic Kidney Disease", current: "19%", change: "+5%", trend: "rising", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200" },
-              { name: "Obesity", current: "38%", change: "+7%", trend: "rising", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
+              { name: "Type-2 Diabetes", current: "47%", change: "+9%", trend: "rising", color: "text-amber-600", bg: "bg-amber-50" },
+              { name: "Hypertension", current: "60%", change: "+8%", trend: "rising", color: "text-red-600", bg: "bg-red-50" },
+              { name: "Chronic Kidney Disease", current: "19%", change: "+5%", trend: "rising", color: "text-violet-600", bg: "bg-violet-50" },
+              { name: "Obesity", current: "38%", change: "+7%", trend: "rising", color: "text-blue-600", bg: "bg-blue-50" },
             ].map((d, i) => (
-              <div key={i} className={`p-4 ${d.bg} border ${d.border} rounded-2xl`}>
+              <div key={i} className={`p-4 ${d.bg} rounded-2xl`}>
                 <p className="text-xs font-bold text-muted-foreground mb-2">{d.name}</p>
                 <div className="flex items-end gap-2">
                   <p className={`text-3xl font-bold ${d.color}`}>{d.current}</p>
@@ -588,7 +588,7 @@ export default function ResearchPortal() {
       {/* ─── CORRELATION ANALYSIS ─── */}
       {activeView === "correlations" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-teal-50 border border-teal-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-teal-50 rounded-2xl">
             <GitBranch className="w-5 h-5 text-teal-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-teal-800">Disease Co-Occurrence Correlation Matrix</p>
@@ -674,7 +674,7 @@ export default function ResearchPortal() {
                   { priority: "P3", rec: "Dyslipidemia screening in all CVD patients — 69% co-occurrence, statin therapy massively underused", impact: "High" },
                   { priority: "P4", rec: "Obesity management centers in high-prevalence regions — upstream intervention for DM prevention", impact: "Medium" },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 px-3.5 py-3 bg-violet-50 border border-violet-100 rounded-2xl">
+                  <div key={i} className="flex items-start gap-3 px-3.5 py-3 bg-violet-50 rounded-2xl">
                     <span className="text-[10px] font-bold text-violet-700 bg-violet-200 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">{item.priority}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-foreground">{item.rec}</p>
@@ -691,7 +691,7 @@ export default function ResearchPortal() {
       {/* ─── COHORT COMPARISON ─── */}
       {activeView === "cohorts" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-sky-50 border border-sky-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-sky-50 rounded-2xl">
             <Users className="w-5 h-5 text-sky-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-sky-800">Population Cohort Analysis — AI Treatment Group vs. Standard Care</p>
@@ -777,7 +777,7 @@ export default function ResearchPortal() {
                     { title: "Population Summary CSV", desc: "Age groups · Gender breakdown · Condition prevalence · Risk distribution", format: "CSV", size: "~180 KB", onclick: () => handleExport("csv") },
                     { title: "Research API Access", desc: "RESTful API for approved research institutions · OAuth 2.0 · Rate limited", format: "API", size: "Real-time", onclick: () => {} },
                   ].map((item, i) => (
-                    <div key={i} className="p-4 bg-secondary border border-border rounded-2xl">
+                    <div key={i} className="p-4 bg-secondary rounded-2xl">
                       <div className="flex items-center gap-2 mb-2">
                         <Database className="w-4 h-4 text-teal-600" />
                         <p className="text-sm font-bold text-foreground">{item.title}</p>
@@ -808,7 +808,7 @@ export default function ResearchPortal() {
       {/* ─── AI HYPOTHESIS ENGINE ─── */}
       {activeView === "hypothesis" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-teal-50 border border-violet-200 rounded-3xl">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-teal-50 rounded-3xl">
             <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
               <Lightbulb className="w-6 h-6 text-violet-600" />
             </div>
@@ -949,9 +949,9 @@ export default function ResearchPortal() {
               const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-violet-700 bg-violet-100" : "text-teal-700 bg-teal-100";
               const impactColor = hyp.impact >= 9 ? "text-red-600" : hyp.impact >= 8 ? "text-amber-600" : "text-sky-600";
               return (
-                <div key={hyp.id} className={`p-5 rounded-3xl border ${statusCfg.bg} ${statusCfg.border}`}>
+                <div key={hyp.id} className={`p-5 rounded-3xl ${statusCfg.bg}`}>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-10 h-10 rounded-2xl bg-white/70 flex items-center justify-center shrink-0 mt-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground">H{i + 1}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -971,35 +971,35 @@ export default function ResearchPortal() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-foreground bg-white/60 border border-white rounded-xl px-3 py-2 mb-3 leading-relaxed">{hyp.evidence}</p>
+                      <p className="text-xs text-foreground bg-white/60 rounded-xl px-3 py-2 mb-3 leading-relaxed">{hyp.evidence}</p>
 
                       <div className="grid grid-cols-4 gap-3 mb-3">
-                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                        <div className="bg-white/60 rounded-xl p-2.5">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Sample Size</p>
                           <p className="text-sm font-bold text-foreground">n={hyp.statistical.n.toLocaleString()}</p>
                         </div>
-                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                        <div className="bg-white/60 rounded-xl p-2.5">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Correlation r</p>
                           <p className="text-sm font-bold text-primary">{hyp.statistical.correlation}</p>
                         </div>
-                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                        <div className="bg-white/60 rounded-xl p-2.5">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">p-value</p>
                           <p className="text-sm font-bold text-foreground font-mono">{hyp.statistical.pValue}</p>
                         </div>
-                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                        <div className="bg-white/60 rounded-xl p-2.5">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Confidence</p>
                           <p className="text-sm font-bold text-emerald-600">{hyp.statistical.confidence}%</p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white/60 border border-white rounded-xl p-3">
+                        <div className="bg-white/60 rounded-xl p-3">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
                             <Lightbulb className="w-3 h-3 text-amber-500" /> Action Recommendation
                           </p>
                           <p className="text-xs text-foreground">{hyp.actionRecommendation}</p>
                         </div>
-                        <div className="bg-white/60 border border-white rounded-xl p-3">
+                        <div className="bg-white/60 rounded-xl p-3">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
                             <Target className="w-3 h-3 text-teal-600" /> Proposed Study
                           </p>

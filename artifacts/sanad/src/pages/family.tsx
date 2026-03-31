@@ -114,7 +114,7 @@ export default function FamilyPortal() {
   return (
     <Layout role="family">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Users className="w-3 h-3" /> Family Health Portal
         </div>
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full">
@@ -148,8 +148,8 @@ export default function FamilyPortal() {
 
       {/* SSE Family Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-5 rounded-2xl border border-pink-200 bg-pink-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-pink-200 bg-pink-100/60">
+        <Card className="mb-5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-pink-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-pink-600 animate-pulse" />
               <span className="font-bold text-sm text-pink-900">Live Family Health Alerts</span>
@@ -181,7 +181,7 @@ export default function FamilyPortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="flex items-start justify-between mb-5">
@@ -411,7 +411,7 @@ export default function FamilyPortal() {
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">At-Risk Relatives</p>
                             <div className="flex flex-wrap gap-1.5">
                               {risk.affectedRelatives.map((r: string, ri: number) => (
-                                <span key={ri} className="text-xs font-semibold bg-secondary border border-border px-2.5 py-1 rounded-xl">{r}</span>
+                                <span key={ri} className="text-xs font-semibold bg-secondary px-2.5 py-1 rounded-xl">{r}</span>
                               ))}
                             </div>
                           </div>
@@ -510,7 +510,7 @@ export default function FamilyPortal() {
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="mt-3 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-2.5">
+                    <div className="mt-3 p-3.5 bg-amber-50 rounded-2xl flex items-start gap-2.5">
                       <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                       <p className="text-xs text-amber-800">AI projection based on current chronic condition trajectory, age-related risk accumulation, and hereditary penetrance rates. Assumes no major lifestyle or therapeutic intervention.</p>
                     </div>
@@ -545,14 +545,14 @@ export default function FamilyPortal() {
                       <div className="flex items-center gap-2 mb-3">
                         <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-[11px] text-muted-foreground">{rec.frequency}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-white/60 border border-border rounded-full text-muted-foreground ml-auto">Due: {rec.dueIn}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-white/60 rounded-full text-muted-foreground ml-auto">Due: {rec.dueIn}</span>
                       </div>
                       {rec.members?.length > 0 && (
                         <div>
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Applies to</p>
                           <div className="flex flex-wrap gap-1">
                             {rec.members.slice(0, 3).map((m: string, mi: number) => (
-                              <div key={mi} className="flex items-center gap-1 bg-white/60 border border-border px-2 py-0.5 rounded-xl">
+                              <div key={mi} className="flex items-center gap-1 bg-white/60 px-2 py-0.5 rounded-xl">
                                 <User className="w-2.5 h-2.5 text-muted-foreground" />
                                 <span className="text-[10px] font-medium text-foreground">{m.split(" ")[0]}</span>
                               </div>
@@ -589,7 +589,7 @@ export default function FamilyPortal() {
                           </div>
                           <div className="flex flex-wrap gap-1 max-w-xs">
                             {m.chronicConditions?.slice(0, 3).map((c: string, ci: number) => (
-                              <span key={ci} className="text-[9px] font-semibold bg-secondary border border-border px-1.5 py-0.5 rounded-full text-muted-foreground">{c}</span>
+                              <span key={ci} className="text-[9px] font-semibold bg-secondary px-1.5 py-0.5 rounded-full text-muted-foreground">{c}</span>
                             ))}
                             {m.chronicConditions?.length > 3 && <span className="text-[9px] text-muted-foreground self-center">+{m.chronicConditions.length - 3}</span>}
                             {m.chronicConditions?.length === 0 && <span className="text-[9px] text-emerald-600 font-semibold">No chronic conditions</span>}

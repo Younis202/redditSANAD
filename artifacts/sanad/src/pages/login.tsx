@@ -205,7 +205,7 @@ export default function LoginPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
             All Systems Live
           </div>
@@ -241,7 +241,7 @@ export default function LoginPage() {
             </div>
             <p className="text-[13px] font-bold text-foreground">Ministry of Health</p>
             <p className="text-[11px] text-muted-foreground">Kingdom of Saudi Arabia</p>
-            <div className="mt-3 flex items-center gap-1.5 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full w-fit">
+            <div className="mt-3 flex items-center gap-1.5 text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full w-fit">
               <Lock className="w-2.5 h-2.5" />
               SANAD SSO · Secure Portal
             </div>
@@ -321,7 +321,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-full">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
                     <CheckCircle2 className="w-3 h-3" /> MOH Certified
                   </div>
                   <button
@@ -445,14 +445,14 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 bg-red-50 rounded-xl">
                     <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
                     <p className="text-[12px] text-red-700">{error}</p>
                   </div>
                 )}
 
                 {/* Demo Hint */}
-                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-blue-50 border border-blue-100 rounded-xl">
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-blue-50 rounded-xl">
                   <Fingerprint className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <p className="text-[11px] text-blue-700">
                     Demo credentials pre-filled. Click <strong>Authenticate</strong> to enter.
@@ -488,7 +488,7 @@ export default function LoginPage() {
                   { label: "Audit", value: "Enabled", icon: CheckCircle2 },
                   { label: "2FA", value: "Biometric", icon: Fingerprint },
                 ].map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="flex items-center gap-2 px-3 py-2 bg-white border border-border rounded-xl">
+                  <div key={label} className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-xl">
                     <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     <div>
                       <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{label}</p>

@@ -182,7 +182,7 @@ export default function AIControlCenter() {
       )}
 
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Brain className="w-3 h-3" />
           AI Control Center
         </div>
@@ -190,7 +190,7 @@ export default function AIControlCenter() {
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           {metrics?.engines?.filter((e: any) => e.status === "operational").length} / {metrics?.engines?.length} engines operational
         </div>
-        <div className="ml-auto font-mono text-[11px] text-muted-foreground bg-secondary border border-border px-3 py-1.5 rounded-full">
+        <div className="ml-auto font-mono text-[11px] text-muted-foreground bg-secondary px-3 py-1.5 rounded-full">
           Uptime {metrics?.systemHealth?.uptime} · Last retrain: {metrics?.systemHealth?.lastRetraining}
         </div>
       </div>
@@ -462,7 +462,7 @@ export default function AIControlCenter() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center">
+                  <div className="mt-3 p-3 bg-emerald-50 rounded-2xl text-center">
                     <p className="text-xs font-bold text-emerald-800">System Availability</p>
                     <p className="text-2xl font-black text-emerald-700">99.97%</p>
                     <p className="text-[10px] text-emerald-600">SLA: 99.9% · 90-day uptime</p>
@@ -619,7 +619,7 @@ export default function AIControlCenter() {
             </div>
           )}
 
-          <div className="flex items-center gap-3 px-4 py-3 bg-secondary border border-border rounded-2xl">
+          <div className="flex items-center gap-3 px-4 py-3 bg-secondary rounded-2xl">
             <Brain className="w-4 h-4 text-primary shrink-0" />
             <p className="text-xs text-muted-foreground">
               <span className="font-bold text-foreground">Drift Analysis</span> · {drift?.summary?.stable} stable · {drift?.summary?.driftDetected} drift detected · {drift?.summary?.monitoring} monitoring · Threshold: {driftEngines[0]?.threshold ?? 5.0}
@@ -693,7 +693,7 @@ export default function AIControlCenter() {
       {/* ─── RETRAINING PANEL ─── */}
       {activeTab === "retraining" && (
         <div className="space-y-5">
-          <div className="grid grid-cols-3 gap-4 p-4 bg-secondary border border-border rounded-2xl">
+          <div className="grid grid-cols-3 gap-4 p-4 bg-secondary rounded-2xl">
             <div className="text-center">
               <p className="text-xl font-bold text-foreground">{metrics?.systemHealth?.lastRetraining}</p>
               <p className="text-xs text-muted-foreground">Last Retraining</p>
@@ -834,7 +834,7 @@ export default function AIControlCenter() {
                     <p className="text-sm font-bold text-foreground">{metrics?.totalDecisions?.toLocaleString()}</p>
                     <p className="text-[10px] text-muted-foreground">Total Decisions</p>
                   </div>
-                  <div className="bg-amber-50 border border-amber-100 px-3 py-2.5 rounded-xl text-center">
+                  <div className="bg-amber-50 px-3 py-2.5 rounded-xl text-center">
                     <p className="text-sm font-bold text-amber-700">{metrics?.lowConfidenceCount?.toLocaleString()}</p>
                     <p className="text-[10px] text-muted-foreground">Low Confidence</p>
                   </div>
@@ -843,7 +843,7 @@ export default function AIControlCenter() {
             </Card>
           </div>
 
-          <div className="px-5 py-3.5 bg-secondary border border-border rounded-2xl flex items-center gap-4">
+          <div className="px-5 py-3.5 bg-secondary rounded-2xl flex items-center gap-4">
             <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
             <p className="flex-1 text-xs text-muted-foreground">
               <span className="font-semibold text-foreground">Audit Status:</span> All AI decisions fully traceable · {metrics?.auditRecords?.toLocaleString()} audit records · Aligned with MOH AI Governance Framework 1445 · ISO/IEC 42001 AI Management compliance target 2026
@@ -899,7 +899,7 @@ export default function AIControlCenter() {
                           <span className="ml-auto font-mono text-[10px] text-muted-foreground shrink-0">+{step.latency}</span>
                         </div>
                         <p className="text-[11px] text-muted-foreground mb-2">{step.detail}</p>
-                        <div className="flex items-start gap-2 px-3 py-2 bg-primary/5 border border-primary/15 rounded-xl">
+                        <div className="flex items-start gap-2 px-3 py-2 bg-primary/5 rounded-xl">
                           <ArrowRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
                           <p className="text-[10px] font-semibold text-primary">{step.cascade}</p>
                         </div>
@@ -1005,17 +1005,17 @@ export default function AIControlCenter() {
               <p className="text-4xl font-bold">847</p>
               <p className="text-[10px] text-white/60 mt-1">across 12 portals</p>
             </div>
-            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+            <div className="bg-secondary rounded-3xl p-5 text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Portals Active Now</p>
               <p className="text-4xl font-bold text-foreground">12 / 12</p>
               <p className="text-[10px] text-emerald-600 mt-1 font-semibold">All systems operational</p>
             </div>
-            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+            <div className="bg-secondary rounded-3xl p-5 text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cascades / hour</p>
               <p className="text-4xl font-bold text-foreground">2,841</p>
               <p className="text-[10px] text-muted-foreground mt-1">cross-portal triggers</p>
             </div>
-            <div className="bg-secondary border border-border rounded-3xl p-5 text-center">
+            <div className="bg-secondary rounded-3xl p-5 text-center">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Avg Decision Time</p>
               <p className="text-4xl font-bold text-foreground">2.8s</p>
               <p className="text-[10px] text-muted-foreground mt-1">vs. 3 days manual</p>

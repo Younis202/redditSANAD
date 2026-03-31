@@ -116,7 +116,7 @@ export default function PharmacyPortal() {
           subtitle="Prescription dispensing · AI drug safety · Insurance verification"
         />
         <div className="flex items-center gap-2 shrink-0 ml-4">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary border border-border text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary text-muted-foreground">
             <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
             {sseConnected ? "Live" : "Connecting..."}
           </div>
@@ -140,8 +140,8 @@ export default function PharmacyPortal() {
 
       {/* SSE Drug Interaction Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-orange-200 bg-orange-100/60">
+        <Card className="mb-5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-orange-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
               <span className="font-bold text-sm text-orange-800">Live Drug Safety Alerts</span>
@@ -176,7 +176,7 @@ export default function PharmacyPortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Search */}
@@ -219,7 +219,7 @@ export default function PharmacyPortal() {
       {data && (
         <div className="space-y-4">
           {/* Patient Card */}
-          <div className="rounded-3xl border border-border overflow-hidden">
+          <div className="rounded-3xl overflow-hidden shadow-sm bg-white/70" style={{backdropFilter:"blur(20px)"}}>
             {data.patient.allergies?.length > 0 && (
               <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -323,7 +323,7 @@ export default function PharmacyPortal() {
                               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Contraindicated</p>
                               <div className="flex flex-wrap gap-1 justify-end">
                                 {drugCat.contraindications.slice(0, 2).map((c, j) => (
-                                  <span key={j} className="text-[8px] font-bold bg-white border border-border px-1.5 py-0.5 rounded text-foreground">{c}</span>
+                                  <span key={j} className="text-[8px] font-bold bg-white px-1.5 py-0.5 rounded text-foreground">{c}</span>
                                 ))}
                               </div>
                             </div>
@@ -407,7 +407,7 @@ export default function PharmacyPortal() {
                             {expandedWarnings[presc.id] && (
                               <div className="mt-2 space-y-2">
                                 {check.detailedWarnings.map((dw: any, wi: number) => (
-                                  <div key={wi} className="rounded-xl bg-white/80 border border-red-100 p-3">
+                                  <div key={wi} className="rounded-xl bg-white/80 p-3">
                                     <div className="flex items-start justify-between gap-2 mb-1.5">
                                       <div className="flex items-center gap-1.5">
                                         <FlaskConical className="w-3 h-3 text-red-500 shrink-0" />
@@ -432,7 +432,7 @@ export default function PharmacyPortal() {
                                     </div>
                                     <div className="flex flex-wrap gap-1 mt-1.5">
                                       {(dw.source ? dw.source.split(" · ") : dw.sources ?? []).map((src: string, si: number) => (
-                                        <span key={si} className="text-[9px] font-mono bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded-md">{src}</span>
+                                        <span key={si} className="text-[9px] font-mono bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded-md">{src}</span>
                                       ))}
                                     </div>
                                   </div>
@@ -444,7 +444,7 @@ export default function PharmacyPortal() {
                       </div>
 
                       {/* Insurance */}
-                      <div className="flex items-center gap-4 px-3.5 py-2.5 bg-secondary rounded-2xl border border-border">
+                      <div className="flex items-center gap-4 px-3.5 py-2.5 bg-secondary rounded-2xl">
                         <CreditCard className="w-3.5 h-3.5 text-primary shrink-0" />
                         <div className="flex-1">
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Insurance · {ins.provider}</p>

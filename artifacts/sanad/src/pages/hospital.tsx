@@ -64,12 +64,12 @@ export default function HospitalPortal() {
   return (
     <Layout role="hospital">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Building2 className="w-3 h-3" />
           Hospital Operations Center
         </div>
         {icuCritical > 0 && (
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full ml-2 animate-pulse">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-full ml-2 animate-pulse">
             <AlertTriangle className="w-3 h-3" />
             {icuCritical} ICU Critical Alert{icuCritical > 1 ? "s" : ""}
           </div>
@@ -217,11 +217,11 @@ export default function HospitalPortal() {
                   </div>
                 ))}
                 <div className="pt-1 space-y-1.5">
-                  <div className="flex items-center justify-between px-3.5 py-2 bg-primary/5 border border-primary/15 rounded-xl">
+                  <div className="flex items-center justify-between px-3.5 py-2 bg-primary/5 rounded-xl">
                     <p className="text-[10px] font-bold text-muted-foreground">Doctor : Patient</p>
                     <p className="text-xs font-bold text-primary font-mono">{data?.staffKPIs?.doctorPatientRatio}</p>
                   </div>
-                  <div className="flex items-center justify-between px-3.5 py-2 bg-primary/5 border border-primary/15 rounded-xl">
+                  <div className="flex items-center justify-between px-3.5 py-2 bg-primary/5 rounded-xl">
                     <p className="text-[10px] font-bold text-muted-foreground">Nurse : Patient</p>
                     <p className="text-xs font-bold text-primary font-mono">{data?.staffKPIs?.nursePatientRatio}</p>
                   </div>
@@ -239,7 +239,7 @@ export default function HospitalPortal() {
             <CardBody>
               <div className="grid grid-cols-2 gap-3">
                 {data?.aiCapacityInsights?.map((insight: string, i: number) => (
-                  <div key={i} className="flex items-start gap-3 px-4 py-3.5 bg-secondary rounded-2xl border border-border">
+                  <div key={i} className="flex items-start gap-3 px-4 py-3.5 bg-secondary rounded-2xl">
                     <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <p className="text-sm text-foreground">{insight}</p>
                   </div>
@@ -348,7 +348,7 @@ export default function HospitalPortal() {
 
                 <div className="flex flex-wrap gap-1">
                   {alert.conditions.map((c: string, ci: number) => (
-                    <span key={ci} className="text-[10px] font-semibold bg-white/80 border border-red-100 text-red-700 px-2 py-0.5 rounded-full">{c}</span>
+                    <span key={ci} className="text-[10px] font-semibold bg-red-50 text-red-700 px-2 py-0.5 rounded-full">{c}</span>
                   ))}
                 </div>
               </div>
@@ -359,7 +359,7 @@ export default function HospitalPortal() {
 
       {activeTab === "or" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-sky-50 border border-sky-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-sky-50 rounded-2xl">
             <Stethoscope className="w-5 h-5 text-sky-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-sky-800">Operating Room Schedule — Today</p>
@@ -407,7 +407,7 @@ export default function HospitalPortal() {
 
       {activeTab === "flow" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl">
             <Brain className="w-5 h-5 text-blue-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-blue-800">AI Patient Flow Optimizer — Predictive Demand & Discharge Intelligence</p>
@@ -438,7 +438,7 @@ export default function HospitalPortal() {
                     const displayValue = isPast ? slot.actual! : slot.predicted;
                     const max = 70;
                     return (
-                      <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-xl ${slot.surge ? "bg-red-50 border border-red-100" : "bg-secondary"}`}>
+                      <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-xl ${slot.surge ? "bg-red-50" : "bg-secondary"}`}>
                         <span className="text-[10px] font-mono text-muted-foreground w-24 shrink-0">{slot.hour}</span>
                         <span className="text-[10px] text-muted-foreground w-20 shrink-0">{slot.label}</span>
                         <div className="flex-1 bg-background rounded-full h-2">
@@ -454,8 +454,8 @@ export default function HospitalPortal() {
                     );
                   })}
                 </div>
-                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 mb-1">⚠ AI Surge Warning — 15:00–21:00 Today</p>
+                <div className="p-3.5 bg-amber-50 rounded-2xl">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 mb-1">AI Surge Warning — 15:00–21:00 Today</p>
                   <p className="text-xs text-amber-900">AI predicts 116 patients across peak 6h window. Recommend activating surge protocol: call in 2 additional ER physicians + prepare 8 temporary overflow beds in corridor B.</p>
                 </div>
               </CardBody>
@@ -526,7 +526,7 @@ export default function HospitalPortal() {
 
       {activeTab === "readmission" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-violet-50 border border-violet-200 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-violet-50 rounded-2xl">
             <Brain className="w-5 h-5 text-violet-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-violet-800">AI Readmission Risk Analysis</p>
@@ -557,7 +557,7 @@ export default function HospitalPortal() {
                       </div>
                     </div>
                     <div className="shrink-0 max-w-[200px] text-right">
-                      <div className={`flex items-start gap-1.5 px-3 py-2 rounded-xl ${p.readmissionRisk >= 80 ? "bg-red-50 border border-red-200" : "bg-secondary border border-border"}`}>
+                      <div className={`flex items-start gap-1.5 px-3 py-2 rounded-xl ${p.readmissionRisk >= 80 ? "bg-red-50" : "bg-secondary"}`}>
                         <ChevronRight className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.readmissionRisk >= 80 ? "text-red-500" : "text-primary"}`} />
                         <p className={`text-[11px] font-semibold ${p.readmissionRisk >= 80 ? "text-red-700" : "text-foreground"}`}>{p.recommendedAction}</p>
                       </div>

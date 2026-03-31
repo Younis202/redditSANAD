@@ -314,8 +314,8 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
           </p>
           <div className="space-y-2">
             {myAppointments.map((apt: any) => (
-              <div key={apt.id} className={`flex items-start gap-4 p-4 rounded-2xl border ${apt.status === "confirmed" ? "bg-emerald-50 border-emerald-200" : "bg-secondary border-border"}`}>
-                <div className="w-10 h-10 rounded-xl bg-white flex flex-col items-center justify-center shrink-0 border border-border">
+              <div key={apt.id} className={`flex items-start gap-4 p-4 rounded-2xl ${apt.status === "confirmed" ? "bg-emerald-50" : "bg-secondary"}`}>
+                <div className="w-10 h-10 rounded-xl bg-secondary flex flex-col items-center justify-center shrink-0">
                   <p className="text-[9px] font-bold text-muted-foreground uppercase">{new Date(apt.date).toLocaleString("en", { month: "short" })}</p>
                   <p className="text-lg font-bold text-foreground leading-none">{new Date(apt.date).getDate()}</p>
                 </div>
@@ -461,7 +461,7 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
         </div>
 
         {bookingError && (
-          <div className="mb-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+          <div className="mb-3 px-4 py-2.5 bg-red-50 rounded-xl text-sm text-red-700 font-medium">
             {bookingError}
           </div>
         )}
@@ -601,25 +601,25 @@ export default function CitizenPortal() {
       />
 
       {criticalCount > 0 && (
-        <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-2xl">
+        <Card className="mb-4 flex items-center gap-3 px-4 py-3 !rounded-2xl">
           <ShieldAlert className="w-5 h-5 text-red-600 shrink-0" />
           <p className="text-sm font-semibold text-red-700">
             <strong>{criticalCount} critical lab result{criticalCount > 1 ? "s" : ""}</strong> — please contact your doctor as soon as possible.
           </p>
           <Badge variant="destructive" className="ml-auto shrink-0">Urgent</Badge>
-        </div>
+        </Card>
       )}
 
       {/* Identity + Score Row */}
       <div className="grid grid-cols-12 gap-4 mb-5">
-        <div className="col-span-7 rounded-3xl border border-border overflow-hidden">
+        <div className="col-span-7 rounded-[2rem] overflow-hidden" style={{ background: "rgba(255,255,255,0.70)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.40)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
           {patient.allergies?.length > 0 && (
             <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <p className="text-xs font-bold uppercase tracking-widest">KNOWN ALLERGIES: {patient.allergies.join(", ")}</p>
             </div>
           )}
-          <div className="bg-white flex items-center gap-4 p-5">
+          <div className="flex items-center gap-4 p-5">
             <div className="w-14 h-14 rounded-3xl bg-amber-100 flex items-center justify-center shrink-0">
               <User className="w-7 h-7 text-amber-600" />
             </div>
@@ -809,7 +809,7 @@ export default function CitizenPortal() {
                     </p>
                     <div className="space-y-2">
                       {aiDecision.digitalTwin.predictedConditions.map((c, i) => (
-                        <div key={i} className="flex items-start gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div key={i} className="flex items-start gap-3 px-4 py-3 bg-amber-50 rounded-xl">
                           <ArrowUpRight className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                           <p className="text-sm text-foreground">{c}</p>
                         </div>
@@ -826,7 +826,7 @@ export default function CitizenPortal() {
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {aiDecision.digitalTwin.keyDrivers.map((driver, i) => (
-                        <div key={i} className="flex items-start gap-2.5 px-3.5 py-3 bg-secondary border border-border rounded-xl">
+                        <div key={i} className="flex items-start gap-2.5 px-3.5 py-3 bg-secondary rounded-xl">
                           <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                           <p className="text-xs text-foreground">{driver}</p>
                         </div>
@@ -843,7 +843,7 @@ export default function CitizenPortal() {
                     </p>
                     <div className="space-y-2">
                       {aiDecision.recommendations.map((rec, i) => (
-                        <div key={i} className="flex items-start gap-2.5 px-4 py-3 bg-primary/5 border border-primary/15 rounded-xl">
+                        <div key={i} className="flex items-start gap-2.5 px-4 py-3 bg-primary/5 rounded-xl">
                           <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                           <p className="text-xs text-foreground">{rec}</p>
                         </div>
@@ -853,7 +853,7 @@ export default function CitizenPortal() {
                 )}
 
                 {/* Disclaimer */}
-                <div className="px-4 py-3.5 bg-secondary border border-border rounded-2xl">
+                <div className="px-4 py-3.5 bg-secondary rounded-2xl">
                   <p className="text-[10px] text-muted-foreground flex items-start gap-2">
                     <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                     This AI forecast is based on your current health records and is intended for informational purposes only. Always consult your doctor before making any health decisions.
@@ -867,7 +867,7 @@ export default function CitizenPortal() {
         {activeTab === "health-score" && healthScore && (
           <div className="p-5 space-y-5">
             {/* Score interpretation */}
-            <div className={`flex items-start gap-4 p-5 ${healthScore.bg} border border-border rounded-2xl`}>
+            <div className={`flex items-start gap-4 p-5 ${healthScore.bg} rounded-2xl`}>
               <div className="flex-shrink-0">
                 <div className="relative w-20 h-20">
                   <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
@@ -964,7 +964,7 @@ export default function CitizenPortal() {
                   );
                 })}
                 {recommendations.length === 0 && (
-                  <div className="flex items-center gap-3 px-4 py-5 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                  <div className="flex items-center gap-3 px-4 py-5 bg-emerald-50 rounded-2xl">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <p className="text-sm font-semibold text-emerald-700">No urgent recommendations. Continue your healthy routine!</p>
                   </div>
@@ -1067,7 +1067,7 @@ export default function CitizenPortal() {
                       <p className={`text-[12px] font-bold ${r.urgent ? "text-red-700" : "text-foreground"}`}>{r.title}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{r.desc}</p>
                     </div>
-                    <span className={`text-[9px] font-black px-2 py-1 rounded-full shrink-0 ${r.daysLeft <= 7 ? "bg-red-600 text-white" : r.daysLeft <= 30 ? "bg-amber-500 text-white" : "bg-secondary text-muted-foreground border border-border"}`}>
+                    <span className={`text-[9px] font-black px-2 py-1 rounded-full shrink-0 ${r.daysLeft <= 7 ? "bg-red-600 text-white" : r.daysLeft <= 30 ? "bg-amber-500 text-white" : "bg-secondary text-muted-foreground"}`}>
                       {r.daysLeft}d
                     </span>
                   </div>
@@ -1167,7 +1167,7 @@ export default function CitizenPortal() {
             </div>
 
             {/* AI Journey Summary */}
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-2xl">
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl">
               <p className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-3 flex items-center gap-2">
                 <Brain className="w-3.5 h-3.5" /> AI Journey Intelligence Summary
               </p>
@@ -1177,7 +1177,7 @@ export default function CitizenPortal() {
                   { label: "Cascade Events", value: "14", sub: "Cross-portal triggers from your health data", color: "text-blue-700" },
                   { label: "SAR Saved (AI)", value: "SAR 12,400", sub: "Fraud prevention + supply optimization + early detection", color: "text-emerald-700" },
                 ].map((item, i) => (
-                  <div key={i} className="bg-white rounded-xl px-4 py-3 border border-purple-100">
+                  <div key={i} className="bg-white/70 rounded-xl px-4 py-3">
                     <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
                     <p className="text-[10px] font-semibold text-foreground mt-0.5">{item.label}</p>
                     <p className="text-[9px] text-muted-foreground mt-0.5">{item.sub}</p>
@@ -1212,7 +1212,7 @@ export default function CitizenPortal() {
               {patient.allergies?.length > 0 ? (
                 <div className="space-y-2">
                   {patient.allergies.map((a, i) => (
-                    <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 border border-red-100 rounded-2xl">
+                    <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 rounded-2xl">
                       <StatusDot status="critical" />
                       <span className="text-sm font-bold text-red-700">{a}</span>
                     </div>

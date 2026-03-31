@@ -113,7 +113,7 @@ export default function InsurancePortal() {
   return (
     <Layout role="insurance">
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Shield className="w-3 h-3" /> Insurance Operations Center
         </div>
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
@@ -149,8 +149,8 @@ export default function InsurancePortal() {
 
       {/* SSE Fraud Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-5 rounded-2xl border border-violet-200 bg-violet-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-violet-200 bg-violet-100/60">
+        <Card className="mb-5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-violet-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-violet-600 animate-pulse" />
               <span className="font-bold text-sm text-violet-900">Live Risk & Fraud Alerts</span>
@@ -182,7 +182,7 @@ export default function InsurancePortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* ─── DASHBOARD TAB ─── */}
@@ -581,7 +581,7 @@ export default function InsurancePortal() {
 
                           {/* Expanded Panel */}
                           {expandedClaim === claim.claimId && (
-                            <div className="mx-5 mb-4 p-4 bg-white border border-border rounded-2xl space-y-3">
+                            <div className="mx-5 mb-4 p-4 bg-secondary rounded-2xl space-y-3">
                               {claim.anomalyReasons?.length > 0 && (
                                 <div>
                                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
@@ -595,7 +595,7 @@ export default function InsurancePortal() {
                                 </div>
                               )}
                               {reviewResult && (
-                                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                                <div className="p-3 bg-emerald-50 rounded-xl">
                                   <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1">Review Complete</p>
                                   <p className="text-xs text-foreground">{reviewResult.aiReason}</p>
                                   <p className="text-[10px] text-muted-foreground mt-1">By {reviewResult.reviewedBy} · {new Date(reviewResult.reviewedAt).toLocaleString()}</p>
@@ -805,7 +805,7 @@ export default function InsurancePortal() {
                 return (
                   <div key={req.id} className={`p-5 ${decisionCfg.bg} border-l-4 ${decisionCfg.border}`}>
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-2xl bg-white/70 flex items-center justify-center shrink-0 mt-0.5">
                         {decisionCfg.icon}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -832,7 +832,7 @@ export default function InsurancePortal() {
                           </div>
                         </div>
 
-                        <div className="p-3 bg-white/60 border border-white/80 rounded-2xl mb-3">
+                        <div className="p-3 bg-white/60 rounded-2xl mb-3">
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5"><Brain className="w-3 h-3 text-violet-600" /> AI Clinical Reasoning</p>
                           <p className="text-xs text-foreground leading-relaxed">{req.reasoning}</p>
                         </div>
@@ -855,7 +855,7 @@ export default function InsurancePortal() {
                         </div>
 
                         {req.alternatives.length > 0 && (
-                          <div className="p-3 bg-sky-50/60 border border-sky-100 rounded-2xl mb-2">
+                          <div className="p-3 bg-sky-50/60 rounded-2xl mb-2">
                             <p className="text-[10px] font-bold text-sky-700 mb-1.5 uppercase tracking-widest">AI-Recommended Alternatives</p>
                             <div className="space-y-1">
                               {req.alternatives.map((alt, ai) => (

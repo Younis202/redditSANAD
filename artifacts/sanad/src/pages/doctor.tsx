@@ -270,8 +270,8 @@ export default function DoctorDashboard() {
 
       {/* SSE Real-time Alerts Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mx-0 mb-4 rounded-2xl border border-red-200 bg-red-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-red-200 bg-red-100/60">
+        <Card className="mb-4 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-red-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="font-bold text-sm text-red-800">Live Clinical Alerts</span>
@@ -284,13 +284,13 @@ export default function DoctorDashboard() {
               </button>
             </div>
           </div>
-          <div className="divide-y divide-red-200 max-h-64 overflow-y-auto">
+          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
                 <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-orange-500" : "bg-amber-500"}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase ${
                       alert.type === "drug_interaction_alert" ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"
                     }`}>
                       {alert.type === "drug_interaction_alert" ? "Drug Interaction" : alert.type === "risk_escalation" ? "Risk Escalation" : "Lab Alert"}
@@ -308,7 +308,7 @@ export default function DoctorDashboard() {
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <button
                     onClick={() => { handleSelectPatient(alert.nationalId, alert.patientName); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-lg px-2 py-1 transition-colors"
+                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-xl px-2 py-1 transition-colors"
                   >
                     View Patient
                   </button>
@@ -319,7 +319,7 @@ export default function DoctorDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="flex items-start justify-between mb-6">
@@ -366,7 +366,7 @@ export default function DoctorDashboard() {
               onFocus={() => setShowDropdown(true)}
             />
             {showDropdown && searchPatients.length > 0 && (
-              <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-2xl shadow-xl border border-black/[0.07] z-50 overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 w-full rounded-[2rem] z-50 overflow-hidden" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(255,255,255,0.60)" }}>
                 {searchPatients.map((p: any) => (
                   <button
                     key={p.id}
@@ -450,17 +450,17 @@ export default function DoctorDashboard() {
                   {/* Data Pills Row */}
                   <div className="mt-3 flex items-center gap-2 flex-wrap">
                     {/* Blood Type */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 rounded-xl">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-xl">
                       <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">Blood</span>
                       <span className="text-sm font-bold text-red-600">{patient.bloodType}</span>
                     </div>
 
                     {/* AI Risk Score */}
                     {riskScore && (
-                      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${
-                        riskScore.riskLevel === "critical" ? "bg-red-50 border-red-100" :
-                        riskScore.riskLevel === "high" ? "bg-amber-50 border-amber-100" :
-                        "bg-primary/5 border-primary/10"
+                      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+                        riskScore.riskLevel === "critical" ? "bg-red-50" :
+                        riskScore.riskLevel === "high" ? "bg-amber-50" :
+                        "bg-primary/5"
                       }`}>
                         <Brain className={`w-3.5 h-3.5 ${
                           riskScore.riskLevel === "critical" ? "text-red-500" :
@@ -511,8 +511,7 @@ export default function DoctorDashboard() {
                 <button
                   key={i}
                   onClick={() => setActiveTab("decision")}
-                  className="bg-white border border-black/[0.07] rounded-2xl px-4 py-3 text-left flex items-start gap-3 hover:bg-secondary/40 transition-colors"
-                  style={{ borderLeft: `4px solid` }}
+                  className="glass-card rounded-[2rem] px-4 py-3 text-left flex items-start gap-3 hover:bg-white/80 transition-colors"
                 >
                   <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${item.color}`}>
                     {item.pulse ? (
@@ -629,7 +628,7 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-1.5">
                           {riskScore.factors.slice(0, 4).map((f: any, i: number) => (
-                            <div key={i} className="flex items-center gap-2.5 px-3 py-2 bg-white/70 border border-white rounded-xl">
+                            <div key={i} className="flex items-center gap-2.5 px-3 py-2 bg-white/60 rounded-xl">
                               <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                 f.impact === "high" ? "bg-red-500" :
                                 f.impact === "moderate" ? "bg-amber-500" : "bg-primary"
@@ -651,14 +650,14 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-1.5">
                           {riskScore.recommendations.slice(0, 3).map((rec: string, i: number) => (
-                            <div key={i} className="flex items-start gap-2 px-3 py-2 bg-white/70 border border-white rounded-xl">
+                            <div key={i} className="flex items-start gap-2 px-3 py-2 bg-white/60 rounded-xl">
                               <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
                               <p className="text-xs text-foreground leading-snug">{rec}</p>
                             </div>
                           ))}
                         </div>
                         {topPredictions.length > 0 && (
-                          <div className="mt-2 px-3 py-2 bg-amber-100/60 border border-amber-200 rounded-xl">
+                          <div className="mt-2 px-3 py-2 bg-amber-100/60 rounded-xl">
                             <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">AI Alert</p>
                             <p className="text-xs text-amber-800 font-medium">{topPredictions[0]?.title}</p>
                           </div>
@@ -692,7 +691,7 @@ export default function DoctorDashboard() {
                     {patient.allergies?.length > 0 ? (
                       <div className="space-y-2">
                         {patient.allergies.map((a, i) => (
-                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 border border-red-100 rounded-2xl">
+                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 rounded-2xl">
                             <StatusDot status="critical" />
                             <span className="text-sm font-bold text-red-700">{a}</span>
                           </div>
@@ -832,8 +831,8 @@ export default function DoctorDashboard() {
                             </div>
                             <p className="text-xs text-foreground/80 mb-2">{ix.description}</p>
                             <div className={`flex items-start gap-2 px-3 py-2 rounded-xl ${
-                              ix.severity === "critical" ? "bg-red-100/80 border border-red-200" :
-                              ix.severity === "high" ? "bg-amber-100/80 border border-amber-200" : "bg-sky-100/80 border border-sky-200"
+                              ix.severity === "critical" ? "bg-red-100/80" :
+                              ix.severity === "high" ? "bg-amber-100/80" : "bg-sky-100/80"
                             }`}>
                               <Lightbulb className="w-3 h-3 text-foreground shrink-0 mt-0.5" />
                               <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
@@ -1417,7 +1416,7 @@ export default function DoctorDashboard() {
                           </p>
                           <div className="space-y-2">
                             {aiDecision.recommendations.map((rec, i) => (
-                              <div key={i} className="flex items-start gap-2.5 px-3.5 py-2.5 bg-primary/5 border border-primary/15 rounded-xl">
+                              <div key={i} className="flex items-start gap-2.5 px-3.5 py-2.5 bg-primary/5 rounded-xl">
                                 <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                                 <p className="text-xs text-foreground leading-snug">{rec}</p>
                               </div>
@@ -1491,7 +1490,7 @@ export default function DoctorDashboard() {
                             <span className="w-3.5 h-3.5 inline-flex items-center justify-center bg-violet-600 rounded text-white text-[7px] font-black">AI</span>
                             Treatment Simulation Engine — AI-Projected Outcomes
                           </p>
-                          <div className="overflow-hidden rounded-xl border border-border">
+                          <div className="overflow-hidden rounded-xl bg-secondary/50">
                             <div className="flex items-center gap-3 px-3 py-1.5 bg-secondary text-[9px] font-bold text-muted-foreground uppercase tracking-widest border-b border-border">
                               <span className="flex-1">Scenario</span>
                               <span className="w-14 text-center">3 Month</span>
@@ -1641,7 +1640,7 @@ export default function DoctorDashboard() {
                                   </div>
                                   <div className="shrink-0 flex gap-1 flex-wrap max-w-[150px] justify-end">
                                     {dx.evidence.map((e, j) => (
-                                      <span key={j} className="text-[8px] bg-white border border-border text-muted-foreground px-1.5 py-0.5 rounded-full">{e}</span>
+                                      <span key={j} className="text-[8px] bg-secondary text-muted-foreground px-1.5 py-0.5 rounded-full">{e}</span>
                                     ))}
                                   </div>
                                 </div>
@@ -1659,7 +1658,7 @@ export default function DoctorDashboard() {
                           <Brain className="w-3.5 h-3.5 text-indigo-600" /> XAI — Explainable AI Score Breakdown
                           <span className="ml-auto text-[9px] font-normal text-muted-foreground normal-case tracking-normal">Total risk score: {aiDecision.riskScore}/100 · Model: SANAD-Risk-v4.2</span>
                         </p>
-                        <div className="p-4 bg-secondary rounded-2xl border border-border">
+                        <div className="p-4 bg-secondary rounded-2xl">
                           <div className="space-y-2.5">
                             {aiDecision.whyFactors.map((f: any, i: number) => {
                               const maxContrib = Math.max(...aiDecision.whyFactors.map((x: any) => parseFloat(x.contribution) || 10));
@@ -1757,7 +1756,7 @@ export default function DoctorDashboard() {
                                       <Badge variant={c.badge} className="text-[9px]">{c.badge === "destructive" ? "CRITICAL" : "HIGH"}</Badge>
                                     </div>
                                     <p className="text-[11px] text-foreground/80 mb-2">{c.risk}</p>
-                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${c.badge === "destructive" ? "bg-red-100 border border-red-200" : "bg-amber-100 border border-amber-200"}`}>
+                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${c.badge === "destructive" ? "bg-red-100" : "bg-amber-100"}`}>
                                       <ChevronRight className="w-3 h-3 shrink-0 text-foreground" />
                                       <span className="text-[10px] font-semibold text-foreground">{c.action}</span>
                                     </div>
@@ -1789,7 +1788,7 @@ export default function DoctorDashboard() {
                 ) : (
                   <div className="space-y-2">
                     {((auditData as any)?.auditLog ?? []).map((log: any, i: number) => (
-                      <div key={i} className="flex items-start gap-3 px-4 py-3 bg-secondary rounded-2xl border border-border">
+                      <div key={i} className="flex items-start gap-3 px-4 py-3 bg-secondary rounded-2xl">
                         <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
@@ -1860,7 +1859,7 @@ export default function DoctorDashboard() {
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Clinical Recommendations</p>
                         <div className="space-y-2">
                           {riskScore.recommendations.map((rec: string, i: number) => (
-                            <div key={i} className="flex items-start gap-2.5 p-3 bg-primary/5 border border-primary/10 rounded-xl">
+                            <div key={i} className="flex items-start gap-2.5 p-3 bg-primary/5 rounded-xl">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                               <p className="text-xs text-foreground">{rec}</p>
                             </div>
@@ -1933,7 +1932,7 @@ export default function DoctorDashboard() {
                   </div>
 
                   <div className="col-span-8 space-y-3">
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                    <div className="p-4 bg-amber-50 rounded-2xl">
                       <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3 text-amber-700" /> AI Readmission Prevention Protocol</p>
                       <div className="grid grid-cols-2 gap-2">
                         {[
@@ -1944,7 +1943,7 @@ export default function DoctorDashboard() {
                           { action: "Outpatient Appointment ≤7 days", priority: "CRITICAL", desc: "Book follow-up before discharge — same-week appointment reduces readmission 34%", done: false },
                           { action: "Digital Twin Alert Threshold Set", priority: "MODERATE", desc: "Configure SANAD wearable alerts for pre-readmission risk signals", done: true },
                         ].map((item, i) => (
-                          <div key={i} className={`p-3 rounded-xl border ${item.done ? "bg-emerald-50 border-emerald-200" : item.priority === "CRITICAL" ? "bg-red-50 border-red-200" : item.priority === "HIGH" ? "bg-amber-50 border-amber-200" : "bg-secondary border-border"}`}>
+                          <div key={i} className={`p-3 rounded-xl ${item.done ? "bg-emerald-50" : item.priority === "CRITICAL" ? "bg-red-50" : item.priority === "HIGH" ? "bg-amber-50" : "bg-secondary"}`}>
                             <div className="flex items-center gap-2 mb-1">
                               {item.done
                                 ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1977,7 +1976,7 @@ export default function DoctorDashboard() {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 bg-violet-50 border border-violet-100 rounded-2xl">
+                      <div className="p-4 bg-violet-50 rounded-2xl">
                         <p className="text-[10px] font-bold text-violet-700 uppercase tracking-widest mb-2">National Benchmark</p>
                         {[
                           { label: "SANAD Average Readmission", value: "8.2%", sub: "30-day all-cause" },
@@ -2017,13 +2016,13 @@ export default function DoctorDashboard() {
                 <div className="grid grid-cols-2 gap-4">
 
                   {/* Insurance Coverage */}
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                  <div className="rounded-[2rem] bg-emerald-50 p-4">
                     <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <Shield className="w-3 h-3" /> Insurance Portal — Live Coverage
                     </p>
                     <div className="space-y-2">
                       {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between bg-white rounded-xl px-3 py-2 border border-emerald-100">
+                        <div key={i} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-2">
                           <div>
                             <p className="text-[10px] font-bold text-foreground">{med.drugName}</p>
                             <p className="text-[9px] text-muted-foreground">{med.dosage}</p>
@@ -2042,7 +2041,7 @@ export default function DoctorDashboard() {
                   </div>
 
                   {/* Supply Chain */}
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="rounded-[2rem] bg-amber-50 p-4">
                     <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <Pill className="w-3 h-3" /> Supply Chain — Drug Availability
                     </p>
@@ -2050,7 +2049,7 @@ export default function DoctorDashboard() {
                       {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => {
                         const stock = i === 0 ? { label: "LOW", color: "text-red-600", bg: "bg-red-50 border-red-100", units: "2,100" } : i === 1 ? { label: "CRITICAL", color: "text-red-700", bg: "bg-red-50 border-red-200", units: "480" } : { label: "SUFFICIENT", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-100", units: "18,400" };
                         return (
-                          <div key={i} className={`flex items-center justify-between bg-white rounded-xl px-3 py-2 border ${i < 2 ? "border-amber-200" : "border-emerald-200"}`}>
+                          <div key={i} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-2">
                             <div>
                               <p className="text-[10px] font-bold text-foreground">{med.drugName}</p>
                               <p className="text-[9px] text-muted-foreground">Al-Riyadh Hub</p>
@@ -2070,7 +2069,7 @@ export default function DoctorDashboard() {
                   </div>
 
                   {/* Research Eligibility */}
-                  <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                  <div className="rounded-[2rem] bg-violet-50 p-4">
                     <p className="text-[10px] font-bold text-violet-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <FlaskConical className="w-3 h-3" /> Research Portal — Trial Eligibility
                     </p>
@@ -2080,7 +2079,7 @@ export default function DoctorDashboard() {
                         { trial: "SGLT2i Renal Protection", id: "NCT-SA-2025-0512", eligible: true, phase: "Phase II", sites: "8 hospitals" },
                         { trial: "AI-Driven DM Remission", id: "NCT-SA-2026-0021", eligible: false, phase: "Phase I", sites: "KFMC only" },
                       ].map((t, i) => (
-                        <div key={i} className={`flex items-center justify-between bg-white rounded-xl px-3 py-2 border ${t.eligible ? "border-violet-200" : "border-gray-200"}`}>
+                        <div key={i} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-2">
                           <div className="flex-1 min-w-0 pr-2">
                             <p className="text-[10px] font-bold text-foreground truncate">{t.trial}</p>
                             <p className="text-[9px] text-muted-foreground">{t.id} · {t.phase} · {t.sites}</p>
@@ -2092,7 +2091,7 @@ export default function DoctorDashboard() {
                   </div>
 
                   {/* Family Risk */}
-                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                  <div className="rounded-[2rem] bg-sky-50 p-4">
                     <p className="text-[10px] font-bold text-sky-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <Users className="w-3 h-3" /> Family Portal — Genetic Risk Cascade
                     </p>
@@ -2102,7 +2101,7 @@ export default function DoctorDashboard() {
                         { relation: "Daughter", age: 24, condition: "DM Type 2 predisposition", risk: 68, status: "Screening recommended" },
                         { relation: "Spouse", age: 51, condition: "HTN genetic marker", risk: 41, status: "Annual BP monitoring" },
                       ].map((f, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-white rounded-xl px-3 py-2 border border-sky-100">
+                        <div key={i} className="flex items-center gap-3 bg-white/70 rounded-xl px-3 py-2">
                           <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
                             <Users className="w-3.5 h-3.5 text-sky-600" />
                           </div>
@@ -2173,7 +2172,7 @@ function PrescribeModal({ patientId }: { patientId: number }) {
 
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-          <div className="bg-card rounded-3xl border border-border shadow-2xl w-full max-w-lg overflow-hidden">
+          <div className="w-full max-w-lg overflow-hidden rounded-[2rem]" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(24px)", boxShadow: "0 24px 64px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.60)" }}>
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div>
                 <h3 className="font-bold text-foreground text-base">Prescribe Medication</h3>
@@ -2225,7 +2224,7 @@ function PrescribeModal({ patientId }: { patientId: number }) {
               {checkMutation.data && (
                 <div className="space-y-3 border-t border-border pt-4">
                   {checkMutation.data.safe ? (
-                    <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                    <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl">
                       <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
                         <Shield className="w-4.5 h-4.5 text-emerald-600" />
                       </div>
@@ -2237,14 +2236,14 @@ function PrescribeModal({ patientId }: { patientId: number }) {
                   ) : (
                     <div className="space-y-2.5">
                       {checkMutation.data.warnings.map((w: any, i: number) => (
-                        <div key={i} className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                        <div key={i} className="p-4 bg-red-50 rounded-2xl">
                           <div className="flex items-center gap-2 mb-2">
                             <AlertCircle className="w-4 h-4 text-red-600" />
                             <span className="text-sm font-bold text-red-700">Interaction: {w.conflictingDrug}</span>
                             <Badge variant={w.severity === "critical" ? "destructive" : "warning"} className="ml-auto text-[10px]">{w.severity}</Badge>
                           </div>
                           <p className="text-xs text-foreground/80 mb-2 ml-6">{w.description}</p>
-                          <p className="text-xs font-semibold bg-white border border-red-100 rounded-xl p-2 ml-6">{w.recommendation}</p>
+                          <p className="text-xs font-semibold bg-white/70 rounded-xl p-2 ml-6">{w.recommendation}</p>
                         </div>
                       ))}
                     </div>

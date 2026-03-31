@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  Search, AlertTriangle, Pill, FileWarning,
+  Search, AlertTriangle, FileWarning,
   PhoneCall, Activity, Clock, Zap,
   ShieldAlert, Ban, Eye, UserCheck, Wrench,
   PauseCircle, Brain, Timer, Bell,
@@ -8,7 +8,7 @@ import {
   Fingerprint, Heart, Droplet, User
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import { StatusDot } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, PageHeader, StatusDot } from "@/components/shared";
 import { useEmergencyLookup } from "@workspace/api-client-react";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
@@ -40,9 +40,9 @@ const SLA: Record<string, string> = {
 };
 
 export default function EmergencyPage() {
-  const [nationalId, setNationalId]     = useState("");
-  const [submittedId, setSubmittedId]   = useState<string | null>(null);
-  const [alertsOpen, setAlertsOpen]     = useState(true);
+  const [nationalId, setNationalId]       = useState("");
+  const [submittedId, setSubmittedId]     = useState<string | null>(null);
+  const [alertsOpen, setAlertsOpen]       = useState(true);
   const [protocolsOpen, setProtocolsOpen] = useState(false);
 
   const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread,
@@ -58,25 +58,25 @@ export default function EmergencyPage() {
     if (nationalId.trim()) setSubmittedId(nationalId.trim());
   };
 
-  const actions          = (patient as any)?.clinicalActions as ClinicalAction[] | undefined;
-  const immediate        = actions?.filter(a => a.priority === "immediate") ?? [];
-  const guidance         = actions?.filter(a => a.priority !== "immediate") ?? [];
-  const riskLevel        = (patient as any)?.riskLevel ?? "low";
-  const riskBadge        = RISK_BADGE[riskLevel] ?? RISK_BADGE.low;
-  const allergies        = (patient as any)?.allergies as string[] ?? [];
-  const chronicConds     = (patient as any)?.chronicConditions as string[] ?? [];
-  const riskFactors      = (patient as any)?.riskFactors as { factor: string; impact: "low"|"moderate"|"high"; description: string }[] ?? [];
+  const actions           = (patient as any)?.clinicalActions as ClinicalAction[] | undefined;
+  const immediate         = actions?.filter(a => a.priority === "immediate") ?? [];
+  const guidance          = actions?.filter(a => a.priority !== "immediate") ?? [];
+  const riskLevel         = (patient as any)?.riskLevel ?? "low";
+  const riskBadge         = RISK_BADGE[riskLevel] ?? RISK_BADGE.low;
+  const allergies         = (patient as any)?.allergies as string[] ?? [];
+  const chronicConds      = (patient as any)?.chronicConditions as string[] ?? [];
+  const riskFactors       = (patient as any)?.riskFactors as { factor: string; impact: "low"|"moderate"|"high"; description: string }[] ?? [];
   const aiRecommendations = (patient as any)?.aiRecommendations as string[] ?? [];
-  const drugInteractions = (patient as any)?.drugInteractions as { severity: string; conflictingDrug: string; description: string; recommendation: string }[] ?? [];
+  const drugInteractions  = (patient as any)?.drugInteractions as { severity: string; conflictingDrug: string; description: string; recommendation: string }[] ?? [];
 
   return (
     <Layout role="emergency">
 
-      {/* ── FLOATING LIVE ALERTS — z-50, always above all content ── */}
+      {/* ── FLOATING LIVE ALERTS ── */}
       {sseAlerts.length > 0 && (
         <div
-          className="fixed bottom-6 right-6 z-50 w-[340px] rounded-2xl overflow-hidden bg-white"
-          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)" }}
+          className="fixed bottom-6 right-6 z-50 w-[340px] rounded-[2rem] overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.80)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.40)" }}
         >
           <button
             onClick={() => setAlertsOpen(p => !p)}
@@ -94,7 +94,7 @@ export default function EmergencyPage() {
             {alertsOpen ? <ChevronDown className="w-3.5 h-3.5 text-white/80" /> : <ChevronUp className="w-3.5 h-3.5 text-white/80" />}
           </button>
           {alertsOpen && (
-            <div className="divide-y divide-slate-100 max-h-[260px] overflow-y-auto">
+            <div className="divide-y divide-white/20 max-h-[260px] overflow-y-auto">
               {sseAlerts.map(alert => (
                 <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-40" : ""}`}>
                   <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
@@ -107,7 +107,7 @@ export default function EmergencyPage() {
                   {!alert.read && (
                     <button
                       onClick={() => { if (alert.nationalId) { setNationalId(alert.nationalId); setSubmittedId(alert.nationalId); } markSseRead(alert.id); }}
-                      className="text-[11px] font-bold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg px-2.5 py-1 shrink-0 transition-colors"
+                      className="text-[11px] font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl px-2.5 py-1 shrink-0 transition-colors"
                     >
                       Load
                     </button>
@@ -119,24 +119,31 @@ export default function EmergencyPage() {
         </div>
       )}
 
-      {/* ── SEARCH BLOCK ── */}
-      <div className="mb-8">
+      {/* ── PAGE HEADER ── */}
+      <PageHeader
+        title="Emergency Lookup"
+        subtitle="Instant AI-powered patient record retrieval — blood type, allergies, medications, and clinical actions in under one second."
+      />
 
-        {/* Status pills */}
+      {/* ── STATUS PILLS + SEARCH ── */}
+      <div className="mb-8">
         <div className="flex items-center gap-2 mb-5">
           <div className="flex items-center gap-1.5 bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full tracking-wider uppercase">
             <Zap className="w-3 h-3" />
             Emergency Mode Active
           </div>
-          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${
-            sseConnected ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-100 border-slate-200 text-slate-400"}`}>
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${
+            sseConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400"}`}
+            style={{ border: sseConnected ? "1px solid #a7f3d0" : "1px solid #e2e8f0" }}
+          >
             <Radio className={`w-3 h-3 ${sseConnected ? "text-emerald-500" : "text-slate-300"}`} />
             {sseConnected ? "9 AI Engines · Live" : "Connecting..."}
           </div>
           {sseUnread > 0 && (
             <button
               onClick={() => setAlertsOpen(p => !p)}
-              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
+              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
+              style={{ border: "1px solid #fecaca" }}
             >
               <Bell className="w-3 h-3" />
               {sseUnread} alert{sseUnread > 1 ? "s" : ""}
@@ -149,7 +156,6 @@ export default function EmergencyPage() {
           )}
         </div>
 
-        {/* Search bar */}
         <form onSubmit={handleSearch} className="flex gap-3">
           <div className="flex-1 relative">
             <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4.5 h-4.5 pointer-events-none" />
@@ -158,7 +164,8 @@ export default function EmergencyPage() {
               value={nationalId}
               onChange={e => setNationalId(e.target.value)}
               placeholder="Enter National ID to retrieve patient data..."
-              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-2xl text-sm font-mono text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all"
+              className="w-full h-12 pl-11 pr-4 rounded-2xl text-sm font-mono text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
+              style={{ background: "rgba(255,255,255,0.80)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.60)" }}
             />
           </div>
           <button
@@ -192,19 +199,19 @@ export default function EmergencyPage() {
 
       {/* ── ERROR ── */}
       {isError && !isLoading && (
-        <div className="flex items-center gap-4 p-5 bg-red-50 border border-red-200 rounded-2xl">
+        <Card className="p-5 flex items-center gap-4">
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div>
             <p className="font-bold text-red-700 text-sm">Patient Not Found</p>
             <p className="text-xs text-red-500 mt-0.5">No record for <span className="font-mono font-bold">{submittedId}</span>. Verify the ID and retry.</p>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* ── EMPTY STATE ── */}
       {!submittedId && !isLoading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-red-50 border border-red-100 flex items-center justify-center mb-1">
+          <div className="w-16 h-16 rounded-3xl bg-red-50 flex items-center justify-center mb-1">
             <ShieldAlert className="w-8 h-8 text-red-400" />
           </div>
           <div>
@@ -215,11 +222,11 @@ export default function EmergencyPage() {
           </div>
           <div className="grid grid-cols-3 gap-3 mt-2 w-full max-w-xs">
             {[{ label: "Response", value: "< 1s", icon: Timer }, { label: "Confidence", value: "97%", icon: Brain }, { label: "AI Sources", value: "9 Live", icon: Activity }].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col items-center gap-2">
+              <Card key={label} className="p-4 flex flex-col items-center gap-2">
                 <Icon className="w-4 h-4 text-slate-300" />
                 <p className="text-base font-black text-slate-800">{value}</p>
                 <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -229,75 +236,68 @@ export default function EmergencyPage() {
       {patient && (
         <div className="space-y-4">
 
-          {/* ── 1. PATIENT IDENTITY CARD ── */}
-          <div className="bg-white rounded-3xl border border-slate-100 p-6" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
-            <div className="flex items-start gap-5">
-
-              {/* Avatar placeholder */}
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-                <User className="w-8 h-8 text-slate-300" />
-              </div>
-
-              {/* Name + ID */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-[28px] font-black text-slate-900 leading-tight tracking-tight">{patient.fullName}</h1>
-                <p className="text-sm text-slate-400 font-mono mt-1">PATIENT ID · {patient.nationalId}</p>
-                <div className="flex items-center gap-2 flex-wrap mt-3">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${riskBadge.bg} ${riskBadge.text}`}>{riskBadge.label}</span>
-                  <span className="text-xs text-slate-400 font-semibold">Response SLA: <span className="text-slate-700 font-bold">{SLA[riskLevel]}</span></span>
-                  {(patient as any).riskScore !== undefined && (
-                    <span className="text-xs text-slate-400 font-semibold">AI Score: <span className="text-slate-700 font-bold">{(patient as any).riskScore}/100</span></span>
-                  )}
-                  <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
-                    <StatusDot status="active" />
-                    Live record
-                  </span>
+          {/* 1. PATIENT IDENTITY CARD */}
+          <Card>
+            <CardBody>
+              <div className="flex items-start gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
+                  <User className="w-8 h-8 text-slate-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-[28px] font-black text-slate-900 leading-tight tracking-tight">{patient.fullName}</h1>
+                  <p className="text-sm text-slate-400 font-mono mt-1">PATIENT ID · {patient.nationalId}</p>
+                  <div className="flex items-center gap-2 flex-wrap mt-3">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${riskBadge.bg} ${riskBadge.text}`}>{riskBadge.label}</span>
+                    <span className="text-xs text-slate-400 font-semibold">Response SLA: <span className="text-slate-700 font-bold">{SLA[riskLevel]}</span></span>
+                    {(patient as any).riskScore !== undefined && (
+                      <span className="text-xs text-slate-400 font-semibold">AI Score: <span className="text-slate-700 font-bold">{(patient as any).riskScore}/100</span></span>
+                    )}
+                    <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+                      <StatusDot status="active" />
+                      Live record
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Key stats strip */}
-            <div className="grid grid-cols-4 gap-3 mt-5">
-              {/* Blood Type */}
-              <div className="bg-red-50 border border-red-100 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">Blood Type</p>
-                <p className="text-3xl font-black text-red-600 leading-none">{patient.bloodType}</p>
-                {riskLevel === "critical" && (
-                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1.5">Critical</p>
-                )}
-              </div>
-
-              {/* Age / Sex */}
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Age / Sex</p>
-                <p className="text-3xl font-black text-slate-800 leading-none">{patient.age ?? "—"}</p>
-                <p className="text-sm text-slate-500 font-semibold mt-1">{patient.gender}</p>
-              </div>
-
-              {/* Emergency Contact */}
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 col-span-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Emergency Contact</p>
-                {patient.emergencyContact ? (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-bold text-slate-800">{patient.emergencyContact}</p>
-                      <p className="text-lg font-black text-blue-600 font-mono mt-0.5 tracking-tight">{patient.emergencyPhone}</p>
+              {/* Key stats */}
+              <div className="grid grid-cols-4 gap-3 mt-5">
+                <div className="bg-red-50 rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">Blood Type</p>
+                  <p className="text-3xl font-black text-red-600 leading-none">{patient.bloodType}</p>
+                  {riskLevel === "critical" && (
+                    <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1.5">Critical</p>
+                  )}
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Age / Sex</p>
+                  <p className="text-3xl font-black text-slate-800 leading-none">{patient.age ?? "—"}</p>
+                  <p className="text-sm text-slate-500 font-semibold mt-1">{patient.gender}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4 col-span-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Emergency Contact</p>
+                  {patient.emergencyContact ? (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">{patient.emergencyContact}</p>
+                        <p className="text-lg font-black text-blue-600 font-mono mt-0.5 tracking-tight">{patient.emergencyPhone}</p>
+                      </div>
+                      <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0">
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        Call Now
+                      </button>
                     </div>
-                    <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0">
-                      <PhoneCall className="w-3.5 h-3.5" />
-                      Call Now
-                    </button>
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-400">Not on record</p>
-                )}
+                  ) : (
+                    <p className="text-sm text-slate-400">Not on record</p>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
 
-          {/* ── 2. CRITICAL MEDICAL ALERT (Allergy) ── */}
+          {/* 2. CRITICAL ALLERGY ALERT — intentional red strip */}
           {allergies.length > 0 && (
-            <div className="bg-red-600 rounded-2xl p-5 flex items-start gap-4">
+            <div className="bg-red-600 rounded-[2rem] p-5 flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
                 <AlertTriangle className="w-5 h-5 text-white" />
               </div>
@@ -314,7 +314,7 @@ export default function EmergencyPage() {
                 {allergies.length > 1 && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {allergies.map((a, i) => (
-                      <span key={i} className="text-xs font-bold text-white/90 bg-white/15 border border-white/20 px-2.5 py-1 rounded-full">{a}</span>
+                      <span key={i} className="text-xs font-bold text-white/90 bg-white/15 px-2.5 py-1 rounded-full">{a}</span>
                     ))}
                   </div>
                 )}
@@ -324,27 +324,27 @@ export default function EmergencyPage() {
 
           {/* No allergies */}
           {allergies.length === 0 && (
-            <div className="flex items-center gap-3 px-5 py-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl">
+            <Card className="flex items-center gap-3 px-5 py-3.5">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
               <p className="text-sm font-semibold text-emerald-700">No Known Allergies — Safe to administer standard medications</p>
-            </div>
+            </Card>
           )}
 
-          {/* ── 3. CLINICAL DATA — Medications + Conditions ── */}
+          {/* 3. MEDICATIONS + CONDITIONS */}
           <div className="grid grid-cols-2 gap-4">
-
-            {/* Active Medications */}
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Pill className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-bold text-slate-800">Active Medications</span>
+                  <div className="w-7 h-7 rounded-xl bg-amber-50 flex items-center justify-center">
+                    <Droplet className="w-3.5 h-3.5 text-amber-500" />
+                  </div>
+                  <CardTitle>Active Medications</CardTitle>
                 </div>
                 <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
                   {patient.currentMedications.length}
                 </span>
-              </div>
-              <div className="p-2">
+              </CardHeader>
+              <CardBody className="p-2">
                 {patient.currentMedications.length > 0 ? patient.currentMedications.map((med, i) => (
                   <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
                     <span className="text-[11px] font-black text-slate-300 tabular-nums w-5 shrink-0">{i + 1}</span>
@@ -353,21 +353,22 @@ export default function EmergencyPage() {
                 )) : (
                   <div className="px-3 py-4 text-sm text-slate-400">No active medications on record</div>
                 )}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
 
-            {/* Chronic Conditions */}
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-red-400" />
-                  <span className="text-sm font-bold text-slate-800">Chronic Conditions</span>
+                  <div className="w-7 h-7 rounded-xl bg-red-50 flex items-center justify-center">
+                    <Heart className="w-3.5 h-3.5 text-red-400" />
+                  </div>
+                  <CardTitle>Chronic Conditions</CardTitle>
                 </div>
                 <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
                   {chronicConds.length}
                 </span>
-              </div>
-              <div className="p-2">
+              </CardHeader>
+              <CardBody className="p-2">
                 {chronicConds.length > 0 ? chronicConds.map((c, i) => (
                   <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
                     <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
@@ -376,19 +377,23 @@ export default function EmergencyPage() {
                 )) : (
                   <div className="px-3 py-4 text-sm text-slate-400">No chronic conditions on record</div>
                 )}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           </div>
 
-          {/* ── 4. DRUG INTERACTION WARNINGS ── */}
+          {/* 4. DRUG INTERACTION WARNINGS */}
           {drugInteractions.length > 0 && (
-            <div className="bg-white rounded-2xl border border-amber-200 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-black text-amber-800">AI Drug Interaction Warning</span>
-                <span className="ml-auto text-[11px] font-bold text-amber-700 bg-amber-200 px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
-              </div>
-              <div className="divide-y divide-slate-50">
+            <Card>
+              <CardHeader className="bg-amber-50/60">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                  </div>
+                  <CardTitle>AI Drug Interaction Warning</CardTitle>
+                </div>
+                <span className="text-[11px] font-bold text-amber-700 bg-amber-200 px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
+              </CardHeader>
+              <CardBody className="divide-y divide-slate-50 p-0">
                 {drugInteractions.map((ix, i) => {
                   const sev = ix.severity;
                   const sevColor = sev === "critical" ? "text-red-700 bg-red-100" : sev === "high" ? "text-orange-700 bg-orange-100" : "text-amber-700 bg-amber-100";
@@ -410,24 +415,27 @@ export default function EmergencyPage() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           )}
 
-          {/* ── 5. AI TRIAGE INTELLIGENCE ── */}
+          {/* 5. AI TRIAGE INTELLIGENCE */}
           {(riskFactors.length > 0 || aiRecommendations.length > 0) && (
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-slate-50 flex items-center gap-2">
-                <Brain className="w-4 h-4 text-violet-500" />
-                <span className="text-sm font-bold text-slate-800">AI Triage Intelligence</span>
-                <span className="ml-auto text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-full">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-violet-50 flex items-center justify-center">
+                    <Brain className="w-3.5 h-3.5 text-violet-500" />
+                  </div>
+                  <CardTitle>AI Triage Intelligence</CardTitle>
+                </div>
+                <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full">
                   {riskFactors.length} risk factor{riskFactors.length !== 1 ? "s" : ""} analysed
                 </span>
-              </div>
+              </CardHeader>
 
-              {/* Risk Factors */}
               {riskFactors.length > 0 && (
-                <div className="px-5 pt-4 pb-2">
+                <CardBody>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Why this risk score?</p>
                   <div className="space-y-2">
                     {riskFactors.map((f, i) => {
@@ -449,37 +457,40 @@ export default function EmergencyPage() {
                       );
                     })}
                   </div>
-                </div>
+                </CardBody>
               )}
 
-              {/* AI Recommendations */}
               {aiRecommendations.length > 0 && (
-                <div className="px-5 pt-3 pb-5">
+                <CardBody className="pt-0">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">AI Recommendations</p>
                   <div className="space-y-2">
                     {aiRecommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-violet-50 rounded-xl border border-violet-100">
+                      <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-violet-50 rounded-xl">
                         <span className="text-[10px] font-black text-violet-400 tabular-nums shrink-0 mt-0.5">{String(i+1).padStart(2,"0")}</span>
                         <p className="text-xs font-semibold text-violet-900 leading-relaxed">{rec}</p>
                       </div>
                     ))}
                   </div>
-                </div>
+                </CardBody>
               )}
-            </div>
+            </Card>
           )}
 
-          {/* ── 6. IMMEDIATE ACTIONS ── */}
+          {/* 6. IMMEDIATE ACTIONS */}
           {immediate.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-red-50 bg-red-50 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-black text-red-700 uppercase tracking-wide">Immediate Actions Required</span>
-                <span className="ml-auto flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-white border border-red-200 px-2.5 py-1 rounded-full">
+            <Card>
+              <CardHeader className="bg-red-50/60">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center">
+                    <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                  </div>
+                  <CardTitle className="text-red-700 uppercase tracking-wide">Immediate Actions Required</CardTitle>
+                </div>
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-white px-2.5 py-1 rounded-full" style={{ border: "1px solid #fecaca" }}>
                   <Clock className="w-3 h-3" /> Act within 3 min
                 </span>
-              </div>
-              <div className="divide-y divide-slate-50">
+              </CardHeader>
+              <CardBody className="divide-y divide-slate-50 p-0">
                 {immediate.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
                   const Icon = cfg.icon;
@@ -500,19 +511,23 @@ export default function EmergencyPage() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           )}
 
-          {/* ── 5. CLINICAL GUIDANCE ── */}
+          {/* 7. CLINICAL GUIDANCE */}
           {guidance.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-slate-50 flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-bold text-slate-800">Clinical Guidance</span>
-                <span className="ml-auto text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">{guidance.length} notes</span>
-              </div>
-              <div className="divide-y divide-slate-50">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-amber-50 flex items-center justify-center">
+                    <UserCheck className="w-3.5 h-3.5 text-amber-500" />
+                  </div>
+                  <CardTitle>Clinical Guidance</CardTitle>
+                </div>
+                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">{guidance.length} notes</span>
+              </CardHeader>
+              <CardBody className="divide-y divide-slate-50 p-0">
                 {guidance.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
                   const Icon = cfg.icon;
@@ -530,56 +545,62 @@ export default function EmergencyPage() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           )}
 
-          {/* ── 6. CRITICAL ALERTS ── */}
+          {/* 8. CRITICAL ALERTS */}
           {patient.criticalAlerts.length > 0 && (
-            <div className="bg-white rounded-2xl border border-red-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="px-5 py-4 border-b border-red-50 bg-red-50 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-bold text-red-700">System Alerts</span>
-              </div>
-              <div className="divide-y divide-slate-50">
+            <Card>
+              <CardHeader className="bg-red-50/60">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                  </div>
+                  <CardTitle>System Alerts</CardTitle>
+                </div>
+              </CardHeader>
+              <CardBody className="divide-y divide-slate-50 p-0">
                 {patient.criticalAlerts.map((alert, i) => (
                   <div key={i} className="flex items-center gap-3 px-5 py-3.5">
                     <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
                     <p className="text-sm font-semibold text-slate-800">{alert}</p>
                   </div>
                 ))}
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           )}
 
-          {/* ── 7. PROTOCOL REFERENCE — collapsible ── */}
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.04)" }}>
+          {/* 9. PROTOCOL REFERENCE — collapsible */}
+          <Card>
             <button
               onClick={() => setProtocolsOpen(p => !p)}
-              className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-slate-50 transition-colors"
+              className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-slate-50/60 transition-colors rounded-[2rem]"
             >
-              <Brain className="w-4 h-4 text-slate-300" />
+              <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center">
+                <Brain className="w-3.5 h-3.5 text-slate-400" />
+              </div>
               <span className="text-sm font-semibold text-slate-600">Clinical Protocol Reference</span>
               <span className="ml-auto text-xs text-slate-400">{protocolsOpen ? "Collapse" : "Expand"}</span>
               {protocolsOpen ? <ChevronUp className="w-4 h-4 text-slate-300" /> : <ChevronDown className="w-4 h-4 text-slate-300" />}
             </button>
             {protocolsOpen && (
-              <div className="px-5 pb-5 border-t border-slate-50 pt-4 grid grid-cols-5 gap-2">
+              <CardBody className="pt-0 grid grid-cols-5 gap-2">
                 {[
-                  { label: "ACLS",   sub: "Cardiac Arrest",    color: "text-red-600",    bg: "bg-red-50",    border: "border-red-200" },
-                  { label: "BLS",    sub: "Basic Life Support", color: "text-amber-700",  bg: "bg-amber-50",  border: "border-amber-200" },
-                  { label: "Sepsis", sub: "Hour-1 Bundle",     color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200" },
-                  { label: "Stroke", sub: "FAST Protocol",     color: "text-violet-700", bg: "bg-violet-50", border: "border-violet-200" },
-                  { label: "ACS",    sub: "STEMI Protocol",    color: "text-rose-700",   bg: "bg-rose-50",   border: "border-rose-200" },
-                ].map(({ label, sub, color, bg, border }) => (
-                  <button key={label} className={`flex flex-col items-center gap-1 py-3.5 rounded-xl border ${bg} ${border} hover:opacity-80 transition-opacity`}>
+                  { label: "ACLS",   sub: "Cardiac Arrest",     color: "text-red-600",    bg: "bg-red-50"    },
+                  { label: "BLS",    sub: "Basic Life Support",  color: "text-amber-700",  bg: "bg-amber-50"  },
+                  { label: "Sepsis", sub: "Hour-1 Bundle",       color: "text-orange-700", bg: "bg-orange-50" },
+                  { label: "Stroke", sub: "FAST Protocol",       color: "text-violet-700", bg: "bg-violet-50" },
+                  { label: "ACS",    sub: "STEMI Protocol",      color: "text-rose-700",   bg: "bg-rose-50"   },
+                ].map(({ label, sub, color, bg }) => (
+                  <button key={label} className={`flex flex-col items-center gap-1 py-3.5 rounded-2xl ${bg} hover:opacity-80 transition-opacity`}>
                     <span className={`text-sm font-black ${color}`}>{label}</span>
                     <span className="text-[10px] text-slate-400">{sub}</span>
                   </button>
                 ))}
-              </div>
+              </CardBody>
             )}
-          </div>
+          </Card>
 
         </div>
       )}

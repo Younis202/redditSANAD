@@ -117,7 +117,7 @@ export default function SupplyChainPortal() {
       )}
 
       <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 border border-border bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Package className="w-3 h-3" />
           Supply Chain
         </div>
@@ -141,7 +141,7 @@ export default function SupplyChainPortal() {
               )}
             </button>
           </div>
-          <div className="font-mono text-[11px] text-muted-foreground bg-secondary border border-border px-3 py-1.5 rounded-full">
+          <div className="font-mono text-[11px] text-muted-foreground bg-secondary px-3 py-1.5 rounded-full">
             Inventory Value: SAR {data?.summary?.totalInventoryValue?.toLocaleString()}
           </div>
         </div>
@@ -149,8 +149,8 @@ export default function SupplyChainPortal() {
 
       {/* SSE Supply Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-5 rounded-2xl border border-lime-200 bg-lime-50 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-lime-200 bg-lime-100/60">
+        <Card className="mb-5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-lime-50/80 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-lime-600 animate-pulse" />
               <span className="font-bold text-sm text-lime-900">Live National Health Alerts</span>
@@ -180,7 +180,7 @@ export default function SupplyChainPortal() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <PageHeader
@@ -249,7 +249,7 @@ export default function SupplyChainPortal() {
                             <p className="text-[10px] text-muted-foreground">{item.supplier}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-xs bg-secondary border border-border px-2 py-0.5 rounded-full">{item.category}</span>
+                            <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">{item.category}</span>
                           </td>
                           <td className="px-4 py-3">
                             <p className="text-sm font-bold text-foreground">{item.stock.toLocaleString()}</p>
@@ -335,7 +335,7 @@ export default function SupplyChainPortal() {
       {/* ─── AI SHORTAGE PREDICTIONS ─── */}
       {activeTab === "predictions" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 px-5 py-4 bg-violet-50 border border-violet-200 rounded-2xl">
+          <div className="flex items-start gap-4 px-5 py-4 bg-violet-50 rounded-2xl">
             <Brain className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-bold text-violet-800">AI Supply Forecasting Engine v2.1</p>
@@ -352,7 +352,7 @@ export default function SupplyChainPortal() {
             <CardHeader><Brain className="w-4 h-4 text-violet-600" /><CardTitle>AI Demand Predictions</CardTitle></CardHeader>
             <CardBody className="space-y-3">
               {data?.aiPredictions?.map((pred: any, i: number) => (
-                <div key={i} className="flex items-start gap-4 px-4 py-3.5 bg-violet-50 border border-violet-100 rounded-2xl">
+                <div key={i} className="flex items-start gap-4 px-4 py-3.5 bg-violet-50 rounded-2xl">
                   <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
                     <Brain className="w-4 h-4 text-violet-600" />
                   </div>
@@ -432,7 +432,7 @@ export default function SupplyChainPortal() {
       {/* ─── REGIONAL DISTRIBUTION ─── */}
       {activeTab === "distribution" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 px-4 py-3 bg-sky-50 border border-sky-200 rounded-2xl">
+          <div className="flex items-center gap-3 px-4 py-3 bg-sky-50 rounded-2xl">
             <Globe className="w-4 h-4 text-sky-600 shrink-0" />
             <div>
               <p className="text-xs font-bold text-foreground">National Drug Distribution Optimization</p>
@@ -669,7 +669,7 @@ export default function SupplyChainPortal() {
                   ))}
                 </div>
 
-                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                <div className="p-3.5 bg-emerald-50 rounded-2xl">
                   <p className="text-[10px] font-bold text-emerald-800 mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3" /> AI Medication Timing Protocol Recommendation</p>
                   <p className="text-xs text-emerald-700">SANAD AI recommends auto-generating "Ramadan Medication Guide" for all DM + HTN patients in app. Notify 2 weeks before Ramadan with personalized dosing schedule adjustment. Expected: 34% reduction in Ramadan hypoglycemia admissions.</p>
                 </div>
@@ -756,11 +756,11 @@ export default function SupplyChainPortal() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl">
+                  <div className="p-3.5 bg-amber-50 rounded-2xl">
                     <p className="text-[10px] font-bold text-amber-800 mb-2 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Hajj AI Command Center</p>
                     <p className="text-xs text-amber-700">Real-time pilgrim health monitoring via wearable integration. AI predicts heat stroke events 45 min in advance based on heat index + activity pattern + hydration markers.</p>
                   </div>
-                  <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl">
+                  <div className="p-3.5 bg-red-50 rounded-2xl">
                     <p className="text-[10px] font-bold text-red-800 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-3 h-3" /> Critical Gaps (Act Now)</p>
                     <div className="space-y-1">
                       {["Cooling Gel Blankets — Only 12% ordered", "Salbutamol Inhalers — 25% ordered", "Ciprofloxacin — 60% ordered"].map((g, i) => (

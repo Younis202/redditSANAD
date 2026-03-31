@@ -345,7 +345,7 @@ export default function AdminDashboard() {
                   );
                 })}
               </div>
-              <div className="flex items-center gap-6 px-5 py-3.5 bg-secondary rounded-2xl border border-border">
+              <div className="flex items-center gap-6 px-5 py-3.5 bg-secondary rounded-2xl">
                 {[
                   { label: "Critical Regions", value: "1", color: "text-red-600" },
                   { label: "High-Risk Regions", value: "3", color: "text-orange-600" },
@@ -471,7 +471,7 @@ export default function AdminDashboard() {
                     { label: "Audit Records", value: (intelligence as any)?.auditRecords ?? "0", icon: Target },
                     { label: "Avg Response Time", value: (intelligence as any)?.avgResponseMs ? `${(intelligence as any).avgResponseMs}ms` : "—", icon: Activity },
                   ].map((m, i) => (
-                    <div key={i} className="px-4 py-3.5 bg-secondary rounded-2xl border border-border">
+                    <div key={i} className="px-4 py-3.5 bg-secondary rounded-2xl">
                       <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
                         <m.icon className="w-3 h-3" /> {m.label}
                       </p>
@@ -548,7 +548,7 @@ export default function AdminDashboard() {
                     ))}
                   </div>
 
-                  <div className="mt-4 p-4 bg-violet-50 border border-violet-200 rounded-2xl">
+                  <div className="mt-4 p-4 bg-violet-50 rounded-2xl">
                     <div className="flex items-center gap-2 mb-2">
                       <Settings className="w-3.5 h-3.5 text-violet-700" />
                       <p className="text-[10px] font-black uppercase tracking-widest text-violet-800">Policy Engine — AI Recommendations</p>
@@ -728,7 +728,7 @@ export default function AdminDashboard() {
                       </div>
                     ))}
                   </div>
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                  <div className="p-4 bg-emerald-50 rounded-2xl">
                     <div className="flex items-center gap-2 mb-1">
                       <Lock className="w-3.5 h-3.5 text-emerald-700" />
                       <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Security Posture</p>
@@ -797,7 +797,7 @@ export default function AdminDashboard() {
             <span className="text-sm font-bold text-foreground">AI Clinical Performance — Kingdom of Saudi Arabia</span>
             <Badge variant="success" className="text-[10px]">Live · Updated hourly</Badge>
           </div>
-          <span className="text-[11px] text-muted-foreground font-mono bg-secondary border border-border px-3 py-1.5 rounded-full">
+          <span className="text-[11px] text-muted-foreground font-mono bg-secondary px-3 py-1.5 rounded-full">
             Fiscal Year 2025 · MOH Performance Dashboard
           </span>
         </div>

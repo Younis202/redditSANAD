@@ -1,0 +1,273 @@
+SANAD Sovereign Intelligence — Master Design Specification (v3.0)
+
+This document defines the unified "Elite Sovereign" design language for the SANAD National Health Intelligence Platform. Use these specifications to replicate the Apple-inspired, high-density medical command center aesthetic across all 12 portals.
+
+
+
+1. Core Visual Philosophy: "The Digital Sanctuary"
+
+
+
+
+
+Objective: Combine the luxury and simplicity of Apple’s pro-apps with the authority and high-density information requirements of a national sovereign command center.
+
+
+
+Key Principles:
+
+
+
+
+
+Glassmorphism: Use depth and blur to separate intelligence layers.
+
+
+
+Soft Geometry: Extreme rounding (32px) to make complex data feel approachable.
+
+
+
+High Density, Low Noise: Maximize information per pixel while maintaining clean visual hierarchy.
+
+
+
+Full-Width Architecture: Zero sidebar layout to give data "Sovereign Scale."
+
+
+
+2. Color Palette (Sovereign Elite)
+
+Primary Brand Colors
+
+
+
+
+
+Sovereign Blue: hsl(211, 100%, 50%) (#007AFF) — The primary action and brand color.
+
+
+
+Deep Navy: hsl(220, 90%, 22%) — Used for cinematic headers and deep backgrounds.
+
+
+
+Sanctuary Background: hsl(220, 14%, 96%) — The main system background.
+
+Intelligence Status Colors
+
+
+
+
+
+Critical/Emergency: hsl(4, 86%, 55%) (#EF4444) — High-urgency alerts, critical lab results.
+
+
+
+Warning/Surge: hsl(38, 92%, 50%) (#F59E0B) — Moderate risk, stock shortages.
+
+
+
+Optimal/Healthy: hsl(142, 71%, 38%) (#10B981) — Success states, stable trends.
+
+
+
+AI Intelligence (Purple): hsl(255, 70%, 60%) (#8B5CF6) — Digital Twin, Hypothesis Engine.
+
+
+
+System Info (Sky): hsl(199, 89%, 48%) (#38BDF8) — Routine info, secondary stats.
+
+
+
+3. Typography & Grids
+
+Typography
+
+
+
+
+
+Headlines: Manrope (Bold/ExtraBold) — For screen titles and KPI numbers.
+
+
+
+Body/Interface: Inter (Medium/SemiBold) — For all data labels and descriptions.
+
+
+
+Monospace: IBM Plex Mono — For National IDs, timestamps, and raw data values.
+
+Grid System
+
+
+
+
+
+Layout: 12-column fluid grid.
+
+
+
+Margins: 40px (Desktop) / 24px (Mobile).
+
+
+
+Gutter: 20px - 24px between cards.
+
+
+
+4. Component Anatomy
+
+The Master Card (The Command Widget)
+
+
+
+
+
+Rounding: border-radius: 28px or 32px.
+
+
+
+Border: 1px solid rgba(0, 0, 0, 0.055).
+
+
+
+Shadow: shadow-[0_1px_4px_rgba(0,0,0,0.07),0_1px_2px_rgba(0,0,0,0.04)].
+
+
+
+Glass Effect: backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.82).
+
+KPI Metrics
+
+
+
+
+
+Title: 10px Bold, Uppercase, Tracking 0.12em, Muted Foreground.
+
+
+
+Value: 32px - 48px Bold, Tabular Nums.
+
+
+
+Trend: Small rounded pill (8px rounding) with icon (↑/↓).
+
+AI Decision Banners
+
+
+
+
+
+Urgency Strip: Full-width top-aligned color strip (Red for Immediate, Amber for Urgent).
+
+
+
+Iconography: 40px x 40px rounded-xl container with 20% opacity background of the accent color.
+
+
+
+5. Intelligence Features Logic
+
+AI Digital Twin Simulator
+
+
+
+
+
+Visual: Use AreaChart with deep gradients (fillOpacity: 0.3).
+
+
+
+Logic: Must display 3-month, 6-month, and 12-month projected risk scores.
+
+
+
+Indicator: An "Intervention Window" highlighted via a ReferenceArea or distinct color band.
+
+Differential Diagnosis (DDx)
+
+
+
+
+
+Layout: Numbered list with confidence bars.
+
+
+
+Meta: Every diagnosis must include an ICD-10 code in mono font.
+
+Neural Fabric (Data Stream)
+
+
+
+
+
+Visual: Vertical timeline with connected dots.
+
+
+
+Latency: Every event must display a millisecond (ms) latency timestamp (e.g., +12ms).
+
+
+
+Cascade: Use arrows (→) to show how data flows from one portal to another.
+
+
+
+6. Global Navigation (TopBar Elite)
+
+
+
+
+
+Height: 60px.
+
+
+
+Effect: 100% Glassmorphism (backdrop-blur-xl, bg-white/80).
+
+
+
+Elements:
+
+
+
+
+
+Left: Logo (30px rounded-square) + System Name.
+
+
+
+Center: Role switcher / Portal indicator.
+
+
+
+Right: "All Systems Operational" pulse indicator + Live Clock + User Profile.
+
+
+
+7. Implementation Directives (For AI Agents)
+
+
+
+
+
+Rule 1: NEVER use hard black. Use slate-900 or hsl(220, 20%, 10%).
+
+
+
+Rule 2: NEVER use square corners. 12px for small items, 32px for large containers.
+
+
+
+Rule 3: Use "Sparklines" (mini charts) for every time-series data point (HbA1c, Glucose, etc.).
+
+
+
+Rule 4: Arabic/English support must maintain identical visual weighting.
+
+
+
+Rule 5: Every AI decision must be accompanied by an "Explainability" note or "Basis" (e.g., ADA 2024 Guidelines).

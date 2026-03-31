@@ -246,7 +246,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
         }}
       >
         {/* Logo */}
-        <div className="h-[58px] flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div className="h-[60px] flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
           <div className={cn(
             "w-[30px] h-[30px] rounded-[9px] flex items-center justify-center shrink-0",
             config.accentBg
@@ -340,11 +340,11 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
 
         {/* Topbar */}
         <header
-          className="h-[58px] shrink-0 flex items-center justify-between px-7"
+          className="h-[60px] shrink-0 flex items-center justify-between px-7"
           style={{
-            background: "rgba(255,255,255,0.88)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
+            background: "rgba(255,255,255,0.80)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >

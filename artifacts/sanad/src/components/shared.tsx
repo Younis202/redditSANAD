@@ -11,11 +11,12 @@ export function Card({ className, children, ...props }: React.HTMLAttributes<HTM
   return (
     <div
       className={cn(
-        "bg-white rounded-[20px]",
+        "rounded-[28px]",
         "shadow-[0_1px_4px_rgba(0,0,0,0.07),0_1px_2px_rgba(0,0,0,0.04)]",
         "border border-black/[0.055]",
         className
       )}
+      style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
       {...props}
     >
       {children}
@@ -213,7 +214,7 @@ export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary"
           )}
         </div>
         <p className="text-[9.5px] font-semibold text-muted-foreground uppercase tracking-[0.09em] mb-1">{title}</p>
-        <p className="text-[24px] font-bold text-foreground tabular-nums leading-none">{value}</p>
+        <p className="text-[30px] font-bold text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
         {sub && <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{sub}</p>}
       </CardBody>
     </Card>

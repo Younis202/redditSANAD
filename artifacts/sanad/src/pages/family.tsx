@@ -3,9 +3,10 @@ import { Layout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, DataLabel } from "@/components/shared";
 import {
   Users, Search, Heart, AlertTriangle, Shield, Dna, CalendarDays, Activity,
-  User, X, ChevronRight, TrendingUp, Brain, Zap, CheckCircle2, Clock, Info
+  User, X, ChevronRight, TrendingUp, Brain, Zap, CheckCircle2, Clock, Info, Bell
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, BarChart, Bar, Cell, Legend
@@ -93,6 +94,8 @@ export default function FamilyPortal() {
   const [nationalId, setNationalId] = useState("");
   const [activeTab, setActiveTab] = useState<TabId>("tree");
   const [expandedRisk, setExpandedRisk] = useState<number | null>(null);
+  const [showSsePanel, setShowSsePanel] = useState(false);
+  const { alerts: sseAlerts, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("family");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["family-data", nationalId],
@@ -117,14 +120,69 @@ export default function FamilyPortal() {
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full">
           <Dna className="w-3 h-3" /> Genetic Risk Intelligence Active
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) { setNationalId(searchId.trim()); setActiveTab("tree"); } }} className="flex items-center gap-2 ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input placeholder="National ID..." className="pl-9 w-52" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+            <button
+              onClick={() => setShowSsePanel(p => !p)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                sseUnread > 0 ? "bg-pink-50 border-pink-300 hover:bg-pink-100" : "bg-white border-border hover:bg-secondary"
+              }`}
+            >
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-pink-600" : "text-muted-foreground"}`} />
+              {sseUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {sseUnread > 9 ? "9+" : sseUnread}
+                </span>
+              )}
+            </button>
           </div>
-          <Button type="submit" size="md">Load Family Profile</Button>
-        </form>
+          <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) { setNationalId(searchId.trim()); setActiveTab("tree"); } }} className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input placeholder="National ID..." className="pl-9 w-52" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+            </div>
+            <Button type="submit" size="md">Load Family Profile</Button>
+          </form>
+        </div>
       </div>
+
+      {/* SSE Family Alert Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-pink-200 bg-pink-50 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-pink-200 bg-pink-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-pink-600 animate-pulse" />
+              <span className="font-bold text-sm text-pink-900">Live Family Health Alerts</span>
+              <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-pink-600 hover:text-pink-900 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-pink-400 hover:text-pink-700"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="divide-y divide-pink-200 max-h-56 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <Heart className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-pink-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-pink-900">{alert.title}</p>
+                  <p className="text-xs text-pink-700 mt-0.5">Patient: {alert.patientName} · ID: {alert.nationalId}</p>
+                  {alert.recommendation && <p className="text-xs text-pink-600 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-pink-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <button
+                    onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); markSseRead(alert.id); }}
+                    className="text-[10px] font-semibold text-pink-700 bg-pink-100 hover:bg-pink-200 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    Load Family
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-start justify-between mb-5">
         <PageHeader title="Family Health & Genetic Risk Portal" subtitle="Map familial disease inheritance, shared genetic risks, and coordinate family-wide preventive screening." />

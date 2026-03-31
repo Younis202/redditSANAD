@@ -4,9 +4,10 @@ import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } fro
 import {
   FlaskConical, Brain, Activity, TrendingUp, Users, Lightbulb, Lock,
   BarChart2, Download, BookOpen, Microscope, GitBranch, Target, Zap,
-  ArrowUpRight, FileText, Filter, Globe, Star, ChevronRight, Database
+  ArrowUpRight, FileText, Filter, Globe, Star, ChevronRight, Database, Bell, X, AlertTriangle
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, LineChart, Line, ScatterChart, Scatter, Cell,
@@ -136,6 +137,8 @@ type ViewTab = "overview" | "studies" | "trends" | "correlations" | "cohorts";
 export default function ResearchPortal() {
   const [activeView, setActiveView] = useState<ViewTab>("overview");
   const [selectedConditions, setSelectedConditions] = useState<"conditions" | "labs" | "drugs" | "age">("conditions");
+  const [showSsePanel, setShowSsePanel] = useState(false);
+  const { alerts: sseAlerts, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("research");
   const { data, isLoading } = useQuery({ queryKey: ["research-insights"], queryFn: fetchResearchInsights });
 
   const handleExport = async (format: "csv" | "json") => {
@@ -181,6 +184,21 @@ export default function ResearchPortal() {
           All data anonymized · GDPR + PDPL compliant
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowSsePanel(p => !p)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                sseUnread > 0 ? "bg-teal-50 border-teal-300 hover:bg-teal-100" : "bg-white border-border hover:bg-secondary"
+              }`}
+            >
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-teal-600" : "text-muted-foreground"}`} />
+              {sseUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-teal-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {sseUnread > 9 ? "9+" : sseUnread}
+                </span>
+              )}
+            </button>
+          </div>
           <button
             onClick={() => handleExport("csv")}
             className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors"
@@ -197,6 +215,42 @@ export default function ResearchPortal() {
           </button>
         </div>
       </div>
+
+      {/* SSE Research Intelligence Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-teal-200 bg-teal-50 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-teal-200 bg-teal-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
+              <span className="font-bold text-sm text-teal-900">Live National Health Intelligence Feed</span>
+              <Badge variant="info" className="text-[10px]">{sseUnread} new events</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-teal-600 hover:text-teal-900 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-teal-400 hover:text-teal-700"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="divide-y divide-teal-200 max-h-56 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : alert.severity === "high" ? "text-amber-500" : "text-teal-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-teal-900">{alert.title}</p>
+                  <p className="text-xs text-teal-700 mt-0.5">Patient: {alert.patientName} · {alert.type === "lab_alert" ? `Lab: ${alert.testName}` : alert.type === "drug_interaction_alert" ? `Drug: ${alert.drugName} ↔ ${alert.conflictingDrug}` : "Risk escalation"}</p>
+                  {alert.recommendation && <p className="text-xs text-teal-600 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-teal-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <button
+                  onClick={() => markSseRead(alert.id)}
+                  className="text-[10px] font-semibold text-teal-700 bg-teal-100 hover:bg-teal-200 rounded-lg px-2 py-1 transition-colors shrink-0"
+                >
+                  Logged
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <PageHeader
         title="Clinical Research & Population Analytics"

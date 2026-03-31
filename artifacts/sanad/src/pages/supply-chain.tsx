@@ -4,9 +4,10 @@ import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } fro
 import {
   Package, AlertTriangle, TrendingUp, Brain, Truck, Zap, CheckCircle2,
   BarChart2, Globe, AlertCircle, ArrowUpRight, Clock, RefreshCw,
-  MapPin, ShoppingCart, Calendar, ChevronRight, TrendingDown
+  MapPin, ShoppingCart, Calendar, ChevronRight, TrendingDown, Bell, X
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, Legend, ReferenceLine
@@ -63,6 +64,9 @@ type ViewTab = "inventory" | "predictions" | "distribution" | "reorder";
 export default function SupplyChainPortal() {
   const [activeTab, setActiveTab] = useState<ViewTab>("inventory");
   const [reorderResults, setReorderResults] = useState<Record<string, any>>({});
+  const [showSsePanel, setShowSsePanel] = useState(false);
+
+  const { alerts: sseAlerts, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("supply-chain");
 
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["supply-inventory"], queryFn: fetchInventory, refetchInterval: 60000 });
@@ -120,10 +124,63 @@ export default function SupplyChainPortal() {
           <span className={`w-1.5 h-1.5 rounded-full ${criticals > 0 ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
           {criticals > 0 ? `${criticals} Critical Shortages` : "No Critical Shortages"}
         </div>
-        <div className="ml-auto font-mono text-[11px] text-muted-foreground bg-secondary border border-border px-3 py-1.5 rounded-full">
-          Inventory Value: SAR {data?.summary?.totalInventoryValue?.toLocaleString()}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowSsePanel(p => !p)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                sseUnread > 0 ? "bg-lime-50 border-lime-300 hover:bg-lime-100" : "bg-white border-border hover:bg-secondary"
+              }`}
+            >
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-lime-700" : "text-muted-foreground"}`} />
+              {sseUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-lime-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {sseUnread > 9 ? "9+" : sseUnread}
+                </span>
+              )}
+            </button>
+          </div>
+          <div className="font-mono text-[11px] text-muted-foreground bg-secondary border border-border px-3 py-1.5 rounded-full">
+            Inventory Value: SAR {data?.summary?.totalInventoryValue?.toLocaleString()}
+          </div>
         </div>
       </div>
+
+      {/* SSE Supply Alert Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-5 rounded-2xl border border-lime-200 bg-lime-50 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-lime-200 bg-lime-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-lime-600 animate-pulse" />
+              <span className="font-bold text-sm text-lime-900">Live National Health Alerts</span>
+              <Badge variant="success" className="text-[10px]">{sseUnread} new</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-lime-700 hover:text-lime-900 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-lime-400 hover:text-lime-700"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="divide-y divide-lime-200 max-h-56 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-lime-900">{alert.title}</p>
+                  <p className="text-xs text-lime-700 mt-0.5">Patient: {alert.patientName}</p>
+                  {alert.recommendation && <p className="text-xs text-lime-600 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-lime-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                </div>
+                <button
+                  onClick={() => markSseRead(alert.id)}
+                  className="text-[10px] font-semibold text-lime-700 bg-lime-100 hover:bg-lime-200 rounded-lg px-2 py-1 transition-colors shrink-0"
+                >
+                  Mark Read
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <PageHeader
         title="National Drug Supply Chain"

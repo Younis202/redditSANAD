@@ -278,6 +278,90 @@ export default function AdminDashboard() {
             </Card>
           )}
 
+          {/* ─── Saudi Regional Command Center ─── */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <Globe className="w-4 h-4 text-primary" />
+              <CardTitle>National Regional Command Center — المملكة العربية السعودية</CardTitle>
+              <Badge variant="outline" className="ml-auto">13 Regions · Live</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-7 gap-2.5 mb-4">
+                {[
+                  { name: "Riyadh", ar: "الرياض", risk: "high", patients: 14200, highRisk: 31, coverage: 97, hospitals: 48, flag: "⚠ Diabetes surge" },
+                  { name: "Makkah", ar: "مكة المكرمة", risk: "critical", patients: 9800, highRisk: 44, coverage: 95, hospitals: 36, flag: "🔴 Hypertension +12%" },
+                  { name: "Madinah", ar: "المدينة المنورة", risk: "moderate", patients: 5400, highRisk: 8, coverage: 91, hospitals: 22, flag: null },
+                  { name: "Eastern Province", ar: "المنطقة الشرقية", risk: "high", patients: 7600, highRisk: 22, coverage: 93, hospitals: 31, flag: "⚠ CKD elevated" },
+                  { name: "Asir", ar: "عسير", risk: "moderate", patients: 3900, highRisk: 7, coverage: 84, hospitals: 18, flag: null },
+                  { name: "Qassim", ar: "القصيم", risk: "low", patients: 2800, highRisk: 4, coverage: 89, hospitals: 14, flag: null },
+                  { name: "Tabuk", ar: "تبوك", risk: "moderate", patients: 2100, highRisk: 6, coverage: 82, hospitals: 11, flag: null },
+                  { name: "Hail", ar: "حائل", risk: "low", patients: 1600, highRisk: 3, coverage: 78, hospitals: 9, flag: null },
+                  { name: "Jizan", ar: "جازان", risk: "high", patients: 2900, highRisk: 14, coverage: 76, hospitals: 13, flag: "⚠ Low coverage" },
+                  { name: "Najran", ar: "نجران", risk: "moderate", patients: 1400, highRisk: 5, coverage: 72, hospitals: 8, flag: null },
+                  { name: "Al Baha", ar: "الباحة", risk: "low", patients: 900, highRisk: 2, coverage: 71, hospitals: 6, flag: null },
+                  { name: "Northern Border", ar: "الحدود الشمالية", risk: "low", patients: 700, highRisk: 1, coverage: 68, hospitals: 5, flag: null },
+                  { name: "Al Jouf", ar: "الجوف", risk: "low", patients: 1100, highRisk: 2, coverage: 75, hospitals: 7, flag: null },
+                ].map((region, i) => {
+                  const cfg = {
+                    critical: { bg: "bg-red-50", border: "border-red-300", badge: "destructive" as const, dot: "bg-red-500", bar: "#ef4444", label: "CRITICAL" },
+                    high: { bg: "bg-orange-50", border: "border-orange-300", badge: "warning" as const, dot: "bg-orange-500", bar: "#f97316", label: "HIGH" },
+                    moderate: { bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, dot: "bg-amber-400", bar: "#f59e0b", label: "MODERATE" },
+                    low: { bg: "bg-emerald-50", border: "border-emerald-200", badge: "success" as const, dot: "bg-emerald-500", bar: "#22c55e", label: "NORMAL" },
+                  }[region.risk];
+                  return (
+                    <div key={i} className={`p-3.5 rounded-2xl border ${cfg.bg} ${cfg.border} flex flex-col gap-2`}>
+                      <div className="flex items-start justify-between gap-1">
+                        <div>
+                          <p className="text-[11px] font-bold text-foreground leading-tight">{region.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{region.ar}</p>
+                        </div>
+                        <Badge variant={cfg.badge} className="text-[8px] shrink-0">{cfg.label}</Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px]">
+                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
+                        <span className="font-mono font-bold text-foreground">{region.patients.toLocaleString()}</span>
+                        <span className="text-muted-foreground">patients</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1 text-[9px]">
+                        <div>
+                          <p className="text-muted-foreground">High Risk</p>
+                          <p className={`font-bold tabular-nums ${region.highRisk > 10 ? "text-red-600" : "text-foreground"}`}>{region.highRisk}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Coverage</p>
+                          <p className="font-bold tabular-nums">{region.coverage}%</p>
+                        </div>
+                      </div>
+                      <div className="w-full bg-white/60 rounded-full h-1">
+                        <div className="h-full rounded-full" style={{ width: `${region.coverage}%`, background: cfg.bar }} />
+                      </div>
+                      {region.flag && (
+                        <p className="text-[9px] font-bold text-red-700 bg-red-100/80 px-2 py-0.5 rounded-lg">{region.flag}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Summary strip */}
+              <div className="flex items-center gap-6 px-5 py-3.5 bg-secondary rounded-2xl border border-border">
+                {[
+                  { label: "Critical Regions", value: "1", color: "text-red-600" },
+                  { label: "High-Risk Regions", value: "3", color: "text-orange-600" },
+                  { label: "Moderate Regions", value: "4", color: "text-amber-600" },
+                  { label: "Normal Regions", value: "5", color: "text-emerald-600" },
+                  { label: "Total Patients", value: "54.4K+", color: "text-primary" },
+                  { label: "Avg Coverage", value: "83%", color: "text-primary" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="text-center flex-1">
+                    <p className={`text-base font-bold tabular-nums ${color}`}>{value}</p>
+                    <p className="text-[10px] text-muted-foreground">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
           {/* National Intelligence Panel */}
           {intelligence && (
             <Card className="col-span-12">

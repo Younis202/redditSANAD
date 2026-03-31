@@ -1,7 +1,17 @@
 # SANAD — National AI Health Intelligence Platform v3.0
 
 ## Overview
-SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12+ operator portals.
+SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
+
+## Auth / Identity System
+- `artifacts/sanad/src/contexts/auth-context.tsx` — AuthProvider + localStorage persistence + fetch patching to inject `x-user-role` header on all `/api` calls
+- `artifacts/sanad/src/pages/login.tsx` — Two-step government SSO login: Step 1 = role selection grid with clearance badges (PUBLIC/RESTRICTED/CONFIDENTIAL/SECRET); Step 2 = credential entry (pre-filled demo Employee ID + SANAD@2025)
+- `artifacts/sanad/src/App.tsx` — ProtectedRoute redirects unauthenticated users to `/login`
+- Demo credentials: all roles use password `SANAD@2025` with unique employeeId per role
+
+## SSE Real-Time Alerts
+- `artifacts/sanad/src/hooks/use-sse-alerts.ts` — `useSseAlerts(role)` hook
+- SSE covers ALL 12 portals with role-appropriate color themes and quick-actions
 
 ## Architecture (v3.0 — Event-Driven + AI-First)
 

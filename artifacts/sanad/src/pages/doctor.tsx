@@ -67,7 +67,7 @@ export default function DoctorDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("decision");
   const [showSsePanel, setShowSsePanel] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -114,6 +114,16 @@ export default function DoctorDashboard() {
     patient?.id || 0,
     { enabled: !!patient?.id }
   );
+
+  const { data: medMatrixData } = useQuery({
+    queryKey: ["med-matrix", patient?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/ai/medication-matrix/${patient!.id}`);
+      if (!res.ok) return { interactions: [] };
+      return res.json() as Promise<{ interactions: Array<{ drug1: string; drug2: string; severity: string; description: string; recommendation: string }> }>;
+    },
+    enabled: !!patient?.id,
+  });
 
   const { data: auditData } = useAuditLog(
     patient?.id || 0,
@@ -212,6 +222,26 @@ export default function DoctorDashboard() {
   };
 
   const topPredictions = predictions.filter(p => p.severity === "critical" || p.severity === "high").slice(0, 3);
+
+  const priorityItems = (() => {
+    const items: Array<{ color: string; label: string; text: string }> = [];
+    if (aiDecision?.urgency === "immediate" || aiDecision?.urgency === "urgent") {
+      items.push({ color: "bg-red-600", label: aiDecision.urgency.toUpperCase(), text: aiDecision.primaryAction });
+    }
+    const critFactor = aiDecision?.whyFactors?.find(f => f.impact === "critical" || f.impact === "high");
+    if (critFactor) {
+      items.push({ color: "bg-amber-500", label: "WHY", text: critFactor.description });
+    }
+    const topBehavior = aiDecision?.behavioralFlags?.[0];
+    if (topBehavior && topBehavior.severity === "high") {
+      items.push({ color: "bg-violet-600", label: "BEHAVIOR", text: topBehavior.description });
+    }
+    const critLab = labResults.find(l => l.status === "critical");
+    if (critLab && !items.some(i => i.label === "IMMEDIATE")) {
+      items.push({ color: "bg-red-500", label: "CRITICAL LAB", text: `${critLab.testName}: ${critLab.result} ${critLab.unit ?? ""}` });
+    }
+    return items.slice(0, 3);
+  })();
 
   return (
     <Layout role="doctor">
@@ -442,6 +472,25 @@ export default function DoctorDashboard() {
             </CardBody>
           </Card>
 
+          {/* AI Priority Strip */}
+          {priorityItems.length > 0 && (
+            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${priorityItems.length}, 1fr)` }}>
+              {priorityItems.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveTab("decision")}
+                  className={`${item.color} text-white rounded-2xl px-4 py-3 text-left flex items-start gap-3 hover:opacity-90 transition-opacity`}
+                >
+                  <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse shrink-0 mt-1.5" />
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">{item.label}</p>
+                    <p className="text-xs font-semibold text-white leading-snug line-clamp-2">{item.text}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* KPI Row */}
           <div className="grid grid-cols-5 gap-4">
             <KpiCard
@@ -616,11 +665,12 @@ export default function DoctorDashboard() {
             {activeTab === "timeline" && (
               <div className="p-5">
                 <div className="flex items-center gap-3 mb-5">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Unified Clinical Timeline</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Smart Clinical Timeline</p>
                   <div className="flex items-center gap-2 ml-auto">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-sky-500" /> Visit</div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-violet-500" /> Lab</div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Medication</div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><TrendingUp className="w-3 h-3 text-amber-500" /> Trend</div>
                   </div>
                 </div>
                 <div className="relative">
@@ -629,16 +679,50 @@ export default function DoctorDashboard() {
                     {timeline.slice(0, 30).map((event, idx) => {
                       const cfg = timelineIconMap[event.type];
                       const Icon = cfg.icon;
+
+                      let trendIndicator: React.ReactNode = null;
+                      let trendBg = "";
+                      if (event.type === "lab") {
+                        const labGroup = labsByName[event.title] ?? [];
+                        const trend = getTrend(labGroup);
+                        const isAbnormal = event.status === "abnormal";
+                        const isCritical = event.status === "critical";
+                        if (trend === "rising") {
+                          trendIndicator = <TrendingUp className={`w-3.5 h-3.5 ${isAbnormal || isCritical ? "text-red-500" : "text-amber-500"}`} />;
+                          trendBg = isCritical ? "border-l-4 border-red-500 pl-3" : isAbnormal ? "border-l-4 border-amber-400 pl-3" : "";
+                        } else if (trend === "falling") {
+                          trendIndicator = <TrendingDown className="w-3.5 h-3.5 text-sky-500" />;
+                        } else {
+                          trendIndicator = <Minus className="w-3 h-3 text-muted-foreground/40" />;
+                        }
+                      }
+
+                      const isVisitEmergency = event.type === "visit" && event.badge === "emergency";
+                      const isCriticalLab = event.type === "lab" && event.status === "critical";
+
                       return (
-                        <div key={`${event.type}-${event.id}-${idx}`} className="flex gap-4 relative pl-14">
-                          <div className={`absolute left-2 top-1.5 w-6 h-6 rounded-full ${cfg.bg} flex items-center justify-center border-2 border-background z-10`}>
-                            <Icon className={`w-3 h-3 ${cfg.color}`} />
+                        <div key={`${event.type}-${event.id}-${idx}`} className={`flex gap-4 relative pl-14 ${trendBg}`}>
+                          <div className={`absolute left-2 top-1.5 w-6 h-6 rounded-full ${
+                            isCriticalLab ? "bg-red-100" : isVisitEmergency ? "bg-red-100" : cfg.bg
+                          } flex items-center justify-center border-2 border-background z-10 ${
+                            isCriticalLab || isVisitEmergency ? "ring-2 ring-red-300 ring-offset-1" : ""
+                          }`}>
+                            <Icon className={`w-3 h-3 ${isCriticalLab || isVisitEmergency ? "text-red-600" : cfg.color}`} />
                           </div>
                           <div className="flex-1 min-w-0 pb-4 border-b border-border last:border-0">
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm text-foreground truncate">{event.title}</p>
+                                <div className="flex items-center gap-1.5">
+                                  <p className={`font-semibold text-sm truncate ${isCriticalLab ? "text-red-700" : "text-foreground"}`}>{event.title}</p>
+                                  {trendIndicator}
+                                </div>
                                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{event.subtitle}</p>
+                                {isCriticalLab && (
+                                  <p className="text-[10px] font-bold text-red-600 mt-0.5">CRITICAL — Immediate review required</p>
+                                )}
+                                {isVisitEmergency && (
+                                  <p className="text-[10px] font-bold text-red-600 mt-0.5">Emergency admission</p>
+                                )}
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 {event.badge && (
@@ -664,28 +748,97 @@ export default function DoctorDashboard() {
             {activeTab === "medications" && (
               <div>
                 <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.05]" style={{ background: "hsl(240 6% 97%)" }}>
-                  <p className="text-xs font-semibold text-muted-foreground">{activeMeds.length} active prescription{activeMeds.length !== 1 ? "s" : ""}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-semibold text-muted-foreground">{activeMeds.length} active prescription{activeMeds.length !== 1 ? "s" : ""}</p>
+                    {(medMatrixData?.interactions?.length ?? 0) > 0 && (
+                      <Badge variant={(medMatrixData?.interactions?.some(i => i.severity === "critical")) ? "destructive" : "warning"}>
+                        {medMatrixData!.interactions.length} interaction{medMatrixData!.interactions.length > 1 ? "s" : ""} detected
+                      </Badge>
+                    )}
+                  </div>
                   <PrescribeModal patientId={patient.id} />
                 </div>
+
+                {/* AI Interaction Matrix */}
+                {(medMatrixData?.interactions?.length ?? 0) > 0 && (
+                  <div className="p-4 border-b border-black/[0.05] bg-amber-50/50 space-y-2.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 flex items-center gap-2 mb-3">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> AI Drug Interaction Analysis — {medMatrixData!.interactions.length} conflict{medMatrixData!.interactions.length > 1 ? "s" : ""} found
+                    </p>
+                    {medMatrixData!.interactions.map((ix, i) => (
+                      <div key={i} className={`rounded-2xl border p-4 ${
+                        ix.severity === "critical" ? "bg-red-50 border-red-200" :
+                        ix.severity === "high" ? "bg-amber-50 border-amber-200" :
+                        "bg-sky-50 border-sky-200"
+                      }`}>
+                        <div className="flex items-start gap-3">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            ix.severity === "critical" ? "bg-red-100" : ix.severity === "high" ? "bg-amber-100" : "bg-sky-100"
+                          }`}>
+                            <AlertCircle className={`w-4 h-4 ${
+                              ix.severity === "critical" ? "text-red-600" : ix.severity === "high" ? "text-amber-600" : "text-sky-600"
+                            }`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className="font-black text-sm text-foreground">{ix.drug1}</span>
+                              <span className="text-muted-foreground text-xs">↔</span>
+                              <span className="font-black text-sm text-foreground">{ix.drug2}</span>
+                              <Badge variant={ix.severity === "critical" ? "destructive" : ix.severity === "high" ? "warning" : "info"} className="ml-auto text-[10px] shrink-0 uppercase">
+                                {ix.severity} severity
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-foreground/80 mb-2">{ix.description}</p>
+                            <div className={`flex items-start gap-2 px-3 py-2 rounded-xl ${
+                              ix.severity === "critical" ? "bg-red-100/80 border border-red-200" :
+                              ix.severity === "high" ? "bg-amber-100/80 border border-amber-200" : "bg-sky-100/80 border border-sky-200"
+                            }`}>
+                              <Lightbulb className="w-3 h-3 text-foreground shrink-0 mt-0.5" />
+                              <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <table className="w-full data-table">
                   <thead><tr>
                     <th>Drug Name</th><th>Dosage</th><th>Frequency</th>
                     <th>Prescribed By</th><th>Hospital</th><th>Start Date</th><th>Status</th>
                   </tr></thead>
                   <tbody>
-                    {patient.medications?.map(med => (
-                      <tr key={med.id}>
-                        <td className="font-bold text-foreground">{med.drugName}</td>
-                        <td className="font-mono text-sm">{med.dosage}</td>
-                        <td className="text-muted-foreground">{med.frequency}</td>
-                        <td>{med.prescribedBy}</td>
-                        <td className="text-muted-foreground text-xs">{med.hospital}</td>
-                        <td className="text-muted-foreground font-mono text-xs">
-                          {med.startDate ? format(safeDate(med.startDate), "dd MMM yyyy") : "—"}
-                        </td>
-                        <td><Badge variant={med.isActive ? "success" : "outline"}>{med.isActive ? "Active" : "Completed"}</Badge></td>
-                      </tr>
-                    ))}
+                    {patient.medications?.map(med => {
+                      const hasCritical = medMatrixData?.interactions?.some(
+                        ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "critical"
+                      );
+                      const hasHigh = medMatrixData?.interactions?.some(
+                        ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "high"
+                      );
+                      return (
+                        <tr key={med.id} className={hasCritical ? "bg-red-50/50" : hasHigh ? "bg-amber-50/30" : ""}>
+                          <td className="font-bold text-foreground">
+                            <div className="flex items-center gap-2">
+                              {med.drugName}
+                              {(hasCritical || hasHigh) && (
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${hasCritical ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                  {hasCritical ? "⚠ CRITICAL" : "⚠ HIGH"}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="font-mono text-sm">{med.dosage}</td>
+                          <td className="text-muted-foreground">{med.frequency}</td>
+                          <td>{med.prescribedBy}</td>
+                          <td className="text-muted-foreground text-xs">{med.hospital}</td>
+                          <td className="text-muted-foreground font-mono text-xs">
+                            {med.startDate ? format(safeDate(med.startDate), "dd MMM yyyy") : "—"}
+                          </td>
+                          <td><Badge variant={med.isActive ? "success" : "outline"}>{med.isActive ? "Active" : "Completed"}</Badge></td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

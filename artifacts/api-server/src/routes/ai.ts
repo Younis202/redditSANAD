@@ -239,6 +239,48 @@ router.get("/decision/:patientId", async (req, res) => {
   });
 });
 
+router.get("/medication-matrix/:patientId", async (req, res) => {
+  const patientId = parseInt(req.params["patientId"]!);
+
+  const medications = await db
+    .select()
+    .from(medicationsTable)
+    .where(eq(medicationsTable.patientId, patientId));
+
+  const activeMeds = medications.filter(m => m.isActive);
+  const matrix: Array<{
+    drug1: string;
+    drug2: string;
+    severity: string;
+    description: string;
+    recommendation: string;
+  }> = [];
+
+  for (let i = 0; i < activeMeds.length; i++) {
+    for (let j = i + 1; j < activeMeds.length; j++) {
+      const drug1 = activeMeds[i]!.drugName;
+      const drug2 = activeMeds[j]!.drugName;
+      const warnings = checkDrugInteractions(drug1, [drug2]);
+      for (const w of warnings) {
+        matrix.push({
+          drug1,
+          drug2: w.conflictingDrug || drug2,
+          severity: w.severity,
+          description: w.description,
+          recommendation: w.recommendation,
+        });
+      }
+    }
+  }
+
+  matrix.sort((a, b) => {
+    const order = { critical: 0, high: 1, moderate: 2, low: 3 };
+    return (order[a.severity as keyof typeof order] ?? 4) - (order[b.severity as keyof typeof order] ?? 4);
+  });
+
+  res.json({ patientId, activeMedCount: activeMeds.length, interactions: matrix });
+});
+
 router.get("/events/:patientId", async (req, res) => {
   const patientId = parseInt(req.params["patientId"]!);
   const events = await db

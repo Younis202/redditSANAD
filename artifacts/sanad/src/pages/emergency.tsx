@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import {
   Search, AlertTriangle, Droplet, Pill, FileWarning,
-  PhoneCall, Activity, ChevronRight, Clock, Zap,
+  PhoneCall, Activity, Clock, Zap,
   ShieldAlert, Ban, Eye, UserCheck, Wrench, PauseCircle, Brain,
-  Target, Timer, Gauge, TrendingUp, Bell, X
+  Timer, Bell, X, ChevronDown, ChevronUp, CheckCircle2, Radio
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import {
-  Card, CardHeader, CardTitle, CardBody,
-  Input, Button, Badge, PageHeader, StatusDot, DataLabel
-} from "@/components/shared";
+import { Input, Button, Badge, StatusDot } from "@/components/shared";
 import { useEmergencyLookup } from "@workspace/api-client-react";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
@@ -20,27 +17,29 @@ type ClinicalAction = {
   reason: string;
 };
 
-const actionConfig: Record<ClinicalAction["action"], { icon: React.ElementType; color: string; bg: string; border: string; label: string }> = {
-  DO_NOT_GIVE: { icon: Ban, color: "text-red-700", bg: "bg-red-50", border: "border-red-200", label: "DO NOT GIVE" },
-  HOLD_MEDICATION: { icon: PauseCircle, color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200", label: "HOLD" },
-  URGENT_REVIEW: { icon: Brain, color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-200", label: "URGENT REVIEW" },
-  ALERT_FAMILY: { icon: PhoneCall, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", label: "ALERT FAMILY" },
-  MONITOR: { icon: Eye, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", label: "MONITOR" },
-  PREPARE_EQUIPMENT: { icon: Wrench, color: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200", label: "PREPARE" },
+const ACTION_CONFIG: Record<ClinicalAction["action"], { icon: React.ElementType; color: string; bg: string; border: string; label: string }> = {
+  DO_NOT_GIVE:      { icon: Ban,          color: "text-red-700",    bg: "bg-red-50",    border: "border-red-200",    label: "DO NOT GIVE" },
+  HOLD_MEDICATION:  { icon: PauseCircle,  color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200", label: "HOLD MED" },
+  URGENT_REVIEW:    { icon: Brain,        color: "text-violet-700", bg: "bg-violet-50", border: "border-violet-200", label: "URGENT REVIEW" },
+  ALERT_FAMILY:     { icon: PhoneCall,    color: "text-blue-700",   bg: "bg-blue-50",   border: "border-blue-200",   label: "ALERT FAMILY" },
+  MONITOR:          { icon: Eye,          color: "text-amber-700",  bg: "bg-amber-50",  border: "border-amber-200",  label: "MONITOR" },
+  PREPARE_EQUIPMENT:{ icon: Wrench,       color: "text-sky-700",    bg: "bg-sky-50",    border: "border-sky-200",    label: "PREPARE EQUIP" },
 };
 
-const priorityBadge: Record<ClinicalAction["priority"], string> = {
-  immediate: "bg-red-600 text-white",
-  urgent: "bg-amber-500 text-white",
-  standard: "bg-secondary text-muted-foreground",
+const RISK_CONFIG = {
+  critical: { bar: "bg-red-600",    text: "text-white", badge: "CRITICAL",  sla: "≤ 3 min",   ring: "border-red-500"    },
+  high:     { bar: "bg-amber-500",  text: "text-white", badge: "HIGH RISK", sla: "≤ 30 min",  ring: "border-amber-400"  },
+  moderate: { bar: "bg-sky-500",    text: "text-white", badge: "MODERATE",  sla: "≤ 2 hrs",   ring: "border-sky-400"    },
+  low:      { bar: "bg-emerald-500",text: "text-white", badge: "LOW RISK",  sla: "≤ 4 hrs",   ring: "border-emerald-400"},
 };
 
 export default function EmergencyPage() {
   const [nationalId, setNationalId] = useState("");
   const [submittedId, setSubmittedId] = useState<string | null>(null);
-  const [showSsePanel, setShowSsePanel] = useState(true);
-  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("emergency");
+  const [alertsOpen, setAlertsOpen] = useState(true);
+  const [protocolsOpen, setProtocolsOpen] = useState(false);
 
+  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("emergency");
   const { data: patient, isLoading, isError } = useEmergencyLookup(
     submittedId || "",
     { query: { enabled: !!submittedId, retry: false } }
@@ -53,301 +52,345 @@ export default function EmergencyPage() {
 
   const clinicalActions = (patient as any)?.clinicalActions as ClinicalAction[] | undefined;
   const immediateActions = clinicalActions?.filter(a => a.priority === "immediate") ?? [];
-  const urgentActions = clinicalActions?.filter(a => a.priority !== "immediate") ?? [];
+  const urgentActions    = clinicalActions?.filter(a => a.priority !== "immediate") ?? [];
+  const risk = ((patient as any)?.riskLevel ?? "low") as keyof typeof RISK_CONFIG;
+  const riskCfg = RISK_CONFIG[risk] ?? RISK_CONFIG.low;
 
   return (
     <Layout role="emergency">
-      {/* SSE Real-time Critical Alerts */}
-      {showSsePanel && sseAlerts.length > 0 && (
-        <div className="mb-4 rounded-2xl border-2 border-red-400 bg-red-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-red-200 bg-red-100/80">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-bold text-sm text-red-800">LIVE Critical Alerts</span>
-              <Badge variant="destructive" className="text-[10px]">{sseUnread} incoming</Badge>
+
+      {/* ─────────────────────────────────────────────────────────
+          FLOATING SSE ALERTS PANEL — fixed bottom-right, always on top
+      ───────────────────────────────────────────────────────── */}
+      {sseAlerts.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50 w-[360px] shadow-2xl rounded-2xl overflow-hidden border border-red-200"
+          style={{ boxShadow: "0 20px 60px rgba(220,38,38,0.18)" }}>
+          <button
+            onClick={() => setAlertsOpen(p => !p)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-red-600 text-white"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse shrink-0" />
+              <span className="font-bold text-sm tracking-wide">Live Critical Alerts</span>
+              {sseUnread > 0 && (
+                <span className="bg-white text-red-700 text-[10px] font-black px-2 py-0.5 rounded-full min-w-[20px] text-center">{sseUnread}</span>
+              )}
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-red-600 hover:text-red-800 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-red-400 hover:text-red-700"><X className="w-4 h-4" /></button>
+              <button onClick={(e) => { e.stopPropagation(); clearSseAlerts(); }} className="text-white/60 hover:text-white text-[11px] font-medium">Clear</button>
+              {alertsOpen ? <ChevronDown className="w-4 h-4 text-white/80" /> : <ChevronUp className="w-4 h-4 text-white/80" />}
             </div>
-          </div>
-          <div className="divide-y divide-red-100 max-h-40 overflow-y-auto">
-            {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500 animate-pulse" : alert.severity === "high" ? "bg-amber-500" : "bg-sky-400"}`} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-red-900">{alert.title}</p>
-                  <p className="text-xs text-red-700 mt-0.5">
-                    {alert.patientName}
-                    {alert.result ? ` · ${alert.result}` : ""}
-                    {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
-                  </p>
+          </button>
+          {alertsOpen && (
+            <div className="bg-white divide-y divide-slate-100 max-h-[280px] overflow-y-auto">
+              {sseAlerts.map(alert => (
+                <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-50" : ""}`}>
+                  <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
+                    alert.severity === "critical" ? "bg-red-500 animate-pulse" :
+                    alert.severity === "high"     ? "bg-amber-500" : "bg-sky-400"
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-900 leading-snug">{alert.title}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {alert.patientName}
+                      {alert.result ? ` · ${alert.result}` : ""}
+                    </p>
+                  </div>
+                  {!alert.read && (
+                    <button
+                      onClick={() => { if (alert.nationalId) { setNationalId(alert.nationalId); setSubmittedId(alert.nationalId); } markSseRead(alert.id); }}
+                      className="text-[10px] font-bold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg px-2.5 py-1 shrink-0 transition-colors"
+                    >
+                      Load
+                    </button>
+                  )}
                 </div>
-                {!alert.read && (
-                  <button
-                    onClick={() => { if (alert.nationalId) { setNationalId(alert.nationalId); setSubmittedId(alert.nationalId); } markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-lg px-2 py-1 transition-colors shrink-0"
-                  >
-                    Load Patient
-                  </button>
-                )}
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────
+          TOP COMMAND BAR
+      ───────────────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-2 bg-red-600 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest shrink-0">
+            <Zap className="w-3 h-3" />
+            Emergency Mode
+          </div>
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border shrink-0 ${
+            sseConnected ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-200 text-slate-500"
+          }`}>
+            <Radio className={`w-3 h-3 ${sseConnected ? "text-emerald-500" : "text-slate-400"}`} />
+            {sseConnected ? "Live alerts connected" : "Connecting..."}
+          </div>
+          {sseUnread > 0 && (
+            <button
+              onClick={() => setAlertsOpen(p => !p)}
+              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full shrink-0 hover:bg-red-100 transition-colors"
+            >
+              <Bell className="w-3 h-3" />
+              {sseUnread} critical alert{sseUnread > 1 ? "s" : ""}
+            </button>
+          )}
+        </div>
+
+        {/* Search */}
+        <form onSubmit={handleSearch} className="flex items-center gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4.5 h-4.5" />
+            <input
+              autoFocus
+              value={nationalId}
+              onChange={(e) => setNationalId(e.target.value)}
+              placeholder="Enter National ID  (e.g. 1000000001)"
+              className="w-full h-12 pl-11 pr-4 rounded-2xl border border-slate-200 bg-white text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            className="h-12 px-6 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-2xl flex items-center gap-2 shrink-0 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            Emergency Lookup
+          </button>
+        </form>
+        <p className="text-xs text-slate-400 mt-2 ml-1">
+          Demo IDs: <span className="font-mono text-slate-500">1000000001</span> · <span className="font-mono text-slate-500">1000000003</span> · <span className="font-mono text-slate-500">1000000005</span> · <span className="font-mono text-slate-500">1000000023</span>
+        </p>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────
+          LOADING STATE
+      ───────────────────────────────────────────────────────── */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="w-10 h-10 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+          <p className="text-sm font-semibold text-slate-500">Retrieving critical patient data...</p>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────
+          ERROR STATE
+      ───────────────────────────────────────────────────────── */}
+      {isError && !isLoading && (
+        <div className="flex items-center gap-4 p-5 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <p className="font-bold text-red-700">Patient Not Found</p>
+            <p className="text-sm text-red-500 mt-0.5">No record for <span className="font-mono font-bold">{submittedId}</span>. Verify the National ID and retry.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────
+          EMPTY STATE (no search yet)
+      ───────────────────────────────────────────────────────── */}
+      {!submittedId && !isLoading && (
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="w-16 h-16 rounded-3xl bg-red-50 border border-red-100 flex items-center justify-center mb-2">
+            <ShieldAlert className="w-8 h-8 text-red-400" />
+          </div>
+          <p className="text-base font-bold text-slate-700">Ready for Emergency Lookup</p>
+          <p className="text-sm text-slate-400 text-center max-w-xs">Enter a National ID above to instantly retrieve life-critical patient data including blood type, allergies, medications, and AI-generated clinical actions.</p>
+          <div className="mt-4 grid grid-cols-3 gap-3 w-full max-w-md">
+            {[
+              { label: "Response Time", value: "< 1 sec", icon: Timer },
+              { label: "AI Confidence", value: "97%",     icon: Brain },
+              { label: "Data Sources", value: "9 live",   icon: Activity },
+            ].map(({ label, value, icon: Icon }) => (
+              <div key={label} className="flex flex-col items-center gap-1.5 p-4 bg-white rounded-2xl border border-slate-100">
+                <Icon className="w-4 h-4 text-slate-400" />
+                <p className="text-lg font-bold text-slate-800">{value}</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <Zap className="w-3 h-3" />
-          Emergency Mode Active
-        </div>
-        <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${sseConnected ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-secondary border-border text-muted-foreground"}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-400 animate-pulse" : "bg-gray-300"}`} />
-          {sseConnected ? "Live alerts connected" : "Connecting..."}
-        </div>
-        {sseUnread > 0 && (
-          <button
-            onClick={() => setShowSsePanel(p => !p)}
-            className="ml-auto flex items-center gap-1.5 text-[11px] font-bold bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded-full"
-          >
-            <Bell className="w-3 h-3" />
-            {sseUnread} critical alert{sseUnread > 1 ? "s" : ""}
-          </button>
-        )}
-      </div>
-
-      <PageHeader
-        title="Emergency Patient Lookup"
-        subtitle="Instant access to life-critical patient information. Enter National ID to retrieve records."
-      />
-
-      <Card className="mb-6">
-        <CardBody className="p-4">
-          <form onSubmit={handleSearch} className="flex items-center gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                autoFocus
-                value={nationalId}
-                onChange={(e) => setNationalId(e.target.value)}
-                placeholder="Enter National ID number (e.g. 1000000001)"
-                className="pl-10 h-10 font-mono text-sm"
-              />
-            </div>
-            <Button type="submit" variant="destructive" size="md" className="shrink-0 bg-red-600 hover:bg-red-700">
-              <Search className="w-4 h-4" /> Emergency Lookup
-            </Button>
-          </form>
-          <p className="text-xs text-muted-foreground mt-2">
-            Demo IDs: <span className="font-mono">1000000001</span> · <span className="font-mono">1000000003</span> · <span className="font-mono">1000000005</span> · <span className="font-mono">1000000023</span>
-          </p>
-        </CardBody>
-      </Card>
-
-      {isLoading && (
-        <div className="flex items-center gap-3 text-muted-foreground py-16 justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500" />
-          <span className="text-sm font-medium">Retrieving critical patient data...</span>
-        </div>
-      )}
-
-      {isError && !isLoading && (
-        <Card className="border-red-200 bg-red-50">
-          <CardBody className="flex items-center gap-4 p-5">
-            <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <p className="font-bold text-red-700">Patient Not Found</p>
-              <p className="text-sm text-red-600/80 mt-0.5">No record for <span className="font-mono">{submittedId}</span>. Verify the National ID and retry.</p>
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
+      {/* ─────────────────────────────────────────────────────────
+          PATIENT RECORD — loaded
+      ───────────────────────────────────────────────────────── */}
       {patient && (
-        <div className="space-y-4">
+        <div className="space-y-5">
 
-          {/* ─── GOLDEN MINUTE PANEL (3-second readability) ─── */}
-          <div className="rounded-3xl overflow-hidden border-2 border-black/10">
-            <div className="bg-black px-4 py-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-white text-[10px] font-black uppercase tracking-[0.15em]">GOLDEN MINUTE — Critical Info · Read in under 3 seconds</span>
-            </div>
-            <div className="grid grid-cols-3 divide-x divide-border">
-              {/* Blood Type */}
-              <div className="p-6 text-center bg-red-600 text-white flex flex-col items-center justify-center min-h-[120px]">
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-200 mb-2">⬤ Blood Type</p>
-                <p className="text-[72px] font-black leading-none text-white">{(patient as any).bloodType ?? "—"}</p>
+          {/* ── ZONE 1: PATIENT COMMAND HEADER ── */}
+          <div className={`rounded-2xl overflow-hidden`} style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
+            {/* Top risk bar */}
+            <div className={`${riskCfg.bar} px-6 py-4 flex items-center gap-6`}>
+              <div className="flex-1 min-w-0">
+                <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest mb-1">Verified Patient</p>
+                <h1 className="text-white text-2xl font-bold leading-tight truncate">{patient.fullName}</h1>
+                <p className="text-white/60 text-xs font-mono mt-1">ID: {patient.nationalId}</p>
               </div>
-              {/* Allergies */}
-              <div className="p-5 bg-amber-50 flex flex-col justify-center min-h-[120px]">
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-2">⚠ ALLERGIES — Do NOT administer</p>
+              <div className="flex items-center gap-6 shrink-0">
+                <div className="text-center">
+                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Risk Score</p>
+                  <p className="text-white text-3xl font-black tabular-nums leading-none">{(patient as any).riskScore ?? "—"}</p>
+                  <p className="text-white/50 text-[10px] mt-0.5">/ 100</p>
+                </div>
+                <div className="w-px h-10 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Response SLA</p>
+                  <p className="text-white text-xl font-bold leading-none">{riskCfg.sla}</p>
+                </div>
+                <div className="w-px h-10 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Status</p>
+                  <span className="bg-white/20 text-white text-xs font-black px-3 py-1 rounded-full tracking-widest">{riskCfg.badge}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom info strip */}
+            <div className="bg-white px-6 py-3 grid grid-cols-4 divide-x divide-slate-100">
+              <div className="pr-6">
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Age / Sex</p>
+                <p className="text-sm font-bold text-slate-800">{patient.age ?? "—"} yrs · {patient.gender?.charAt(0).toUpperCase() ?? "—"}</p>
+              </div>
+              <div className="px-6">
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Emergency Contact</p>
+                <p className="text-sm font-bold text-slate-800">{patient.emergencyContact ?? "Not listed"}</p>
+                {patient.emergencyPhone && <p className="text-xs font-mono text-blue-600">{patient.emergencyPhone}</p>}
+              </div>
+              <div className="px-6">
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Chronic Conditions</p>
+                <p className="text-sm font-semibold text-slate-700">{((patient as any).chronicConditions?.slice(0, 2) ?? []).join(", ") || "None"}</p>
+              </div>
+              <div className="pl-6 flex items-center gap-3">
+                <div className="flex flex-col items-center">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Blood Type</p>
+                  <p className="text-2xl font-black text-red-600">{patient.bloodType}</p>
+                </div>
+                <div className="ml-auto">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                    <StatusDot status="active" />
+                    Live record
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── ZONE 2: GOLDEN TRIO — The 3-second critical read ── */}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Allergies */}
+            <div className={`rounded-2xl overflow-hidden ${((patient as any).allergies?.length ?? 0) > 0 ? "border-2 border-red-400" : "border border-slate-200"}`}>
+              <div className={`px-4 py-2.5 flex items-center gap-2 ${((patient as any).allergies?.length ?? 0) > 0 ? "bg-red-600" : "bg-slate-100"}`}>
+                <FileWarning className={`w-3.5 h-3.5 ${((patient as any).allergies?.length ?? 0) > 0 ? "text-white" : "text-slate-500"}`} />
+                <span className={`text-[10px] font-black uppercase tracking-widest ${((patient as any).allergies?.length ?? 0) > 0 ? "text-white" : "text-slate-500"}`}>
+                  Allergies — Do NOT Administer
+                </span>
+                <span className={`ml-auto text-[10px] font-black px-2 py-0.5 rounded-full ${((patient as any).allergies?.length ?? 0) > 0 ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"}`}>
+                  {(patient as any).allergies?.length ?? 0}
+                </span>
+              </div>
+              <div className={`p-4 ${((patient as any).allergies?.length ?? 0) > 0 ? "bg-red-50" : "bg-white"}`}>
                 {((patient as any).allergies?.length ?? 0) > 0 ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {((patient as any).allergies as string[]).map((a, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
-                        <span className="text-[18px] font-black text-red-700 leading-tight">{a}</span>
+                      <div key={i} className="flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                        <span className="text-lg font-black text-red-700 leading-tight">{a}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-[20px] font-bold text-emerald-700">✓ No Known Allergies</span>
+                  <div className="flex items-center gap-2 py-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <span className="text-base font-bold text-emerald-700">No Known Allergies</span>
+                  </div>
                 )}
               </div>
-              {/* Key Vitals + Emergency Contacts */}
-              <div className="p-5 bg-white flex flex-col gap-3 min-h-[120px]">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Active Critical Meds</p>
-                  <div className="space-y-1">
-                    {((patient as any).medications?.filter((m: any) => m.isActive).slice(0, 3) ?? []).map((m: any, i: number) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-foreground">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        {m.drugName} {m.dosage ? `· ${m.dosage}` : ""}
-                      </div>
-                    ))}
-                    {!(patient as any).medications?.filter((m: any) => m.isActive).length && (
-                      <span className="text-[12px] text-muted-foreground">No active prescriptions</span>
-                    )}
-                  </div>
-                </div>
-                <div className="pt-2 border-t border-border">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Chronic Conditions</p>
-                  <p className="text-[11px] font-semibold text-foreground">
-                    {((patient as any).chronicConditions?.slice(0, 2) ?? []).join(" · ") || "None on record"}
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
 
-          {/* ─── ACLS / BLS Medical Protocol Buttons ─── */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Protocol Reference:</span>
-            {[
-              { label: "ACLS — Cardiac Arrest", color: "bg-red-600 hover:bg-red-700 text-white border-red-700" },
-              { label: "BLS — Basic Life Support", color: "bg-amber-600 hover:bg-amber-700 text-white border-amber-700" },
-              { label: "Sepsis Bundle — Hour-1", color: "bg-orange-600 hover:bg-orange-700 text-white border-orange-700" },
-              { label: "Stroke — FAST Protocol", color: "bg-purple-600 hover:bg-purple-700 text-white border-purple-700" },
-              { label: "ACS — STEMI Protocol", color: "bg-rose-600 hover:bg-rose-700 text-white border-rose-700" },
-            ].map(({ label, color }) => (
-              <button key={label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all ${color}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-white/60 shrink-0" />{label}
-              </button>
-            ))}
-            <div className="ml-auto flex items-center gap-2 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              Fail-Safe Mode: Offline Cache Ready
-            </div>
-          </div>
-
-          {/* TRIAGE LEVEL STRIP */}
-          <div className={`rounded-3xl overflow-hidden border-2 ${
-            (patient as any).riskLevel === "critical" ? "border-red-500" :
-            (patient as any).riskLevel === "high" ? "border-amber-400" :
-            "border-sky-400"
-          }`}>
-            <div className={`px-5 py-4 flex items-center gap-5 ${
-              (patient as any).riskLevel === "critical" ? "bg-red-600" :
-              (patient as any).riskLevel === "high" ? "bg-amber-500" :
-              "bg-sky-500"
-            } text-white`}>
-              <div className="shrink-0">
-                <Target className="w-8 h-8 text-white/80" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Triage Level</p>
-                <p className="text-2xl font-bold uppercase tracking-wide">{((patient as any).riskLevel ?? "unknown").toUpperCase()} RISK</p>
-              </div>
-              <div className="flex items-center gap-6 shrink-0">
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">Risk Score</p>
-                  <p className="text-4xl font-bold tabular-nums">{(patient as any).riskScore ?? "—"}</p>
-                  <p className="text-[10px] text-white/60">/ 100</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">SLA Window</p>
-                  <p className="text-lg font-bold">
-                    {(patient as any).riskLevel === "critical" ? "≤ 3 min" :
-                     (patient as any).riskLevel === "high" ? "≤ 30 min" : "≤ 2 hrs"}
-                  </p>
-                  <div className="flex items-center justify-center gap-1 mt-1">
-                    <Timer className="w-3 h-3 text-white/60" />
-                    <span className="text-[10px] text-white/60">Response SLA</span>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">AI Confidence</p>
-                  <p className="text-lg font-bold">
-                    {(patient as any).riskLevel === "critical" ? "97%" :
-                     (patient as any).riskLevel === "high" ? "88%" : "82%"}
-                  </p>
-                  <div className="flex items-center justify-center gap-1 mt-1">
-                    <Gauge className="w-3 h-3 text-white/60" />
-                    <span className="text-[10px] text-white/60">SOURCE: clinical_rules</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Decision Flow Header */}
-          <div className="flex items-center gap-3 px-1">
-            {[
-              { label: "ID Verified", done: true },
-              { label: "Records Loaded", done: true },
-              { label: "AI Analysis", done: true },
-              { label: "Actions Ready", done: immediateActions.length > 0 || urgentActions.length > 0 },
-            ].map((step, i, arr) => (
-              <React.Fragment key={step.label}>
-                <div className="flex items-center gap-2">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${step.done ? "bg-emerald-500 text-white" : "bg-secondary text-muted-foreground"}`}>
-                    {step.done ? "✓" : i + 1}
-                  </div>
-                  <span className={`text-xs font-semibold ${step.done ? "text-foreground" : "text-muted-foreground"}`}>{step.label}</span>
-                </div>
-                {i < arr.length - 1 && <div className="flex-1 h-px bg-border" />}
-              </React.Fragment>
-            ))}
-          </div>
-
-          {/* IMMEDIATE ACTIONS — highest priority, shown first */}
-          {immediateActions.length > 0 && (
-            <div className="border-2 border-red-500 rounded-3xl overflow-hidden">
-              <div className="bg-red-600 px-5 py-3 flex items-center gap-3">
-                <ShieldAlert className="w-5 h-5 text-white" />
-                <span className="text-white font-bold text-sm uppercase tracking-widest">
-                  ⚠ IMMEDIATE CLINICAL ACTIONS REQUIRED
+            {/* Active Critical Medications */}
+            <div className="rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="px-4 py-2.5 bg-slate-100 flex items-center gap-2">
+                <Pill className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Active Medications</span>
+                <span className="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                  {patient.currentMedications.length}
                 </span>
+              </div>
+              <div className="p-4 bg-white space-y-2">
+                {patient.currentMedications.length > 0 ? patient.currentMedications.map((med, i) => (
+                  <div key={i} className="flex items-center gap-2.5 py-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
+                    <span className="text-sm font-semibold text-slate-700">{med}</span>
+                  </div>
+                )) : (
+                  <p className="text-sm text-slate-400 py-2">No active medications</p>
+                )}
+              </div>
+            </div>
+
+            {/* Emergency Contact + Critical Alerts */}
+            <div className="rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="px-4 py-2.5 bg-slate-100 flex items-center gap-2">
+                <PhoneCall className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Emergency Contact</span>
+              </div>
+              <div className="p-4 bg-white">
+                {patient.emergencyContact ? (
+                  <div>
+                    <p className="text-sm font-bold text-slate-700">{patient.emergencyContact}</p>
+                    <p className="text-2xl font-black text-blue-600 font-mono mt-1 tracking-wider">{patient.emergencyPhone}</p>
+                    <button className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors">
+                      <PhoneCall className="w-3.5 h-3.5" /> Call Now
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 py-2">Not on record</p>
+                )}
+                {patient.criticalAlerts.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-1.5">Critical Alert</p>
+                    {patient.criticalAlerts.slice(0, 2).map((a, i) => (
+                      <p key={i} className="text-xs font-semibold text-red-700 leading-snug">{a}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ── ZONE 3: IMMEDIATE CLINICAL ACTIONS ── */}
+          {immediateActions.length > 0 && (
+            <div className="rounded-2xl overflow-hidden border-2 border-red-400" style={{ boxShadow: "0 4px 24px rgba(220,38,38,0.12)" }}>
+              <div className="bg-red-600 px-5 py-3.5 flex items-center gap-3">
+                <ShieldAlert className="w-5 h-5 text-white" />
+                <span className="text-white font-bold text-sm uppercase tracking-widest">Immediate Clinical Actions Required</span>
                 <div className="ml-auto flex items-center gap-2">
                   <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
                     <Clock className="w-3 h-3" /> Act within 3 min
                   </span>
-                  <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
-                    {immediateActions.length} Action{immediateActions.length > 1 ? "s" : ""}
+                  <span className="bg-white/30 text-white text-[10px] font-black px-2 py-1 rounded-full">
+                    {immediateActions.length} action{immediateActions.length > 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
-              <div className="p-3 space-y-2 bg-red-50">
+              <div className="p-4 bg-red-50 space-y-2.5">
                 {immediateActions.map((action, i) => {
-                  const cfg = actionConfig[action.action];
+                  const cfg = ACTION_CONFIG[action.action];
                   const Icon = cfg.icon;
                   return (
-                    <div key={i} className={`flex items-start gap-3 p-4 ${cfg.bg} border ${cfg.border} rounded-2xl`}>
-                      <div className={`w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0`}>
-                        <Icon className={`w-4.5 h-4.5 ${cfg.color}`} />
+                    <div key={i} className={`flex items-start gap-4 p-4 bg-white rounded-xl border ${cfg.border}`}>
+                      <div className={`w-10 h-10 rounded-xl ${cfg.bg} border ${cfg.border} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-5 h-5 ${cfg.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${priorityBadge[action.priority]}`}>
-                            {action.priority.toUpperCase()}
-                          </span>
-                          <span className={`text-xs font-bold ${cfg.color} uppercase tracking-wide`}>{cfg.label}</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.color} border ${cfg.border}`}>{cfg.label}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">IMMEDIATE</span>
                         </div>
                         <p className={`font-bold text-sm ${cfg.color}`}>{action.description}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{action.reason}</p>
                       </div>
                     </div>
                   );
@@ -356,207 +399,120 @@ export default function EmergencyPage() {
             </div>
           )}
 
-          {/* Critical Alerts */}
-          {patient.criticalAlerts.length > 0 && (
-            <Card className="bg-red-600 border-red-600 text-white">
-              <CardBody className="flex items-start gap-4 p-5">
-                <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Critical Medical Alert</p>
-                  <p className="text-lg font-bold mb-2">{patient.criticalAlerts[0]}</p>
-                  {patient.criticalAlerts.slice(1).map((a, i) => (
-                    <p key={i} className="text-sm text-white/80 flex items-center gap-1.5">
-                      <ChevronRight className="w-3 h-3" /> {a}
-                    </p>
-                  ))}
-                </div>
-              </CardBody>
-            </Card>
-          )}
-
-          {/* Patient Identity Row */}
-          <div className="grid grid-cols-12 gap-4">
-            <Card className="col-span-7 p-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Patient Identity</p>
-                  <h2 className="text-3xl font-bold text-foreground leading-tight mb-2">{patient.fullName}</h2>
-                  <p className="font-mono text-sm text-muted-foreground bg-secondary rounded-xl px-3 py-1.5 inline-block">
-                    PATIENT ID: {patient.nationalId}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <Badge
-                    variant={patient.riskLevel === "critical" ? "destructive" : patient.riskLevel === "high" ? "warning" : "info"}
-                    className="text-xs px-3 py-1 rounded-full"
-                  >
-                    {patient.riskLevel?.toUpperCase()} RISK
-                  </Badge>
-                  {(patient as any).riskScore !== undefined && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-2xl font-bold text-foreground">{(patient as any).riskScore}</span>
-                      <span className="text-xs text-muted-foreground">/100</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    <span>Live</span>
-                    <StatusDot status="active" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mt-5">
-                <div className="bg-secondary rounded-2xl p-3.5">
-                  <DataLabel label="Age / Sex">
-                    <p className="text-lg font-bold text-foreground">{patient.age ?? "—"} <span className="text-muted-foreground font-normal text-sm">{patient.gender?.charAt(0).toUpperCase()}</span></p>
-                  </DataLabel>
-                </div>
-                <div className="bg-secondary rounded-2xl p-3.5 col-span-2">
-                  <DataLabel label="Emergency Contact">
-                    {patient.emergencyContact ? (
-                      <div>
-                        <p className="font-bold text-sm text-foreground">{patient.emergencyContact}</p>
-                        <p className="font-mono text-primary font-bold">{patient.emergencyPhone}</p>
-                      </div>
-                    ) : <p className="text-sm text-muted-foreground">Not listed</p>}
-                  </DataLabel>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="col-span-2 bg-red-50 border-red-100">
-              <CardBody className="flex flex-col items-center justify-center py-8">
-                <Droplet className="w-7 h-7 text-red-400 mb-2" />
-                <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1">Blood Type</p>
-                <p className="text-5xl font-bold text-red-600">{patient.bloodType}</p>
-                {patient.riskLevel === "critical" && (
-                  <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2">CRITICAL</p>
-                )}
-              </CardBody>
-            </Card>
-
-            <Card className="col-span-3">
-              <CardBody className="flex flex-col justify-center h-full p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <PhoneCall className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Emergency Contact</p>
-                </div>
-                {patient.emergencyContact ? (
-                  <>
-                    <p className="font-bold text-foreground">{patient.emergencyContact}</p>
-                    <p className="text-xl font-bold text-primary font-mono mt-1">{patient.emergencyPhone}</p>
-                  </>
-                ) : <p className="text-sm text-muted-foreground">Not on record</p>}
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* Urgent (non-immediate) Clinical Actions */}
+          {/* ── ZONE 4: URGENT CLINICAL ACTIONS ── */}
           {urgentActions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-amber-600" />
-                  <CardTitle>Clinical Guidance</CardTitle>
-                </div>
-                <Badge variant="warning">{urgentActions.length} notes</Badge>
-              </CardHeader>
-              <CardBody>
-                <div className="space-y-2">
-                  {urgentActions.map((action, i) => {
-                    const cfg = actionConfig[action.action];
-                    const Icon = cfg.icon;
-                    return (
-                      <div key={i} className={`flex items-start gap-3 p-3.5 ${cfg.bg} border ${cfg.border} rounded-2xl`}>
-                        <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0">
-                          <Icon className={`w-4 h-4 ${cfg.color}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className={`text-[10px] font-bold uppercase tracking-wide ${cfg.color}`}>{cfg.label}</span>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${priorityBadge[action.priority]}`}>{action.priority}</span>
-                          </div>
-                          <p className="font-semibold text-sm text-foreground">{action.description}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
-                        </div>
+            <div className="rounded-2xl overflow-hidden border border-amber-200">
+              <div className="bg-amber-50 px-5 py-3 flex items-center gap-3 border-b border-amber-200">
+                <UserCheck className="w-4 h-4 text-amber-600" />
+                <span className="text-sm font-bold text-amber-800 uppercase tracking-wide">Clinical Guidance</span>
+                <span className="ml-auto bg-amber-200 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {urgentActions.length} note{urgentActions.length > 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="p-4 bg-white space-y-2">
+                {urgentActions.map((action, i) => {
+                  const cfg = ACTION_CONFIG[action.action];
+                  const Icon = cfg.icon;
+                  return (
+                    <div key={i} className={`flex items-start gap-3 p-3.5 rounded-xl border ${cfg.border} ${cfg.bg}`}>
+                      <div className={`w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-4 h-4 ${cfg.color}`} />
                       </div>
-                    );
-                  })}
-                </div>
-              </CardBody>
-            </Card>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className={`text-[10px] font-black uppercase tracking-wider ${cfg.color}`}>{cfg.label}</span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700`}>{action.priority}</span>
+                        </div>
+                        <p className="font-semibold text-sm text-slate-800">{action.description}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{action.reason}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
-          {/* Clinical Data */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <FileWarning className="w-4 h-4 text-red-500" />
-                  <CardTitle>Known Allergies</CardTitle>
-                </div>
-                <Badge variant="destructive">{patient.allergies.length}</Badge>
-              </CardHeader>
-              <CardBody>
+          {/* ── ZONE 5: CLINICAL DETAILS GRID ── */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Allergies detail */}
+            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+                <FileWarning className="w-4 h-4 text-red-500" />
+                <span className="text-sm font-bold text-slate-800">Known Allergies</span>
+                <span className="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-red-100 text-red-700">{patient.allergies.length}</span>
+              </div>
+              <div className="p-4">
                 {patient.allergies.length > 0 ? (
                   <div className="space-y-2">
                     {patient.allergies.map((a, i) => (
-                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 border border-red-100 rounded-2xl">
+                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 border border-red-100 rounded-xl">
                         <StatusDot status="critical" />
                         <span className="text-sm font-bold text-red-700">{a}</span>
                       </div>
                     ))}
                   </div>
-                ) : <p className="text-sm text-muted-foreground">No known allergies.</p>}
-              </CardBody>
-            </Card>
+                ) : <p className="text-sm text-slate-400">No known allergies.</p>}
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-primary" />
-                  <CardTitle>Chronic Conditions</CardTitle>
-                </div>
-                <Badge variant="default">{patient.chronicConditions.length}</Badge>
-              </CardHeader>
-              <CardBody>
+            {/* Chronic conditions */}
+            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-500" />
+                <span className="text-sm font-bold text-slate-800">Chronic Conditions</span>
+                <span className="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{patient.chronicConditions.length}</span>
+              </div>
+              <div className="p-4">
                 {patient.chronicConditions.length > 0 ? (
                   <div className="space-y-2">
                     {patient.chronicConditions.map((c, i) => (
-                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span className="text-sm font-semibold text-foreground">{c}</span>
+                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                        <span className="text-sm font-semibold text-slate-700">{c}</span>
                       </div>
                     ))}
                   </div>
-                ) : <p className="text-sm text-muted-foreground">None on record.</p>}
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Pill className="w-4 h-4 text-amber-600" />
-                  <CardTitle>Active Medications</CardTitle>
-                </div>
-                <Badge variant="warning">{patient.currentMedications.length}</Badge>
-              </CardHeader>
-              <CardBody>
-                {patient.currentMedications.length > 0 ? (
-                  <div className="space-y-2">
-                    {patient.currentMedications.map((med, i) => (
-                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl">
-                        <span className="text-sm font-semibold text-foreground">{med}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : <p className="text-sm text-muted-foreground">No active medications.</p>}
-              </CardBody>
-            </Card>
+                ) : <p className="text-sm text-slate-400">None on record.</p>}
+              </div>
+            </div>
           </div>
+
+          {/* ── ZONE 6: PROTOCOL REFERENCE (collapsible) ── */}
+          <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            <button
+              onClick={() => setProtocolsOpen(p => !p)}
+              className="w-full px-5 py-3.5 flex items-center gap-3 text-left hover:bg-slate-50 transition-colors"
+            >
+              <Brain className="w-4 h-4 text-slate-400" />
+              <span className="text-sm font-bold text-slate-700">Clinical Protocol Reference</span>
+              <span className="ml-auto text-xs text-slate-400 font-medium">{protocolsOpen ? "Hide" : "Show"}</span>
+              {protocolsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            </button>
+            {protocolsOpen && (
+              <div className="px-5 pb-4 border-t border-slate-100 pt-4">
+                <div className="grid grid-cols-5 gap-2">
+                  {[
+                    { label: "ACLS", sub: "Cardiac Arrest",      color: "border-red-200 bg-red-50 text-red-700" },
+                    { label: "BLS",  sub: "Basic Life Support",  color: "border-amber-200 bg-amber-50 text-amber-700" },
+                    { label: "Sepsis", sub: "Hour-1 Bundle",    color: "border-orange-200 bg-orange-50 text-orange-700" },
+                    { label: "Stroke", sub: "FAST Protocol",    color: "border-violet-200 bg-violet-50 text-violet-700" },
+                    { label: "ACS",  sub: "STEMI Protocol",     color: "border-rose-200 bg-rose-50 text-rose-700" },
+                  ].map(({ label, sub, color }) => (
+                    <button key={label} className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border text-center transition-opacity hover:opacity-80 ${color}`}>
+                      <span className="text-sm font-black">{label}</span>
+                      <span className="text-[10px] font-medium opacity-70">{sub}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  Fail-Safe Mode: Offline cache ready — works without internet
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       )}
     </Layout>

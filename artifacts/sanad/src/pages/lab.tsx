@@ -362,6 +362,101 @@ export default function LabPortal() {
             </Card>
           )}
 
+          {/* ─── Lab Panel AI Summary (Grouped Clinical Panels) ─── */}
+          {data.labs.length > 0 && (() => {
+            type LabResult = { testName: string; result: string; status: string; unit: string };
+            const labMap: Record<string, LabResult> = {};
+            for (const lab of data.labs) {
+              if (!labMap[lab.testName]) labMap[lab.testName] = lab;
+            }
+            const get = (name: string): LabResult | null => {
+              for (const [k, v] of Object.entries(labMap)) {
+                if (k.toLowerCase().includes(name.toLowerCase())) return v;
+              }
+              return null;
+            };
+            const panels = [
+              {
+                name: "Metabolic Panel", icon: "🧪", tests: [
+                  { label: "HbA1c", v: get("HbA1c"), normal: "<5.7%", hi: "≥6.5% = Diabetes" },
+                  { label: "Fasting Glucose", v: get("Glucose"), normal: "70–100 mg/dL", hi: ">126 = Diabetes" },
+                  { label: "Creatinine", v: get("Creatinine"), normal: "0.6–1.2 mg/dL", hi: ">1.5 = CKD risk" },
+                  { label: "eGFR", v: get("eGFR"), normal: ">60 mL/min", hi: "<60 = CKD" },
+                ],
+                insight: "Metabolic function screen — diabetes, renal function, and glycaemic control",
+              },
+              {
+                name: "Lipid Panel", icon: "💉", tests: [
+                  { label: "Total Cholesterol", v: get("Cholesterol"), normal: "<200 mg/dL", hi: ">240 = High risk" },
+                  { label: "LDL", v: get("LDL"), normal: "<100 mg/dL", hi: ">160 = High" },
+                  { label: "HDL", v: get("HDL"), normal: ">40 mg/dL", hi: "<40 = Low" },
+                  { label: "Triglycerides", v: get("Triglycerides"), normal: "<150 mg/dL", hi: ">200 = High" },
+                ],
+                insight: "Cardiovascular lipid risk assessment — ATP III guidelines",
+              },
+              {
+                name: "CBC — Blood Count", icon: "🩸", tests: [
+                  { label: "Hemoglobin", v: get("Hemoglobin"), normal: "12–17 g/dL", hi: "<12 = Anemia" },
+                  { label: "WBC", v: get("WBC"), normal: "4–11 K/μL", hi: ">11 = Infection?" },
+                  { label: "Platelets", v: get("Platelet"), normal: "150–400 K/μL", hi: "<150 = Thrombocytopenia" },
+                ],
+                insight: "Complete blood count — anemia, infection, and bleeding risk screening",
+              },
+            ].filter(p => p.tests.some(t => t.v));
+
+            if (panels.length === 0) return null;
+
+            return (
+              <Card>
+                <CardHeader>
+                  <FlaskConical className="w-4 h-4 text-violet-600" />
+                  <CardTitle>AI Panel Summary — Clinical Lab Groups</CardTitle>
+                  <Badge variant="purple" className="ml-auto">{panels.length} Panels Detected</Badge>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-3 gap-4">
+                    {panels.map((panel, pi) => {
+                      const presentTests = panel.tests.filter(t => t.v);
+                      const abnormal = presentTests.filter(t => t.v!.status !== "normal");
+                      const critical = presentTests.filter(t => t.v!.status === "critical");
+                      const panelStatus = critical.length > 0 ? "critical" : abnormal.length > 0 ? "abnormal" : "normal";
+                      return (
+                        <div key={pi} className={`p-4 rounded-2xl border-2 ${panelStatus === "critical" ? "bg-red-50 border-red-300" : panelStatus === "abnormal" ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"}`}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-lg">{panel.icon}</span>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">{panel.name}</p>
+                              <p className="text-[9px] text-muted-foreground">{presentTests.length} results · {abnormal.length} abnormal</p>
+                            </div>
+                            <span className={`ml-auto text-[8px] font-black px-1.5 py-0.5 rounded text-white ${panelStatus === "critical" ? "bg-red-600" : panelStatus === "abnormal" ? "bg-amber-500" : "bg-emerald-600"}`}>
+                              {panelStatus.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="space-y-1.5 mb-3">
+                            {presentTests.map((t, ti) => (
+                              <div key={ti} className="flex items-center justify-between text-[10px]">
+                                <span className="text-muted-foreground">{t.label}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`font-black tabular-nums ${t.v!.status === "critical" ? "text-red-600" : t.v!.status === "abnormal" ? "text-amber-600" : "text-emerald-700"}`}>
+                                    {t.v!.result} {t.v!.unit}
+                                  </span>
+                                  <span className="text-muted-foreground font-mono">(N: {t.normal})</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className={`text-[9px] px-2 py-1.5 rounded-lg ${panelStatus === "critical" ? "bg-red-100 text-red-800" : panelStatus === "abnormal" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+                            <Brain className="w-2.5 h-2.5 inline mr-1" />{panel.insight}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardBody>
+              </Card>
+            );
+          })()}
+
           {/* AI Interpretation of last submitted result */}
           {lastResult && (
             <div className={`rounded-2xl p-5 border-2 ${lastResult.aiAnalysis?.status === "critical" ? "bg-red-50 border-red-300" : lastResult.aiAnalysis?.status === "abnormal" ? "bg-amber-50 border-amber-300" : "bg-emerald-50 border-emerald-300"}`}>

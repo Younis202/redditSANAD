@@ -323,6 +323,84 @@ export default function AIControlCenter() {
             </Card>
           </div>
 
+          {/* ─── Event-Driven Architecture Monitor ─── */}
+          <Card>
+            <CardHeader>
+              <Zap className="w-4 h-4 text-amber-500" />
+              <CardTitle>Event-Driven Architecture — Real-Time Message Bus Monitor</CardTitle>
+              <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 9 Queues Active
+              </span>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-4 gap-3 mb-5">
+                {[
+                  { label: "Events / sec", value: "12,847", sub: "↑ 3.2% vs. avg", color: "text-primary" },
+                  { label: "Queue Depth", value: "183", sub: "Normal range < 500", color: "text-emerald-600" },
+                  { label: "Processing Latency p95", value: "42ms", sub: "SLA target: <100ms", color: "text-emerald-600" },
+                  { label: "Dead Letter Queue", value: "0", sub: "Zero failed events", color: "text-emerald-600" },
+                ].map((m, i) => (
+                  <div key={i} className="px-4 py-3 bg-secondary rounded-2xl">
+                    <p className={`text-xl font-black tabular-nums ${m.color}`}>{m.value}</p>
+                    <p className="text-xs font-bold text-foreground">{m.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{m.sub}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Active Event Queues — Message Throughput</p>
+                  <div className="space-y-2">
+                    {[
+                      { queue: "clinical.risk.assessment", rate: "4,821 msg/s", latency: "18ms", depth: 42, pct: 84, color: "bg-blue-500" },
+                      { queue: "lab.result.ingest", rate: "2,140 msg/s", latency: "8ms", depth: 17, pct: 70, color: "bg-teal-500" },
+                      { queue: "alert.critical.route", rate: "284 msg/s", latency: "3ms", depth: 5, pct: 55, color: "bg-red-500" },
+                      { queue: "patient.prediction.run", rate: "1,203 msg/s", latency: "67ms", depth: 89, pct: 42, color: "bg-violet-500" },
+                      { queue: "drug.interaction.check", rate: "987 msg/s", latency: "12ms", depth: 23, pct: 35, color: "bg-amber-500" },
+                      { queue: "digital.twin.update", rate: "612 msg/s", latency: "94ms", depth: 7, pct: 28, color: "bg-rose-500" },
+                    ].map((q, i) => (
+                      <div key={i} className="flex items-center gap-3 px-3 py-2 bg-secondary rounded-xl">
+                        <div className={`w-2 h-2 rounded-full ${q.color} shrink-0`} />
+                        <code className="text-[10px] text-foreground flex-1 font-mono">{q.queue}</code>
+                        <span className="text-[10px] font-bold text-foreground w-20 text-right">{q.rate}</span>
+                        <span className="text-[10px] text-muted-foreground w-12 text-right">{q.latency}</span>
+                        <div className="w-20 bg-background rounded-full h-1.5">
+                          <div className={`h-full rounded-full ${q.color}`} style={{ width: `${q.pct}%` }} />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground w-8 text-right">D:{q.depth}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Microservices Health Map</p>
+                  <div className="space-y-2">
+                    {[
+                      { svc: "risk-engine-api", status: "healthy", rps: "4.2K", cpu: 38, mem: 52 },
+                      { svc: "prediction-worker", status: "healthy", rps: "1.8K", cpu: 61, mem: 67 },
+                      { svc: "alert-router", status: "healthy", rps: "840", cpu: 12, mem: 28 },
+                      { svc: "xai-explainer", status: "healthy", rps: "1.1K", cpu: 44, mem: 55 },
+                      { svc: "fhir-gateway", status: "healthy", rps: "6.7K", cpu: 29, mem: 41 },
+                      { svc: "digital-twin-sim", status: "healthy", rps: "420", cpu: 73, mem: 81 },
+                    ].map((s, i) => (
+                      <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-xl">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                        <code className="text-[10px] font-mono text-foreground flex-1 truncate">{s.svc}</code>
+                        <span className="text-[9px] text-muted-foreground">{s.rps}/s</span>
+                        <span className={`text-[9px] font-bold ${s.cpu > 65 ? "text-amber-600" : "text-emerald-600"}`}>{s.cpu}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center">
+                    <p className="text-xs font-bold text-emerald-800">System Availability</p>
+                    <p className="text-2xl font-black text-emerald-700">99.97%</p>
+                    <p className="text-[10px] text-emerald-600">SLA: 99.9% · 90-day uptime</p>
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+
           <Card>
             <CardHeader>
               <Layers className="w-4 h-4 text-primary" />

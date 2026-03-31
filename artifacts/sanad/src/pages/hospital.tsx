@@ -38,7 +38,7 @@ const OR_STATUS = {
   emergency: { bg: "bg-red-50", border: "border-red-300", badge: "destructive" as const, label: "Emergency", dot: "bg-red-500 animate-pulse" },
 };
 
-type TabId = "overview" | "icu" | "or" | "readmission";
+type TabId = "overview" | "icu" | "or" | "readmission" | "flow";
 
 export default function HospitalPortal() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
@@ -125,6 +125,7 @@ export default function HospitalPortal() {
           { id: "icu", label: `ICU Alerts ${icuCritical > 0 ? `(${icuCritical} critical)` : ""}` },
           { id: "or", label: "OR Schedule" },
           { id: "readmission", label: "Readmission Risk" },
+          { id: "flow", label: "🤖 AI Patient Flow" },
         ] as { id: TabId; label: string }[]).map(tab => (
           <button
             key={tab.id}
@@ -401,6 +402,125 @@ export default function HospitalPortal() {
               })}
             </div>
           </Card>
+        </div>
+      )}
+
+      {activeTab === "flow" && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-2xl">
+            <Brain className="w-5 h-5 text-blue-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold text-blue-800">AI Patient Flow Optimizer — Predictive Demand & Discharge Intelligence</p>
+              <p className="text-xs text-blue-600 mt-0.5">Real-time patient flow predictions, surge alerts, and discharge recommendations powered by SANAD Risk Engine v4.2</p>
+            </div>
+            <span className="ml-auto text-[9px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full shrink-0">LIVE · Updating every 15min</span>
+          </div>
+
+          <div className="grid grid-cols-12 gap-4">
+            {/* 24h ED Demand Prediction */}
+            <Card className="col-span-8">
+              <CardHeader>
+                <Activity className="w-4 h-4 text-blue-600" />
+                <CardTitle>Emergency Department — 24h Demand Forecast</CardTitle>
+                <Badge variant="outline" className="ml-auto">AI Prediction · Hourly resolution</Badge>
+              </CardHeader>
+              <CardBody>
+                <div className="space-y-1.5 mb-4">
+                  {[
+                    { hour: "06:00–09:00", label: "Early Morning", predicted: 18, actual: 15, surge: false },
+                    { hour: "09:00–12:00", label: "Morning Peak", predicted: 47, actual: 51, surge: true },
+                    { hour: "12:00–15:00", label: "Afternoon", predicted: 38, actual: 35, surge: false },
+                    { hour: "15:00–18:00", label: "Evening Peak", predicted: 62, actual: null, surge: true },
+                    { hour: "18:00–21:00", label: "Night Peak", predicted: 54, actual: null, surge: true },
+                    { hour: "21:00–06:00", label: "Night", predicted: 22, actual: null, surge: false },
+                  ].map((slot, i) => {
+                    const isPast = slot.actual !== null;
+                    const displayValue = isPast ? slot.actual! : slot.predicted;
+                    const max = 70;
+                    return (
+                      <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-xl ${slot.surge ? "bg-red-50 border border-red-100" : "bg-secondary"}`}>
+                        <span className="text-[10px] font-mono text-muted-foreground w-24 shrink-0">{slot.hour}</span>
+                        <span className="text-[10px] text-muted-foreground w-20 shrink-0">{slot.label}</span>
+                        <div className="flex-1 bg-background rounded-full h-2">
+                          <div
+                            className={`h-full rounded-full ${slot.surge ? "bg-red-500" : isPast ? "bg-emerald-500" : "bg-blue-400"}`}
+                            style={{ width: `${(displayValue / max) * 100}%` }}
+                          />
+                        </div>
+                        <span className={`text-[11px] font-bold tabular-nums w-8 text-right ${slot.surge ? "text-red-600" : "text-foreground"}`}>{displayValue}</span>
+                        <span className="text-[9px] text-muted-foreground w-16 shrink-0">{isPast ? "✓ actual" : "⏳ forecast"}</span>
+                        {slot.surge && <span className="text-[8px] font-black text-white bg-red-500 px-1.5 py-0.5 rounded shrink-0">SURGE</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 mb-1">⚠ AI Surge Warning — 15:00–21:00 Today</p>
+                  <p className="text-xs text-amber-900">AI predicts 116 patients across peak 6h window. Recommend activating surge protocol: call in 2 additional ER physicians + prepare 8 temporary overflow beds in corridor B.</p>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Discharge Candidates */}
+            <Card className="col-span-4">
+              <CardHeader>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CardTitle>Discharge Planning AI</CardTitle>
+                <Badge variant="success" className="ml-auto text-[9px]">Today</Badge>
+              </CardHeader>
+              <CardBody className="p-0">
+                <div className="divide-y divide-border">
+                  {[
+                    { name: "Ahmad Al-Rashid", ward: "General — B3", los: 4, confidence: 92, condition: "Post-appendectomy", ready: true },
+                    { name: "Fatimah Al-Ghamdi", ward: "Maternity — C1", los: 2, confidence: 87, condition: "Normal delivery", ready: true },
+                    { name: "Khalid Saad", ward: "Surgical — A2", los: 6, confidence: 71, condition: "Post-knee replacement", ready: true },
+                    { name: "Norah Al-Harthi", ward: "General — B1", los: 3, confidence: 64, condition: "Pneumonia recovery", ready: false },
+                    { name: "Sultan Al-Dosari", ward: "ICU → Step-Down", los: 8, confidence: 58, condition: "Post-MI stable", ready: false },
+                  ].map((p, i) => (
+                    <div key={i} className={`px-4 py-3 ${p.ready ? "" : "opacity-70"}`}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className="text-xs font-bold text-foreground">{p.name}</p>
+                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${p.confidence >= 80 ? "bg-emerald-100 text-emerald-700" : p.confidence >= 65 ? "bg-amber-100 text-amber-700" : "bg-secondary text-muted-foreground"}`}>{p.confidence}%</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">{p.ward} · LOS: {p.los}d</p>
+                      <p className="text-[10px] text-foreground mt-0.5">{p.condition}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-4 py-3 bg-emerald-50 border-t border-emerald-100">
+                  <p className="text-[10px] font-bold text-emerald-800">Est. 3 discharges by 14:00 → frees 3 beds for surge</p>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* AI Bed Optimization */}
+            <Card className="col-span-12">
+              <CardHeader>
+                <Brain className="w-4 h-4 text-violet-600" />
+                <CardTitle>AI Bed Optimization Engine — 48h Ahead Recommendations</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { title: "Transfer 2 stable ICU patients to Step-Down Unit", impact: "Frees 2 ICU beds · Saves SAR 8,400/day", severity: "urgent", icon: "🏥" },
+                    { title: "Convert Conference Room D to temporary observation bay (4 beds)", impact: "Required by 17:00 for surge capacity", severity: "urgent", icon: "⚡" },
+                    { title: "Cancel 3 elective surgical cases scheduled for tomorrow AM", impact: "Risk: OR blocked by emergency cases · 78% probability", severity: "warning", icon: "✂️" },
+                    { title: "Activate on-call nursing pool — request 12 additional RNs", impact: "Nurse:patient ratio will breach 1:6 during peak", severity: "warning", icon: "👩‍⚕️" },
+                    { title: "Pre-position portable monitoring equipment in ER corridor", impact: "Surge prediction confidence: 94%", severity: "info", icon: "📊" },
+                    { title: "Notify blood bank: O+ and A+ units likely needed by 18:00", impact: "Based on trauma admission patterns + ED forecast", severity: "info", icon: "🩸" },
+                  ].map((rec, i) => (
+                    <div key={i} className={`p-4 rounded-2xl border ${rec.severity === "urgent" ? "bg-red-50 border-red-200" : rec.severity === "warning" ? "bg-amber-50 border-amber-200" : "bg-secondary border-border"}`}>
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className="text-base shrink-0">{rec.icon}</span>
+                        <p className="text-xs font-bold text-foreground">{rec.title}</p>
+                      </div>
+                      <p className={`text-[10px] ${rec.severity === "urgent" ? "text-red-700" : rec.severity === "warning" ? "text-amber-700" : "text-muted-foreground"}`}>{rec.impact}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         </div>
       )}
 

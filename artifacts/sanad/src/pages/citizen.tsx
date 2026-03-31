@@ -683,25 +683,49 @@ export default function CitizenPortal() {
         </Card>
       </div>
 
-      {/* AI Risk Awareness Panel */}
-      {aiDecision && (aiDecision.urgency === "immediate" || aiDecision.urgency === "urgent") && (
-        <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 ${
-          aiDecision.urgency === "immediate" ? "bg-red-600" : "bg-amber-500"
-        } text-white`}>
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-            <ShieldAlert className="w-5 h-5 text-white" />
+      {/* AI Risk Awareness Panel — always visible when AI decision is available */}
+      {aiDecision && (() => {
+        const urgency = aiDecision.urgency;
+        const bannerStyle =
+          urgency === "immediate" ? "bg-red-600" :
+          urgency === "urgent"    ? "bg-amber-500" :
+          urgency === "soon"      ? "bg-sky-500"   : "bg-emerald-600";
+        const urgencyLabel =
+          urgency === "immediate" ? "Immediate Action Required" :
+          urgency === "urgent"    ? "Urgent Health Alert" :
+          urgency === "soon"      ? "Attention Recommended" : "Health Status — Normal";
+        const IconEl = urgency === "immediate" || urgency === "urgent" ? ShieldAlert : Brain;
+        const pulseClass = urgency === "immediate" ? "animate-pulse" : "";
+        return (
+          <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 ${bannerStyle} text-white ${pulseClass}`}>
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <IconEl className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-0.5">
+                AI Risk Assessment · {urgencyLabel}
+              </p>
+              <p className="font-bold text-sm text-white mb-1">{aiDecision.primaryAction}</p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <p className="text-xs text-white/80 font-semibold">{aiDecision.timeWindow}</p>
+                <span className="text-white/60 text-[10px]">·</span>
+                <p className="text-xs text-white/80 font-semibold">
+                  Confidence: {Math.round(aiDecision.confidence * 100)}%
+                </p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] text-white/60">AI Risk Score</p>
+              <p className="text-3xl font-bold tabular-nums">
+                {aiDecision.riskScore}<span className="text-base text-white/60">/100</span>
+              </p>
+              <p className="text-[10px] text-white/70 mt-0.5 uppercase tracking-wide font-bold">
+                {aiDecision.riskLevel} risk
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-0.5">AI Health Alert</p>
-            <p className="font-bold text-sm text-white mb-1">{aiDecision.primaryAction}</p>
-            <p className="text-xs text-white/80 font-semibold">{aiDecision.timeWindow}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-[10px] text-white/60">Risk Score</p>
-            <p className="text-3xl font-bold">{aiDecision.riskScore}<span className="text-base text-white/60">/100</span></p>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Tabs */}
       <Card>

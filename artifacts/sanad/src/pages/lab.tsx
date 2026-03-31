@@ -6,9 +6,10 @@ import {
 } from "@/components/shared";
 import {
   FlaskConical, Search, AlertTriangle, CheckCircle2, Zap,
-  Brain, TrendingUp, TrendingDown, Minus, ArrowRight, Plus, X, Activity
+  Brain, TrendingUp, TrendingDown, Minus, ArrowRight, Plus, X, Activity, Bell
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend
@@ -41,6 +42,8 @@ export default function LabPortal() {
   const [nationalId, setNationalId] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [lastResult, setLastResult] = useState<any>(null);
+  const [showSsePanel, setShowSsePanel] = useState(true);
+  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("lab");
 
   const [form, setForm] = useState({
     testName: "", result: "", unit: "", referenceRange: "", status: "normal", hospital: "SANAD Lab Network", notes: ""
@@ -133,10 +136,55 @@ export default function LabPortal() {
 
   return (
     <Layout role="lab">
-      <PageHeader
-        title="Lab Portal"
-        subtitle="Upload results · AI interpretation · Clinical flags"
-      />
+      {/* SSE Live Alert Panel */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-4 rounded-2xl border border-teal-200 bg-teal-50 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-teal-200 bg-teal-100/60">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+              <span className="font-bold text-sm text-teal-800">Live Lab Alerts</span>
+              <Badge variant="info" className="text-[10px]">{sseUnread} new</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-teal-600 hover:text-teal-800 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-teal-400 hover:text-teal-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="divide-y divide-teal-100 max-h-48 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-amber-500" : "bg-teal-400"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-teal-900">{alert.title}</p>
+                  <p className="text-xs text-teal-700 mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
+                </div>
+                {!alert.read && (
+                  <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-teal-500 hover:text-teal-800 shrink-0">Dismiss</button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-start justify-between mb-5">
+        <PageHeader
+          title="Lab Portal"
+          subtitle="Upload results · AI interpretation · Clinical flags"
+        />
+        <button
+          onClick={() => setShowSsePanel(p => !p)}
+          className={`relative flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl border transition-colors ${
+            sseUnread > 0 ? "bg-teal-50 border-teal-200 text-teal-700" : "bg-secondary border-border text-muted-foreground"
+          }`}
+        >
+          <Bell className="w-3.5 h-3.5" />
+          {sseUnread > 0 ? `${sseUnread} Live Alert${sseUnread > 1 ? "s" : ""}` : "Live Alerts"}
+          <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-400" : "bg-gray-300"}`} />
+        </button>
+      </div>
 
       {/* Search */}
       <Card className="mb-5">

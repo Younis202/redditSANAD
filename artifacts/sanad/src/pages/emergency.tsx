@@ -3,7 +3,7 @@ import {
   Search, AlertTriangle, Droplet, Pill, FileWarning,
   PhoneCall, Activity, ChevronRight, Clock, Zap,
   ShieldAlert, Ban, Eye, UserCheck, Wrench, PauseCircle, Brain,
-  Target, Timer, Gauge, TrendingUp
+  Target, Timer, Gauge, TrendingUp, Bell, X
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import {
@@ -11,6 +11,7 @@ import {
   Input, Button, Badge, PageHeader, StatusDot, DataLabel
 } from "@/components/shared";
 import { useEmergencyLookup } from "@workspace/api-client-react";
+import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
 type ClinicalAction = {
   action: "DO_NOT_GIVE" | "MONITOR" | "URGENT_REVIEW" | "ALERT_FAMILY" | "PREPARE_EQUIPMENT" | "HOLD_MEDICATION";
@@ -37,6 +38,8 @@ const priorityBadge: Record<ClinicalAction["priority"], string> = {
 export default function EmergencyPage() {
   const [nationalId, setNationalId] = useState("");
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [showSsePanel, setShowSsePanel] = useState(true);
+  const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("emergency");
 
   const { data: patient, isLoading, isError } = useEmergencyLookup(
     submittedId || "",
@@ -54,11 +57,64 @@ export default function EmergencyPage() {
 
   return (
     <Layout role="emergency">
+      {/* SSE Real-time Critical Alerts */}
+      {showSsePanel && sseAlerts.length > 0 && (
+        <div className="mb-4 rounded-2xl border-2 border-red-400 bg-red-50 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-red-200 bg-red-100/80">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="font-bold text-sm text-red-800">LIVE Critical Alerts</span>
+              <Badge variant="destructive" className="text-[10px]">{sseUnread} incoming</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={clearSseAlerts} className="text-[11px] text-red-600 hover:text-red-800 font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-red-400 hover:text-red-700"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="divide-y divide-red-100 max-h-40 overflow-y-auto">
+            {sseAlerts.map(alert => (
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500 animate-pulse" : alert.severity === "high" ? "bg-amber-500" : "bg-sky-400"}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-red-900">{alert.title}</p>
+                  <p className="text-xs text-red-700 mt-0.5">
+                    {alert.patientName}
+                    {alert.result ? ` · ${alert.result}` : ""}
+                    {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
+                  </p>
+                </div>
+                {!alert.read && (
+                  <button
+                    onClick={() => { if (alert.nationalId) { setNationalId(alert.nationalId); setSubmittedId(alert.nationalId); } markSseRead(alert.id); }}
+                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-lg px-2 py-1 transition-colors shrink-0"
+                  >
+                    Load Patient
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 mb-5">
         <div className="flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Zap className="w-3 h-3" />
           Emergency Mode Active
         </div>
+        <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${sseConnected ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-secondary border-border text-muted-foreground"}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-400 animate-pulse" : "bg-gray-300"}`} />
+          {sseConnected ? "Live alerts connected" : "Connecting..."}
+        </div>
+        {sseUnread > 0 && (
+          <button
+            onClick={() => setShowSsePanel(p => !p)}
+            className="ml-auto flex items-center gap-1.5 text-[11px] font-bold bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded-full"
+          >
+            <Bell className="w-3 h-3" />
+            {sseUnread} critical alert{sseUnread > 1 ? "s" : ""}
+          </button>
+        )}
       </div>
 
       <PageHeader

@@ -224,9 +224,13 @@ export default function DoctorDashboard() {
   const topPredictions = predictions.filter(p => p.severity === "critical" || p.severity === "high").slice(0, 3);
 
   const priorityItems = (() => {
-    const items: Array<{ color: string; label: string; text: string }> = [];
-    if (aiDecision?.urgency === "immediate" || aiDecision?.urgency === "urgent") {
-      items.push({ color: "bg-red-600", label: aiDecision.urgency.toUpperCase(), text: aiDecision.primaryAction });
+    const items: Array<{ color: string; label: string; text: string; pulse?: boolean }> = [];
+    if (aiDecision?.urgency === "immediate") {
+      items.push({ color: "bg-red-600", label: "IMMEDIATE", text: aiDecision.primaryAction, pulse: true });
+    } else if (aiDecision?.urgency === "urgent") {
+      items.push({ color: "bg-amber-500", label: "URGENT", text: aiDecision.primaryAction, pulse: true });
+    } else if (aiDecision?.urgency === "soon") {
+      items.push({ color: "bg-sky-500", label: "SOON", text: aiDecision.primaryAction });
     }
     const critFactor = aiDecision?.whyFactors?.find(f => f.impact === "critical" || f.impact === "high");
     if (critFactor) {
@@ -238,7 +242,7 @@ export default function DoctorDashboard() {
     }
     const critLab = labResults.find(l => l.status === "critical");
     if (critLab && !items.some(i => i.label === "IMMEDIATE")) {
-      items.push({ color: "bg-red-500", label: "CRITICAL LAB", text: `${critLab.testName}: ${critLab.result} ${critLab.unit ?? ""}` });
+      items.push({ color: "bg-red-500", label: "CRITICAL LAB", text: `${critLab.testName}: ${critLab.result} ${critLab.unit ?? ""}`, pulse: true });
     }
     return items.slice(0, 3);
   })();
@@ -481,11 +485,16 @@ export default function DoctorDashboard() {
                   onClick={() => setActiveTab("decision")}
                   className={`${item.color} text-white rounded-2xl px-4 py-3 text-left flex items-start gap-3 hover:opacity-90 transition-opacity`}
                 >
-                  <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse shrink-0 mt-1.5" />
+                  <div className={`w-2 h-2 rounded-full bg-white/60 shrink-0 mt-1.5 ${item.pulse ? "animate-pulse" : ""}`} />
                   <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">{item.label}</p>
                     <p className="text-xs font-semibold text-white leading-snug line-clamp-2">{item.text}</p>
                   </div>
+                  {item.pulse && (
+                    <div className="ml-auto shrink-0 w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                    </div>
+                  )}
                 </button>
               ))}
             </div>

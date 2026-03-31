@@ -282,25 +282,25 @@ export default function AdminDashboard() {
           <Card className="col-span-12">
             <CardHeader>
               <Globe className="w-4 h-4 text-primary" />
-              <CardTitle>National Regional Command Center — المملكة العربية السعودية</CardTitle>
+              <CardTitle>National Regional Command Center — Kingdom of Saudi Arabia</CardTitle>
               <Badge variant="outline" className="ml-auto">13 Regions · Live</Badge>
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-7 gap-2.5 mb-4">
                 {[
-                  { name: "Riyadh", ar: "الرياض", risk: "high", patients: 14200, highRisk: 31, coverage: 97, hospitals: 48, flag: "⚠ Diabetes surge" },
-                  { name: "Makkah", ar: "مكة المكرمة", risk: "critical", patients: 9800, highRisk: 44, coverage: 95, hospitals: 36, flag: "🔴 Hypertension +12%" },
-                  { name: "Madinah", ar: "المدينة المنورة", risk: "moderate", patients: 5400, highRisk: 8, coverage: 91, hospitals: 22, flag: null },
-                  { name: "Eastern Province", ar: "المنطقة الشرقية", risk: "high", patients: 7600, highRisk: 22, coverage: 93, hospitals: 31, flag: "⚠ CKD elevated" },
-                  { name: "Asir", ar: "عسير", risk: "moderate", patients: 3900, highRisk: 7, coverage: 84, hospitals: 18, flag: null },
-                  { name: "Qassim", ar: "القصيم", risk: "low", patients: 2800, highRisk: 4, coverage: 89, hospitals: 14, flag: null },
-                  { name: "Tabuk", ar: "تبوك", risk: "moderate", patients: 2100, highRisk: 6, coverage: 82, hospitals: 11, flag: null },
-                  { name: "Hail", ar: "حائل", risk: "low", patients: 1600, highRisk: 3, coverage: 78, hospitals: 9, flag: null },
-                  { name: "Jizan", ar: "جازان", risk: "high", patients: 2900, highRisk: 14, coverage: 76, hospitals: 13, flag: "⚠ Low coverage" },
-                  { name: "Najran", ar: "نجران", risk: "moderate", patients: 1400, highRisk: 5, coverage: 72, hospitals: 8, flag: null },
-                  { name: "Al Baha", ar: "الباحة", risk: "low", patients: 900, highRisk: 2, coverage: 71, hospitals: 6, flag: null },
-                  { name: "Northern Border", ar: "الحدود الشمالية", risk: "low", patients: 700, highRisk: 1, coverage: 68, hospitals: 5, flag: null },
-                  { name: "Al Jouf", ar: "الجوف", risk: "low", patients: 1100, highRisk: 2, coverage: 75, hospitals: 7, flag: null },
+                  { name: "Riyadh", sub: "Central Region", risk: "high", patients: 14200, highRisk: 31, coverage: 97, hospitals: 48, flag: "Diabetes surge" },
+                  { name: "Makkah", sub: "Western Region", risk: "critical", patients: 9800, highRisk: 44, coverage: 95, hospitals: 36, flag: "Hypertension +12%" },
+                  { name: "Madinah", sub: "Western Region", risk: "moderate", patients: 5400, highRisk: 8, coverage: 91, hospitals: 22, flag: null },
+                  { name: "Eastern Province", sub: "Eastern Region", risk: "high", patients: 7600, highRisk: 22, coverage: 93, hospitals: 31, flag: "CKD elevated" },
+                  { name: "Asir", sub: "Southern Region", risk: "moderate", patients: 3900, highRisk: 7, coverage: 84, hospitals: 18, flag: null },
+                  { name: "Qassim", sub: "Central Region", risk: "low", patients: 2800, highRisk: 4, coverage: 89, hospitals: 14, flag: null },
+                  { name: "Tabuk", sub: "Northern Region", risk: "moderate", patients: 2100, highRisk: 6, coverage: 82, hospitals: 11, flag: null },
+                  { name: "Hail", sub: "Northern Region", risk: "low", patients: 1600, highRisk: 3, coverage: 78, hospitals: 9, flag: null },
+                  { name: "Jizan", sub: "Southern Region", risk: "high", patients: 2900, highRisk: 14, coverage: 76, hospitals: 13, flag: "Low coverage" },
+                  { name: "Najran", sub: "Southern Region", risk: "moderate", patients: 1400, highRisk: 5, coverage: 72, hospitals: 8, flag: null },
+                  { name: "Al Baha", sub: "Southern Region", risk: "low", patients: 900, highRisk: 2, coverage: 71, hospitals: 6, flag: null },
+                  { name: "Northern Border", sub: "Northern Region", risk: "low", patients: 700, highRisk: 1, coverage: 68, hospitals: 5, flag: null },
+                  { name: "Al Jouf", sub: "Northern Region", risk: "low", patients: 1100, highRisk: 2, coverage: 75, hospitals: 7, flag: null },
                 ].map((region, i) => {
                   const cfg = {
                     critical: { bg: "bg-red-50", border: "border-red-300", badge: "destructive" as const, dot: "bg-red-500", bar: "#ef4444", label: "CRITICAL" },
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                       <div className="flex items-start justify-between gap-1">
                         <div>
                           <p className="text-[11px] font-bold text-foreground leading-tight">{region.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{region.ar}</p>
+                          <p className="text-[10px] text-muted-foreground">{region.sub}</p>
                         </div>
                         <Badge variant={cfg.badge} className="text-[8px] shrink-0">{cfg.label}</Badge>
                       </div>
@@ -516,12 +516,12 @@ export default function AdminDashboard() {
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">High-Burden Regions — AI Policy Alert Zones</p>
                   <div className="space-y-2.5">
                     {[
-                      { region: "Riyadh — الرياض", topCondition: "Diabetes + Hypertension", risk: "CRITICAL", pct: 94, color: "bg-red-600 text-white", bar: "bg-red-500" },
-                      { region: "Makkah — مكة المكرمة", topCondition: "Obesity + Cardiovascular", risk: "HIGH", pct: 81, color: "bg-orange-500 text-white", bar: "bg-orange-400" },
-                      { region: "Madinah — المدينة", topCondition: "Hypertension + CKD", risk: "HIGH", pct: 76, color: "bg-amber-500 text-white", bar: "bg-amber-400" },
-                      { region: "Eastern Province — الشرقية", topCondition: "Dyslipidemia + CAD", risk: "MODERATE", pct: 62, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
-                      { region: "Asir — عسير", topCondition: "COPD + Respiratory", risk: "MODERATE", pct: 57, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
-                      { region: "Jizan — جازان", topCondition: "Infectious Disease + Malaria", risk: "MODERATE", pct: 53, color: "bg-emerald-600 text-white", bar: "bg-emerald-400" },
+                      { region: "Riyadh", topCondition: "Diabetes + Hypertension", risk: "CRITICAL", pct: 94, color: "bg-red-600 text-white", bar: "bg-red-500" },
+                      { region: "Makkah", topCondition: "Obesity + Cardiovascular", risk: "HIGH", pct: 81, color: "bg-orange-500 text-white", bar: "bg-orange-400" },
+                      { region: "Madinah", topCondition: "Hypertension + CKD", risk: "HIGH", pct: 76, color: "bg-amber-500 text-white", bar: "bg-amber-400" },
+                      { region: "Eastern Province", topCondition: "Dyslipidemia + CAD", risk: "MODERATE", pct: 62, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
+                      { region: "Asir", topCondition: "COPD + Respiratory", risk: "MODERATE", pct: 57, color: "bg-sky-600 text-white", bar: "bg-sky-400" },
+                      { region: "Jizan", topCondition: "Infectious Disease + Malaria", risk: "MODERATE", pct: 53, color: "bg-emerald-600 text-white", bar: "bg-emerald-400" },
                     ].map((r, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className={`text-[8px] font-black px-1.5 py-0.5 rounded shrink-0 ${r.color}`}>{r.risk}</div>

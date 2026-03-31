@@ -975,7 +975,7 @@ export default function CitizenPortal() {
               return (
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <Star className="w-3.5 h-3.5 text-amber-500" /> Health Achievements · الإنجازات الصحية
+                    <Star className="w-3.5 h-3.5 text-amber-500" /> Health Achievements
                   </p>
                   <div className="grid grid-cols-3 gap-2">
                     {achievements.map((a, i) => {
@@ -1010,7 +1010,7 @@ export default function CitizenPortal() {
             {/* ─── Active Health Challenges ─── */}
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                <TrendingUp className="w-3.5 h-3.5 text-primary" /> Active Health Challenges · التحديات الصحية النشطة
+                <TrendingUp className="w-3.5 h-3.5 text-primary" /> Active Health Challenges
               </p>
               <div className="space-y-2">
                 {[
@@ -1037,13 +1037,13 @@ export default function CitizenPortal() {
             {/* ─── Smart Preventive Reminders ─── */}
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Bell className="w-3.5 h-3.5 text-red-500" /> Smart Preventive Reminders · التذكيرات الوقائية
+                <Bell className="w-3.5 h-3.5 text-red-500" /> Smart Preventive Reminders
               </p>
               <div className="space-y-2">
                 {[
                   { title: "Annual HbA1c Test Due", desc: "Last test was 3 months ago · Schedule now at King Faisal Specialist", daysLeft: 14, urgent: true },
                   { title: "Blood Pressure Check", desc: "Weekly self-monitoring recommended — Log to SANAD app", daysLeft: 2, urgent: true },
-                  { title: "Ophthalmology Screening", desc: "Diabetic retinopathy annual exam · مستشفى الملك فيصل التخصصي", daysLeft: 45, urgent: false },
+                  { title: "Ophthalmology Screening", desc: "Diabetic retinopathy annual exam · King Faisal Specialist Hospital", daysLeft: 45, urgent: false },
                   { title: "Medication Refill", desc: "Metformin 500mg prescription expires in 18 days", daysLeft: 18, urgent: false },
                 ].map((r, i) => (
                   <div key={i} className={`flex items-start gap-3 px-4 py-3 rounded-2xl border ${r.urgent ? "bg-red-50 border-red-200" : "bg-secondary border-border"}`}>

@@ -314,8 +314,8 @@ export default function LoginPage() {
                     <Fingerprint className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold text-emerald-900">نفاذ — Nafath National Identity Verification</p>
-                    <p className="text-[11px] text-emerald-700">Authenticate via National Single Sign-On · نظام الهوية الوطنية الموحدة</p>
+                    <p className="text-[13px] font-bold text-emerald-900">Nafath — National Identity Verification</p>
+                    <p className="text-[11px] text-emerald-700">Authenticate via National Single Sign-On · MOH Certified</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -506,7 +506,7 @@ export default function LoginPage() {
         style={{ borderTop: "1px solid rgba(0,0,0,0.05)", background: "white" }}
       >
         <span>© 2025 Ministry of Health — Kingdom of Saudi Arabia · SANAD Platform v3.0</span>
-        <span>Funded at SAR 100M · All Rights Reserved · موثق ومصنّف</span>
+        <span>Funded at SAR 100M · All Rights Reserved · PDPL Certified</span>
       </div>
     </div>
   );

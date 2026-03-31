@@ -54,8 +54,8 @@ function ConsentGate({ children }: { children: React.ReactNode }) {
               <h2 className="text-xl font-bold">Data Access & Privacy Consent</h2>
             </div>
             <div className="ml-auto text-right shrink-0">
-              <p className="text-[10px] text-white/60">وزارة الصحة · المملكة العربية السعودية</p>
-              <p className="text-sm font-bold">Ministry of Health — KSA</p>
+              <p className="text-[10px] text-white/60">Ministry of Health · KSA</p>
+              <p className="text-sm font-bold">Kingdom of Saudi Arabia</p>
             </div>
           </div>
           <p className="text-xs text-white/80 leading-relaxed">
@@ -63,17 +63,16 @@ function ConsentGate({ children }: { children: React.ReactNode }) {
           </p>
         </div>
         <div className="p-6">
-          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Data Categories Accessed · موافقتك على الوصول للبيانات التالية</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Data Categories Accessed</p>
           <div className="space-y-2.5">
             {[
-              { title: "Medical Records", desc: "Lab results, diagnoses, prescriptions, and visit history", icon: "🏥", level: "CONFIDENTIAL" },
-              { title: "Personal Health Data", desc: "Vital signs, chronic conditions, allergies, and blood type", icon: "❤️", level: "RESTRICTED" },
-              { title: "AI Clinical Decisions", desc: "AI-generated risk assessments and clinical recommendations", icon: "🧠", level: "CONFIDENTIAL" },
-              { title: "Identity Verification", desc: "National ID linkage via Nafath and CCHI insurance registry", icon: "🔐", level: "RESTRICTED" },
-              { title: "Immutable Audit Trail", desc: "All access events are logged per NCA/MOH Compliance Standard v2.0", icon: "📋", level: "PUBLIC" },
+              { title: "Medical Records", desc: "Lab results, diagnoses, prescriptions, and visit history", level: "CONFIDENTIAL" },
+              { title: "Personal Health Data", desc: "Vital signs, chronic conditions, allergies, and blood type", level: "RESTRICTED" },
+              { title: "AI Clinical Decisions", desc: "AI-generated risk assessments and clinical recommendations", level: "CONFIDENTIAL" },
+              { title: "Identity Verification", desc: "National ID linkage via Nafath and CCHI insurance registry", level: "RESTRICTED" },
+              { title: "Immutable Audit Trail", desc: "All access events are logged per NCA/MOH Compliance Standard v2.0", level: "PUBLIC" },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3 p-3 bg-secondary rounded-2xl border border-border">
-                <span className="text-lg shrink-0">{item.icon}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-foreground">{item.title}</p>
@@ -89,7 +88,7 @@ function ConsentGate({ children }: { children: React.ReactNode }) {
             ))}
           </div>
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-            <p className="font-bold mb-0.5">⚖️ Legal Basis — الأساس القانوني</p>
+            <p className="font-bold mb-0.5">Legal Basis</p>
             <p>Governed by Royal Decree No. M/19, MOH Circular 3/1/3, and NCA Healthcare Data Standard v2.0. All data remains within sovereign KSA infrastructure.</p>
           </div>
           <div className="flex items-center gap-3 mt-5">

@@ -59,7 +59,7 @@ const CONSUMPTION_TREND = [
   { month: "Dec", metformin: 8500, insulin: 2800, lisinopril: 5500, atorvastatin: 6200 },
 ];
 
-type ViewTab = "inventory" | "predictions" | "distribution" | "reorder";
+type ViewTab = "inventory" | "predictions" | "distribution" | "reorder" | "seasonal";
 
 export default function SupplyChainPortal() {
   const [activeTab, setActiveTab] = useState<ViewTab>("inventory");
@@ -95,6 +95,7 @@ export default function SupplyChainPortal() {
     { id: "predictions", label: "AI Shortage Predictions", icon: Brain },
     { id: "distribution", label: "Regional Distribution", icon: Globe },
     { id: "reorder", label: "Purchase Orders", icon: ShoppingCart },
+    { id: "seasonal", label: "Ramadan & Hajj Planner", icon: Calendar },
   ];
 
   const criticals = data?.summary?.criticalShortages ?? 0;
@@ -590,6 +591,241 @@ export default function SupplyChainPortal() {
                 );
               })}
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ─── RAMADAN & HAJJ SEASONAL SURGE PLANNER ─── */}
+      {activeTab === "seasonal" && (
+        <div className="space-y-5">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-emerald-50 to-amber-50 border-2 border-emerald-300 rounded-3xl">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0">
+              <Calendar className="w-6 h-6 text-emerald-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="font-bold text-emerald-900 text-sm">Saudi Seasonal Demand Intelligence Engine</p>
+                <Badge variant="success" className="text-[10px]">Active Planning Mode</Badge>
+              </div>
+              <p className="text-xs text-emerald-700">AI-powered demand forecasting for Ramadan fasting health impacts and Hajj pilgrimage medical operations. Covers 2.5M+ Hajj pilgrims and demand shifts for 34M Saudi patients during fasting months. Generates pre-emptive procurement orders 8 weeks before each event.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            {/* ── RAMADAN ── */}
+            <Card className="border-2 border-emerald-200">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <span className="text-lg">🌙</span>
+                  </div>
+                  <div>
+                    <CardTitle>Ramadan Surge Plan 1446H</CardTitle>
+                    <p className="text-[11px] text-muted-foreground">1 Mar – 30 Mar 2025 · 30 days</p>
+                  </div>
+                </div>
+                <Badge variant="warning" className="text-[10px] ml-auto">Procurement Window: NOW</Badge>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-emerald-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">DM Patients Fasting</p>
+                    <p className="text-2xl font-bold text-emerald-700">4.8M</p>
+                    <p className="text-[10px] text-muted-foreground">+31% medication events</p>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hypoglycemia Risk ↑</p>
+                    <p className="text-2xl font-bold text-amber-700">+178%</p>
+                    <p className="text-[10px] text-muted-foreground">vs. non-Ramadan baseline</p>
+                  </div>
+                  <div className="p-3 bg-red-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">ER Visits Expected</p>
+                    <p className="text-2xl font-bold text-red-700">+24K</p>
+                    <p className="text-[10px] text-muted-foreground">Primarily DKA + dehydration</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5"><AlertTriangle className="w-3 h-3 text-amber-500" /> Critical Drug Demand Adjustments</p>
+                  {[
+                    { drug: "Insulin Glargine (Long-acting)", surge: "+42%", reason: "Modified dosing schedule for fasting — all DM T1 patients", qty: "840,000 vials", action: "Order Now" },
+                    { drug: "Glucagon Emergency Kit", surge: "+89%", reason: "Severe hypoglycemia rescue — highest Ramadan risk", qty: "180,000 kits", action: "URGENT ORDER" },
+                    { drug: "Oral Rehydration Salts (ORS)", surge: "+220%", reason: "Dehydration from prolonged fasting in heat", qty: "4,200,000 sachets", action: "Order Now" },
+                    { drug: "Metformin IR → ER Switch", surge: "+67%", reason: "Fasting patients switched to once-daily ER formulation", qty: "1,100,000 tablets", action: "Order Now" },
+                    { drug: "SGLT2 Inhibitors (Empagliflozin)", surge: "+34%", reason: "DKA risk — patients may need dose hold protocols", qty: "320,000 tablets", action: "Monitor" },
+                    { drug: "IV Dextrose 5% / 10%", surge: "+156%", reason: "Hospital ER treatment of hypoglycemia episodes", qty: "240,000 L", action: "URGENT ORDER" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 bg-secondary rounded-2xl">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-foreground">{item.drug}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{item.reason}</p>
+                        <p className="text-[10px] font-semibold text-primary mt-0.5">Procurement: {item.qty}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={`text-sm font-bold ${item.surge.startsWith("+1") || item.surge.startsWith("+2") ? "text-red-600" : "text-amber-600"}`}>{item.surge}</p>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${item.action === "URGENT ORDER" ? "bg-red-100 text-red-700" : item.action === "Monitor" ? "bg-amber-100 text-amber-700" : "bg-lime-100 text-lime-700"}`}>{item.action}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                  <p className="text-[10px] font-bold text-emerald-800 mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3" /> AI Medication Timing Protocol Recommendation</p>
+                  <p className="text-xs text-emerald-700">SANAD AI recommends auto-generating "Ramadan Medication Guide" for all DM + HTN patients in app. Notify 2 weeks before Ramadan with personalized dosing schedule adjustment. Expected: 34% reduction in Ramadan hypoglycemia admissions.</p>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full transition-colors">
+                    <ShoppingCart className="w-3 h-3" /> Generate All Ramadan Orders
+                  </button>
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors">
+                    <Brain className="w-3 h-3" /> Export Ramadan Protocol
+                  </button>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* ── HAJJ ── */}
+            <Card className="border-2 border-amber-200">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <span className="text-lg">🕋</span>
+                  </div>
+                  <div>
+                    <CardTitle>Hajj Medical Stockpile 1446H</CardTitle>
+                    <p className="text-[11px] text-muted-foreground">4 Jun – 9 Jun 2025 · 2.5M Pilgrims</p>
+                  </div>
+                </div>
+                <Badge variant="destructive" className="text-[10px] ml-auto">Pre-order Deadline: 30 Days</Badge>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-amber-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Pilgrims Expected</p>
+                    <p className="text-2xl font-bold text-amber-700">2.5M</p>
+                    <p className="text-[10px] text-muted-foreground">from 160+ countries</p>
+                  </div>
+                  <div className="p-3 bg-red-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Heat Stroke Risk</p>
+                    <p className="text-2xl font-bold text-red-700">48°C</p>
+                    <p className="text-[10px] text-muted-foreground">Peak Makkah temp June</p>
+                  </div>
+                  <div className="p-3 bg-violet-50 rounded-2xl text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Medical Facilities</p>
+                    <p className="text-2xl font-bold text-violet-700">147</p>
+                    <p className="text-[10px] text-muted-foreground">Hajj clinics + field units</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5"><AlertTriangle className="w-3 h-3 text-red-500" /> Hajj Strategic Medical Stockpile</p>
+                  {[
+                    { drug: "Meningococcal ACWY Vaccine", qty: "3,200,000 doses", risk: "Meningococcal meningitis — mandatory WHO requirement", status: "CONFIRMED", progress: 94 },
+                    { drug: "IV Crystalloids (NS + RL 1L bags)", qty: "1,800,000 L", risk: "Heat stroke / severe dehydration management", status: "80% ORDERED", progress: 80 },
+                    { drug: "Cooling Gel Blankets", qty: "48,000 units", risk: "Exertional heat stroke — field cooling in Mina/Arafat", status: "ORDER NOW", progress: 12 },
+                    { drug: "Morphine + Fentanyl (PCA)", qty: "180,000 doses", risk: "Crush injuries (Jamarat) + fracture management", status: "IN TRANSIT", progress: 65 },
+                    { drug: "Oral Rehydration Salts", qty: "8,400,000 sachets", risk: "Gastroenteritis + dehydration — mass distribution", status: "CONFIRMED", progress: 100 },
+                    { drug: "Ciprofloxacin 500mg", qty: "2,100,000 tablets", risk: "Traveler's diarrhea + respiratory infections", status: "60% ORDERED", progress: 60 },
+                    { drug: "Salbutamol Inhalers", qty: "320,000 units", risk: "Asthma exacerbation in dust/heat environment", status: "ORDER NOW", progress: 25 },
+                    { drug: "Blood Glucose Test Strips", qty: "4,200,000 strips", risk: "DM management in 847K diabetic pilgrims", status: "IN TRANSIT", progress: 72 },
+                  ].map((item, i) => {
+                    const progColor = item.progress >= 90 ? "bg-emerald-500" : item.progress >= 60 ? "bg-amber-500" : "bg-red-500";
+                    const statusColor = item.status === "CONFIRMED" ? "text-emerald-700 bg-emerald-100" : item.status.includes("ORDER NOW") ? "text-red-700 bg-red-100" : item.status.includes("ORDERED") ? "text-amber-700 bg-amber-100" : "text-sky-700 bg-sky-100";
+                    return (
+                      <div key={i} className="p-3 bg-secondary rounded-2xl">
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-foreground">{item.drug}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{item.risk}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusColor}`}>{item.status}</span>
+                            <p className="text-[10px] font-semibold text-primary mt-1">{item.qty}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full transition-all ${progColor}`} style={{ width: `${item.progress}%` }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-muted-foreground shrink-0">{item.progress}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl">
+                    <p className="text-[10px] font-bold text-amber-800 mb-2 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Hajj AI Command Center</p>
+                    <p className="text-xs text-amber-700">Real-time pilgrim health monitoring via wearable integration. AI predicts heat stroke events 45 min in advance based on heat index + activity pattern + hydration markers.</p>
+                  </div>
+                  <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl">
+                    <p className="text-[10px] font-bold text-red-800 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-3 h-3" /> Critical Gaps (Act Now)</p>
+                    <div className="space-y-1">
+                      {["Cooling Gel Blankets — Only 12% ordered", "Salbutamol Inhalers — 25% ordered", "Ciprofloxacin — 60% ordered"].map((g, i) => (
+                        <p key={i} className="text-[10px] text-red-700 font-semibold flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />{g}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-full transition-colors">
+                    <ShoppingCart className="w-3 h-3" /> Generate Gap Orders
+                  </button>
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-full transition-colors">
+                    <AlertTriangle className="w-3 h-3" /> Escalate to MOH
+                  </button>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Seasonal Demand Forecast Chart */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /><CardTitle>12-Month Seasonal Demand Forecast — Critical Drugs</CardTitle></div>
+              <Badge variant="info" className="text-[10px]">Ramadan + Hajj surge periods highlighted</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={[
+                    { month: "Jan", insulin: 8200, ors: 4100, glucagon: 1200 },
+                    { month: "Feb", insulin: 8400, ors: 4200, glucagon: 1250 },
+                    { month: "Mar", insulin: 11800, ors: 13200, glucagon: 2270 },
+                    { month: "Apr", insulin: 8600, ors: 4500, glucagon: 1300 },
+                    { month: "May", insulin: 8700, ors: 4600, glucagon: 1320 },
+                    { month: "Jun", insulin: 9800, ors: 18400, glucagon: 1500 },
+                    { month: "Jul", insulin: 9900, ors: 7200, glucagon: 1550 },
+                    { month: "Aug", insulin: 9100, ors: 4900, glucagon: 1380 },
+                    { month: "Sep", insulin: 9200, ors: 5100, glucagon: 1400 },
+                    { month: "Oct", insulin: 9300, ors: 5200, glucagon: 1420 },
+                    { month: "Nov", insulin: 9400, ors: 5300, glucagon: 1450 },
+                    { month: "Dec", insulin: 9500, ors: 5400, glucagon: 1470 },
+                  ]} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+                    <defs>
+                      <linearGradient id="gInsulin" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#007AFF" stopOpacity={0.15} /><stop offset="95%" stopColor="#007AFF" stopOpacity={0} /></linearGradient>
+                      <linearGradient id="gOrs" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.15} /><stop offset="95%" stopColor="#10b981" stopOpacity={0} /></linearGradient>
+                      <linearGradient id="gGlucagon" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f59e0b" stopOpacity={0.15} /><stop offset="95%" stopColor="#f59e0b" stopOpacity={0} /></linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                    <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <ReferenceLine x="Mar" stroke="#22c55e" strokeDasharray="4 2" label={{ value: "🌙 Ramadan", position: "top", fontSize: 10, fill: "#22c55e" }} />
+                    <ReferenceLine x="Jun" stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "🕋 Hajj", position: "top", fontSize: 10, fill: "#f59e0b" }} />
+                    <Area type="monotone" dataKey="insulin" name="Insulin (000 vials)" stroke="#007AFF" fill="url(#gInsulin)" strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="ors" name="ORS (000 sachets)" stroke="#10b981" fill="url(#gOrs)" strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="glucagon" name="Glucagon Kits" stroke="#f59e0b" fill="url(#gGlucagon)" strokeWidth={2} dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardBody>
           </Card>
         </div>
       )}

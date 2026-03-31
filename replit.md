@@ -3,6 +3,13 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
+## v3.1 — 5 New AI Features Added (Latest)
+1. **Research → AI Hypothesis Generator** (6th tab) — 7 auto-generated evidence-grade research hypotheses from 34M patient records with n, correlation r, p-value, clinical impact score, and IRB-ready protocol export
+2. **Supply Chain → Ramadan & Hajj Seasonal Surge Planner** (5th tab) — Saudi-specific demand surge forecasting for Ramadan fasting (DM/HTN patients) and Hajj pilgrimage (2.5M pilgrims, heat stroke meds, meningococcal vaccines), with procurement gap tracker
+3. **Insurance → AI Pre-Authorization Engine** (4th tab) — Real-time clinical necessity scoring (0-100), guideline alignment (ADA/ESC/KDIGO), fraud detection, auto-approve/flag/deny with AI clinical reasoning and alternatives
+4. **Doctor → 30-Day Readmission Risk (LACE+ Score)** — Calculates LACE+ score from patient data (L=visits, A=age, C=comorbidities, E=ED visits), 6 AI prevention interventions, discharge optimization recommendations, national benchmark comparison
+5. **Admin → National AI Clinical Impact Tracker** — 2.84M lives impacted, SAR 4.7B saved, AI outcomes by month (chart), portal adoption rates, 3 detailed impact categories
+
 ## Auth / Identity System
 - `artifacts/sanad/src/contexts/auth-context.tsx` — AuthProvider + localStorage persistence + fetch patching to inject `x-user-role` header on all `/api` calls
 - `artifacts/sanad/src/pages/login.tsx` — Two-step government SSO login: Step 1 = role selection grid with clearance badges (PUBLIC/RESTRICTED/CONFIDENTIAL/SECRET); Step 2 = credential entry (pre-filled demo Employee ID + SANAD@2025)

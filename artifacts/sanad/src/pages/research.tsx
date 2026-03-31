@@ -132,7 +132,7 @@ const STATUS_CONFIG: Record<string, { bg: string; border: string; badge: any; do
   paused: { bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, dot: "bg-amber-500", label: "Paused" },
 };
 
-type ViewTab = "overview" | "studies" | "trends" | "correlations" | "cohorts";
+type ViewTab = "overview" | "studies" | "trends" | "correlations" | "cohorts" | "hypothesis";
 
 export default function ResearchPortal() {
   const [activeView, setActiveView] = useState<ViewTab>("overview");
@@ -169,6 +169,7 @@ export default function ResearchPortal() {
     { id: "trends", label: "Disease Trends", icon: TrendingUp },
     { id: "correlations", label: "Correlation Analysis", icon: GitBranch },
     { id: "cohorts", label: "Cohort Comparison", icon: Users },
+    { id: "hypothesis", label: "AI Hypothesis Engine", icon: Lightbulb },
   ];
 
   return (
@@ -800,6 +801,232 @@ export default function ResearchPortal() {
                 </div>
               </CardBody>
             </Card>
+          </div>
+        </div>
+      )}
+
+      {/* ─── AI HYPOTHESIS ENGINE ─── */}
+      {activeView === "hypothesis" && (
+        <div className="space-y-5">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-teal-50 border border-violet-200 rounded-3xl">
+            <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
+              <Lightbulb className="w-6 h-6 text-violet-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="font-bold text-violet-900 text-sm">SANAD AI Research Intelligence Engine — Active</p>
+                <Badge variant="purple" className="text-[10px]">GPT-4o Clinical</Badge>
+              </div>
+              <p className="text-xs text-violet-700">Continuously analyzes 34,012,489 anonymized patient records across 12 disease categories to auto-generate evidence-grade research hypotheses. Each hypothesis is evaluated for statistical significance, novelty index, and clinical impact potential.</p>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="text-[10px] font-bold text-violet-600 bg-violet-100 px-2.5 py-1 rounded-full">7 New Hypotheses Generated</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">Last scan: 2 hours ago · 847 pattern clusters analyzed</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">IRB Submission Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mb-2">
+            {[
+              { label: "Hypotheses Generated", value: "847", sub: "YTD 2025", color: "text-violet-600", bg: "bg-violet-50" },
+              { label: "Converted to Studies", value: "23", sub: "IRB approved", color: "text-emerald-600", bg: "bg-emerald-50" },
+              { label: "Clinical Impact Score", value: "9.2", sub: "/ 10 avg", color: "text-amber-600", bg: "bg-amber-50" },
+            ].map((kpi, i) => (
+              <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
+                <p className={`text-4xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{kpi.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                id: "HYP-2025-001",
+                title: "HbA1c Variability (CV%) is a Superior Predictor of CKD Progression vs. Mean HbA1c",
+                category: "Diabetic Nephropathy",
+                statistical: { n: 18420, correlation: 0.84, pValue: "<0.0001", confidence: 97 },
+                evidence: "Patients with HbA1c CV% >36% showed 3.4× faster eGFR decline over 24 months vs. matched controls with stable HbA1c, regardless of mean HbA1c level. This effect was independent of baseline eGFR and blood pressure control.",
+                design: "Prospective Cohort",
+                impact: 9.4,
+                novelty: "HIGH",
+                actionRecommendation: "Replace static HbA1c monitoring with variability-adjusted risk score. Recommend SANAD algorithm update to calculate CV% from ≥4 readings over 12 months.",
+                funding: "SAR 8.2M estimated",
+                timeline: "18-month study",
+                status: "ready",
+              },
+              {
+                id: "HYP-2025-002",
+                title: "Ramadan Fasting Modifies Gut Microbiome Composition in T2DM Patients — Protective vs. Harmful Phenotypes",
+                category: "Metabolic / Endocrine",
+                statistical: { n: 6712, correlation: 0.71, pValue: "<0.001", confidence: 91 },
+                evidence: "Post-Ramadan HbA1c declined 0.8% in 44% of T2DM patients but worsened 0.6% in 29%. AI clustering identified 3 distinct metabolic response phenotypes correlated with microbiome diversity markers (Shannon Index <3.2 = harmful phenotype).",
+                design: "Randomized Clinical Trial",
+                impact: 8.7,
+                novelty: "VERY HIGH",
+                actionRecommendation: "Pre-Ramadan microbiome profiling could identify protective vs. harmful phenotypes. Intervention: pre-Ramadan probiotic therapy in harmful phenotype patients.",
+                funding: "SAR 12.4M estimated",
+                timeline: "24-month study",
+                status: "ready",
+              },
+              {
+                id: "HYP-2025-003",
+                title: "Polypharmacy (≥7 Medications) in Elderly CKD Patients Predicts 90-Day All-Cause Mortality Better than Charlson Score",
+                category: "Geriatrics / CKD",
+                statistical: { n: 9230, correlation: 0.79, pValue: "<0.0001", confidence: 94 },
+                evidence: "SANAD medication database analysis: CKD patients ≥65 on ≥7 drugs had 2.1× higher 90-day mortality than Charlson Score–matched controls. Drug-drug interaction score at discharge was the strongest independent predictor (HR 3.7, 95% CI 2.9–4.7).",
+                design: "Retrospective Cohort + Validation RCT",
+                impact: 9.1,
+                novelty: "HIGH",
+                actionRecommendation: "Implement automated medication reconciliation at discharge for all CKD patients ≥65. SANAD alert when ≥7 active medications in CKD eGFR <45.",
+                funding: "SAR 5.1M estimated",
+                timeline: "12-month study",
+                status: "under_review",
+              },
+              {
+                id: "HYP-2025-004",
+                title: "Night-Shift Healthcare Workers Show 2.8× Higher Metabolic Syndrome Incidence — Circadian Disruption Mechanism",
+                category: "Occupational Health",
+                statistical: { n: 4480, correlation: 0.68, pValue: "<0.001", confidence: 88 },
+                evidence: "Analysis of 4,480 MOH staff health records: night-shift workers (≥3 nights/week for >2 years) had MetSyn incidence 2.8× higher. Cortisol dysregulation biomarker (late-night salivary cortisol >2.4 nmol/L) identified as mediating mechanism.",
+                design: "Cross-Sectional + Longitudinal Cohort",
+                impact: 7.8,
+                novelty: "HIGH",
+                actionRecommendation: "Mandatory MetSyn screening for night-shift staff every 6 months. Investigate shift rotation scheduling optimization as preventive intervention.",
+                funding: "SAR 3.7M estimated",
+                timeline: "24-month study",
+                status: "new",
+              },
+              {
+                id: "HYP-2025-005",
+                title: "AI-Detected Silent Atrial Fibrillation in Hypertensive Patients Using Photoplethysmography Waveform Analysis",
+                category: "Cardiology",
+                statistical: { n: 22100, correlation: 0.89, pValue: "<0.0001", confidence: 96 },
+                evidence: "SANAD wearable device data from 22,100 patients: PPG irregularity index >0.34 detected silent AF with sensitivity 91%, specificity 87%. 847 previously undiagnosed AF cases identified — all subsequently confirmed by 12-lead ECG and started on anticoagulation therapy.",
+                design: "Diagnostic Validation Study",
+                impact: 9.8,
+                novelty: "VERY HIGH",
+                actionRecommendation: "Deploy AI-PPG screening module in SANAD citizen app. Automatic referral to cardiology when irregularity index exceeds threshold.",
+                funding: "SAR 6.8M estimated",
+                timeline: "12-month validation",
+                status: "ready",
+              },
+              {
+                id: "HYP-2025-006",
+                title: "Social Determinants of Health Score Predicts Medication Adherence Better than Clinical Factors in Saudi Population",
+                category: "Public Health / Behavioral",
+                statistical: { n: 31200, correlation: 0.77, pValue: "<0.0001", confidence: 93 },
+                evidence: "SANAD combined analysis of clinical + socioeconomic indicators: SDOH composite score (income level + education + travel distance + social support) explains 34% more variance in adherence than clinical factors alone. Riyadh vs. rural gap: 47% adherence difference.",
+                design: "Mixed-Methods Cohort Study",
+                impact: 8.9,
+                novelty: "HIGH",
+                actionRecommendation: "Integrate SDOH score into SANAD risk model. Design targeted community health worker intervention for SDOH-high-risk patients. Pilot in Eastern Province.",
+                funding: "SAR 4.4M estimated",
+                timeline: "18-month study",
+                status: "new",
+              },
+              {
+                id: "HYP-2025-007",
+                title: "Post-COVID Autonomic Dysfunction Persists 24+ Months and Independently Worsens Hypertensive Control",
+                category: "Post-COVID / Cardiology",
+                statistical: { n: 8940, correlation: 0.72, pValue: "<0.001", confidence: 89 },
+                evidence: "8,940 post-COVID hypertensive patients: heart rate variability (HRV rMSSD <20ms) at 12 months post-infection was associated with 2.3× higher rate of BP treatment failure at 24 months. Effect independent of prior BP control, age, BMI.",
+                design: "Prospective Observational Cohort",
+                impact: 8.4,
+                novelty: "HIGH",
+                actionRecommendation: "HRV monitoring for all post-COVID hypertensive patients at 12- and 24-month follow-up. Evaluate vagal nerve modulation therapy in treatment-resistant cases.",
+                funding: "SAR 7.1M estimated",
+                timeline: "24-month study",
+                status: "under_review",
+              },
+            ].map((hyp, i) => {
+              const statusCfg = hyp.status === "ready"
+                ? { badge: "success" as const, label: "IRB Ready", bg: "bg-emerald-50", border: "border-emerald-200" }
+                : hyp.status === "under_review"
+                ? { badge: "warning" as const, label: "Under Review", bg: "bg-amber-50", border: "border-amber-200" }
+                : { badge: "info" as const, label: "New", bg: "bg-sky-50", border: "border-sky-200" };
+              const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-violet-700 bg-violet-100" : "text-teal-700 bg-teal-100";
+              const impactColor = hyp.impact >= 9 ? "text-red-600" : hyp.impact >= 8 ? "text-amber-600" : "text-sky-600";
+              return (
+                <div key={hyp.id} className={`p-5 rounded-3xl border ${statusCfg.bg} ${statusCfg.border}`}>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[10px] font-bold text-muted-foreground">H{i + 1}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="font-mono text-[10px] text-muted-foreground">{hyp.id}</span>
+                            <Badge variant="outline" className="text-[9px]">{hyp.category}</Badge>
+                            <Badge variant={statusCfg.badge} className="text-[9px]">{statusCfg.label}</Badge>
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${noveltyColor}`}>Novelty: {hyp.novelty}</span>
+                          </div>
+                          <p className="text-sm font-bold text-foreground leading-snug">{hyp.title}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Impact Score</p>
+                          <p className={`text-3xl font-bold ${impactColor}`}>{hyp.impact}<span className="text-sm text-muted-foreground">/10</span></p>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-foreground bg-white/60 border border-white rounded-xl px-3 py-2 mb-3 leading-relaxed">{hyp.evidence}</p>
+
+                      <div className="grid grid-cols-4 gap-3 mb-3">
+                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Sample Size</p>
+                          <p className="text-sm font-bold text-foreground">n={hyp.statistical.n.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Correlation r</p>
+                          <p className="text-sm font-bold text-primary">{hyp.statistical.correlation}</p>
+                        </div>
+                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">p-value</p>
+                          <p className="text-sm font-bold text-foreground font-mono">{hyp.statistical.pValue}</p>
+                        </div>
+                        <div className="bg-white/60 border border-white rounded-xl p-2.5">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Confidence</p>
+                          <p className="text-sm font-bold text-emerald-600">{hyp.statistical.confidence}%</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/60 border border-white rounded-xl p-3">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
+                            <Lightbulb className="w-3 h-3 text-amber-500" /> Action Recommendation
+                          </p>
+                          <p className="text-xs text-foreground">{hyp.actionRecommendation}</p>
+                        </div>
+                        <div className="bg-white/60 border border-white rounded-xl p-3">
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
+                            <Target className="w-3 h-3 text-teal-600" /> Proposed Study
+                          </p>
+                          <p className="text-xs font-semibold text-foreground">{hyp.design}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-[10px] text-muted-foreground">{hyp.timeline}</span>
+                            <span className="text-[10px] font-bold text-primary">{hyp.funding}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-3">
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full transition-colors">
+                          <FileText className="w-3 h-3" /> Submit to IRB
+                        </button>
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors">
+                          <Download className="w-3 h-3" /> Export Protocol
+                        </button>
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-violet-700 bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-full transition-colors">
+                          <BookOpen className="w-3 h-3" /> Literature Search
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

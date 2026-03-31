@@ -40,7 +40,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string;
   rejected: { color: "text-red-700", bg: "bg-red-50", border: "border-red-200", badge: "destructive" as const, label: "Rejected" },
 };
 const PORTFOLIO_COLORS = ["#22c55e", "#f59e0b", "#ef4444", "#7c3aed"];
-type TabId = "dashboard" | "patient" | "portfolio";
+type TabId = "dashboard" | "patient" | "portfolio" | "preauth";
 
 function AnomalyGauge({ score }: { score: number }) {
   const color = score >= 60 ? "#ef4444" : score >= 30 ? "#f59e0b" : "#22c55e";
@@ -107,6 +107,7 @@ export default function InsurancePortal() {
     { id: "dashboard", label: "Operations Dashboard", icon: <BarChart2 className="w-3.5 h-3.5" /> },
     { id: "patient", label: "Policy Lookup", icon: <Search className="w-3.5 h-3.5" /> },
     { id: "portfolio", label: "Portfolio Risk", icon: <Activity className="w-3.5 h-3.5" /> },
+    { id: "preauth", label: "AI Pre-Authorization", icon: <FileCheck className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -638,7 +639,252 @@ export default function InsurancePortal() {
         </div>
       )}
 
-      {/* ─── PORTFOLIO RISK TAB ─── */}
+      {/* ─── AI PRE-AUTHORIZATION ENGINE ─── */}
+      {activeTab === "preauth" && (
+        <div className="space-y-5">
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-blue-50 border-2 border-violet-200 rounded-3xl">
+            <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
+              <FileCheck className="w-6 h-6 text-violet-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="font-bold text-violet-900 text-sm">SANAD AI Pre-Authorization Engine v2.1</p>
+                <Badge variant="purple" className="text-[10px]">Clinical Necessity AI Active</Badge>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <p className="text-xs text-violet-700">AI-powered real-time clinical necessity scoring for prior authorization requests. Evaluates medical necessity, treatment guideline alignment, fraud risk, and cost-effectiveness in under 3 seconds per request. Expected SAR 4.2B savings annually through automated adjudication.</p>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="text-[10px] font-bold text-violet-600 bg-violet-100 px-2.5 py-1 rounded-full">12 Pending Requests</span>
+                <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">8 Auto-Approved</span>
+                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">3 Flagged for Review</span>
+                <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">1 AI-Denied</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            {[
+              { label: "Requests Today", value: "247", sub: "89% auto-adjudicated", color: "text-violet-600", bg: "bg-violet-50" },
+              { label: "Avg Decision Time", value: "2.8s", sub: "vs 3-day manual process", color: "text-primary", bg: "bg-primary/5" },
+              { label: "Auto-Approval Rate", value: "72%", sub: "Meeting NCCHI guidelines", color: "text-emerald-600", bg: "bg-emerald-50" },
+              { label: "AI SAR Savings YTD", value: "SAR 1.1B", sub: "Fraud + unnecessary procedures", color: "text-amber-600", bg: "bg-amber-50" },
+            ].map((kpi, i) => (
+              <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
+                <p className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{kpi.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2"><Brain className="w-4 h-4 text-violet-600" /><CardTitle>Pre-Authorization Request Queue — Active</CardTitle></div>
+              <Badge variant="warning" className="text-[10px]">12 pending review</Badge>
+            </CardHeader>
+            <div className="divide-y divide-border">
+              {[
+                {
+                  id: "PA-2025-08841",
+                  patient: "Khalid Al-Mansouri",
+                  nationalId: "1000000001",
+                  age: 52,
+                  icd10: "E11.65 · I10",
+                  procedure: "Continuous Glucose Monitor (CGM) — FreeStyle Libre 3",
+                  hospital: "King Faisal Specialist Hospital",
+                  requestedBy: "Dr. Reem Al-Zahrani",
+                  necessityScore: 94,
+                  guidelineMatch: "ADA Standards of Care 2025 — Grade A",
+                  fraudScore: 8,
+                  estimatedCost: 4200,
+                  annualCostSavings: 18400,
+                  aiDecision: "AUTO_APPROVED",
+                  reasoning: "Patient has T2DM with HbA1c 8.6%, on insulin therapy. ADA/NICE guidelines strongly recommend CGM for insulin-treated T2DM. Cost-effectiveness analysis: CGM reduces DKA hospitalizations (avg SAR 18,400/episode) at SAR 4,200/year device cost. ROI positive.",
+                  alternatives: [],
+                },
+                {
+                  id: "PA-2025-08842",
+                  patient: "Fatima Al-Rashidi",
+                  nationalId: "1000000003",
+                  age: 67,
+                  icd10: "N18.4 · E11",
+                  procedure: "Erythropoiesis-Stimulating Agent (ESA) — Darbepoetin Alfa 60mcg",
+                  hospital: "King Abdulaziz Medical City",
+                  requestedBy: "Dr. Faisal Al-Harbi",
+                  necessityScore: 88,
+                  guidelineMatch: "KDIGO 2024 — Grade B",
+                  fraudScore: 12,
+                  estimatedCost: 8400,
+                  annualCostSavings: 0,
+                  aiDecision: "AUTO_APPROVED",
+                  reasoning: "CKD Stage G4 patient with Hgb 8.2 g/dL, symptomatic anemia. KDIGO guidelines indicate ESA therapy when Hgb <10 g/dL in CKD. Iron stores adequate (TSAT 28%). Dose appropriate for eGFR 22. No red flags detected.",
+                  alternatives: [],
+                },
+                {
+                  id: "PA-2025-08847",
+                  patient: "Mohammed Al-Ghamdi",
+                  nationalId: "1000000010",
+                  age: 44,
+                  icd10: "M79.3",
+                  procedure: "Lumbar MRI with contrast — repeated (3rd in 8 months)",
+                  hospital: "Saad Medical City",
+                  requestedBy: "Dr. Ahmed Al-Qahtani",
+                  necessityScore: 31,
+                  guidelineMatch: "ACR Appropriateness Criteria — Not Recommended (repeated imaging without clinical change)",
+                  fraudScore: 74,
+                  estimatedCost: 3800,
+                  annualCostSavings: 3800,
+                  aiDecision: "FLAGGED_REVIEW",
+                  reasoning: "CLINICAL RED FLAG: 3rd lumbar MRI in 8 months for non-specific low back pain. No documented neurological deficit, no change in clinical status. ACR guidelines: MRI repeat contraindicated within 12 months unless acute neurological deterioration. Fraud pattern: same requesting physician, same facility, same patient — 3rd high-cost imaging in 8 months.",
+                  alternatives: ["Physical therapy trial (6 weeks)", "Clinical re-examination documenting neurological signs if present", "X-ray if structural concern"],
+                },
+                {
+                  id: "PA-2025-08849",
+                  patient: "Nasser Al-Dossari",
+                  nationalId: "1000000005",
+                  age: 58,
+                  icd10: "E78.5 · I25.10",
+                  procedure: "PCSK9 Inhibitor — Evolocumab 140mg (monthly)",
+                  hospital: "Prince Sultan Cardiac Center",
+                  requestedBy: "Dr. Saud Al-Shammari",
+                  necessityScore: 91,
+                  guidelineMatch: "ESC/EAS 2023 Dyslipidemia Guidelines — Class IA",
+                  fraudScore: 6,
+                  estimatedCost: 28000,
+                  annualCostSavings: 142000,
+                  aiDecision: "AUTO_APPROVED",
+                  reasoning: "Established CAD patient with LDL 3.8 mmol/L despite maximum-tolerated statin + ezetimibe. ESC 2023 guidelines: PCSK9i indicated when LDL >1.8 mmol/L with CAD despite dual lipid-lowering therapy. Cost-effectiveness: prevents 1 MACE event (avg SAR 142,000 hospitalization) for every 28 patients treated annually.",
+                  alternatives: [],
+                },
+                {
+                  id: "PA-2025-08852",
+                  patient: "Sara Al-Otaibi",
+                  nationalId: "1000000023",
+                  age: 29,
+                  icd10: "K92.1",
+                  procedure: "Upper GI Endoscopy — 4th procedure (3 in past 6 months)",
+                  hospital: "Al-Hamad Medical Corporation",
+                  requestedBy: "Dr. Hani Al-Rashidi",
+                  necessityScore: 22,
+                  guidelineMatch: "ACG 2024 Guidelines — NOT indicated: no alarm features, endoscopy-negative GERD established",
+                  fraudScore: 89,
+                  estimatedCost: 5200,
+                  annualCostSavings: 5200,
+                  aiDecision: "AI_DENIED",
+                  reasoning: "FRAUD ALERT — HIGH CONFIDENCE: 4th upper GI endoscopy in 6 months for 29-year-old with endoscopy-confirmed GERD. Previous 3 endoscopies negative for malignancy, H. pylori eradicated. ACG guidelines explicitly state: repeat endoscopy NOT indicated in uncomplicated GERD without new alarm symptoms. Fraud score 89/100 — pattern consistent with unnecessary procedure billing.",
+                  alternatives: ["Continue PPI therapy (Omeprazole 20mg daily)", "Dietary and lifestyle modification counseling", "Refer to functional GI specialist if symptoms persist"],
+                },
+                {
+                  id: "PA-2025-08855",
+                  patient: "Ibrahim Al-Dosari",
+                  nationalId: "1000000004",
+                  age: 63,
+                  icd10: "J44.1",
+                  procedure: "Mepolizumab 100mg SC (Anti-IL5 biologic) — COPD",
+                  hospital: "King Fahad Medical City",
+                  requestedBy: "Dr. Khalid Al-Jabri",
+                  necessityScore: 67,
+                  guidelineMatch: "GOLD 2025 — Conditional: eosinophil count required for eligibility",
+                  fraudScore: 14,
+                  estimatedCost: 72000,
+                  annualCostSavings: 0,
+                  aiDecision: "PENDING_INFO",
+                  reasoning: "ADDITIONAL INFORMATION REQUIRED: Mepolizumab for COPD is conditionally indicated per GOLD 2025 when blood eosinophil count ≥300 cells/μL AND ≥2 exacerbations/year on triple therapy. Request is missing: 1) Most recent eosinophil count (last documented 14 months ago), 2) Exacerbation history documentation for past 12 months. Please provide updated labs within 48 hours.",
+                  alternatives: ["Provide eosinophil count from within 6 months", "Document exacerbation log with dates and severity"],
+                },
+              ].map((req) => {
+                const decisionCfg = req.aiDecision === "AUTO_APPROVED"
+                  ? { bg: "bg-emerald-50", border: "border-emerald-200", badgeV: "success" as const, label: "AUTO-APPROVED", icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" /> }
+                  : req.aiDecision === "AI_DENIED"
+                  ? { bg: "bg-red-50", border: "border-red-200", badgeV: "destructive" as const, label: "AI-DENIED", icon: <X className="w-4 h-4 text-red-600" /> }
+                  : req.aiDecision === "FLAGGED_REVIEW"
+                  ? { bg: "bg-amber-50", border: "border-amber-200", badgeV: "warning" as const, label: "FLAGGED", icon: <ShieldAlert className="w-4 h-4 text-amber-600" /> }
+                  : { bg: "bg-sky-50", border: "border-sky-200", badgeV: "info" as const, label: "PENDING INFO", icon: <Clock className="w-4 h-4 text-sky-600" /> };
+                const necessityColor = req.necessityScore >= 80 ? "text-emerald-600" : req.necessityScore >= 50 ? "text-amber-600" : "text-red-600";
+                const fraudColor = req.fraudScore >= 70 ? "text-red-600" : req.fraudScore >= 30 ? "text-amber-600" : "text-emerald-600";
+                return (
+                  <div key={req.id} className={`p-5 ${decisionCfg.bg} border-l-4 ${decisionCfg.border}`}>
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white border border-border flex items-center justify-center shrink-0 mt-0.5">
+                        {decisionCfg.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-mono text-[10px] text-muted-foreground">{req.id}</span>
+                              <Badge variant={decisionCfg.badgeV} className="text-[9px]">{decisionCfg.label}</Badge>
+                              <span className="text-[10px] text-muted-foreground">ICD-10: {req.icd10}</span>
+                            </div>
+                            <p className="text-sm font-bold text-foreground">{req.procedure}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{req.patient} · Age {req.age} · {req.hospital}</p>
+                            <p className="text-[10px] text-muted-foreground">Requested by: {req.requestedBy}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 shrink-0">
+                            <div className="text-center bg-white/70 rounded-xl px-3 py-2">
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Necessity</p>
+                              <p className={`text-xl font-bold ${necessityColor}`}>{req.necessityScore}</p>
+                            </div>
+                            <div className="text-center bg-white/70 rounded-xl px-3 py-2">
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Fraud Risk</p>
+                              <p className={`text-xl font-bold ${fraudColor}`}>{req.fraudScore}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-white/60 border border-white/80 rounded-2xl mb-3">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5"><Brain className="w-3 h-3 text-violet-600" /> AI Clinical Reasoning</p>
+                          <p className="text-xs text-foreground leading-relaxed">{req.reasoning}</p>
+                        </div>
+
+                        <div className="flex items-center gap-4 mb-2 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Guideline:</span>
+                            <span className="text-[10px] font-semibold text-foreground">{req.guidelineMatch}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Cost:</span>
+                            <span className="text-[10px] font-semibold text-foreground">SAR {req.estimatedCost.toLocaleString()}</span>
+                          </div>
+                          {req.annualCostSavings > 0 && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">AI Saves:</span>
+                              <span className="text-[10px] font-bold text-emerald-600">SAR {req.annualCostSavings.toLocaleString()}/yr</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {req.alternatives.length > 0 && (
+                          <div className="p-3 bg-sky-50/60 border border-sky-100 rounded-2xl mb-2">
+                            <p className="text-[10px] font-bold text-sky-700 mb-1.5 uppercase tracking-widest">AI-Recommended Alternatives</p>
+                            <div className="space-y-1">
+                              {req.alternatives.map((alt, ai) => (
+                                <p key={ai} className="text-xs text-sky-700 flex items-center gap-1.5"><ChevronRight className="w-3 h-3 shrink-0" />{alt}</p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {(req.aiDecision === "FLAGGED_REVIEW" || req.aiDecision === "AI_DENIED") && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-violet-700 bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-full transition-colors">
+                              <Eye className="w-3 h-3" /> Manual Review
+                            </button>
+                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-full transition-colors">
+                              <MessageSquare className="w-3 h-3" /> Request Peer Review
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+      )}
+
       {activeTab === "portfolio" && (
         <div className="space-y-5">
           <PageHeader title="Portfolio Risk Intelligence" subtitle="National insurance portfolio risk distribution, pricing bands, and actuarial overview." />

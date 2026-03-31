@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, KpiCard, Badge, AlertBanner } from "@/components/shared";
 import { useGetAdminStats, useGetPopulationHealth } from "@workspace/api-client-react";
 import { useNationalIntelligence } from "@/hooks/use-ai-decision";
-import { Users, Activity, ShieldAlert, Building, TrendingUp, AlertTriangle, PieChart as PieIcon, Globe, Brain, Zap, Radio, Lightbulb, Target } from "lucide-react";
+import { Users, Activity, ShieldAlert, Building, TrendingUp, AlertTriangle, PieChart as PieIcon, Globe, Brain, Zap, Radio, Lightbulb, Target, Heart, CheckCircle2, ArrowUpRight, Clock, Shield, Star } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -779,6 +779,176 @@ export default function AdminDashboard() {
           )}
         </div>
       )}
+
+      {/* ─── NATIONAL AI CLINICAL IMPACT TRACKER ─── */}
+      <div className="mt-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-primary text-white text-xs font-bold px-4 py-2 rounded-full">
+            <Heart className="w-3.5 h-3.5" />
+            National AI Clinical Impact — Real-Time
+          </div>
+          <Badge variant="success" className="text-[10px]">Live · Updated hourly</Badge>
+          <div className="ml-auto text-[11px] text-muted-foreground font-mono bg-secondary border border-border px-3 py-1.5 rounded-full">
+            Fiscal Year 2025 · MOH Performance Dashboard
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            { label: "Lives Directly Impacted", value: "2.84M", sub: "Patients with AI-driven care decisions", color: "text-red-600", bg: "bg-red-50", border: "border-red-200", icon: Heart },
+            { label: "AI Recommendations Accepted", value: "847K", sub: "By physicians YTD 2025", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200", icon: Brain },
+            { label: "Hospitalizations Prevented", value: "73,481", sub: "AI early intervention", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", icon: CheckCircle2 },
+            { label: "National Healthcare SAR Saved", value: "SAR 4.7B", sub: "Direct AI cost avoidance YTD", color: "text-primary", bg: "bg-primary/5", border: "border-primary/20", icon: Star },
+          ].map((kpi, i) => {
+            const Icon = kpi.icon;
+            return (
+              <div key={i} className={`p-5 rounded-3xl border-2 ${kpi.bg} ${kpi.border}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon className={`w-4 h-4 ${kpi.color}`} />
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{kpi.label}</p>
+                </div>
+                <p className={`text-4xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{kpi.sub}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-12 gap-5">
+          <Card className="col-span-8">
+            <CardHeader>
+              <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /><CardTitle>AI Clinical Outcomes — Monthly YTD 2025</CardTitle></div>
+              <Badge variant="info" className="text-[10px]">vs. pre-AI baseline (2022)</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={[
+                    { month: "Jan", prevented: 4820, accepted: 58200, saved: 312 },
+                    { month: "Feb", prevented: 5140, accepted: 63400, saved: 341 },
+                    { month: "Mar", prevented: 5870, accepted: 72100, saved: 398 },
+                    { month: "Apr", prevented: 6230, accepted: 78400, saved: 421 },
+                    { month: "May", prevented: 6780, accepted: 84200, saved: 456 },
+                    { month: "Jun", prevented: 7120, accepted: 89100, saved: 487 },
+                    { month: "Jul", prevented: 7480, accepted: 94300, saved: 512 },
+                    { month: "Aug", prevented: 8100, accepted: 98200, saved: 548 },
+                    { month: "Sep", prevented: 8640, accepted: 103400, saved: 581 },
+                    { month: "Oct", prevented: 9180, accepted: 109100, saved: 617 },
+                    { month: "Nov", prevented: 9720, accepted: 114800, saved: 654 },
+                    { month: "Dec", prevented: 10300, accepted: 121200, saved: 694 },
+                  ]} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                    <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line yAxisId="left" type="monotone" dataKey="prevented" name="Hospitalizations Prevented" stroke="#ef4444" strokeWidth={2.5} dot={false} />
+                    <Line yAxisId="right" type="monotone" dataKey="accepted" name="AI Recommendations Accepted" stroke="#7c3aed" strokeWidth={2.5} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card className="col-span-4">
+            <CardHeader>
+              <div className="flex items-center gap-2"><Target className="w-4 h-4 text-emerald-600" /><CardTitle>AI Portal Adoption Rate</CardTitle></div>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              {[
+                { portal: "Emergency Portal", adoption: 98, doctors: 2847, color: "bg-red-500" },
+                { portal: "Doctor Decision Engine", adoption: 89, doctors: 12480, color: "bg-violet-500" },
+                { portal: "Pharmacy AI", adoption: 94, doctors: 4210, color: "bg-primary" },
+                { portal: "Lab AI Summary", adoption: 87, doctors: 6820, color: "bg-teal-500" },
+                { portal: "Insurance Pre-Auth", adoption: 76, doctors: 1920, color: "bg-amber-500" },
+                { portal: "Family Risk Engine", adoption: 71, doctors: 3140, color: "bg-pink-500" },
+                { portal: "Research Hypothesis AI", adoption: 64, doctors: 480, color: "bg-indigo-500" },
+              ].map((item, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-foreground">{item.portal}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">{item.doctors.toLocaleString()} users</span>
+                      <span className="text-xs font-bold text-primary">{item.adoption}%</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${item.color}`} style={{ width: `${item.adoption}%` }} />
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-3 gap-5">
+          {[
+            {
+              title: "Critical Condition Interventions",
+              icon: ShieldAlert,
+              color: "text-red-600",
+              bg: "bg-red-50",
+              items: [
+                { label: "Sepsis Early Warnings Fired", value: "18,420", trend: "+23% vs 2024" },
+                { label: "DKA Episodes Prevented", value: "4,281", trend: "+41% catch rate" },
+                { label: "Stroke Alerts Triggered", value: "2,847", trend: "Avg 8 min earlier" },
+                { label: "Cardiac Arrest Predictions", value: "1,240", trend: "92% accuracy" },
+                { label: "Drug Interactions Blocked", value: "94,382", trend: "0 fatalities" },
+              ],
+            },
+            {
+              title: "Population Health AI Improvements",
+              icon: Activity,
+              color: "text-emerald-600",
+              bg: "bg-emerald-50",
+              items: [
+                { label: "DM HbA1c Control Rate", value: "68%", trend: "+27% vs pre-AI" },
+                { label: "HTN BP Control (<130/80)", value: "72%", trend: "+24% improvement" },
+                { label: "Medication Adherence", value: "84%", trend: "+28% via AI nudges" },
+                { label: "Screening Compliance", value: "91%", trend: "+45% AI reminders" },
+                { label: "Obesity Interventions", value: "134K", trend: "Lifestyle AI program" },
+              ],
+            },
+            {
+              title: "Healthcare System Efficiency",
+              icon: Zap,
+              color: "text-primary",
+              bg: "bg-primary/5",
+              items: [
+                { label: "30-Day Readmission Rate", value: "8.2%", trend: "-44% vs national avg" },
+                { label: "Avg ER Wait Time", value: "12 min", trend: "-67% via AI triage" },
+                { label: "Unnecessary Tests Prevented", value: "241K", trend: "SAR 1.8B saved" },
+                { label: "Avg Diagnosis Time", value: "4.2 min", trend: "-89% vs manual" },
+                { label: "Pharmacy Errors Caught", value: "28,471", trend: "0 dispensing fatalities" },
+              ],
+            },
+          ].map((section, i) => {
+            const Icon = section.icon;
+            return (
+              <Card key={i} className={`border-2 ${section.bg}`}>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-4 h-4 ${section.color}`} />
+                    <CardTitle>{section.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardBody className="space-y-2.5">
+                  {section.items.map((item, j) => (
+                    <div key={j} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                      <p className="text-xs text-muted-foreground">{item.label}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-foreground">{item.value}</p>
+                        <p className="text-[10px] text-emerald-600 font-semibold">{item.trend}</p>
+                      </div>
+                    </div>
+                  ))}
+                </CardBody>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
     </Layout>
   );
 }

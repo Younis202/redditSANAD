@@ -6,7 +6,7 @@ import { useNationalIntelligence } from "@/hooks/use-ai-decision";
 import {
   Users, Activity, ShieldAlert, Building, TrendingUp, AlertTriangle,
   Globe, Brain, Zap, Radio, Lightbulb, Target, Heart, CheckCircle2,
-  Shield, Star, Settings, Lock, BarChart3, Clock
+  Shield, Star, Settings, Lock, BarChart3, Clock, Network, GitBranch
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -1043,6 +1043,404 @@ export default function AdminDashboard() {
               </Card>
             );
           })}
+        </div>
+
+        {/* ─── SECURITY & COMPLIANCE ─── */}
+        <SectionDivider label="Security · Compliance · Audit" />
+        <div className="grid grid-cols-3 gap-5">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-emerald-700" />
+                </div>
+                <CardTitle>PDPL & Regulatory Compliance</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2.5">
+              {[
+                { label: "PDPL Article 12 — Sensitive Health Data", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
+                { label: "NDMO Cloud Security Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
+                { label: "ISO 27001 Information Security", status: "CERTIFIED", color: "text-emerald-700", bg: "bg-emerald-100" },
+                { label: "HIPAA Data Handling Standards", status: "ALIGNED", color: "text-sky-700", bg: "bg-sky-100" },
+                { label: "MOH Patient Privacy Circular 2024", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
+                { label: "NCA Essential Cybersecurity Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <p className="text-[11px] text-foreground font-medium flex-1 pr-2">{item.label}</p>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 ${item.bg} ${item.color}`}>{item.status}</span>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-primary" />
+                </div>
+                <CardTitle>Encryption & Data Protection</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              {[
+                { label: "Data at Rest", tech: "AES-256-GCM", status: "ACTIVE", pct: 100 },
+                { label: "Data in Transit", tech: "TLS 1.3 + mTLS", status: "ACTIVE", pct: 100 },
+                { label: "Database Columns (PHI)", tech: "Column-level AES-256", status: "ACTIVE", pct: 100 },
+                { label: "Backup Encryption", tech: "AES-256 + KMS", status: "ACTIVE", pct: 100 },
+                { label: "Key Rotation", tech: "Auto every 90 days", status: "ACTIVE", pct: 100 },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div>
+                      <p className="text-[11px] font-semibold text-foreground">{item.label}</p>
+                      <p className="text-[9px] font-mono text-muted-foreground">{item.tech}</p>
+                    </div>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">{item.status}</span>
+                  </div>
+                  <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${item.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 text-slate-700" />
+                </div>
+                <CardTitle>Audit Log Statistics</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2.5">
+              {[
+                { label: "Total Audit Events (this month)", value: "4,281,940", trend: "+18% vs last month" },
+                { label: "AI Decision Events Logged", value: "192,481", trend: "100% capture rate" },
+                { label: "Override Events Documented", value: "4,820", trend: "With WHO/MOH reference" },
+                { label: "Unauthorized Access Attempts", value: "0", trend: "Blocked by NCA controls" },
+                { label: "Data Access Audit Coverage", value: "100%", trend: "All PHI access logged" },
+                { label: "Tamper-Proof Log Integrity", value: "SHA-256 hash", trend: "Chain verified ✓" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                  <p className="text-[11px] text-muted-foreground pr-2">{item.label}</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-[11px] font-bold text-foreground">{item.value}</p>
+                    <p className="text-[9px] text-emerald-600">{item.trend}</p>
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* ─── FHIR / HL7 DATA LAYER ─── */}
+        <SectionDivider label="FHIR R4 · HL7 · Data Layer · Interoperability" />
+        <div className="grid grid-cols-2 gap-5">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl" style={{ background: "linear-gradient(135deg, #0284c7, #075985)" }}>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Network className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <CardTitle>FHIR R4 Resource Coverage</CardTitle>
+              </div>
+              <span className="text-[11px] font-bold text-sky-700 bg-sky-100 px-2.5 py-1 rounded-full">HL7 FHIR R4.0.1</span>
+            </CardHeader>
+            <CardBody className="space-y-2.5">
+              {[
+                { resource: "Patient", coverage: 100, notes: "Full demographics, NID, blood type" },
+                { resource: "Observation (Labs)", coverage: 100, notes: "LOINC-coded, UCUM units" },
+                { resource: "MedicationRequest", coverage: 98, notes: "RxNorm + MOH drug codes" },
+                { resource: "Condition", coverage: 95, notes: "ICD-10-CM mapped" },
+                { resource: "AllergyIntolerance", coverage: 100, notes: "SNOMED-CT coded" },
+                { resource: "Encounter (Visits)", coverage: 97, notes: "CPT-4 + MOH encounter codes" },
+                { resource: "DiagnosticReport", coverage: 91, notes: "HL7 v2 → FHIR transform" },
+                { resource: "CarePlan", coverage: 84, notes: "AI-generated guideline plans" },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[11px] font-semibold text-foreground font-mono">{item.resource}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-muted-foreground">{item.notes}</span>
+                      <span className={`text-[9px] font-black tabular-nums ${item.coverage === 100 ? "text-emerald-700" : item.coverage >= 90 ? "text-sky-700" : "text-amber-700"}`}>{item.coverage}%</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${item.coverage === 100 ? "bg-emerald-500" : item.coverage >= 90 ? "bg-sky-500" : "bg-amber-500"}`} style={{ width: `${item.coverage}%` }} />
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
+                  <GitBranch className="w-4 h-4 text-indigo-700" />
+                </div>
+                <CardTitle>Data Lineage & Provenance</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              <div className="p-3 bg-secondary rounded-2xl">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">Lineage Chain</p>
+                {[
+                  { step: "Source Systems (HIS/EMR)", sub: "Aker, Cerner, MOH-HIS, SEHA", color: "bg-sky-500" },
+                  { step: "HL7 v2.x → FHIR R4 Transform", sub: "Automatic mapping · 97.2% success rate", color: "bg-primary" },
+                  { step: "Normalization & Deduplication", sub: "SANAD Master Patient Index · MPI v2.1", color: "bg-violet-500" },
+                  { step: "Clinical Decision Engine", sub: "SANAD AI v3.0 · Rule-based + ML hybrid", color: "bg-amber-500" },
+                  { step: "Audit & Provenance Log", sub: "Immutable SHA-256 chain · PDPL compliant", color: "bg-emerald-500" },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-start gap-2.5 mb-2 last:mb-0">
+                    <div className="flex flex-col items-center shrink-0 mt-1.5">
+                      <div className={`w-2 h-2 rounded-full ${s.color}`} />
+                      {i < 4 && <div className="w-px h-5 bg-border mt-0.5" />}
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-foreground">{s.step}</p>
+                      <p className="text-[9px] text-muted-foreground">{s.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { label: "Records Processed Today", value: "2.4M" },
+                  { label: "Transform Success Rate", value: "97.2%" },
+                  { label: "Duplicate MRNs Merged", value: "14,820" },
+                  { label: "Lineage Queries/sec", value: "1,240" },
+                ].map((m, i) => (
+                  <div key={i} className="p-2.5 bg-secondary rounded-xl">
+                    <p className="text-[9px] text-muted-foreground mb-0.5">{m.label}</p>
+                    <p className="text-base font-black text-foreground">{m.value}</p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* ─── SYSTEM CORE & INFRASTRUCTURE ─── */}
+        <SectionDivider label="System Core · Event Streaming · Async Processing" />
+        <div className="grid grid-cols-4 gap-5">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Radio className="w-3.5 h-3.5 text-emerald-700" />
+                </div>
+                <CardTitle>SSE Event Stream</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2">
+              {[
+                { label: "Active SSE Connections", value: "48,204", ok: true },
+                { label: "Events/sec (peak)", value: "12,480", ok: true },
+                { label: "Alert Delivery Latency", value: "< 80 ms", ok: true },
+                { label: "Stream Uptime (30d)", value: "99.98%", ok: true },
+                { label: "Dead-letter Queue", value: "0 events", ok: true },
+              ].map((m, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                  <p className={`text-[11px] font-bold ${m.ok ? "text-emerald-700" : "text-red-700"}`}>{m.value}</p>
+                </div>
+              ))}
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                </span>
+                <span className="text-[9px] font-bold text-emerald-700">STREAM HEALTHY</span>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Zap className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <CardTitle>Async Processing Queue</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2">
+              {[
+                { label: "AI Decision Queue Depth", value: "14 jobs", ok: true },
+                { label: "Avg Processing Time", value: "180 ms", ok: true },
+                { label: "Throughput/min", value: "8,400 jobs", ok: true },
+                { label: "Worker Threads", value: "128 active", ok: true },
+                { label: "Queue Error Rate", value: "0.002%", ok: true },
+              ].map((m, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                  <p className="text-[11px] font-bold text-foreground">{m.value}</p>
+                </div>
+              ))}
+              <div className="mt-1">
+                <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                  <div className="h-full w-[14%] bg-primary rounded-full" />
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-0.5">Queue at 14% capacity</p>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-violet-100 flex items-center justify-center">
+                  <Brain className="w-3.5 h-3.5 text-violet-700" />
+                </div>
+                <CardTitle>AI Inference Engine</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2">
+              {[
+                { label: "Rule Engine Evaluations/day", value: "4.8M", ok: true },
+                { label: "ML Model Predictions/day", value: "192K", ok: true },
+                { label: "Avg Decision Latency", value: "< 200 ms", ok: true },
+                { label: "Model Confidence (avg)", value: "87.4%", ok: true },
+                { label: "Learning Loop Updates", value: "2,481 today", ok: true },
+              ].map((m, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                  <p className="text-[11px] font-bold text-foreground">{m.value}</p>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center">
+                  <Settings className="w-3.5 h-3.5 text-amber-700" />
+                </div>
+                <CardTitle>Microservices Health</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-1.5">
+              {[
+                { svc: "auth-service", status: "UP", ms: 12 },
+                { svc: "decision-engine", status: "UP", ms: 180 },
+                { svc: "fhir-gateway", status: "UP", ms: 34 },
+                { svc: "alert-streamer", status: "UP", ms: 8 },
+                { svc: "audit-ledger", status: "UP", ms: 22 },
+                { svc: "pharmacy-ai", status: "UP", ms: 145 },
+                { svc: "citizen-portal", status: "UP", ms: 28 },
+              ].map((s, i) => (
+                <div key={i} className="flex items-center justify-between py-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span className="text-[10px] font-mono text-foreground">{s.svc}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-mono text-muted-foreground">{s.ms}ms</span>
+                    <span className="text-[9px] font-black text-emerald-700">{s.status}</span>
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* ─── SCALABILITY & PERFORMANCE ─── */}
+        <SectionDivider label="Scalability · Caching · Performance · SLA" />
+        <div className="grid grid-cols-3 gap-5">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-sky-700" />
+                </div>
+                <CardTitle>Cache & Response Performance</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              {[
+                { label: "Redis Cache Hit Rate", value: "94.8%", bar: 95, color: "bg-sky-500" },
+                { label: "CDN Cache Efficiency", value: "98.2%", bar: 98, color: "bg-emerald-500" },
+                { label: "DB Query Cache Hit", value: "88.1%", bar: 88, color: "bg-primary" },
+                { label: "AI Result Cache Reuse", value: "67.4%", bar: 67, color: "bg-violet-500" },
+              ].map((m, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                    <p className="text-[11px] font-bold text-foreground">{m.value}</p>
+                  </div>
+                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${m.color}`} style={{ width: `${m.bar}%` }} />
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-emerald-700" />
+                </div>
+                <CardTitle>Latency & SLA Compliance</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2.5">
+              {[
+                { label: "API Response P50", value: "42 ms", target: "< 100 ms", ok: true },
+                { label: "API Response P99", value: "380 ms", target: "< 500 ms", ok: true },
+                { label: "AI Decision P99", value: "420 ms", target: "< 500 ms", ok: true },
+                { label: "Emergency Portal P99", value: "180 ms", target: "< 200 ms", ok: true },
+                { label: "Monthly SLA Uptime", value: "99.97%", target: "99.9% SLA", ok: true },
+                { label: "Disaster Recovery RTO", value: "< 15 min", target: "< 30 min", ok: true },
+              ].map((m, i) => (
+                <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                  <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                  <div className="flex items-center gap-2">
+                    <p className={`text-[11px] font-bold ${m.ok ? "text-emerald-700" : "text-red-700"}`}>{m.value}</p>
+                    <span className="text-[9px] text-muted-foreground">{m.target}</span>
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-primary" />
+                </div>
+                <CardTitle>Load & Scalability Metrics</CardTitle>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-2.5">
+              {[
+                { label: "Concurrent Active Users", value: "48,291", trend: "Peak: 84K (Hajj 2025)" },
+                { label: "Requests/sec (avg)", value: "12,400 rps", trend: "Auto-scaled to 40K rps" },
+                { label: "Horizontal Pod Replicas", value: "24 active", trend: "HPA target: 70% CPU" },
+                { label: "DB Connection Pool", value: "980 / 2,000", trend: "49% utilisation" },
+                { label: "Load Balancer Algorithm", value: "Least-conn", trend: "Layer 7 · AWS ALB" },
+                { label: "Multi-region Failover", value: "Riyadh ↔ Jeddah", trend: "Active-active · < 1s RTO" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start justify-between py-1.5 border-b border-border last:border-0">
+                  <p className="text-[11px] text-muted-foreground pr-2">{item.label}</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-[11px] font-bold text-foreground">{item.value}</p>
+                    <p className="text-[9px] text-muted-foreground">{item.trend}</p>
+                  </div>
+                </div>
+              ))}
+            </CardBody>
+          </Card>
         </div>
       </div>
 

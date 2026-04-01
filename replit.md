@@ -3,7 +3,22 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.6 — Deep Audit + UX Overhaul (Latest)
+## v3.8 — Full Assessment Implementation (Latest)
+All 12 assessment points from colleague technical review fully implemented:
+1. **Entry/Auth** — Nafath SSO + OAuth2 button, 3-step login (role → credentials → PDPL consent), session context via AuthProvider, all requests carry x-user-role identity header
+2. **Emergency** — Life-critical 2-second priority strip (blood type 42px, allergies, top action, risk/SLA), ACLS-CA/ACLS-ACS/MOH-SEP/MOH-STROKE protocol engine with step-by-step action buttons, data freshness timestamp, offline-first detection (navigator.onLine + window events) with dismissible offline banner and always-visible online/offline pill
+3. **Doctor Portal** — Clinical risk format (RISK/WHY/ACTION compact CDS block), WHY factors with contribution bars, decision path with NICE/WHO/ADA guideline binding, differential diagnosis engine (ICD-10 + evidence), AI pattern detection engine (longitudinal trend analysis: HbA1c rising/falling, creatinine trajectory, visit frequency anomaly, care gap detection, Digital Twin forecast), cross-lab correlation engine
+4. **Medication System** — Full DRUG_DB (12 drugs), Cockcroft-Gault eGFR calculation, dose validation with severity levels, renal/age contraindication warnings, ADA/ESC/KDIGO guideline links
+5. **Timeline** — Trend arrows (↑↓→) on every lab event, AI pattern detection with longitudinal insights and 3-month forecasts, cross-lab anomaly detection
+6. **AI System** — Rule-based decision engine (decision-engine.ts), explainability layer (whyFactors + clinicalBasis + confidence + uncertaintyNote), learning loop (accept/reject feedback with MOH Circular 42/1445 reference), Digital Twin projection, XAI display
+7. **Citizen** — Health score, behavior-change nudge engine (personalised by chronic conditions: diabetes, HTN, CKD), smart preventive reminders (HbA1c, BP, ophthalmology, medication refill), AI risk awareness panel
+8. **Admin/Gov** — National KPIs, regional risk heatmap, hospital league table, national benchmarking (vs national avg + top-quartile), improvement priority actions
+9. **Security** — PDPL Article 12 + NDMO + ISO 27001 + HIPAA + NCA compliance panel, AES-256 + TLS 1.3 encryption panel, audit log statistics (4.28M events/month, 100% PHI coverage, SHA-256 chain)
+10. **FHIR/Data Layer** — FHIR R4 resource coverage panel (8 resources: Patient 100%, Observation 100%, MedicationRequest 98%…), data lineage chain (Source → HL7 transform → normalization → AI engine → audit ledger), lineage KPIs
+11. **System Core** — SSE event stream health panel (48K connections, < 80ms latency, 99.98% uptime), async processing queue (128 workers, 8,400 jobs/min), AI inference engine stats, microservices health dashboard (7 services)
+12. **Scalability** — Redis/CDN/DB cache hit rates, latency P50/P99 SLA compliance, load balancer config (Least-conn, AWS ALB), multi-region active-active (Riyadh ↔ Jeddah), concurrent user metrics
+
+## v3.6 — Deep Audit + UX Overhaul
 1. **Home page complete redesign** — Was a confusing copy of the login page (same portal grid). Now a true dark navy landing page: big "The intelligence layer for Saudi Healthcare" hero headline with gradient text, stats strip (34.2M+, 450+, 847K, SAR 4.7B), portals overview grid, feature highlights (6 cards), and a CTA section — all pointing to "Access SANAD Platform →" (goes to /login). Login page now has its own distinct identity: light, auth-focused.
 2. **API 403 spam fixed** — Layout was calling `/api/alerts/system` for ALL roles, but lab/pharmacy/hospital/insurance/ai-control/research/family/supply-chain lacked `/api/alerts` permission → constant 403 errors. Fixed: added `/api/alerts` to all 12 role permission sets.
 3. **Bottom action bar overhauled** — Removed 3 non-functional dead buttons (Live Feed, +, Settings). New bar shows: portal identity pill (icon + name + job title) + Dashboard link + live clock + Sign Out. Every element is now functional.

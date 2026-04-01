@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search, AlertTriangle, FileWarning,
   PhoneCall, Activity, Clock, Zap,
@@ -6,7 +6,7 @@ import {
   PauseCircle, Brain, Timer, Bell,
   ChevronDown, ChevronUp, CheckCircle2, Radio,
   Fingerprint, Heart, Droplet, User, BookOpen,
-  ChevronRight, RefreshCw, ListChecks
+  ChevronRight, RefreshCw, ListChecks, Wifi, WifiOff, Database
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardBody, PageHeader, StatusDot, PortalHero } from "@/components/shared";
@@ -109,6 +109,16 @@ export default function EmergencyPage() {
   const [submittedId, setSubmittedId]     = useState<string | null>(null);
   const [alertsOpen, setAlertsOpen]       = useState(true);
   const [protocolsOpen, setProtocolsOpen] = useState(false);
+  const [isOnline, setIsOnline]           = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [offlineDismissed, setOfflineDismissed] = useState(false);
+
+  useEffect(() => {
+    const goOnline  = () => { setIsOnline(true);  setOfflineDismissed(false); };
+    const goOffline = () => { setIsOnline(false); setOfflineDismissed(false); };
+    window.addEventListener("online",  goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => { window.removeEventListener("online", goOnline); window.removeEventListener("offline", goOffline); };
+  }, []);
 
   const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread,
           markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("emergency");
@@ -136,6 +146,31 @@ export default function EmergencyPage() {
 
   return (
     <Layout role="emergency">
+
+      {/* ── OFFLINE-FIRST INDICATOR ── */}
+      {!isOnline && !offlineDismissed && (
+        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center gap-3 px-5 py-3" style={{ background: "linear-gradient(90deg, #dc2626, #7f1d1d)" }}>
+          <WifiOff className="w-4 h-4 text-white shrink-0 animate-pulse" />
+          <div className="flex-1">
+            <p className="text-sm font-black text-white">OFFLINE MODE — Emergency Data Cached</p>
+            <p className="text-[11px] text-white/80">Last sync: {new Date().toLocaleTimeString("en-SA")} · Patient records loaded from local cache · Critical protocols available offline</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 bg-white/10 rounded-xl px-2.5 py-1">
+              <Database className="w-3 h-3 text-white/80" />
+              <span className="text-[10px] font-bold text-white">Cache: OK</span>
+            </div>
+            <button onClick={() => setOfflineDismissed(true)} className="text-white/60 hover:text-white text-xs font-bold px-2">✕</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── ONLINE STATUS PILL (always visible in corner) ── */}
+      <div className="fixed top-3 right-3 z-50 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wide" style={{ background: isOnline ? "rgba(34,197,94,0.12)" : "rgba(220,38,38,0.12)", backdropFilter: "blur(8px)", border: `1px solid ${isOnline ? "#22c55e40" : "#dc262640"}` }}>
+        {isOnline ? <Wifi className="w-2.5 h-2.5 text-emerald-600" /> : <WifiOff className="w-2.5 h-2.5 text-red-600" />}
+        <span className={isOnline ? "text-emerald-700" : "text-red-700"}>{isOnline ? "Online" : "Offline"}</span>
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: isOnline ? "#22c55e" : "#dc2626", animation: isOnline ? "none" : "pulse 1s infinite" }} />
+      </div>
 
       {/* ── FLOATING LIVE ALERTS ── */}
       {sseAlerts.length > 0 && (

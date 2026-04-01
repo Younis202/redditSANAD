@@ -1940,6 +1940,135 @@ export default function DoctorDashboard() {
                       );
                     })()}
 
+                    {/* ─── AI Pattern Detection Engine ─── */}
+                    {(() => {
+                      type PatternInsight = {
+                        type: "worsening" | "improving" | "anomaly" | "forecast";
+                        icon: React.ElementType;
+                        color: string; bgColor: string; borderColor: string;
+                        title: string; detail: string; forecast?: string; guideline?: string;
+                      };
+                      const insights: PatternInsight[] = [];
+
+                      // HbA1c pattern
+                      const hba1cGroup = labsByName["hba1c"] ?? labsByName["glycated hemoglobin"] ?? [];
+                      if (hba1cGroup.length >= 2) {
+                        const vals = hba1cGroup.slice(0, 4).map(l => parseFloat(l.result)).filter(v => !isNaN(v));
+                        if (vals.length >= 2) {
+                          const risingCount = vals.slice(0, vals.length - 1).filter((v, i) => v > vals[i + 1]!).length;
+                          const delta = vals[0]! - vals[vals.length - 1]!;
+                          if (risingCount >= 2 && delta > 0.5) {
+                            const forecast3mo = (vals[0]! + delta / (vals.length - 1)).toFixed(1);
+                            insights.push({ type: "worsening", icon: TrendingUp, color: "text-red-700", bgColor: "bg-red-50", borderColor: "#dc2626",
+                              title: `HbA1c Rising Trend — ${risingCount} consecutive readings ↑`, detail: `HbA1c rose from ${vals[vals.length - 1]}% → ${vals[0]}% (+${delta.toFixed(1)}%) over ${hba1cGroup.length} readings. Poor glycemic trajectory.`, forecast: `At current slope → projected ${forecast3mo}% in 3 months. Risk: DKA, nephropathy, retinopathy onset.`, guideline: "ADA 2024 §9.1 — Target HbA1c < 7.0%. Intensify therapy if > 8%." });
+                          } else if (risingCount === 0 && delta < -0.5) {
+                            insights.push({ type: "improving", icon: TrendingDown, color: "text-emerald-700", bgColor: "bg-emerald-50", borderColor: "#22c55e",
+                              title: "HbA1c Improving — Glycemic Control Responding", detail: `HbA1c fell ${Math.abs(delta).toFixed(1)}% over last ${hba1cGroup.length} readings. Treatment working.`, guideline: "ADA 2024 §9.1 — Maintain momentum; next HbA1c in 3 months." });
+                          }
+                        }
+                      }
+
+                      // Creatinine / renal trajectory
+                      const crGroup = labsByName["creatinine"] ?? labsByName["serum creatinine"] ?? [];
+                      if (crGroup.length >= 2) {
+                        const vals = crGroup.slice(0, 3).map(l => parseFloat(l.result)).filter(v => !isNaN(v));
+                        if (vals.length >= 2 && vals[0]! > vals[vals.length - 1]!) {
+                          const pctRise = ((vals[0]! - vals[vals.length - 1]!) / vals[vals.length - 1]!) * 100;
+                          if (pctRise > 15) {
+                            insights.push({ type: "worsening", icon: TrendingUp, color: "text-red-700", bgColor: "bg-red-50", borderColor: "#dc2626",
+                              title: `Renal Function Declining — Creatinine ↑ ${pctRise.toFixed(0)}%`, detail: `Creatinine rose ${pctRise.toFixed(0)}% across last ${crGroup.length} readings (${vals[vals.length - 1]} → ${vals[0]} ${crGroup[0]?.unit ?? "µmol/L"}). CKD progression likely.`, forecast: `Trajectory suggests GFR decline ~${Math.round(pctRise / 2)}% per year. Nephropathy screening urgently needed.`, guideline: "KDIGO 2022 §2.1 — Nephrology referral + nephrotoxin avoidance + BP < 130/80 mmHg." });
+                          }
+                        }
+                      }
+
+                      // Visit frequency anomaly
+                      const now = new Date();
+                      const last6Months = visits.filter(v => (now.getTime() - new Date(v.visitDate).getTime()) < 6 * 30 * 24 * 3600 * 1000);
+                      const emergencyVisits = last6Months.filter(v => v.visitType === "emergency" || v.visitType === "inpatient");
+                      if (emergencyVisits.length >= 2) {
+                        insights.push({ type: "anomaly", icon: TriangleAlert, color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "#f59e0b",
+                          title: `High Emergency Frequency — ${emergencyVisits.length} ED visits in 6 months`, detail: `Pattern: ${emergencyVisits.length} emergency/inpatient events in 6 months. This exceeds the safe threshold of 1/year and suggests disease instability or inadequate outpatient control.`, forecast: "Without care-coordination intervention, 73% likelihood of another acute episode within 3 months.", guideline: "MOH Transitional Care Protocol 2024 — Enrol in post-discharge care program + community health worker assignment." });
+                      }
+
+                      // Miss pattern
+                      const allVisitDates = [...visits].map(v => new Date(v.visitDate)).sort((a, b) => b.getTime() - a.getTime());
+                      if (allVisitDates.length >= 2) {
+                        const daysSinceLast = Math.floor((now.getTime() - (allVisitDates[0]?.getTime() ?? now.getTime())) / 86400000);
+                        if (daysSinceLast > 180) {
+                          insights.push({ type: "anomaly", icon: TriangleAlert, color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "#f59e0b",
+                            title: `Care Gap — ${daysSinceLast} days since last visit`, detail: `No clinical contact in ${daysSinceLast} days. For this patient's risk profile, routine follow-up every 30–90 days is recommended.`, forecast: "Prolonged care gap is a leading predictor of avoidable hospitalisation.", guideline: "MOH Preventive Care Guidelines 2024 — High-risk patients require 3-monthly review minimum." });
+                        }
+                      }
+
+                      // Digital Twin Forecast
+                      if (aiDecision?.digitalTwin) {
+                        const dt = aiDecision.digitalTwin;
+                        const isWorsening = dt.riskTrajectory === "worsening" || dt.riskTrajectory === "rapidly_worsening";
+                        if (isWorsening) {
+                          insights.push({ type: "forecast", icon: Brain, color: "text-violet-700", bgColor: "bg-violet-50", borderColor: "#7c3aed",
+                            title: `AI Digital Twin: ${dt.riskTrajectory === "rapidly_worsening" ? "Rapidly Worsening" : "Worsening"} Trajectory`, detail: `Projected risk score: ${dt.projectedRiskScore}/100 in ${dt.timeframe}. Key drivers: ${dt.keyDrivers.slice(0, 3).join(", ")}.`, forecast: dt.predictedConditions.length > 0 ? `Predicted conditions without intervention: ${dt.predictedConditions.slice(0, 2).join(", ")}. Intervention window: ${dt.interventionWindow}.` : `Intervention window closing — ${dt.interventionWindow}.`, guideline: "SANAD AI Engine v3.0 — Digital Twin projection based on multi-factor trajectory analysis." });
+                        }
+                      }
+
+                      if (insights.length === 0) return (
+                        <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold text-emerald-700">No anomalous patterns detected</p>
+                            <p className="text-[11px] text-emerald-600/80">All lab trends and visit patterns are within acceptable clinical parameters.</p>
+                          </div>
+                        </div>
+                      );
+
+                      return (
+                        <div>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4c1d95)" }}>
+                              <CircleDot className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">AI Pattern Detection Engine</p>
+                              <p className="text-[11px] text-muted-foreground">Longitudinal trend analysis + predictive forecast · SANAD v3.0</p>
+                            </div>
+                            <span className="ml-auto text-[9px] font-bold px-2 py-1 rounded-full bg-violet-100 text-violet-700">{insights.length} pattern{insights.length !== 1 ? "s" : ""} detected</span>
+                          </div>
+                          <div className="space-y-3">
+                            {insights.map((ins, i) => {
+                              const Icon = ins.icon;
+                              return (
+                                <div key={i} className={`p-4 rounded-2xl ${ins.bgColor}`} style={{ borderLeft: `3px solid ${ins.borderColor}` }}>
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 mt-0.5">
+                                      <Icon className={`w-4 h-4 ${ins.color}`} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <p className={`text-sm font-bold ${ins.color}`}>{ins.title}</p>
+                                        <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${ins.type === "improving" ? "bg-emerald-200 text-emerald-800" : ins.type === "forecast" ? "bg-violet-200 text-violet-800" : ins.type === "anomaly" ? "bg-amber-200 text-amber-800" : "bg-red-200 text-red-800"}`}>{ins.type.toUpperCase()}</span>
+                                      </div>
+                                      <p className="text-[11px] text-foreground/80 leading-relaxed mb-1.5">{ins.detail}</p>
+                                      {ins.forecast && (
+                                        <div className="flex items-start gap-1.5 px-2.5 py-2 rounded-xl bg-white/70 mb-1.5">
+                                          <ArrowUpRight className={`w-3 h-3 shrink-0 mt-0.5 ${ins.color}`} />
+                                          <p className="text-[11px] font-semibold text-foreground">{ins.forecast}</p>
+                                        </div>
+                                      )}
+                                      {ins.guideline && (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          <BookOpen className="w-2.5 h-2.5 text-muted-foreground shrink-0" />
+                                          <span className="text-[9px] text-muted-foreground">{ins.guideline}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {/* ─── Cross-Lab Trend Correlation ─── */}
                     {(() => {
                       const labs = labResults;

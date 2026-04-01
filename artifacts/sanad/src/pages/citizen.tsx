@@ -1010,6 +1010,65 @@ export default function CitizenPortal() {
               </div>
             </div>
 
+            {/* ─── Behavior Change Program ─── */}
+            {(() => {
+              const conditions = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());
+              const hasDiabetes = conditions.some(c => c.includes("diabet"));
+              const hasHypertension = conditions.some(c => c.includes("hypert") || c.includes("blood pressure"));
+              const hasCKD = conditions.some(c => c.includes("kidney") || c.includes("ckd") || c.includes("renal"));
+              const NUDGES: Array<{
+                id: string; icon: React.ElementType; title: string; action: string;
+                desc: string; frequency: string; impact: string; color: string; bgColor: string;
+                condition: boolean; points: number;
+              }> = [
+                { id: "steps", icon: Activity, title: "Daily Movement Goal", action: "Walk 8,000 steps today", desc: "Regular walking reduces cardiovascular risk by up to 30%. Even 10-minute walks after meals significantly improve blood sugar control.", frequency: "Daily", impact: "High", color: "text-emerald-700", bgColor: "bg-emerald-50", condition: true, points: 20 },
+                { id: "meds", icon: Pill, title: "Medication Adherence Check", action: "Confirm all medications taken today", desc: `You are on ${activeMeds.length} medications. Missed doses are the #1 cause of hospitalisation in chronic disease. Set alarms for each medication.`, frequency: "Daily", impact: "Critical", color: "text-red-700", bgColor: "bg-red-50", condition: activeMeds.length > 0, points: 30 },
+                { id: "bp", icon: Heart, title: "Blood Pressure Log", action: "Record your blood pressure reading", desc: "Track BP twice daily (morning + evening) for 7 days to establish your baseline. Target: < 130/80 mmHg (ESC/ESH 2023).", frequency: "Twice daily", impact: "High", color: "text-violet-700", bgColor: "bg-violet-50", condition: hasHypertension, points: 15 },
+                { id: "bgl", icon: FlaskConical, title: "Blood Glucose Monitoring", action: "Check fasting blood sugar before breakfast", desc: "Consistent self-monitoring enables you to see how food, activity, and stress affect your glucose. Target fasting: 4.4–7.2 mmol/L (ADA 2024).", frequency: "Daily", impact: "High", color: "text-amber-700", bgColor: "bg-amber-50", condition: hasDiabetes, points: 25 },
+                { id: "water", icon: TrendingUp, title: "Hydration & Kidney Health", action: "Drink 2–3 litres of water today", desc: "Adequate hydration protects kidney function and helps maintain GFR. Avoid NSAIDs and high-protein supplements without consulting your doctor.", frequency: "Daily", impact: "Medium", color: "text-sky-700", bgColor: "bg-sky-50", condition: hasCKD, points: 15 },
+                { id: "diet", icon: Star, title: "Nutrition Nudge", action: "Replace one refined carb with a vegetable today", desc: "Small consistent diet changes reduce HbA1c by 0.5–1.0% over 3 months. Choose whole grains, legumes, and non-starchy vegetables at every meal.", frequency: "Daily", impact: "Medium", color: "text-orange-700", bgColor: "bg-orange-50", condition: hasDiabetes || hasCKD, points: 10 },
+                { id: "sleep", icon: Clock, title: "Sleep Optimisation", action: "Aim for 7–9 hours sleep tonight", desc: "Poor sleep raises cortisol and blood pressure. Set a consistent bedtime, avoid screens 1 hour before bed, and keep your bedroom cool and dark.", frequency: "Nightly", impact: "Medium", color: "text-indigo-700", bgColor: "bg-indigo-50", condition: true, points: 10 },
+                { id: "labs", icon: Brain, title: "Lab Review Reminder", action: "Review your latest lab results with your doctor", desc: `Your most recent labs show ${(patient.labResults ?? []).filter((l: any) => l.status === "abnormal" || l.status === "critical").length} abnormal values. Book a follow-up to discuss trends and next steps.`, frequency: "Monthly", impact: "High", color: "text-primary", bgColor: "bg-blue-50", condition: (patient.labResults ?? []).some((l: any) => l.status === "abnormal" || l.status === "critical"), points: 20 },
+              ].filter(n => n.condition);
+
+              if (NUDGES.length === 0) return null;
+
+              return (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Behavior Change Program — Your Daily Health Actions
+                    </p>
+                    <span className="ml-auto text-[10px] font-mono text-muted-foreground">{NUDGES.length} active programs</span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {NUDGES.map((n) => {
+                      const Icon = n.icon;
+                      return (
+                        <div key={n.id} className={`flex items-start gap-3.5 p-4 ${n.bgColor} rounded-2xl`}>
+                          <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0">
+                            <Icon className={`w-4 h-4 ${n.color}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className={`text-sm font-bold ${n.color}`}>{n.title}</p>
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${n.impact === "Critical" ? "bg-red-600 text-white" : n.impact === "High" ? "bg-orange-500 text-white" : "bg-amber-200 text-amber-800"}`}>{n.impact}</span>
+                            </div>
+                            <p className="text-[12px] font-bold text-foreground mb-0.5">→ {n.action}</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">{n.desc}</p>
+                            <div className="flex items-center gap-3 mt-1.5">
+                              <span className="text-[9px] font-semibold text-muted-foreground">{n.frequency}</span>
+                              <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">+{n.points} health pts</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* ─── Achievement Badges ─── */}
             {(() => {
               const conditions = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());

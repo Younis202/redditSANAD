@@ -6,7 +6,7 @@ import { useNationalIntelligence } from "@/hooks/use-ai-decision";
 import {
   Users, Activity, ShieldAlert, Building, TrendingUp, AlertTriangle,
   Globe, Brain, Zap, Radio, Lightbulb, Target, Heart, CheckCircle2,
-  Shield, Star, Settings, Lock
+  Shield, Star, Settings, Lock, BarChart3, Clock
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -663,6 +663,86 @@ export default function AdminDashboard() {
                   })}
                 </tbody>
               </table>
+            </CardBody>
+          </Card>
+
+          {/* ─── National Benchmarking Analysis ─── */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" />
+                <CardTitle>National Benchmarking — Hospital vs. National Average & Top Quartile</CardTitle>
+              </div>
+              <Badge variant="info" className="ml-auto">Q1 2026 · MOH Performance Audit</Badge>
+            </CardHeader>
+            <CardBody>
+              {/* Metric benchmarks */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                {[
+                  { label: "AI Adoption Rate", national: 79, topQ: 95, unit: "%", icon: Brain, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.ai, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.ai },
+                  { label: "Avg Length of Stay", national: 5.6, topQ: 4.5, unit: "d", icon: Clock, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.los, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.los, lowerBetter: true },
+                  { label: "Mortality Rate", national: 2.0, topQ: 1.2, unit: "%", icon: Heart, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.mortality, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.mortality, lowerBetter: true },
+                  { label: "Patient Satisfaction", national: 83, topQ: 93, unit: "/100", icon: Star, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.patient, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.patient },
+                ].map((m, i) => {
+                  const Icon = m.icon;
+                  return (
+                    <div key={i} className="bg-secondary rounded-2xl p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon className="w-3.5 h-3.5 text-primary" />
+                        <p className="text-[11px] font-bold text-foreground">{m.label}</p>
+                      </div>
+                      <div className="space-y-2.5">
+                        {[
+                          { label: "Best (Q1)", value: m.topQ, color: "#22c55e" },
+                          { label: "National Avg", value: m.national, color: "#3b82f6" },
+                        ].map((bar, j) => {
+                          const pct = m.lowerBetter
+                            ? Math.max(10, 100 - (bar.value / (m.lowerBetter ? m.national * 1.5 : m.topQ)) * 100)
+                            : Math.max(10, (bar.value / m.topQ) * 100);
+                          return (
+                            <div key={j}>
+                              <div className="flex justify-between text-[10px] mb-0.5">
+                                <span className="text-muted-foreground">{bar.label}</span>
+                                <span className="font-bold tabular-nums" style={{ color: bar.color }}>{bar.value}{m.unit}</span>
+                              </div>
+                              <div className="h-1.5 bg-background rounded-full">
+                                <div className="h-full rounded-full" style={{ width: `${Math.min(100, pct)}%`, background: bar.color }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="pt-1.5 border-t border-border">
+                          <p className="text-[9px] text-muted-foreground">Best: <span className="font-bold text-foreground truncate">{m.topVal}{m.unit}</span></p>
+                          <p className="text-[9px] text-muted-foreground">Gap to close: <span className={`font-bold ${m.lowerBetter ? "text-red-600" : "text-amber-600"}`}>{Math.abs(Number((m.worstVal as number) - m.topQ)).toFixed(1)}{m.unit}</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Improvement Priorities */}
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Priority Improvement Actions — Bottom Quartile Hospitals</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { hospital: "Najran General Hospital", rank: 12, gap: "AI Adoption (52% vs 95% top)", action: "Deploy SANAD AI Decision Engine modules — Phase 1 onboarding", urgency: "High", target: "Q2 2026" },
+                    { hospital: "Jizan Medical City", rank: 11, gap: "Coverage + LOS (7.1d vs 4.5d best)", action: "Fast-track care pathway optimisation + bed management AI module", urgency: "High", target: "Q2 2026" },
+                    { hospital: "Tabuk General Hospital", rank: 10, gap: "Composite Score (67 vs 96 top)", action: "AI adoption training, patient satisfaction programme, and clinical protocol review", urgency: "Medium", target: "Q3 2026" },
+                  ].map((p, i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${i === 0 || i === 1 ? "#ef4444" : "#f59e0b"}` }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black bg-muted-foreground/10 px-2 py-0.5 rounded-full">Rank #{p.rank}</span>
+                        <Badge variant={p.urgency === "High" ? "destructive" : "warning"} className="text-[8px]">{p.urgency} Priority</Badge>
+                        <span className="ml-auto text-[9px] font-mono text-muted-foreground">{p.target}</span>
+                      </div>
+                      <p className="text-[12px] font-bold text-foreground mb-1">{p.hospital}</p>
+                      <p className="text-[10px] text-amber-700 font-semibold mb-2">Gap: {p.gap}</p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">{p.action}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </CardBody>
           </Card>
 

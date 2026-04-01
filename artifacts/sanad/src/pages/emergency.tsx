@@ -311,6 +311,64 @@ export default function EmergencyPage() {
       {patient && (
         <div className="space-y-4">
 
+          {/* 0. LIFE-CRITICAL 2-SECOND PRIORITY STRIP */}
+          {(riskLevel === "critical" || riskLevel === "high" || allergies.length > 0) && (
+            <div
+              className="rounded-[2rem] p-4 flex items-center gap-5"
+              style={{
+                background: riskLevel === "critical" ? "linear-gradient(135deg, #7f1d1d, #b91c1c)" : riskLevel === "high" ? "linear-gradient(135deg, #7c2d12, #c2410c)" : "linear-gradient(135deg, #1c1917, #44403c)",
+                boxShadow: `0 8px 32px ${riskLevel === "critical" ? "rgba(185,28,28,0.35)" : "rgba(194,65,12,0.28)"}`,
+              }}
+            >
+              {/* Blood Type — must-see, largest text */}
+              <div className="shrink-0 text-center">
+                <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-0.5">Blood</p>
+                <p className="text-[42px] font-black text-white leading-none tracking-tighter">{patient.bloodType}</p>
+              </div>
+
+              <div className="w-px h-14 bg-white/20 shrink-0" />
+
+              {/* Allergies — must-see second */}
+              <div className="shrink-0">
+                <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Allergies</p>
+                {allergies.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {allergies.map((a, i) => (
+                      <span key={i} className="text-[11px] font-black text-white bg-white/20 px-2.5 py-1 rounded-xl">{a}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[12px] font-bold text-emerald-300">None on record</span>
+                )}
+              </div>
+
+              <div className="w-px h-14 bg-white/20 shrink-0" />
+
+              {/* Top Clinical Action */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Priority Action</p>
+                {(actions ?? []).filter(a => a.priority === "immediate").length > 0 ? (
+                  <p className="text-[13px] font-black text-white leading-snug">
+                    {(actions ?? []).find(a => a.priority === "immediate")?.description ?? actions?.[0]?.description}
+                  </p>
+                ) : (actions ?? []).length > 0 ? (
+                  <p className="text-[13px] font-black text-white leading-snug">{actions?.[0]?.description}</p>
+                ) : (
+                  <p className="text-[13px] font-black text-white/70">Standard monitoring protocol active</p>
+                )}
+              </div>
+
+              <div className="w-px h-14 bg-white/20 shrink-0" />
+
+              {/* Risk + SLA */}
+              <div className="shrink-0 text-right">
+                <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Risk / SLA</p>
+                <p className={`text-[17px] font-black uppercase tracking-wide ${riskLevel === "critical" ? "text-red-300" : "text-orange-300"}`}>{riskLevel}</p>
+                <p className="text-[11px] text-white/70 font-mono font-bold">{SLA[riskLevel]}</p>
+              </div>
+            </div>
+          )}
+
           {/* 1. PATIENT IDENTITY CARD */}
           <Card>
             <CardBody>

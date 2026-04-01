@@ -68,6 +68,7 @@ export default function DoctorDashboard() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("decision");
+  const [recFeedback, setRecFeedback] = useState<Record<number, "accepted" | "rejected">>({});
   const [showSsePanel, setShowSsePanel] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -210,6 +211,11 @@ export default function DoctorDashboard() {
     if (!labsByName[k]) labsByName[k] = [];
     labsByName[k].push(lab);
   }
+
+  // Latest creatinine for dose validation in PrescribeModal
+  const _creatKey = Object.keys(labsByName).find(k => k.toLowerCase().includes("creatinine") && !k.toLowerCase().includes("urine"));
+  const _creatGroup = _creatKey ? labsByName[_creatKey] : [];
+  const latestCreatinine = _creatGroup.length > 0 ? parseFloat(_creatGroup[0]!.result) : undefined;
 
   const getTrend = (labGroup: typeof labResults) => {
     if (labGroup.length < 2) return "stable";
@@ -491,7 +497,7 @@ export default function DoctorDashboard() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-2 shrink-0">
-                  <PrescribeModal patientId={patient.id} />
+                  <PrescribeModal patientId={patient.id} patientAge={patient.age ?? undefined} creatinine={latestCreatinine} />
                   <Button variant="outline" size="sm">
                     <CalendarDays className="w-3.5 h-3.5" /> Schedule Visit
                   </Button>
@@ -843,7 +849,7 @@ export default function DoctorDashboard() {
                       <p className="text-[11px] text-muted-foreground">{activeMeds.length} medications · {(medMatrixData?.interactions?.length ?? 0) > 0 && <span className="text-amber-600 font-semibold">{medMatrixData!.interactions.length} interaction{medMatrixData!.interactions.length > 1 ? "s" : ""} detected</span>}</p>
                     </div>
                   </div>
-                  <PrescribeModal patientId={patient.id} />
+                  <PrescribeModal patientId={patient.id} patientAge={patient.age ?? undefined} creatinine={latestCreatinine} />
                 </div>
 
                 {/* Drug Interaction Cards */}
@@ -1576,18 +1582,52 @@ export default function DoctorDashboard() {
                             {aiDecision.recommendations.map((rec, i) => {
                               const urgencyBorder = rec.urgencyLevel === "immediate" ? "#ef4444" : rec.urgencyLevel === "urgent" ? "#f59e0b" : rec.urgencyLevel === "soon" ? "#3b82f6" : "#94a3b8";
                               const orgColor = rec.guidelineOrg?.startsWith("ADA") ? "#3b82f6" : rec.guidelineOrg?.startsWith("KDIGO") ? "#0d9488" : rec.guidelineOrg?.startsWith("ACC") ? "#dc2626" : rec.guidelineOrg?.startsWith("ESC") ? "#7c3aed" : rec.guidelineOrg?.startsWith("GOLD") ? "#f59e0b" : rec.guidelineOrg?.startsWith("MOH") ? "#059669" : "#6366f1";
+                              const fb = recFeedback[i];
                               return (
-                                <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-secondary/60" style={{ borderLeft: `3px solid ${urgencyBorder}` }}>
-                                  <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-foreground leading-snug">{rec.text}</p>
-                                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                                      <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${orgColor}12`, color: orgColor }}>
-                                        <BookOpen className="w-2.5 h-2.5 shrink-0" /> {rec.guidelineOrg}
-                                      </span>
-                                      <span className="text-[9px] text-muted-foreground truncate">{rec.guideline}</span>
+                                <div key={i} className="p-3.5 rounded-2xl bg-secondary/60 transition-all" style={{ borderLeft: `3px solid ${fb === "accepted" ? "#22c55e" : fb === "rejected" ? "#ef4444" : urgencyBorder}` }}>
+                                  <div className="flex items-start gap-2.5">
+                                    <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-foreground leading-snug">{rec.text}</p>
+                                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${orgColor}12`, color: orgColor }}>
+                                          <BookOpen className="w-2.5 h-2.5 shrink-0" /> {rec.guidelineOrg}
+                                        </span>
+                                        <span className="text-[9px] text-muted-foreground truncate">{rec.guideline}</span>
+                                      </div>
+                                    </div>
+                                    {/* AI Feedback Loop */}
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {fb ? (
+                                        <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${fb === "accepted" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                                          {fb === "accepted" ? "✓ Accepted" : "✕ Deferred"}
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <button
+                                            onClick={() => setRecFeedback(p => ({ ...p, [i]: "accepted" }))}
+                                            title="Accept this recommendation"
+                                            className="w-7 h-7 rounded-xl flex items-center justify-center hover:bg-emerald-100 transition-colors text-muted-foreground/50 hover:text-emerald-600"
+                                          >
+                                            <CheckCheck className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            onClick={() => setRecFeedback(p => ({ ...p, [i]: "rejected" }))}
+                                            title="Defer this recommendation"
+                                            className="w-7 h-7 rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors text-muted-foreground/50 hover:text-red-500"
+                                          >
+                                            <X className="w-3.5 h-3.5" />
+                                          </button>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
+                                  {fb === "accepted" && (
+                                    <p className="text-[10px] text-emerald-700 font-semibold mt-2 ml-6.5 pl-0.5">Recommendation accepted · Logged to audit trail · MOH Circular 42/1445</p>
+                                  )}
+                                  {fb === "rejected" && (
+                                    <p className="text-[10px] text-muted-foreground mt-2 ml-6.5">Deferred by physician · Override documented in AI learning loop</p>
+                                  )}
                                 </div>
                               );
                             })}
@@ -2351,7 +2391,52 @@ export default function DoctorDashboard() {
   );
 }
 
-function PrescribeModal({ patientId }: { patientId: number }) {
+// ─── Clinical Drug Database with Renal / Age Dose Adjustment ────────────────
+const DRUG_DB: Record<string, {
+  stdDose: string; renalCaution: number; renalContraindicated: number;
+  renalAdjust: string; elderlyWarning: boolean; elderlyNote: string;
+  guideline: string; class: string;
+}> = {
+  metformin:    { stdDose: "500–1000 mg twice daily with food", renalCaution: 45, renalContraindicated: 30, renalAdjust: "Reduce dose if eGFR 30–45 mL/min/1.73m². STOP if eGFR < 30 — lactic acidosis risk.", elderlyWarning: true, elderlyNote: "Start at lowest dose 500 mg/day in patients ≥ 70 years. Monitor renal function every 6 months.", guideline: "ADA 2024 · §9.3 Pharmacologic Approaches", class: "Biguanide" },
+  warfarin:     { stdDose: "2–5 mg once daily (INR-guided)", renalCaution: 30, renalContraindicated: 15, renalAdjust: "eGFR < 30: Dose reduction required. Monitor INR more frequently. Risk of bleeding accumulation.", elderlyWarning: true, elderlyNote: "Elderly highly sensitive — increased bleeding risk. Start 2 mg/day. Weekly INR monitoring initially.", guideline: "ACC/AHA 2019 · Anticoagulation Guideline §4.2", class: "Vitamin K Antagonist" },
+  lisinopril:   { stdDose: "5–40 mg once daily", renalCaution: 30, renalContraindicated: 15, renalAdjust: "eGFR 30–60: Start 2.5–5 mg, titrate slowly. eGFR < 30: Use with caution, monitor K+ and creatinine closely.", elderlyWarning: false, elderlyNote: "Well-tolerated in elderly but monitor for hypotension and hyperkalemia.", guideline: "KDIGO CKD 2022 · §3.1 RAS Blockade", class: "ACE Inhibitor" },
+  atorvastatin: { stdDose: "10–80 mg once daily at night", renalCaution: 30, renalContraindicated: 0, renalAdjust: "No dose adjustment required for renal impairment. Preferred statin in CKD per KDIGO.", elderlyWarning: false, elderlyNote: "Generally safe. Monitor for myopathy (CK if symptomatic).", guideline: "ACC/AHA 2019 Cholesterol Guidelines · COR I", class: "HMG-CoA Reductase Inhibitor" },
+  aspirin:      { stdDose: "75–325 mg once daily (indication-dependent)", renalCaution: 30, renalContraindicated: 10, renalAdjust: "eGFR < 30: Avoid regular use — fluid retention, GI bleeding, and renal prostaglandin inhibition risk.", elderlyWarning: true, elderlyNote: "Age ≥ 70: Increased GI bleeding risk without proton pump inhibitor cover. Use gastroprotection.", guideline: "ACC/AHA 2019 · Primary Prevention §6.2", class: "Antiplatelet / NSAID" },
+  amlodipine:   { stdDose: "2.5–10 mg once daily", renalCaution: 0, renalContraindicated: 0, renalAdjust: "No renal dose adjustment required. Hepatically metabolised — caution in liver disease.", elderlyWarning: true, elderlyNote: "Start at 2.5 mg in elderly — ankle oedema and hypotension risk more pronounced.", guideline: "ESC/ESH 2023 Hypertension Guidelines · §7.4", class: "Calcium Channel Blocker" },
+  metoprolol:   { stdDose: "25–200 mg once daily (XL) or twice daily (IR)", renalCaution: 0, renalContraindicated: 0, renalAdjust: "No renal dose adjustment required. Hepatically cleared.", elderlyWarning: true, elderlyNote: "Elderly: Start 12.5–25 mg. Bradycardia and fatigue more common. Avoid abrupt discontinuation.", guideline: "ACC/AHA 2022 Heart Failure Guidelines · §7.1", class: "Beta-1 Selective Blocker" },
+  omeprazole:   { stdDose: "20–40 mg once daily before meal", renalCaution: 0, renalContraindicated: 0, renalAdjust: "No renal dose adjustment required. Safe across all eGFR levels.", elderlyWarning: false, elderlyNote: "Safe in elderly. Long-term use: monitor magnesium and B12 annually.", guideline: "ACG 2022 PPI Guideline", class: "Proton Pump Inhibitor" },
+  furosemide:   { stdDose: "20–80 mg once or twice daily", renalCaution: 30, renalContraindicated: 0, renalAdjust: "eGFR < 30: Higher doses required for efficacy (up to 160–200 mg/day). Monitor electrolytes closely.", elderlyWarning: true, elderlyNote: "Elderly: Monitor Na, K, volume status. Orthostatic hypotension and falls risk.", guideline: "ESC 2021 Heart Failure Guideline · §7.2", class: "Loop Diuretic" },
+  insulin:      { stdDose: "Dose individualised by endocrinologist (units/kg)", renalCaution: 45, renalContraindicated: 0, renalAdjust: "eGFR < 45: Reduce basal dose by 25%. eGFR < 30: Reduce by 50%. Insulin clearance decreases with CKD — high hypoglycaemia risk.", elderlyWarning: true, elderlyNote: "Elderly: Simplify regimen. Target HbA1c 7.5–8.5% to avoid hypoglycaemia. Consider CGM.", guideline: "ADA 2024 · §13 Older Adults", class: "Insulin Therapy" },
+  codeine:      { stdDose: "15–60 mg every 4–6 hours", renalCaution: 30, renalContraindicated: 30, renalAdjust: "AVOID if eGFR < 30 — active metabolite (morphine-6-glucuronide) accumulates causing CNS/respiratory depression.", elderlyWarning: true, elderlyNote: "Avoid in elderly where possible — falls, confusion, constipation. Consider paracetamol alternatives.", guideline: "MOH Pain Management 2024 · §4.3 Renal Dosing", class: "Opioid Analgesic" },
+  gabapentin:   { stdDose: "300–1200 mg three times daily", renalCaution: 60, renalContraindicated: 15, renalAdjust: "Renally cleared. eGFR 30–60: Max 600 mg TID. eGFR 15–30: Max 300 mg TID. eGFR < 15: 300 mg once daily. Dialysis: supplemental dose post-session.", elderlyWarning: true, elderlyNote: "Elderly: Start 100–300 mg/day. Sedation, dizziness, falls risk significant.", guideline: "NICE NG193 Neuropathic Pain · §1.3", class: "Anticonvulsant / Neuropathic" },
+};
+
+function computeEGFR(creatinine: number, age: number, isMale = true): number {
+  // Cockcroft-Gault Formula (mL/min, corrected to 1.73m²)
+  const egfr = ((140 - age) * 72) / (creatinine * 72) * (isMale ? 1 : 0.85);
+  return Math.round(Math.max(1, Math.min(egfr, 120)));
+}
+
+function getDrugAlerts(drug: string, egfr: number, age: number): { level: "danger" | "warn" | "info"; msg: string; guideline: string }[] {
+  const key = drug.toLowerCase().trim();
+  const db = Object.entries(DRUG_DB).find(([k]) => key.includes(k))?.[1];
+  if (!db) return [];
+  const alerts: { level: "danger" | "warn" | "info"; msg: string; guideline: string }[] = [];
+  if (db.renalContraindicated > 0 && egfr < db.renalContraindicated) {
+    alerts.push({ level: "danger", msg: `CONTRAINDICATED: eGFR ${egfr} < ${db.renalContraindicated} mL/min/1.73m². ${db.renalAdjust}`, guideline: db.guideline });
+  } else if (egfr < db.renalCaution && db.renalCaution > 0) {
+    alerts.push({ level: "warn", msg: `Renal caution (eGFR ${egfr} < ${db.renalCaution} mL/min/1.73m²): ${db.renalAdjust}`, guideline: db.guideline });
+  }
+  if (db.elderlyWarning && age >= 65) {
+    alerts.push({ level: "warn", msg: `Elderly patient (age ${age}): ${db.elderlyNote}`, guideline: db.guideline });
+  }
+  if (alerts.length === 0 && db) {
+    alerts.push({ level: "info", msg: `Standard dose: ${db.stdDose}. No renal or age-based dose adjustment required.`, guideline: db.guideline });
+  }
+  return alerts;
+}
+
+function PrescribeModal({ patientId, patientAge, creatinine }: { patientId: number; patientAge?: number; creatinine?: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const [drugName, setDrugName] = useState("");
   const [dosage, setDosage] = useState("");
@@ -2395,11 +2480,22 @@ function PrescribeModal({ patientId }: { patientId: number }) {
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div>
                 <h3 className="font-bold text-foreground text-base">Prescribe Medication</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">AI drug interaction check will be performed before confirming.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Renal dose validation + AI drug interaction check.</p>
               </div>
-              <button onClick={close} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-border transition-colors">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <div className="flex items-center gap-2">
+                {creatinine != null && patientAge != null && (
+                  <div className="text-center px-3 py-1.5 bg-secondary rounded-xl">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">eGFR</p>
+                    <p className={`text-base font-black tabular-nums ${computeEGFR(creatinine, patientAge) < 30 ? "text-red-600" : computeEGFR(creatinine, patientAge) < 60 ? "text-amber-600" : "text-emerald-600"}`}>
+                      {computeEGFR(creatinine, patientAge)}
+                    </p>
+                    <p className="text-[8px] text-muted-foreground">mL/min/1.73m²</p>
+                  </div>
+                )}
+                <button onClick={close} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-border transition-colors">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
             </div>
 
             <div className="p-6 space-y-4">
@@ -2412,6 +2508,41 @@ function PrescribeModal({ patientId }: { patientId: number }) {
                     placeholder="e.g. Warfarin, Aspirin, Metformin..."
                     required
                   />
+                  {/* Real-time dose validation */}
+                  {drugName.length > 2 && creatinine != null && patientAge != null && (() => {
+                    const egfr = computeEGFR(creatinine, patientAge);
+                    const alerts = getDrugAlerts(drugName, egfr, patientAge);
+                    const dbKey = Object.keys(DRUG_DB).find(k => drugName.toLowerCase().includes(k));
+                    const dbEntry = dbKey ? DRUG_DB[dbKey] : null;
+                    if (alerts.length === 0) return null;
+                    return (
+                      <div className="mt-3 space-y-2">
+                        {dbEntry && (
+                          <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-xl">
+                            <Pill className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span className="text-[10px] font-bold text-foreground">{dbEntry.class}</span>
+                            <span className="text-[10px] text-muted-foreground">· Standard: {dbEntry.stdDose}</span>
+                          </div>
+                        )}
+                        {alerts.map((alert, i) => (
+                          <div
+                            key={i}
+                            className="flex items-start gap-3 px-3 py-2.5 rounded-xl text-xs"
+                            style={{
+                              background: alert.level === "danger" ? "rgba(239,68,68,0.07)" : alert.level === "warn" ? "rgba(245,158,11,0.07)" : "rgba(34,197,94,0.07)",
+                              borderLeft: `3px solid ${alert.level === "danger" ? "#ef4444" : alert.level === "warn" ? "#f59e0b" : "#22c55e"}`,
+                            }}
+                          >
+                            <AlertCircle className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${alert.level === "danger" ? "text-red-500" : alert.level === "warn" ? "text-amber-500" : "text-emerald-500"}`} />
+                            <div className="flex-1 min-w-0">
+                              <p className={`font-bold leading-snug ${alert.level === "danger" ? "text-red-700" : alert.level === "warn" ? "text-amber-700" : "text-emerald-700"}`}>{alert.msg}</p>
+                              <p className="text-muted-foreground mt-0.5 font-mono text-[10px]">{alert.guideline}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

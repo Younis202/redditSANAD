@@ -164,12 +164,17 @@ export default function LoginPage() {
     }
     setError("");
     setLoading(true);
-    const phases = ["Verifying identity...", "Checking RBAC permissions...", "Establishing secure session...", "Loading portal..."];
+    const phases = ["Verifying identity...", "Checking RBAC permissions...", "Establishing secure session...", "Awaiting consent..."];
     for (const phase of phases) {
       setAuthPhase(phase);
       await new Promise(r => setTimeout(r, 450));
     }
-    login(selected);
+    setLoading(false);
+    setStep(3 as any);
+  };
+
+  const handleConsent = () => {
+    login(selected!);
     setLocation(selectedRole!.href);
   };
 
@@ -339,6 +344,69 @@ export default function LoginPage() {
         )}
 
         {/* ── Step 2: Credential Entry ── */}
+        {(step as any) === 3 && selectedRole && (
+          <div className="w-full max-w-lg flex flex-col">
+            <div
+              className="rounded-[2rem] overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", boxShadow: "0 24px 64px rgba(0,0,0,0.08)" }}
+            >
+              {/* Header */}
+              <div className="px-8 pt-8 pb-5 border-b border-border">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${selectedRole.iconBg}`}>
+                    <selectedRole.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold text-foreground">{selectedRole.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{selectedRole.clearance}</p>
+                  </div>
+                </div>
+                <h2 className="text-[20px] font-bold text-foreground leading-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>Data Access Consent</h2>
+                <p className="text-xs text-muted-foreground mt-1">Required under PDPL (Law No. M/19) and MOH Circular 42/1445</p>
+              </div>
+
+              {/* Consent Terms */}
+              <div className="px-8 py-5 space-y-3 max-h-[340px] overflow-y-auto">
+                {[
+                  { title: "National Health Data Access", body: "You are authorised to access personal health information of Saudi nationals under your designated clinical or administrative role only. Access is role-scoped and governed by RBAC controls aligned with MOH Circular 42/1445.", icon: "🏥" },
+                  { title: "Personal Data Protection Law (PDPL)", body: "All data accessed through this session is protected under Saudi Arabia's PDPL (Law No. M/19, 2021). Unauthorised sharing, copying, or transmission of patient data is a criminal offence subject to fines up to SAR 5,000,000.", icon: "⚖️" },
+                  { title: "Immutable Audit Logging", body: "Every action you take in this session — including which patient records you access, which AI recommendations you act upon, and what prescriptions you issue — is logged to a cryptographically signed, immutable audit trail that cannot be altered or deleted.", icon: "🔒" },
+                  { title: "AI-Assisted Decision Support", body: "This platform provides AI-generated clinical recommendations as decision support only. All clinical decisions remain the sole responsibility of the licensed clinician. The AI system is not a substitute for professional medical judgement.", icon: "🤖" },
+                  { title: "Minimum Necessary Principle", body: "You agree to access only the patient data necessary for your current clinical or administrative task. Bulk data extraction, speculative lookups, or access beyond your role scope are prohibited and automatically flagged.", icon: "🎯" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 px-4 py-3.5 bg-secondary rounded-2xl">
+                    <span className="text-lg shrink-0 mt-0.5">{item.icon}</span>
+                    <div>
+                      <p className="text-[12px] font-bold text-foreground mb-0.5">{item.title}</p>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">{item.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="px-8 pb-8 pt-4 border-t border-border">
+                <p className="text-[11px] text-muted-foreground mb-4 leading-relaxed">
+                  By clicking "I Agree & Enter Portal", you confirm that you have read and understood the above terms, and that your access will be conducted in full compliance with Saudi national law and MOH policy.
+                </p>
+                <button
+                  onClick={handleConsent}
+                  className="w-full h-12 rounded-[16px] text-white text-[14px] font-bold transition-opacity hover:opacity-90 flex items-center justify-center gap-2"
+                  style={{ background: "linear-gradient(135deg, #059669, #064e3b)" }}
+                >
+                  <CheckCircle2 className="w-4 h-4" /> I Agree & Enter Portal
+                </button>
+                <button
+                  onClick={handleBack}
+                  className="w-full h-10 mt-2.5 text-muted-foreground text-[12px] font-semibold hover:text-foreground transition-colors"
+                >
+                  Cancel — Go back
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {step === 2 && selectedRole && (
           <div className="w-full max-w-md flex flex-col">
 

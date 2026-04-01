@@ -141,7 +141,7 @@ export default function PharmacyPortal() {
       {/* SSE Drug Interaction Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-orange-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
               <span className="font-bold text-sm text-orange-800">Live Drug Safety Alerts</span>
@@ -168,7 +168,7 @@ export default function PharmacyPortal() {
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <button
                     onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-orange-700 bg-orange-100 hover:bg-orange-200 rounded-lg px-2 py-1 transition-colors"
+                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-secondary/80 rounded-lg px-2 py-1 transition-colors"
                   >
                     Load Patient
                   </button>
@@ -227,7 +227,7 @@ export default function PharmacyPortal() {
               </div>
             )}
             {data.summary.interactions > 0 && (
-              <div className="bg-amber-50 px-5 py-2 flex items-center gap-2">
+              <div className="bg-secondary px-5 py-2 flex items-center gap-2" style={{ borderLeft: "3px solid #f59e0b" }}>
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <p className="text-xs font-bold text-amber-800 uppercase tracking-widest">
                   {data.summary.interactions} DRUG INTERACTION{data.summary.interactions > 1 ? "S" : ""} DETECTED
@@ -241,7 +241,7 @@ export default function PharmacyPortal() {
                 <div className="flex items-center gap-2.5 mt-2 flex-wrap">
                   <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{data.patient.nationalId}</span>
                   <span className="text-xs text-muted-foreground">Age {data.patient.age}</span>
-                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
+                  <span className="text-xs font-bold text-red-600 bg-secondary px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
                 </div>
                 {data.patient.chronicConditions?.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -291,15 +291,12 @@ export default function PharmacyPortal() {
 
                   const drugCat = getDrugCategory(presc.drugName);
                   return (
-                    <div key={presc.id} className={`p-5 ${!check.safe ? "bg-red-50/40" : ""}`}>
+                    <div key={presc.id} className="p-5"
+                      style={!check.safe ? { borderLeft: "3px solid #ef4444" } : {}}>
                       {/* ─── SFDA / FDA Drug Classification Panel ─── */}
                       {drugCat && (
-                        <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl mb-3 text-xs ${
-                          drugCat.severity === "critical" ? "bg-red-50" :
-                          drugCat.severity === "high" ? "bg-orange-50" :
-                          drugCat.severity === "moderate" ? "bg-amber-50" :
-                          "bg-emerald-50"
-                        }`}>
+                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl mb-3 text-xs bg-secondary"
+                          style={{ borderLeft: `3px solid ${drugCat.severity === "critical" ? "#ef4444" : drugCat.severity === "high" ? "#f97316" : drugCat.severity === "moderate" ? "#f59e0b" : "#22c55e"}` }}>
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${
                             drugCat.severity === "critical" ? "bg-red-600 text-white" :
                             drugCat.severity === "high" ? "bg-orange-500 text-white" :
@@ -309,11 +306,11 @@ export default function PharmacyPortal() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-foreground">FDA Category {drugCat.category}</span>
-                              <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${
-                                drugCat.severity === "critical" ? "bg-red-100 text-red-700" :
-                                drugCat.severity === "high" ? "bg-orange-100 text-orange-700" :
-                                drugCat.severity === "moderate" ? "bg-amber-100 text-amber-700" :
-                                "bg-emerald-100 text-emerald-700"
+                              <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full bg-secondary ${
+                                drugCat.severity === "critical" ? "text-red-600" :
+                                drugCat.severity === "high" ? "text-orange-600" :
+                                drugCat.severity === "moderate" ? "text-amber-600" :
+                                "text-emerald-600"
                               }`}>{drugCat.severity}</span>
                             </div>
                             <p className="text-muted-foreground text-[10px] mt-0.5">{drugCat.label}</p>
@@ -338,10 +335,10 @@ export default function PharmacyPortal() {
                             {check.safe && <Badge variant="success" className="text-[9px]">SAFE</Badge>}
                             {isDispensed && <Badge variant="info" className="text-[9px]">DISPENSED</Badge>}
                             {stock && (
-                              <span className={`flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                                stock.status === "critical" ? "bg-red-100 text-red-700" :
-                                stock.status === "low" ? "bg-amber-100 text-amber-700" :
-                                "bg-emerald-100 text-emerald-700"
+                              <span className={`flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${
+                                stock.status === "critical" ? "text-red-600" :
+                                stock.status === "low" ? "text-amber-600" :
+                                "text-emerald-600"
                               }`}>
                                 <Package className="w-2.5 h-2.5" />
                                 {stock.status === "critical" ? `CRITICAL — ${stock.daysOfStock}d left` :
@@ -382,7 +379,8 @@ export default function PharmacyPortal() {
                       </div>
 
                       {/* AI Safety Check */}
-                      <div className={`px-3.5 py-3 rounded-2xl mb-2 ${!check.safe ? "bg-red-50" : "bg-emerald-50"}`}>
+                      <div className="px-3.5 py-3 rounded-2xl mb-2 bg-secondary"
+                        style={{ borderLeft: `3px solid ${!check.safe ? "#ef4444" : "#22c55e"}` }}>
                         <div className="flex items-center gap-2 mb-1.5">
                           <Brain className="w-3.5 h-3.5 text-violet-600" />
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">AI Dispense Safety Check</p>
@@ -415,9 +413,9 @@ export default function PharmacyPortal() {
                                       </div>
                                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                                         dw.severity === "critical" ? "bg-red-600 text-white" :
-                                        dw.severity === "high" ? "bg-red-100 text-red-700" :
-                                        dw.severity === "moderate" ? "bg-amber-100 text-amber-700" :
-                                        "bg-yellow-100 text-yellow-700"
+                                        dw.severity === "high" ? "bg-secondary text-red-600" :
+                                        dw.severity === "moderate" ? "bg-secondary text-amber-600" :
+                                        "bg-secondary text-foreground"
                                       }`}>{dw.severity?.toUpperCase()}</span>
                                     </div>
                                     <p className="text-[11px] text-muted-foreground mb-1">
@@ -432,7 +430,7 @@ export default function PharmacyPortal() {
                                     </div>
                                     <div className="flex flex-wrap gap-1 mt-1.5">
                                       {(dw.source ? dw.source.split(" · ") : dw.sources ?? []).map((src: string, si: number) => (
-                                        <span key={si} className="text-[9px] font-mono bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded-md">{src}</span>
+                                        <span key={si} className="text-[9px] font-mono bg-secondary text-primary px-1.5 py-0.5 rounded-md">{src}</span>
                                       ))}
                                     </div>
                                   </div>

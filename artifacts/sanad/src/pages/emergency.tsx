@@ -28,11 +28,11 @@ const ACTION_CFG: Record<ClinicalAction["action"], { icon: React.ElementType; la
   PREPARE_EQUIPMENT: { icon: Wrench,       label: "Prepare Equip", accent: "#0284c7", textColor: "text-sky-700"    },
 };
 
-const RISK_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  critical: { bg: "bg-red-100",    text: "text-red-700",    label: "CRITICAL"  },
-  high:     { bg: "bg-orange-100", text: "text-orange-700", label: "HIGH RISK" },
-  moderate: { bg: "bg-blue-100",   text: "text-blue-700",   label: "MODERATE"  },
-  low:      { bg: "bg-green-100",  text: "text-green-700",  label: "LOW RISK"  },
+const RISK_BADGE: Record<string, { text: string; label: string }> = {
+  critical: { text: "text-red-700",    label: "CRITICAL"  },
+  high:     { text: "text-orange-700", label: "HIGH RISK" },
+  moderate: { text: "text-primary",    label: "MODERATE"  },
+  low:      { text: "text-emerald-700",label: "LOW RISK"  },
 };
 
 const SLA: Record<string, string> = {
@@ -139,10 +139,10 @@ export default function EmergencyPage() {
             <Zap className="w-3 h-3" />
             Emergency Mode Active
           </div>
-          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${
             sseConnected
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200/70"
-              : "bg-secondary text-muted-foreground border-black/[0.06]"
+              ? "bg-secondary text-emerald-700"
+              : "bg-secondary text-muted-foreground"
           }`}>
             <Radio className={`w-3 h-3 ${sseConnected ? "text-emerald-500" : "text-muted-foreground/50"}`} />
             {sseConnected ? "9 AI Engines · Live" : "Connecting..."}
@@ -150,7 +150,7 @@ export default function EmergencyPage() {
           {sseUnread > 0 && (
             <button
               onClick={() => setAlertsOpen(p => !p)}
-              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 border border-red-200/70 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
+              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-secondary px-3 py-1.5 rounded-full hover:bg-border transition-colors"
             >
               <Bell className="w-3 h-3" />
               {sseUnread} alert{sseUnread > 1 ? "s" : ""}
@@ -218,8 +218,8 @@ export default function EmergencyPage() {
       {/* ── EMPTY STATE ── */}
       {!submittedId && !isLoading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-red-50 flex items-center justify-center mb-1">
-            <ShieldAlert className="w-8 h-8 text-red-400" />
+          <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mb-1">
+            <ShieldAlert className="w-8 h-8 text-red-500" />
           </div>
           <div>
             <p className="text-lg font-bold text-foreground">Emergency Lookup Ready</p>
@@ -254,7 +254,7 @@ export default function EmergencyPage() {
                   <h1 className="text-[28px] font-black text-foreground leading-tight tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>{patient.fullName}</h1>
                   <p className="text-sm text-muted-foreground font-mono mt-1">PATIENT ID · {patient.nationalId}</p>
                   <div className="flex items-center gap-2 flex-wrap mt-3">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${riskBadge.bg} ${riskBadge.text}`}>{riskBadge.label}</span>
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full bg-secondary ${riskBadge.text}`}>{riskBadge.label}</span>
                     <span className="text-xs text-muted-foreground font-semibold">Response SLA: <span className="text-foreground font-bold">{SLA[riskLevel]}</span></span>
                     {(patient as any).riskScore !== undefined && (
                       <span className="text-xs text-muted-foreground font-semibold">AI Score: <span className="text-foreground font-bold">{(patient as any).riskScore}/100</span></span>
@@ -269,11 +269,11 @@ export default function EmergencyPage() {
 
               {/* Key stats */}
               <div className="grid grid-cols-4 gap-3 mt-5">
-                <div className="bg-red-50 rounded-2xl p-4">
-                  <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">Blood Type</p>
-                  <p className="text-3xl font-black text-red-600 leading-none">{patient.bloodType}</p>
+                <div className="rounded-2xl p-4" style={{ background: "linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)" }}>
+                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-2">Blood Type</p>
+                  <p className="text-3xl font-black text-white leading-none">{patient.bloodType}</p>
                   {riskLevel === "critical" && (
-                    <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1.5">Critical</p>
+                    <p className="text-[10px] font-black text-white/80 uppercase tracking-widest mt-1.5">Critical</p>
                   )}
                 </div>
                 <div className="bg-secondary rounded-2xl p-4">
@@ -342,7 +342,7 @@ export default function EmergencyPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
                     <Droplet className="w-3.5 h-3.5 text-amber-500" />
                   </div>
                   <CardTitle>Active Medications</CardTitle>
@@ -366,8 +366,8 @@ export default function EmergencyPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-red-50 flex items-center justify-center">
-                    <Heart className="w-3.5 h-3.5 text-red-400" />
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
+                    <Heart className="w-3.5 h-3.5 text-red-500" />
                   </div>
                   <CardTitle>Chronic Conditions</CardTitle>
                 </div>
@@ -391,25 +391,27 @@ export default function EmergencyPage() {
           {/* 4. DRUG INTERACTION WARNINGS */}
           {drugInteractions.length > 0 && (
             <Card>
-              <CardHeader className="bg-amber-50/60">
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                   </div>
                   <CardTitle>AI Drug Interaction Warning</CardTitle>
                 </div>
-                <span className="text-[11px] font-bold text-amber-700 bg-amber-200 px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
+                <span className="text-[11px] font-bold text-amber-700 bg-secondary px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
               </CardHeader>
               <CardBody className="divide-y divide-border p-0">
                 {drugInteractions.map((ix, i) => {
                   const sev = ix.severity;
-                  const sevColor = sev === "critical" ? "text-red-700 bg-red-100" : sev === "high" ? "text-orange-700 bg-orange-100" : "text-amber-700 bg-amber-100";
+                  const sevBorderColor = sev === "critical" ? "#dc2626" : sev === "high" ? "#ea580c" : "#f59e0b";
+                  const sevTextColor = sev === "critical" ? "text-red-700" : sev === "high" ? "text-orange-700" : "text-amber-700";
                   return (
                     <div key={i} className="px-5 py-4">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                            <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full ${sevColor}`}>{sev}</span>
+                            <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-secondary ${sevTextColor}`}
+                              style={{ borderLeft: `2px solid ${sevBorderColor}` }}>{sev}</span>
                             <span className="text-sm font-bold text-foreground">{ix.conflictingDrug}</span>
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">{ix.description}</p>
@@ -431,12 +433,12 @@ export default function EmergencyPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-violet-50 flex items-center justify-center">
-                    <Brain className="w-3.5 h-3.5 text-violet-500" />
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
+                    <Brain className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <CardTitle>AI Triage Intelligence</CardTitle>
                 </div>
-                <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold text-primary bg-secondary px-2.5 py-1 rounded-full">
                   {riskFactors.length} risk factor{riskFactors.length !== 1 ? "s" : ""} analysed
                 </span>
               </CardHeader>
@@ -446,14 +448,14 @@ export default function EmergencyPage() {
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Why this risk score?</p>
                   <div className="space-y-2">
                     {riskFactors.map((f, i) => {
-                      const impactBar = f.impact === "high" ? "bg-red-500 w-full" : f.impact === "moderate" ? "bg-amber-500 w-2/3" : "bg-blue-400 w-1/3";
-                      const impactText = f.impact === "high" ? "text-red-700 bg-red-50" : f.impact === "moderate" ? "text-amber-700 bg-amber-50" : "text-blue-700 bg-blue-50";
+                      const impactBar = f.impact === "high" ? "bg-red-500 w-full" : f.impact === "moderate" ? "bg-amber-500 w-2/3" : "bg-primary w-1/3";
+                      const impactText = f.impact === "high" ? "text-red-700" : f.impact === "moderate" ? "text-amber-700" : "text-primary";
                       return (
                         <div key={i} className="flex items-start gap-3 p-3 bg-secondary rounded-xl">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-xs font-bold text-foreground">{f.factor}</span>
-                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md ${impactText}`}>{f.impact}</span>
+                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-secondary ${impactText}`}>{f.impact}</span>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
                             <div className="mt-1.5 h-1 bg-border rounded-full overflow-hidden">
@@ -472,9 +474,9 @@ export default function EmergencyPage() {
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">AI Recommendations</p>
                   <div className="space-y-2">
                     {aiRecommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-violet-50 rounded-xl">
-                        <span className="text-[10px] font-black text-violet-400 tabular-nums shrink-0 mt-0.5">{String(i+1).padStart(2,"0")}</span>
-                        <p className="text-xs font-semibold text-violet-900 leading-relaxed">{rec}</p>
+                      <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-secondary/60 rounded-xl">
+                        <span className="text-[10px] font-black text-primary tabular-nums shrink-0 mt-0.5">{String(i+1).padStart(2,"0")}</span>
+                        <p className="text-xs font-semibold text-foreground leading-relaxed">{rec}</p>
                       </div>
                     ))}
                   </div>
@@ -486,14 +488,14 @@ export default function EmergencyPage() {
           {/* 6. IMMEDIATE ACTIONS */}
           {immediate.length > 0 && (
             <Card>
-              <CardHeader className="bg-red-50/60">
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
                     <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
                   </div>
                   <CardTitle className="text-red-700 uppercase tracking-wide">Immediate Actions Required</CardTitle>
                 </div>
-                <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-white border border-red-200/70 px-2.5 py-1 rounded-full">
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-secondary px-2.5 py-1 rounded-full">
                   <Clock className="w-3 h-3" /> Act within 3 min
                 </span>
               </CardHeader>
@@ -509,7 +511,7 @@ export default function EmergencyPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: cfg.accent }}>{cfg.label}</span>
-                          <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">IMMEDIATE</span>
+                          <span className="text-[10px] font-bold text-red-600 bg-secondary px-2 py-0.5 rounded-md">IMMEDIATE</span>
                         </div>
                         <p className={`font-bold text-sm ${cfg.textColor}`}>{action.description}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{action.reason}</p>
@@ -527,7 +529,7 @@ export default function EmergencyPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
                     <UserCheck className="w-3.5 h-3.5 text-amber-500" />
                   </div>
                   <CardTitle>Clinical Guidance</CardTitle>
@@ -559,14 +561,14 @@ export default function EmergencyPage() {
           {/* 8. CRITICAL ALERTS */}
           {patient.criticalAlerts.length > 0 && (
             <Card>
-              <CardHeader className="bg-red-50/60">
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
                     <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
                   </div>
                   <CardTitle className="text-red-700">System Alerts</CardTitle>
                 </div>
-                <span className="text-[11px] font-bold text-red-600 bg-red-50 border border-red-200/70 px-2.5 py-1 rounded-full">{patient.criticalAlerts.length}</span>
+                <span className="text-[11px] font-bold text-red-600 bg-secondary px-2.5 py-1 rounded-full">{patient.criticalAlerts.length}</span>
               </CardHeader>
               <CardBody className="divide-y divide-border p-0">
                 {patient.criticalAlerts.map((alert: string, i: number) => (

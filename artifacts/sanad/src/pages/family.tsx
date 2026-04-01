@@ -19,21 +19,21 @@ async function fetchFamilyData(nationalId: string) {
 }
 
 const RISK_CONFIG = {
-  high: { color: "text-red-700", bg: "bg-red-50", border: "border-red-200", badge: "destructive" as const, dot: "bg-red-500", bar: "#ef4444" },
-  medium: { color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, dot: "bg-amber-500", bar: "#f59e0b" },
-  low: { color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", badge: "success" as const, dot: "bg-emerald-500", bar: "#22c55e" },
+  high: { color: "text-red-600", bg: "bg-secondary", borderColor: "#ef4444", badge: "destructive" as const, dot: "bg-red-500", bar: "#ef4444" },
+  medium: { color: "text-amber-600", bg: "bg-secondary", borderColor: "#f59e0b", badge: "warning" as const, dot: "bg-amber-500", bar: "#f59e0b" },
+  low: { color: "text-emerald-600", bg: "bg-secondary", borderColor: "#22c55e", badge: "success" as const, dot: "bg-emerald-500", bar: "#22c55e" },
 };
 
 const STATUS_CONFIG = {
-  "high-risk": { bg: "bg-red-100", border: "border-red-200", text: "text-red-700", ringColor: "ring-red-400", dotColor: "bg-red-500" },
-  "moderate": { bg: "bg-amber-100", border: "border-amber-200", text: "text-amber-700", ringColor: "ring-amber-400", dotColor: "bg-amber-500" },
-  "healthy": { bg: "bg-emerald-100", border: "border-emerald-200", text: "text-emerald-700", ringColor: "ring-emerald-400", dotColor: "bg-emerald-500" },
+  "high-risk": { bg: "bg-secondary", borderColor: "#ef4444", text: "text-red-600", ringColor: "ring-red-400", dotColor: "bg-red-500" },
+  "moderate": { bg: "bg-secondary", borderColor: "#f59e0b", text: "text-amber-600", ringColor: "ring-amber-400", dotColor: "bg-amber-500" },
+  "healthy": { bg: "bg-secondary", borderColor: "#22c55e", text: "text-emerald-600", ringColor: "ring-emerald-400", dotColor: "bg-emerald-500" },
 };
 
 function FamilyMemberCard({ member, isPatient = false }: { member: any; isPatient?: boolean }) {
   const statusCfg = STATUS_CONFIG[member.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG["healthy"];
   const riskColor = member.riskScore >= 70 ? "text-red-600" : member.riskScore >= 40 ? "text-amber-600" : "text-emerald-600";
-  const riskBg = member.riskScore >= 70 ? "bg-red-50" : member.riskScore >= 40 ? "bg-amber-50" : "bg-emerald-50";
+  const riskBorderColor = member.riskScore >= 70 ? "#ef4444" : member.riskScore >= 40 ? "#f59e0b" : "#22c55e";
 
   return (
     <div className={`relative p-4 rounded-2xl transition-all ${isPatient ? "bg-primary/5 ring-2 ring-primary/30" : `${statusCfg.bg}`}`}>
@@ -57,7 +57,7 @@ function FamilyMemberCard({ member, isPatient = false }: { member: any; isPatien
           </div>
         </div>
       </div>
-      <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${riskBg}`}>
+      <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary" style={{ borderLeft: `3px solid ${riskBorderColor}` }}>
         <div>
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">AI Risk</p>
           <p className={`text-xl font-bold ${riskColor}`}>{member.riskScore}</p>
@@ -71,7 +71,7 @@ function FamilyMemberCard({ member, isPatient = false }: { member: any; isPatien
         <div className="mt-2 flex flex-wrap gap-1">
           <span className="text-[9px] font-bold text-muted-foreground w-full mb-0.5">SHARED:</span>
           {member.sharedConditions.map((c: string, i: number) => (
-            <span key={i} className="text-[9px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">{c}</span>
+            <span key={i} className="text-[9px] font-bold bg-secondary text-red-600 px-1.5 py-0.5 rounded-full">{c}</span>
           ))}
         </div>
       )}
@@ -117,7 +117,7 @@ export default function FamilyPortal() {
         <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Users className="w-3 h-3" /> Family Health Portal
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-secondary px-3 py-1.5 rounded-full">
           <Dna className="w-3 h-3" /> Genetic Risk Intelligence Active
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -226,7 +226,7 @@ export default function FamilyPortal() {
         </div>
       )}
       {isError && nationalId && (
-        <Card className="bg-red-50">
+        <Card className="bg-secondary" style={{ borderLeft: "3px solid #ef4444" }}>
           <CardBody className="flex items-center gap-3 p-4">
             <X className="w-4 h-4 text-red-500" />
             <p className="text-sm text-red-700">Patient not found for <span className="font-mono">{nationalId}</span></p>
@@ -238,7 +238,8 @@ export default function FamilyPortal() {
         <div className="space-y-5">
           {/* Alert Banner */}
           {data.familyRiskAlert && (
-            <div className={`flex items-start gap-3 p-4 rounded-3xl ${data.summary.overallFamilyRisk === "HIGH" ? "bg-red-50" : "bg-amber-50"}`}>
+            <div className="flex items-start gap-3 p-4 rounded-3xl bg-secondary"
+              style={{ borderLeft: `3px solid ${data.summary.overallFamilyRisk === "HIGH" ? "#ef4444" : "#f59e0b"}` }}>
               <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-600" : "text-amber-600"}`} />
               <div>
                 <p className={`text-sm font-bold ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-800" : "text-amber-800"}`}>{data.familyRiskAlert}</p>
@@ -258,10 +259,10 @@ export default function FamilyPortal() {
           {/* Summary KPIs */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: "Heritability Score", value: data.heritabilityScore, suffix: "/100", color: data.heritabilityScore >= 70 ? "text-red-600" : data.heritabilityScore >= 40 ? "text-amber-600" : "text-emerald-600", bg: data.heritabilityScore >= 70 ? "bg-red-50" : "bg-secondary" },
-              { label: "Genetic Risk Factors", value: data.geneticRisks?.length, suffix: " identified", color: "text-violet-600", bg: "bg-violet-50" },
-              { label: "Family Members Linked", value: data.summary?.totalMembers, suffix: " members", color: "text-primary", bg: "bg-primary/5" },
-              { label: "Patient Risk Score", value: data.patient?.riskScore, suffix: "/100", color: data.patient?.riskScore >= 70 ? "text-red-600" : "text-amber-600", bg: "bg-amber-50" },
+              { label: "Heritability Score", value: data.heritabilityScore, suffix: "/100", color: data.heritabilityScore >= 70 ? "text-red-600" : data.heritabilityScore >= 40 ? "text-amber-600" : "text-emerald-600", bg: "bg-secondary" },
+              { label: "Genetic Risk Factors", value: data.geneticRisks?.length, suffix: " identified", color: "text-primary", bg: "bg-secondary" },
+              { label: "Family Members Linked", value: data.summary?.totalMembers, suffix: " members", color: "text-primary", bg: "bg-secondary" },
+              { label: "Patient Risk Score", value: data.patient?.riskScore, suffix: "/100", color: data.patient?.riskScore >= 70 ? "text-red-600" : "text-amber-600", bg: "bg-secondary" },
             ].map((kpi, i) => (
               <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
@@ -519,9 +520,9 @@ export default function FamilyPortal() {
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="mt-3 p-3.5 bg-amber-50 rounded-2xl flex items-start gap-2.5">
+                    <div className="mt-3 p-3.5 bg-secondary rounded-2xl flex items-start gap-2.5" style={{ borderLeft: "3px solid #f59e0b" }}>
                       <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-800">AI projection based on current chronic condition trajectory, age-related risk accumulation, and hereditary penetrance rates. Assumes no major lifestyle or therapeutic intervention.</p>
+                      <p className="text-xs text-foreground">AI projection based on current chronic condition trajectory, age-related risk accumulation, and hereditary penetrance rates. Assumes no major lifestyle or therapeutic intervention.</p>
                     </div>
                   </CardBody>
                 </Card>
@@ -539,10 +540,11 @@ export default function FamilyPortal() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {data.screeningRecommendations?.map((rec: any, i: number) => {
-                  const priBg = rec.priority === "high" ? "bg-red-50" : rec.priority === "medium" ? "bg-sky-50" : "bg-secondary";
+                  const priBorderColor = rec.priority === "high" ? "#ef4444" : rec.priority === "medium" ? "#0ea5e9" : undefined;
                   const priIcon = rec.priority === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" /> : rec.priority === "medium" ? <Clock className="w-4 h-4 text-sky-500 shrink-0" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />;
                   return (
-                    <div key={i} className={`p-4 rounded-3xl ${priBg}`}>
+                    <div key={i} className="p-4 rounded-3xl bg-secondary"
+                      style={priBorderColor ? { borderLeft: `3px solid ${priBorderColor}` } : {}}>
                       <div className="flex items-start gap-3 mb-3">
                         {priIcon}
                         <div className="flex-1 min-w-0">
@@ -583,7 +585,7 @@ export default function FamilyPortal() {
                 <CardBody className="p-0">
                   <div className="divide-y divide-border">
                     {[{ ...data.patient, relationship: "Index Patient (You)" }, ...(data.familyMembers ?? [])].map((m: any, i: number) => {
-                      const riskColor = m.riskScore >= 70 ? "text-red-600 bg-red-50" : m.riskScore >= 40 ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
+                      const riskColor = m.riskScore >= 70 ? "text-red-600" : m.riskScore >= 40 ? "text-amber-600" : "text-emerald-600";
                       return (
                         <div key={i} className="flex items-center gap-4 px-5 py-3.5 hover:bg-secondary/30 transition-colors">
                           <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center shrink-0">

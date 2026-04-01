@@ -139,7 +139,7 @@ export default function LabPortal() {
       {/* SSE Live Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-4 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-teal-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
               <span className="font-bold text-sm text-teal-800">Live Lab Alerts</span>
@@ -247,7 +247,7 @@ export default function LabPortal() {
                 <div className="flex items-center gap-2.5 mt-2 flex-wrap">
                   <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{data.patient.nationalId}</span>
                   <span className="text-xs text-muted-foreground">Age {data.patient.age}</span>
-                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
+                  <span className="text-xs font-bold text-red-600 bg-secondary px-2.5 py-1 rounded-full">Blood: {data.patient.bloodType}</span>
                 </div>
               </div>
               <div className="flex items-center gap-6 shrink-0">
@@ -307,12 +307,12 @@ export default function LabPortal() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             {isWorsening && (
-                              <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="text-[10px] font-bold text-red-600 bg-secondary px-2 py-0.5 rounded-full flex items-center gap-1">
                                 <TrendingUp className="w-3 h-3" /> WORSENING
                               </span>
                             )}
                             {isImproving && (
-                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="text-[10px] font-bold text-emerald-600 bg-secondary px-2 py-0.5 rounded-full flex items-center gap-1">
                                 <TrendingDown className="w-3 h-3" /> IMPROVING
                               </span>
                             )}
@@ -423,7 +423,8 @@ export default function LabPortal() {
                       const critical = presentTests.filter(t => t.v!.status === "critical");
                       const panelStatus = critical.length > 0 ? "critical" : abnormal.length > 0 ? "abnormal" : "normal";
                       return (
-                        <div key={pi} className={`p-4 rounded-2xl ${panelStatus === "critical" ? "bg-red-50" : panelStatus === "abnormal" ? "bg-amber-50" : "bg-emerald-50"}`}>
+                        <div key={pi} className="p-4 rounded-2xl bg-secondary"
+                          style={{ borderLeft: `3px solid ${panelStatus === "critical" ? "#ef4444" : panelStatus === "abnormal" ? "#f59e0b" : "#22c55e"}` }}>
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-[9px] font-black text-muted-foreground">{panel.icon}</span>
                             <div>
@@ -447,7 +448,7 @@ export default function LabPortal() {
                               </div>
                             ))}
                           </div>
-                          <div className={`text-[9px] px-2 py-1.5 rounded-lg ${panelStatus === "critical" ? "bg-red-100 text-red-800" : panelStatus === "abnormal" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+                          <div className={`text-[9px] px-2 py-1.5 rounded-lg bg-secondary ${panelStatus === "critical" ? "text-red-600" : panelStatus === "abnormal" ? "text-amber-600" : "text-emerald-600"}`}>
                             <Brain className="w-2.5 h-2.5 inline mr-1" />{panel.insight}
                           </div>
                         </div>
@@ -461,7 +462,8 @@ export default function LabPortal() {
 
           {/* AI Interpretation of last submitted result */}
           {lastResult && (
-            <div className={`rounded-2xl p-5 ${lastResult.aiAnalysis?.status === "critical" ? "bg-red-50" : lastResult.aiAnalysis?.status === "abnormal" ? "bg-amber-50" : "bg-emerald-50"}`}>
+            <div className="rounded-2xl p-5 bg-secondary"
+              style={{ borderLeft: `3px solid ${lastResult.aiAnalysis?.status === "critical" ? "#ef4444" : lastResult.aiAnalysis?.status === "abnormal" ? "#f59e0b" : "#22c55e"}` }}>
               <div className="flex items-start gap-3 mb-3">
                 <Brain className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
                 <div>
@@ -588,7 +590,8 @@ export default function LabPortal() {
                 </div>
               ) : (
                 data.labs.map((lab: any) => (
-                  <div key={lab.id} className={`p-4 ${lab.status === "critical" ? "bg-red-50/50" : lab.status === "abnormal" ? "bg-amber-50/30" : ""}`}>
+                  <div key={lab.id} className="p-4"
+                    style={lab.status === "critical" ? { borderLeft: "3px solid #ef4444" } : lab.status === "abnormal" ? { borderLeft: "3px solid #f59e0b" } : {}}>
                     <div className="flex items-start gap-4">
                       <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-teal-500" />
                       <div className="flex-1 min-w-0">
@@ -606,11 +609,8 @@ export default function LabPortal() {
                           {lab.referenceRange && <p className="text-[10px] text-muted-foreground font-mono bg-secondary px-2 py-0.5 rounded-full">REF: {lab.referenceRange}</p>}
                           <p className="text-[10px] text-muted-foreground">{lab.hospital}</p>
                         </div>
-                        <div className={`px-3 py-2.5 rounded-xl text-xs ${
-                          lab.status === "critical" ? "bg-red-50" :
-                          lab.status === "abnormal" ? "bg-amber-50" :
-                          "bg-emerald-50"
-                        }`}>
+                        <div className="px-3 py-2.5 rounded-xl text-xs bg-secondary"
+                          style={{ borderLeft: `3px solid ${lab.status === "critical" ? "#ef4444" : lab.status === "abnormal" ? "#f59e0b" : "#22c55e"}` }}>
                           <div className="flex items-start gap-2">
                             <Brain className="w-3.5 h-3.5 text-violet-600 shrink-0 mt-0.5" />
                             <div>

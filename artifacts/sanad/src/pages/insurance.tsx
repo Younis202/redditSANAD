@@ -33,11 +33,11 @@ async function reviewClaim(claimId: string, action: string, notes: string) {
   return res.json();
 }
 
-const STATUS_CONFIG: Record<string, { color: string; bg: string; border: string; badge: any; label: string }> = {
-  approved: { color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", badge: "success" as const, label: "Approved" },
-  pending: { color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, label: "Pending" },
-  under_review: { color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", badge: "info" as const, label: "Under Review" },
-  rejected: { color: "text-red-700", bg: "bg-red-50", border: "border-red-200", badge: "destructive" as const, label: "Rejected" },
+const STATUS_CONFIG: Record<string, { color: string; borderColor: string; badge: any; label: string }> = {
+  approved: { color: "text-emerald-700", borderColor: "#22c55e", badge: "success" as const, label: "Approved" },
+  pending: { color: "text-amber-700", borderColor: "#f59e0b", badge: "warning" as const, label: "Pending" },
+  under_review: { color: "text-primary", borderColor: "#3b82f6", badge: "info" as const, label: "Under Review" },
+  rejected: { color: "text-red-700", borderColor: "#ef4444", badge: "destructive" as const, label: "Rejected" },
 };
 const PORTFOLIO_COLORS = ["#22c55e", "#f59e0b", "#ef4444", "#7c3aed"];
 type TabId = "dashboard" | "patient" | "portfolio" | "preauth";
@@ -116,7 +116,7 @@ export default function InsurancePortal() {
         <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
           <Shield className="w-3 h-3" /> Insurance Operations Center
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
           AI Fraud Engine: Active · {dashboard?.fraudSuspected ?? "—"} cases flagged
         </div>
@@ -207,10 +207,10 @@ export default function InsurancePortal() {
           ) : dashboard && (
             <>
               <div className="grid grid-cols-4 gap-4">
-                <KpiCard title="Active Policies" value={dashboard.totalPolicies?.toLocaleString()} sub="National coverage" icon={Users} iconBg="bg-violet-100" iconColor="text-violet-600" />
+                <KpiCard title="Active Policies" value={dashboard.totalPolicies?.toLocaleString()} sub="National coverage" icon={Users} iconBg="bg-secondary" iconColor="text-primary" />
                 <KpiCard title="Total Claims" value={dashboard.totalClaims?.toLocaleString()} sub={`${dashboard.pendingClaims} awaiting review`} icon={Shield} iconBg="bg-primary/10" iconColor="text-primary" />
-                <KpiCard title="Total Payout" value={`SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K`} sub={`Avg SAR ${dashboard.avgClaimValue?.toLocaleString()} per claim`} icon={DollarSign} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
-                <KpiCard title="Fraud Flagged" value={dashboard.fraudSuspected} sub={`${dashboard.fraudRate}% fraud rate`} icon={ShieldAlert} iconBg="bg-red-100" iconColor="text-red-600" />
+                <KpiCard title="Total Payout" value={`SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K`} sub={`Avg SAR ${dashboard.avgClaimValue?.toLocaleString()} per claim`} icon={DollarSign} iconBg="bg-secondary" iconColor="text-emerald-600" />
+                <KpiCard title="Fraud Flagged" value={dashboard.fraudSuspected} sub={`${dashboard.fraudRate}% fraud rate`} icon={ShieldAlert} iconBg="bg-secondary" iconColor="text-red-600" />
               </div>
 
               <div className="grid grid-cols-12 gap-5">
@@ -255,7 +255,8 @@ export default function InsurancePortal() {
                   </CardHeader>
                   <CardBody className="space-y-2.5">
                     {dashboard.fraudAlerts?.map((alert: any, i: number) => (
-                      <div key={i} className={`p-3.5 rounded-2xl ${alert.severity === "high" ? "bg-red-50" : "bg-amber-50"}`}>
+                      <div key={i} className="p-3.5 rounded-2xl bg-secondary/60"
+                        style={{ borderLeft: `3px solid ${alert.severity === "high" ? "#ef4444" : "#f59e0b"}` }}>
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <div className="flex items-center gap-1.5">
                             <ShieldAlert className={`w-3.5 h-3.5 shrink-0 ${alert.severity === "high" ? "text-red-500" : "text-amber-500"}`} />
@@ -384,8 +385,8 @@ export default function InsurancePortal() {
           {!nationalId && (
             <Card>
               <CardBody className="py-16 text-center">
-                <div className="w-16 h-16 rounded-3xl bg-violet-50 flex items-center justify-center mx-auto mb-4">
-                  <Shield className="w-7 h-7 text-violet-500" />
+                <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-7 h-7 text-primary" />
                 </div>
                 <p className="font-bold text-foreground mb-1">No Policy Selected</p>
                 <p className="text-sm text-muted-foreground mb-2">Enter a National ID to load full fraud analysis and claim review tools.</p>
@@ -401,8 +402,8 @@ export default function InsurancePortal() {
             </div>
           )}
           {patientError && nationalId && (
-            <Card className="bg-red-50">
-              <CardBody className="flex items-center gap-3 p-4">
+            <Card>
+              <CardBody className="flex items-center gap-3 p-4" style={{ borderLeft: "3px solid #ef4444" }}>
                 <X className="w-4 h-4 text-red-500" />
                 <p className="text-sm text-red-700">No policy found for <span className="font-mono">{nationalId}</span></p>
               </CardBody>
@@ -462,13 +463,14 @@ export default function InsurancePortal() {
                   </CardHeader>
                   <CardBody className="space-y-2.5">
                     {patient.anomalyFactors?.map((factor: any, i: number) => (
-                      <div key={i} className={`p-3 rounded-2xl ${factor.flag ? "bg-red-50" : "bg-secondary"}`}>
+                      <div key={i} className="p-3 rounded-2xl bg-secondary/60"
+                        style={factor.flag ? { borderLeft: "3px solid #ef4444" } : {}}>
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <p className={`text-xs font-bold ${factor.flag ? "text-red-700" : "text-foreground"}`}>{factor.label}</p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${factor.flag ? "bg-red-100 text-red-700" : "bg-secondary text-muted-foreground"}`}>+{factor.weight}pts</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary ${factor.flag ? "text-red-700" : "text-muted-foreground"}`}>+{factor.weight}pts</span>
                         </div>
                         <p className={`text-[11px] ${factor.flag ? "text-red-600" : "text-muted-foreground"}`}>{factor.value}</p>
-                        <div className="mt-1.5 h-1 bg-white rounded-full overflow-hidden">
+                        <div className="mt-1.5 h-1 bg-white/60 rounded-full overflow-hidden">
                           <div className={`h-full rounded-full transition-all ${factor.flag ? "bg-red-500" : "bg-emerald-400"}`} style={{ width: `${Math.min(100, factor.weight * 4)}%` }} />
                         </div>
                       </div>
@@ -571,7 +573,8 @@ export default function InsurancePortal() {
                                   </span>
                                 )}
                                 {claim.anomalyScore > 0 && (
-                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.anomalyScore >= 30 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary ${claim.anomalyScore >= 30 ? "text-red-700" : "text-amber-700"}`}
+                                    style={{ borderLeft: `2px solid ${claim.anomalyScore >= 30 ? "#ef4444" : "#f59e0b"}` }}>
                                     Anomaly: {claim.anomalyScore}
                                   </span>
                                 )}
@@ -581,7 +584,7 @@ export default function InsurancePortal() {
                             </div>
                             <div className="text-right shrink-0 mr-2">
                               <p className="text-base font-bold text-foreground">SAR {claim.estimatedCost?.toLocaleString()}</p>
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                              <Badge variant={cfg.badge} className="text-[10px] mt-0.5">{cfg.label}</Badge>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
                               {canReview && !isReviewing && (
@@ -592,7 +595,7 @@ export default function InsurancePortal() {
                               )}
                               {claim.anomalyReasons?.length > 0 && (
                                 <button onClick={() => setExpandedClaim(expandedClaim === claim.claimId ? null : claim.claimId)}
-                                  className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-xl hover:bg-amber-200 transition-colors flex items-center gap-1">
+                                  className="text-[11px] font-bold text-amber-700 bg-secondary px-2.5 py-1 rounded-xl hover:bg-border transition-colors flex items-center gap-1">
                                   <Eye className="w-3 h-3" /> Details
                                 </button>
                               )}
@@ -806,12 +809,12 @@ export default function InsurancePortal() {
                 },
               ].map((req) => {
                 const decisionCfg = req.aiDecision === "AUTO_APPROVED"
-                  ? { bg: "bg-emerald-50", border: "border-emerald-200", badgeV: "success" as const, label: "AUTO-APPROVED", icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" /> }
+                  ? { badgeV: "success" as const, label: "AUTO-APPROVED", icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" /> }
                   : req.aiDecision === "AI_DENIED"
-                  ? { bg: "bg-red-50", border: "border-red-200", badgeV: "destructive" as const, label: "AI-DENIED", icon: <X className="w-4 h-4 text-red-600" /> }
+                  ? { badgeV: "destructive" as const, label: "AI-DENIED", icon: <X className="w-4 h-4 text-red-600" /> }
                   : req.aiDecision === "FLAGGED_REVIEW"
-                  ? { bg: "bg-amber-50", border: "border-amber-200", badgeV: "warning" as const, label: "FLAGGED", icon: <ShieldAlert className="w-4 h-4 text-amber-600" /> }
-                  : { bg: "bg-sky-50", border: "border-sky-200", badgeV: "info" as const, label: "PENDING INFO", icon: <Clock className="w-4 h-4 text-sky-600" /> };
+                  ? { badgeV: "warning" as const, label: "FLAGGED", icon: <ShieldAlert className="w-4 h-4 text-amber-600" /> }
+                  : { badgeV: "info" as const, label: "PENDING INFO", icon: <Clock className="w-4 h-4 text-primary" /> };
                 const necessityColor = req.necessityScore >= 80 ? "text-emerald-600" : req.necessityScore >= 50 ? "text-amber-600" : "text-red-600";
                 const fraudColor = req.fraudScore >= 70 ? "text-red-600" : req.fraudScore >= 30 ? "text-amber-600" : "text-emerald-600";
                 const borderColor = req.aiDecision === "AUTO_APPROVED" ? "#22c55e" : req.aiDecision === "AI_DENIED" ? "#ef4444" : req.aiDecision === "FLAGGED_REVIEW" ? "#f59e0b" : "#0ea5e9";

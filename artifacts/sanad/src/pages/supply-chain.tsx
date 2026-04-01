@@ -28,13 +28,13 @@ async function submitReorder(body: Record<string, any>) {
   return res.json();
 }
 
-const STATUS_CFG: Record<string, { bg: string; border: string; text: string; badge: any; dot: string }> = {
-  critical: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
-  low: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "warning" as const, dot: "bg-amber-500" },
-  adequate: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "success" as const, dot: "bg-emerald-500" },
-  High: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "success" as const, dot: "bg-emerald-500" },
-  Medium: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "warning" as const, dot: "bg-amber-500" },
-  Low: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "destructive" as const, dot: "bg-red-500" },
+const STATUS_CFG: Record<string, { bg: string; borderColor?: string; text: string; badge: any; dot: string }> = {
+  critical: { bg: "bg-secondary", borderColor: "#ef4444", text: "text-red-600", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
+  low: { bg: "bg-secondary", borderColor: "#f59e0b", text: "text-amber-600", badge: "warning" as const, dot: "bg-amber-500" },
+  adequate: { bg: "bg-secondary", borderColor: "#22c55e", text: "text-emerald-600", badge: "success" as const, dot: "bg-emerald-500" },
+  High: { bg: "bg-secondary", borderColor: "#22c55e", text: "text-emerald-600", badge: "success" as const, dot: "bg-emerald-500" },
+  Medium: { bg: "bg-secondary", borderColor: "#f59e0b", text: "text-amber-600", badge: "warning" as const, dot: "bg-amber-500" },
+  Low: { bg: "bg-secondary", borderColor: "#ef4444", text: "text-red-600", badge: "destructive" as const, dot: "bg-red-500" },
 };
 
 type ShortagePrediction = { drug: string; day30: number; day60: number; day90: number; current: number; min: number };
@@ -121,7 +121,7 @@ export default function SupplyChainPortal() {
           <Package className="w-3 h-3" />
           Supply Chain
         </div>
-        <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${criticals > 0 ? "text-red-600 bg-red-50" : "text-emerald-600 bg-emerald-50"}`}>
+        <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary ${criticals > 0 ? "text-red-600" : "text-emerald-600"}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${criticals > 0 ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
           {criticals > 0 ? `${criticals} Critical Shortages` : "No Critical Shortages"}
         </div>
@@ -198,13 +198,13 @@ export default function SupplyChainPortal() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard title="Total Drug Lines" value={data?.summary?.totalDrugs} sub="Tracked nationally" icon={Package} iconBg="bg-lime-100" iconColor="text-lime-700" />
+        <KpiCard title="Total Drug Lines" value={data?.summary?.totalDrugs} sub="Tracked nationally" icon={Package} iconBg="bg-primary/10" iconColor="text-primary" />
         <KpiCard
           title="Critical Shortages" value={data?.summary?.criticalShortages}
           sub={`${data?.summary?.reorderAlerts} reorder alerts active`}
-          icon={AlertTriangle} iconBg={criticals > 0 ? "bg-red-100" : "bg-emerald-100"} iconColor={criticals > 0 ? "text-red-600" : "text-emerald-600"}
+          icon={AlertTriangle} iconBg="bg-primary/10" iconColor={criticals > 0 ? "text-red-600" : "text-primary"}
         />
-        <KpiCard title="Adequate Stock" value={data?.summary?.adequate} sub="Lines fully stocked" icon={CheckCircle2} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
+        <KpiCard title="Adequate Stock" value={data?.summary?.adequate} sub="Lines fully stocked" icon={CheckCircle2} iconBg="bg-primary/10" iconColor="text-primary" />
         <KpiCard title="Inventory Value" value={`SAR ${data?.summary?.totalInventoryValue?.toLocaleString()}`} sub="Current stock value" icon={BarChart2} iconBg="bg-primary/10" iconColor="text-primary" />
       </div>
 
@@ -251,7 +251,7 @@ export default function SupplyChainPortal() {
                     {data?.inventory?.map((item: any, i: number) => {
                       const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.adequate;
                       return (
-                        <tr key={i} className={`${item.status === "critical" ? "bg-red-50/30" : ""} hover:bg-secondary/20`}>
+                        <tr key={i} className="hover:bg-secondary/20" style={item.status === "critical" ? { borderLeft: "3px solid #ef4444" } : {}}>
                           <td className="px-4 py-3">
                             <p className="text-sm font-semibold text-foreground">{item.drugName}</p>
                             <p className="text-[10px] text-muted-foreground">{item.supplier}</p>
@@ -299,7 +299,8 @@ export default function SupplyChainPortal() {
                   {data?.distributionCenters?.map((dc: any, i: number) => {
                     const cfg = STATUS_CFG[dc.stock] ?? STATUS_CFG.adequate;
                     return (
-                      <div key={i} className={`px-3.5 py-3 ${cfg.bg} rounded-2xl`}>
+                      <div key={i} className="px-3.5 py-3 bg-secondary rounded-2xl"
+                        style={cfg.borderColor ? { borderLeft: `3px solid ${cfg.borderColor}` } : {}}>
                         <div className="flex items-center justify-between mb-1.5">
                           <p className="text-xs font-bold text-foreground">{dc.name}</p>
                           <Badge variant={cfg.badge} className="text-[9px]">{dc.stock}</Badge>
@@ -343,11 +344,11 @@ export default function SupplyChainPortal() {
       {/* ─── AI SHORTAGE PREDICTIONS ─── */}
       {activeTab === "predictions" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 px-5 py-4 bg-violet-50 rounded-2xl">
+          <div className="flex items-start gap-4 px-5 py-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
             <Brain className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-bold text-violet-800">AI Supply Forecasting Engine v2.1</p>
-              <p className="text-xs text-violet-600 mt-0.5">
+              <p className="text-sm font-bold text-foreground">AI Supply Forecasting Engine v2.1</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Machine learning demand prediction using 24-month historical consumption, prescription trends, disease prevalence, and seasonal patterns.
                 Predictions recalculated daily at 02:00 AST.
               </p>
@@ -360,8 +361,8 @@ export default function SupplyChainPortal() {
             <CardHeader><Brain className="w-4 h-4 text-violet-600" /><CardTitle>AI Demand Predictions</CardTitle></CardHeader>
             <CardBody className="space-y-3">
               {data?.aiPredictions?.map((pred: any, i: number) => (
-                <div key={i} className="flex items-start gap-4 px-4 py-3.5 bg-violet-50 rounded-2xl">
-                  <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                <div key={i} className="flex items-start gap-4 px-4 py-3.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                     <Brain className="w-4 h-4 text-violet-600" />
                   </div>
                   <div className="flex-1">
@@ -407,7 +408,8 @@ export default function SupplyChainPortal() {
             {data?.inventory?.filter((i: any) => i.status !== "adequate").map((item: any, idx: number) => {
               const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.adequate;
               return (
-                <div key={idx} className={`px-4 py-3.5 ${cfg.bg} rounded-2xl`}>
+                <div key={idx} className="px-4 py-3.5 bg-secondary rounded-2xl"
+                  style={cfg.borderColor ? { borderLeft: `3px solid ${cfg.borderColor}` } : {}}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -426,7 +428,7 @@ export default function SupplyChainPortal() {
                   <button
                     onClick={() => reorderMutation.mutate({ drugName: item.drugName, quantity: item.avgMonthlyDemand * 3, supplier: item.supplier, requestedBy: "Ibrahim Al-Dosari" })}
                     disabled={reorderMutation.isPending || !!reorderResults[item.drugName]}
-                    className={`mt-3 w-full text-xs font-semibold py-1.5 rounded-xl transition-colors ${reorderResults[item.drugName] ? "bg-emerald-100 text-emerald-700" : "bg-red-600 hover:bg-red-700 text-white"}`}
+                    className={`mt-3 w-full text-xs font-semibold py-1.5 rounded-xl transition-colors ${reorderResults[item.drugName] ? "bg-secondary text-emerald-700" : "bg-red-600 hover:bg-red-700 text-white"}`}
                   >
                     {reorderResults[item.drugName] ? `Order Placed: ${reorderResults[item.drugName]?.orderId}` : "Issue Emergency Order"}
                   </button>
@@ -440,7 +442,7 @@ export default function SupplyChainPortal() {
       {/* ─── REGIONAL DISTRIBUTION ─── */}
       {activeTab === "distribution" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 px-4 py-3 bg-sky-50 rounded-2xl">
+          <div className="flex items-center gap-3 px-4 py-3 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #0ea5e9" }}>
             <Globe className="w-4 h-4 text-sky-600 shrink-0" />
             <div>
               <p className="text-xs font-bold text-foreground">National Drug Distribution Optimization</p>
@@ -473,7 +475,8 @@ export default function SupplyChainPortal() {
               <CardHeader><MapPin className="w-4 h-4 text-primary" /><CardTitle>Gap Analysis by Region</CardTitle></CardHeader>
               <CardBody className="space-y-2.5">
                 {REGIONAL_DISTRIBUTION.map((r, i) => (
-                  <div key={i} className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl ${r.gap < 0 ? "bg-red-50" : "bg-emerald-50"}`}>
+                  <div key={i} className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-secondary"
+                    style={r.gap < 0 ? { borderLeft: "3px solid #ef4444" } : { borderLeft: "3px solid #22c55e" }}>
                     <MapPin className={`w-3.5 h-3.5 shrink-0 ${r.gap < 0 ? "text-red-500" : "text-emerald-500"}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-foreground">{r.region}</p>
@@ -502,7 +505,8 @@ export default function SupplyChainPortal() {
                 { from: "Qassim", to: "Eastern Province", drug: "Amlodipine 5mg", quantity: 800, reason: "Qassim surplus 8% — Eastern Province deficit 16% — 2-day internal transfer feasible", priority: "high" },
                 { from: "Asir", to: "Tabuk", drug: "Lisinopril 10mg", quantity: 500, reason: "Asir surplus 7% — Tabuk deficit 8% — Tabuk growing patient population trend", priority: "medium" },
               ].map((rec, i) => (
-                <div key={i} className={`flex items-start gap-4 px-4 py-3.5 rounded-2xl ${rec.priority === "high" ? "bg-amber-50" : "bg-sky-50"}`}>
+                <div key={i} className="flex items-start gap-4 px-4 py-3.5 rounded-2xl bg-secondary"
+                  style={rec.priority === "high" ? { borderLeft: "3px solid #f59e0b" } : { borderLeft: "3px solid #0ea5e9" }}>
                   <Truck className={`w-4 h-4 shrink-0 mt-0.5 ${rec.priority === "high" ? "text-amber-600" : "text-sky-600"}`} />
                   <div className="flex-1">
                     <p className="text-sm font-bold text-foreground">{rec.drug}: {rec.from} → {rec.to}</p>
@@ -528,7 +532,7 @@ export default function SupplyChainPortal() {
                 {data.criticalAlerts.map((alert: any, i: number) => {
                   const result = reorderResults[alert.drug];
                   return (
-                    <div key={i} className="flex items-center gap-4 px-5 py-4 bg-red-50/30">
+                    <div key={i} className="flex items-center gap-4 px-5 py-4" style={{ borderLeft: "3px solid #ef4444" }}>
                       <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground">{alert.drug}</p>
@@ -588,7 +592,7 @@ export default function SupplyChainPortal() {
                         <button
                           onClick={() => reorderMutation.mutate({ drugName: item.drugName, quantity: item.avgMonthlyDemand * 3, supplier: item.supplier, requestedBy: "Ibrahim Al-Dosari" })}
                           disabled={reorderMutation.isPending}
-                          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors ${item.status === "critical" ? "bg-red-600 hover:bg-red-700 text-white" : "bg-amber-100 hover:bg-amber-200 text-amber-800"}`}
+                          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors ${item.status === "critical" ? "bg-red-600 hover:bg-red-700 text-white" : "bg-secondary hover:bg-border text-amber-700"}`}
                         >
                           <ShoppingCart className="w-3 h-3" />
                           Order
@@ -606,16 +610,16 @@ export default function SupplyChainPortal() {
       {/* ─── RAMADAN & HAJJ SEASONAL SURGE PLANNER ─── */}
       {activeTab === "seasonal" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-emerald-50 to-amber-50 rounded-3xl">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-4 p-5 bg-secondary rounded-3xl" style={{ borderLeft: "4px solid #22c55e" }}>
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
               <Calendar className="w-6 h-6 text-emerald-700" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-bold text-emerald-900 text-sm">Saudi Seasonal Demand Intelligence Engine</p>
+                <p className="font-bold text-foreground text-sm">Saudi Seasonal Demand Intelligence Engine</p>
                 <Badge variant="success" className="text-[10px]">Active Planning Mode</Badge>
               </div>
-              <p className="text-xs text-emerald-700">AI-powered demand forecasting for Ramadan fasting health impacts and Hajj pilgrimage medical operations. Covers 2.5M+ Hajj pilgrims and demand shifts for 34M Saudi patients during fasting months. Generates pre-emptive procurement orders 8 weeks before each event.</p>
+              <p className="text-xs text-muted-foreground">AI-powered demand forecasting for Ramadan fasting health impacts and Hajj pilgrimage medical operations. Covers 2.5M+ Hajj pilgrims and demand shifts for 34M Saudi patients during fasting months. Generates pre-emptive procurement orders 8 weeks before each event.</p>
             </div>
           </div>
 
@@ -624,7 +628,7 @@ export default function SupplyChainPortal() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                     <span className="text-[15px] font-bold text-emerald-700">☽</span>
                   </div>
                   <div>
@@ -636,17 +640,17 @@ export default function SupplyChainPortal() {
               </CardHeader>
               <CardBody className="space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 bg-emerald-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #22c55e" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">DM Patients Fasting</p>
                     <p className="text-2xl font-bold text-emerald-700">4.8M</p>
                     <p className="text-[10px] text-muted-foreground">+31% medication events</p>
                   </div>
-                  <div className="p-3 bg-amber-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #f59e0b" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hypoglycemia Risk ↑</p>
                     <p className="text-2xl font-bold text-amber-700">+178%</p>
                     <p className="text-[10px] text-muted-foreground">vs. non-Ramadan baseline</p>
                   </div>
-                  <div className="p-3 bg-red-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #ef4444" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">ER Visits Expected</p>
                     <p className="text-2xl font-bold text-red-700">+24K</p>
                     <p className="text-[10px] text-muted-foreground">Primarily DKA + dehydration</p>
@@ -671,22 +675,22 @@ export default function SupplyChainPortal() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className={`text-sm font-bold ${item.surge.startsWith("+1") || item.surge.startsWith("+2") ? "text-red-600" : "text-amber-600"}`}>{item.surge}</p>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${item.action === "URGENT ORDER" ? "bg-red-100 text-red-700" : item.action === "Monitor" ? "bg-amber-100 text-amber-700" : "bg-lime-100 text-lime-700"}`}>{item.action}</span>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${item.action === "URGENT ORDER" ? "text-red-700" : item.action === "Monitor" ? "text-amber-700" : "text-emerald-700"}`}>{item.action}</span>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="p-3.5 bg-emerald-50 rounded-2xl">
-                  <p className="text-[10px] font-bold text-emerald-800 mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3" /> AI Medication Timing Protocol Recommendation</p>
-                  <p className="text-xs text-emerald-700">SANAD AI recommends auto-generating "Ramadan Medication Guide" for all DM + HTN patients in app. Notify 2 weeks before Ramadan with personalized dosing schedule adjustment. Expected: 34% reduction in Ramadan hypoglycemia admissions.</p>
+                <div className="p-3.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
+                  <p className="text-[10px] font-bold text-foreground mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3" /> AI Medication Timing Protocol Recommendation</p>
+                  <p className="text-xs text-muted-foreground">SANAD AI recommends auto-generating "Ramadan Medication Guide" for all DM + HTN patients in app. Notify 2 weeks before Ramadan with personalized dosing schedule adjustment. Expected: 34% reduction in Ramadan hypoglycemia admissions.</p>
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">
-                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full transition-colors">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                     <ShoppingCart className="w-3 h-3" /> Generate All Ramadan Orders
                   </button>
-                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                     <Brain className="w-3 h-3" /> Export Ramadan Protocol
                   </button>
                 </div>
@@ -697,7 +701,7 @@ export default function SupplyChainPortal() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                     <MapPin className="w-4 h-4 text-amber-700" />
                   </div>
                   <div>
@@ -709,17 +713,17 @@ export default function SupplyChainPortal() {
               </CardHeader>
               <CardBody className="space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 bg-amber-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #f59e0b" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Pilgrims Expected</p>
                     <p className="text-2xl font-bold text-amber-700">2.5M</p>
                     <p className="text-[10px] text-muted-foreground">from 160+ countries</p>
                   </div>
-                  <div className="p-3 bg-red-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #ef4444" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Heat Stroke Risk</p>
                     <p className="text-2xl font-bold text-red-700">48°C</p>
                     <p className="text-[10px] text-muted-foreground">Peak Makkah temp June</p>
                   </div>
-                  <div className="p-3 bg-violet-50 rounded-2xl text-center">
+                  <div className="p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #8b5cf6" }}>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Medical Facilities</p>
                     <p className="text-2xl font-bold text-violet-700">147</p>
                     <p className="text-[10px] text-muted-foreground">Hajj clinics + field units</p>
@@ -739,7 +743,7 @@ export default function SupplyChainPortal() {
                     { drug: "Blood Glucose Test Strips", qty: "4,200,000 strips", risk: "DM management in 847K diabetic pilgrims", status: "IN TRANSIT", progress: 72 },
                   ].map((item, i) => {
                     const progColor = item.progress >= 90 ? "bg-emerald-500" : item.progress >= 60 ? "bg-amber-500" : "bg-red-500";
-                    const statusColor = item.status === "CONFIRMED" ? "text-emerald-700 bg-emerald-100" : item.status.includes("ORDER NOW") ? "text-red-700 bg-red-100" : item.status.includes("ORDERED") ? "text-amber-700 bg-amber-100" : "text-sky-700 bg-sky-100";
+                    const statusColor = item.status === "CONFIRMED" ? "text-emerald-700 bg-secondary" : item.status.includes("ORDER NOW") ? "text-red-700 bg-secondary" : item.status.includes("ORDERED") ? "text-amber-700 bg-secondary" : "text-sky-700 bg-secondary";
                     return (
                       <div key={i} className="p-3 bg-secondary rounded-2xl">
                         <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -764,12 +768,12 @@ export default function SupplyChainPortal() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3.5 bg-amber-50 rounded-2xl">
-                    <p className="text-[10px] font-bold text-amber-800 mb-2 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Hajj AI Command Center</p>
-                    <p className="text-xs text-amber-700">Real-time pilgrim health monitoring via wearable integration. AI predicts heat stroke events 45 min in advance based on heat index + activity pattern + hydration markers.</p>
+                  <div className="p-3.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #f59e0b" }}>
+                    <p className="text-[10px] font-bold text-foreground mb-2 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Hajj AI Command Center</p>
+                    <p className="text-xs text-muted-foreground">Real-time pilgrim health monitoring via wearable integration. AI predicts heat stroke events 45 min in advance based on heat index + activity pattern + hydration markers.</p>
                   </div>
-                  <div className="p-3.5 bg-red-50 rounded-2xl">
-                    <p className="text-[10px] font-bold text-red-800 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-3 h-3" /> Critical Gaps (Act Now)</p>
+                  <div className="p-3.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
+                    <p className="text-[10px] font-bold text-foreground mb-2 flex items-center gap-1.5"><AlertTriangle className="w-3 h-3" /> Critical Gaps (Act Now)</p>
                     <div className="space-y-1">
                       {["Cooling Gel Blankets — Only 12% ordered", "Salbutamol Inhalers — 25% ordered", "Ciprofloxacin — 60% ordered"].map((g, i) => (
                         <p key={i} className="text-[10px] text-red-700 font-semibold flex items-center gap-1.5">
@@ -781,10 +785,10 @@ export default function SupplyChainPortal() {
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">
-                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-full transition-colors">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                     <ShoppingCart className="w-3 h-3" /> Generate Gap Orders
                   </button>
-                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-full transition-colors">
+                  <button className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-full transition-colors">
                     <AlertTriangle className="w-3 h-3" /> Escalate to MOH
                   </button>
                 </div>

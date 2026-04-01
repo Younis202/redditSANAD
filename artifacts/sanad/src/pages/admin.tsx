@@ -48,10 +48,10 @@ const REGIONS = [
 ];
 
 const RISK_CFG = {
-  critical: { bg: "bg-red-50", border: "border-red-300", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL" },
-  high:     { bg: "bg-orange-50", border: "border-orange-300", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH" },
-  moderate: { bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE" },
-  low:      { bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL" },
+  critical: { bg: "bg-secondary", borderColor: "#ef4444", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL" },
+  high:     { bg: "bg-secondary", borderColor: "#f97316", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH" },
+  moderate: { bg: "bg-secondary", borderColor: "#f59e0b", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE" },
+  low:      { bg: "bg-secondary", borderColor: "#22c55e", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL" },
 };
 
 const IMPACT_TREND = [
@@ -121,9 +121,9 @@ export default function AdminDashboard() {
       {stats && (
         <div className="grid grid-cols-4 gap-4 mb-6">
           <KpiCard title="Registered Patients" value={stats.totalPatients.toLocaleString()} sub="Active national records" icon={Users} iconBg="bg-primary/10" iconColor="text-primary" trend="+2.4%" />
-          <KpiCard title="Visits Today" value={stats.totalVisitsToday.toLocaleString()} sub="Across all facilities" icon={Activity} iconBg="bg-sky-100" iconColor="text-sky-600" trend="+12%" />
-          <KpiCard title="Drug Interactions Blocked" value={stats.drugInteractionsBlocked.toLocaleString()} sub="Conflicts prevented by AI" icon={ShieldAlert} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
-          <KpiCard title="Connected Hospitals" value={stats.hospitalsConnected.toLocaleString()} sub="Nationwide network" icon={Building} iconBg="bg-violet-100" iconColor="text-violet-600" />
+          <KpiCard title="Visits Today" value={stats.totalVisitsToday.toLocaleString()} sub="Across all facilities" icon={Activity} iconBg="bg-primary/10" iconColor="text-primary" trend="+12%" />
+          <KpiCard title="Drug Interactions Blocked" value={stats.drugInteractionsBlocked.toLocaleString()} sub="Conflicts prevented by AI" icon={ShieldAlert} iconBg="bg-primary/10" iconColor="text-primary" />
+          <KpiCard title="Connected Hospitals" value={stats.hospitalsConnected.toLocaleString()} sub="Nationwide network" icon={Building} iconBg="bg-primary/10" iconColor="text-primary" />
         </div>
       )}
 
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
                         <div className="h-full rounded-full" style={{ width: `${region.coverage}%`, background: cfg.bar }} />
                       </div>
                       {region.flag && (
-                        <p className="text-[9px] font-bold text-red-700 bg-red-100/80 px-2 py-0.5 rounded-lg">{region.flag}</p>
+                        <p className="text-[9px] font-bold text-red-700 bg-secondary px-2 py-0.5 rounded-lg">{region.flag}</p>
                       )}
                     </div>
                   );
@@ -400,7 +400,8 @@ export default function AdminDashboard() {
                       { name: "Explainability Layer", status: "online", version: "v2.0" },
                       { name: "Unknown Pattern Detector", status: "standby", version: "v0.9" },
                     ].map((engine, i) => (
-                      <div key={i} className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl ${engine.status === "online" ? "bg-emerald-50" : "bg-secondary"}`}>
+                      <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-secondary"
+                        style={engine.status === "online" ? { borderLeft: "2px solid #22c55e" } : {}}>
                         <div className={`w-2 h-2 rounded-full shrink-0 ${engine.status === "online" ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`} />
                         <div>
                           <p className="text-xs font-bold text-foreground">{engine.name}</p>
@@ -419,11 +420,8 @@ export default function AdminDashboard() {
                     </p>
                     <div className="grid grid-cols-2 gap-2.5">
                       {(intelligence as any).epidemicRadar.map((item: any, i: number) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${
-                          item.alert === "high" ? "bg-red-50" :
-                          item.alert === "medium" ? "bg-amber-50" :
-                          "bg-secondary"
-                        }`}>
+                        <div key={i} className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-secondary"
+                          style={item.alert === "high" ? { borderLeft: "3px solid #ef4444" } : item.alert === "medium" ? { borderLeft: "3px solid #f59e0b" } : {}}>
                           <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
                             item.alert === "high" ? "bg-red-500" :
                             item.alert === "medium" ? "bg-amber-500" : "bg-muted-foreground"
@@ -452,9 +450,8 @@ export default function AdminDashboard() {
                     </p>
                     <div className="space-y-2">
                       {(intelligence as any).policyInsights.map((insight: any, i: number) => (
-                        <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${
-                          insight.priority === "high" ? "bg-violet-50" : "bg-secondary"
-                        }`}>
+                        <div key={i} className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-secondary"
+                          style={insight.priority === "high" ? { borderLeft: "3px solid #8b5cf6" } : {}}>
                           <Target className="w-4 h-4 shrink-0 mt-0.5 text-violet-600" />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
@@ -521,7 +518,7 @@ export default function AdminDashboard() {
                         <div className={`h-full rounded-full ${d.color}`} style={{ width: `${(d.prevalence / 35) * 100}%` }} />
                       </div>
                       <span className="text-[11px] font-bold tabular-nums text-foreground w-10 text-right">{d.prevalence}%</span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${d.trend === "up" ? "bg-red-100 text-red-600" : d.trend === "down" ? "bg-emerald-100 text-emerald-600" : "bg-secondary text-muted-foreground"}`}>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 bg-secondary ${d.trend === "up" ? "text-red-600" : d.trend === "down" ? "text-emerald-600" : "text-muted-foreground"}`}>
                         {d.trend === "up" ? "Rising" : d.trend === "down" ? "Falling" : "Stable"}
                       </span>
                       <span className="text-[10px] text-muted-foreground w-10 shrink-0 text-right">{d.patients}</span>
@@ -556,10 +553,10 @@ export default function AdminDashboard() {
                     ))}
                   </div>
 
-                  <div className="mt-4 p-4 bg-violet-50 rounded-2xl">
+                  <div className="mt-4 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
                     <div className="flex items-center gap-2 mb-2">
                       <Settings className="w-3.5 h-3.5 text-violet-700" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-violet-800">Policy Engine — AI Recommendations</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-foreground">Policy Engine — AI Recommendations</p>
                     </div>
                     <div className="space-y-1.5">
                       {[
@@ -612,7 +609,7 @@ export default function AdminDashboard() {
                     const mortalityColor = h.mortality < 1.5 ? "text-emerald-600" : h.mortality < 2.5 ? "text-amber-600" : "text-red-600";
                     const rankColors = ["bg-amber-400 text-white", "bg-slate-400 text-white", "bg-orange-400 text-white"];
                     return (
-                      <tr key={h.rank} className={h.rank <= 3 ? "bg-amber-50/30" : ""}>
+                      <tr key={h.rank} style={h.rank <= 3 ? { borderLeft: "2px solid #f59e0b" } : {}}>
                         <td className="font-black text-center text-sm">
                           <span className={`inline-flex w-7 h-7 items-center justify-center rounded-lg text-[11px] font-black ${h.rank <= 3 ? rankColors[h.rank - 1] : "bg-secondary text-muted-foreground"}`}>
                             {h.rank}
@@ -692,7 +689,7 @@ export default function AdminDashboard() {
                         <p className="text-xs font-semibold text-foreground">{e.layer}</p>
                         <p className="text-[10px] text-muted-foreground font-mono">{e.protocol}</p>
                       </div>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${e.ok ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>Active</span>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${e.ok ? "text-emerald-700" : "text-red-700"}`}>Active</span>
                     </div>
                   ))}
                 </div>
@@ -726,7 +723,8 @@ export default function AdminDashboard() {
                       { date: "Mar 15 2026", event: "API rate limit exceeded — Eastern Province node", severity: "MEDIUM", resolved: true },
                       { date: "Mar 04 2026", event: "Certificate rotation — HSM key refresh", severity: "INFO", resolved: true },
                     ].map((ev, i) => (
-                      <div key={i} className={`px-3 py-2.5 rounded-xl text-xs ${ev.severity === "MEDIUM" ? "bg-amber-50" : "bg-secondary"}`}>
+                      <div key={i} className="px-3 py-2.5 rounded-xl text-xs bg-secondary"
+                        style={ev.severity === "MEDIUM" ? { borderLeft: "3px solid #f59e0b" } : {}}>
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${ev.severity === "MEDIUM" ? "bg-amber-500 text-white" : "bg-sky-500 text-white"}`}>{ev.severity}</span>
                           <span className="text-[10px] text-muted-foreground">{ev.date}</span>
@@ -736,13 +734,13 @@ export default function AdminDashboard() {
                       </div>
                     ))}
                   </div>
-                  <div className="p-4 bg-emerald-50 rounded-2xl">
+                  <div className="p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
                     <div className="flex items-center gap-2 mb-1">
                       <Lock className="w-3.5 h-3.5 text-emerald-700" />
-                      <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Security Posture</p>
+                      <p className="text-[10px] font-black text-foreground uppercase tracking-widest">Security Posture</p>
                     </div>
-                    <p className="text-sm font-bold text-emerald-900">Excellent — 0 Critical or High incidents in 90 days</p>
-                    <p className="text-[10px] text-emerald-700 mt-1">Last penetration test: Feb 2026 · Zero critical vulnerabilities</p>
+                    <p className="text-sm font-bold text-foreground">Excellent — 0 Critical or High incidents in 90 days</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Last penetration test: Feb 2026 · Zero critical vulnerabilities</p>
                   </div>
                 </div>
               </div>
@@ -811,9 +809,9 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-4 gap-4">
-          <KpiCard title="Lives Directly Impacted" value="2.84M" sub="Patients with AI-driven care decisions" icon={Heart} iconBg="bg-red-100" iconColor="text-red-600" />
-          <KpiCard title="AI Recommendations Accepted" value="847K" sub="By physicians YTD 2025" icon={Brain} iconBg="bg-violet-100" iconColor="text-violet-600" />
-          <KpiCard title="Hospitalizations Prevented" value="73,481" sub="AI early intervention" icon={CheckCircle2} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
+          <KpiCard title="Lives Directly Impacted" value="2.84M" sub="Patients with AI-driven care decisions" icon={Heart} iconBg="bg-primary/10" iconColor="text-primary" />
+          <KpiCard title="AI Recommendations Accepted" value="847K" sub="By physicians YTD 2025" icon={Brain} iconBg="bg-primary/10" iconColor="text-primary" />
+          <KpiCard title="Hospitalizations Prevented" value="73,481" sub="AI early intervention" icon={CheckCircle2} iconBg="bg-primary/10" iconColor="text-primary" />
           <KpiCard title="Healthcare Savings" value="SAR 4.7B" sub="Direct AI cost avoidance YTD" icon={Star} iconBg="bg-primary/10" iconColor="text-primary" />
         </div>
 
@@ -884,7 +882,7 @@ export default function AdminDashboard() {
               title: "Critical Condition Interventions",
               icon: ShieldAlert,
               iconColor: "text-red-600",
-              iconBg: "bg-red-100",
+              iconBg: "bg-primary/10",
               items: [
                 { label: "Sepsis Early Warnings Fired", value: "18,420", trend: "+23% vs 2024" },
                 { label: "DKA Episodes Prevented", value: "4,281", trend: "+41% catch rate" },
@@ -897,7 +895,7 @@ export default function AdminDashboard() {
               title: "Population Health AI Improvements",
               icon: Activity,
               iconColor: "text-emerald-600",
-              iconBg: "bg-emerald-100",
+              iconBg: "bg-primary/10",
               items: [
                 { label: "DM HbA1c Control Rate", value: "68%", trend: "+27% vs pre-AI" },
                 { label: "HTN BP Control (<130/80)", value: "72%", trend: "+24% improvement" },

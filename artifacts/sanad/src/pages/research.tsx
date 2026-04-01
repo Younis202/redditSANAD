@@ -22,9 +22,9 @@ async function fetchResearchInsights() {
 }
 
 const TREND_CONFIG = {
-  rising: { color: "text-red-600", bg: "bg-red-50", border: "border-red-100", label: "Rising ↑", dot: "bg-red-500" },
-  stable: { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", label: "Stable →", dot: "bg-amber-500" },
-  declining: { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", label: "Declining ↓", dot: "bg-emerald-500" },
+  rising: { color: "text-red-600", bg: "bg-secondary", borderColor: "#ef4444", label: "Rising ↑", dot: "bg-red-500" },
+  stable: { color: "text-amber-600", bg: "bg-secondary", borderColor: "#f59e0b", label: "Stable →", dot: "bg-amber-500" },
+  declining: { color: "text-emerald-600", bg: "bg-secondary", borderColor: "#22c55e", label: "Declining ↓", dot: "bg-emerald-500" },
 };
 
 const CLINICAL_STUDIES = [
@@ -125,11 +125,11 @@ const COHORT_RADAR = [
   { metric: "Heart Disease", A: 22, B: 10 },
 ];
 
-const STATUS_CONFIG: Record<string, { bg: string; border: string; badge: any; dot: string; label: string }> = {
-  active: { bg: "bg-emerald-50", border: "border-emerald-200", badge: "success" as const, dot: "bg-emerald-500 animate-pulse", label: "Active" },
-  recruiting: { bg: "bg-sky-50", border: "border-sky-200", badge: "info" as const, dot: "bg-sky-500 animate-pulse", label: "Recruiting" },
-  completed: { bg: "bg-secondary", border: "border-border", badge: "outline" as const, dot: "bg-muted-foreground", label: "Completed" },
-  paused: { bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, dot: "bg-amber-500", label: "Paused" },
+const STATUS_CONFIG: Record<string, { bg: string; borderColor?: string; badge: any; dot: string; label: string }> = {
+  active: { bg: "bg-secondary", borderColor: "#22c55e", badge: "success" as const, dot: "bg-emerald-500 animate-pulse", label: "Active" },
+  recruiting: { bg: "bg-secondary", borderColor: "#0ea5e9", badge: "info" as const, dot: "bg-sky-500 animate-pulse", label: "Recruiting" },
+  completed: { bg: "bg-secondary", badge: "outline" as const, dot: "bg-muted-foreground", label: "Completed" },
+  paused: { bg: "bg-secondary", borderColor: "#f59e0b", badge: "warning" as const, dot: "bg-amber-500", label: "Paused" },
 };
 
 type ViewTab = "overview" | "studies" | "trends" | "correlations" | "cohorts" | "hypothesis";
@@ -180,7 +180,7 @@ export default function ResearchPortal() {
           <FlaskConical className="w-3 h-3" />
           Research Portal
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
           <Lock className="w-3 h-3" />
           All data anonymized · GDPR + PDPL compliant
         </div>
@@ -189,12 +189,12 @@ export default function ResearchPortal() {
             <button
               onClick={() => setShowSsePanel(p => !p)}
               className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-teal-50 hover:bg-teal-100" : "bg-secondary hover:bg-border"
+                sseUnread > 0 ? "bg-secondary hover:bg-border" : "bg-secondary hover:bg-border"
               }`}
             >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-teal-600" : "text-muted-foreground"}`} />
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-primary" : "text-muted-foreground"}`} />
               {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-teal-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
                   {sseUnread > 9 ? "9+" : sseUnread}
                 </span>
               )}
@@ -202,14 +202,14 @@ export default function ResearchPortal() {
           </div>
           <button
             onClick={() => handleExport("csv")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full hover:bg-teal-100 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground bg-secondary px-3 py-1.5 rounded-full hover:bg-border transition-colors"
           >
             <Download className="w-3 h-3" />
             Export CSV
           </button>
           <button
             onClick={() => handleExport("json")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-violet-700 bg-violet-50 px-3 py-1.5 rounded-full hover:bg-violet-100 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground bg-secondary px-3 py-1.5 rounded-full hover:bg-border transition-colors"
           >
             <Database className="w-3 h-3" />
             Export JSON
@@ -220,10 +220,10 @@ export default function ResearchPortal() {
       {/* SSE Research Intelligence Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-teal-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
-              <span className="font-bold text-sm text-teal-900">Live National Health Intelligence Feed</span>
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="font-bold text-sm text-foreground">Live National Health Intelligence Feed</span>
               <Badge variant="info" className="text-[10px]">{sseUnread} new events</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -268,9 +268,9 @@ export default function ResearchPortal() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard title="Anonymized Records" value={data?.totalAnonymizedRecords?.toLocaleString()} sub="Fully de-identified" icon={Users} iconBg="bg-teal-100" iconColor="text-teal-600" />
-        <KpiCard title="Active Studies" value={CLINICAL_STUDIES.filter(s => s.status === "active").length} sub={`${CLINICAL_STUDIES.length} total registered`} icon={BookOpen} iconBg="bg-violet-100" iconColor="text-violet-600" />
-        <KpiCard title="AI Decisions Analyzed" value={data?.aiMetrics?.totalDecisions?.toLocaleString()} sub={`${data?.aiMetrics?.avgConfidence}% avg confidence`} icon={Brain} iconBg="bg-amber-100" iconColor="text-amber-600" />
+        <KpiCard title="Anonymized Records" value={data?.totalAnonymizedRecords?.toLocaleString()} sub="Fully de-identified" icon={Users} iconBg="bg-primary/10" iconColor="text-primary" />
+        <KpiCard title="Active Studies" value={CLINICAL_STUDIES.filter(s => s.status === "active").length} sub={`${CLINICAL_STUDIES.length} total registered`} icon={BookOpen} iconBg="bg-primary/10" iconColor="text-primary" />
+        <KpiCard title="AI Decisions Analyzed" value={data?.aiMetrics?.totalDecisions?.toLocaleString()} sub={`${data?.aiMetrics?.avgConfidence}% avg confidence`} icon={Brain} iconBg="bg-primary/10" iconColor="text-primary" />
         <KpiCard title="Lab Results" value={data?.totalLabResults?.toLocaleString()} sub="Cross-patient trend data" icon={FlaskConical} iconBg="bg-primary/10" iconColor="text-primary" />
       </div>
 
@@ -304,7 +304,8 @@ export default function ResearchPortal() {
             </CardHeader>
             <CardBody className="space-y-3">
               {data?.clinicalFindings?.map((f: any, i: number) => (
-                <div key={i} className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl ${f.significance === "high" ? "bg-amber-50" : "bg-sky-50"}`}>
+                <div key={i} className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-secondary"
+                  style={f.significance === "high" ? { borderLeft: "3px solid #f59e0b" } : { borderLeft: "3px solid #0ea5e9" }}>
                   <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${f.significance === "high" ? "bg-amber-500" : "bg-sky-500"}`} />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">{f.finding}</p>
@@ -438,11 +439,11 @@ export default function ResearchPortal() {
       {/* ─── CLINICAL STUDIES ─── */}
       {activeView === "studies" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-violet-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
             <BookOpen className="w-5 h-5 text-violet-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-violet-800">SANAD Clinical Research Registry</p>
-              <p className="text-xs text-violet-600 mt-0.5">
+              <p className="text-sm font-bold text-foreground">SANAD Clinical Research Registry</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {CLINICAL_STUDIES.filter(s => s.status === "active").length} active ·{" "}
                 {CLINICAL_STUDIES.filter(s => s.status === "recruiting").length} recruiting ·{" "}
                 {CLINICAL_STUDIES.filter(s => s.status === "completed").length} completed ·{" "}
@@ -457,7 +458,8 @@ export default function ResearchPortal() {
             return (
               <Card key={study.id}>
                 <CardBody className="p-0">
-                  <div className={`px-5 py-4 ${cfg.bg} rounded-t-[2rem]`}>
+                  <div className={`px-5 py-4 ${cfg.bg} rounded-t-[2rem]`}
+                    style={cfg.borderColor ? { borderLeft: `4px solid ${cfg.borderColor}` } : {}}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -501,10 +503,10 @@ export default function ResearchPortal() {
                     </div>
                   </div>
 
-                  <div className="px-5 py-3 bg-violet-50 border-t border-violet-100 rounded-b-[inherit]">
+                  <div className="px-5 py-3 bg-secondary border-t border-border rounded-b-[inherit]">
                     <div className="flex items-start gap-2">
                       <Brain className="w-3.5 h-3.5 text-violet-600 shrink-0 mt-0.5" />
-                      <p className="text-[11px] text-violet-800">
+                      <p className="text-[11px] text-muted-foreground">
                         <span className="font-bold">AI Insight:</span> {study.aiInsight}
                       </p>
                     </div>
@@ -519,11 +521,11 @@ export default function ResearchPortal() {
       {/* ─── DISEASE TRENDS ─── */}
       {activeView === "trends" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
             <TrendingUp className="w-5 h-5 text-red-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-red-800">National Disease Trend Radar — 12-Month View</p>
-              <p className="text-xs text-red-600 mt-0.5">All 4 major chronic diseases showing upward trend — immediate national response required</p>
+              <p className="text-sm font-bold text-foreground">National Disease Trend Radar — 12-Month View</p>
+              <p className="text-xs text-muted-foreground mt-0.5">All 4 major chronic diseases showing upward trend — immediate national response required</p>
             </div>
             <Badge variant="destructive" className="ml-auto shrink-0">RISING</Badge>
           </div>
@@ -572,12 +574,12 @@ export default function ResearchPortal() {
 
           <div className="grid grid-cols-4 gap-4">
             {[
-              { name: "Type-2 Diabetes", current: "47%", change: "+9%", trend: "rising", color: "text-amber-600", bg: "bg-amber-50" },
-              { name: "Hypertension", current: "60%", change: "+8%", trend: "rising", color: "text-red-600", bg: "bg-red-50" },
-              { name: "Chronic Kidney Disease", current: "19%", change: "+5%", trend: "rising", color: "text-violet-600", bg: "bg-violet-50" },
-              { name: "Obesity", current: "38%", change: "+7%", trend: "rising", color: "text-blue-600", bg: "bg-blue-50" },
+              { name: "Type-2 Diabetes", current: "47%", change: "+9%", trend: "rising", color: "text-amber-600", borderColor: "#f59e0b" },
+              { name: "Hypertension", current: "60%", change: "+8%", trend: "rising", color: "text-red-600", borderColor: "#ef4444" },
+              { name: "Chronic Kidney Disease", current: "19%", change: "+5%", trend: "rising", color: "text-violet-600", borderColor: "#8b5cf6" },
+              { name: "Obesity", current: "38%", change: "+7%", trend: "rising", color: "text-blue-600", borderColor: "#3b82f6" },
             ].map((d, i) => (
-              <div key={i} className={`p-4 ${d.bg} rounded-2xl`}>
+              <div key={i} className="p-4 bg-secondary rounded-2xl" style={{ borderLeft: `3px solid ${d.borderColor}` }}>
                 <p className="text-xs font-bold text-muted-foreground mb-2">{d.name}</p>
                 <div className="flex items-end gap-2">
                   <p className={`text-3xl font-bold ${d.color}`}>{d.current}</p>
@@ -596,11 +598,11 @@ export default function ResearchPortal() {
       {/* ─── CORRELATION ANALYSIS ─── */}
       {activeView === "correlations" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-teal-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #14b8a6" }}>
             <GitBranch className="w-5 h-5 text-teal-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-teal-800">Disease Co-Occurrence Correlation Matrix</p>
-              <p className="text-xs text-teal-600 mt-0.5">AI-detected co-occurrence patterns across chronic conditions — values represent % of patients with Condition A who also have Condition B</p>
+              <p className="text-sm font-bold text-foreground">Disease Co-Occurrence Correlation Matrix</p>
+              <p className="text-xs text-muted-foreground mt-0.5">AI-detected co-occurrence patterns across chronic conditions — values represent % of patients with Condition A who also have Condition B</p>
             </div>
           </div>
 
@@ -625,7 +627,7 @@ export default function ResearchPortal() {
                       <tr key={ri} className="hover:bg-secondary/20">
                         <td className="px-4 py-3 text-sm font-bold text-foreground">{row.condition}</td>
                         {[row.hypertension, row.ckd, row.heartDisease, row.obesity, row.dyslipidemia].map((val, ci) => {
-                          const intensity = val >= 60 ? "bg-red-100 text-red-700 font-bold" : val >= 40 ? "bg-amber-100 text-amber-700 font-semibold" : val >= 20 ? "bg-sky-100 text-sky-700" : "bg-secondary text-muted-foreground";
+                          const intensity = val >= 60 ? "bg-secondary text-red-700 font-bold" : val >= 40 ? "bg-secondary text-amber-700 font-semibold" : val >= 20 ? "bg-secondary text-sky-700" : "bg-secondary text-muted-foreground";
                           return (
                             <td key={ci} className="px-4 py-3 text-center">
                               <span className={`inline-block text-sm px-2.5 py-1 rounded-xl ${intensity}`}>{val}%</span>
@@ -640,9 +642,9 @@ export default function ResearchPortal() {
               <div className="px-5 py-3 border-t border-border bg-secondary/30">
                 <div className="flex items-center gap-4 text-[10px]">
                   <span className="font-bold text-muted-foreground uppercase tracking-wide">Legend:</span>
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100" /> ≥60% Strong</span>
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-100" /> 40–59% Moderate</span>
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-sky-100" /> 20–39% Weak</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-secondary border border-red-400" /> ≥60% Strong</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-secondary border border-amber-400" /> 40–59% Moderate</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-secondary border border-sky-400" /> 20–39% Weak</span>
                 </div>
               </div>
             </CardBody>
@@ -682,8 +684,8 @@ export default function ResearchPortal() {
                   { priority: "P3", rec: "Dyslipidemia screening in all CVD patients — 69% co-occurrence, statin therapy massively underused", impact: "High" },
                   { priority: "P4", rec: "Obesity management centers in high-prevalence regions — upstream intervention for DM prevention", impact: "Medium" },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 px-3.5 py-3 bg-violet-50 rounded-2xl">
-                    <span className="text-[10px] font-bold text-violet-700 bg-violet-200 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">{item.priority}</span>
+                  <div key={i} className="flex items-start gap-3 px-3.5 py-3 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
+                    <span className="text-[10px] font-bold text-violet-700 bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">{item.priority}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-foreground">{item.rec}</p>
                     </div>
@@ -699,11 +701,11 @@ export default function ResearchPortal() {
       {/* ─── COHORT COMPARISON ─── */}
       {activeView === "cohorts" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-sky-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #0ea5e9" }}>
             <Users className="w-5 h-5 text-sky-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-sky-800">Population Cohort Analysis — AI Treatment Group vs. Standard Care</p>
-              <p className="text-xs text-sky-600 mt-0.5">Comparing health outcomes across AI-managed cohort (n=12,480) vs. standard care cohort (n=11,200)</p>
+              <p className="text-sm font-bold text-foreground">Population Cohort Analysis — AI Treatment Group vs. Standard Care</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Comparing health outcomes across AI-managed cohort (n=12,480) vs. standard care cohort (n=11,200)</p>
             </div>
           </div>
 
@@ -747,7 +749,7 @@ export default function ResearchPortal() {
                     <div key={i} className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-foreground">{item.metric}</p>
-                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-emerald-600 bg-secondary px-2 py-0.5 rounded-full">
                           AI: +{diff}{item.unit} better
                         </span>
                       </div>
@@ -816,31 +818,31 @@ export default function ResearchPortal() {
       {/* ─── AI HYPOTHESIS ENGINE ─── */}
       {activeView === "hypothesis" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-teal-50 rounded-3xl">
-            <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-4 p-5 bg-secondary rounded-3xl" style={{ borderLeft: "4px solid #8b5cf6" }}>
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
               <Lightbulb className="w-6 h-6 text-violet-600" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-bold text-violet-900 text-sm">SANAD AI Research Intelligence Engine — Active</p>
+                <p className="font-bold text-foreground text-sm">SANAD AI Research Intelligence Engine — Active</p>
                 <Badge variant="purple" className="text-[10px]">GPT-4o Clinical</Badge>
               </div>
-              <p className="text-xs text-violet-700">Continuously analyzes 34,012,489 anonymized patient records across 12 disease categories to auto-generate evidence-grade research hypotheses. Each hypothesis is evaluated for statistical significance, novelty index, and clinical impact potential.</p>
+              <p className="text-xs text-muted-foreground">Continuously analyzes 34,012,489 anonymized patient records across 12 disease categories to auto-generate evidence-grade research hypotheses. Each hypothesis is evaluated for statistical significance, novelty index, and clinical impact potential.</p>
               <div className="flex items-center gap-4 mt-2">
-                <span className="text-[10px] font-bold text-violet-600 bg-violet-100 px-2.5 py-1 rounded-full">7 New Hypotheses Generated</span>
+                <span className="text-[10px] font-bold text-violet-600 bg-secondary px-2.5 py-1 rounded-full">7 New Hypotheses Generated</span>
                 <span className="text-[10px] font-semibold text-muted-foreground">Last scan: 2 hours ago · 847 pattern clusters analyzed</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">IRB Submission Ready</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-secondary px-2.5 py-1 rounded-full">IRB Submission Ready</span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-2">
             {[
-              { label: "Hypotheses Generated", value: "847", sub: "YTD 2025", color: "text-violet-600", bg: "bg-violet-50" },
-              { label: "Converted to Studies", value: "23", sub: "IRB approved", color: "text-emerald-600", bg: "bg-emerald-50" },
-              { label: "Clinical Impact Score", value: "9.2", sub: "/ 10 avg", color: "text-amber-600", bg: "bg-amber-50" },
+              { label: "Hypotheses Generated", value: "847", sub: "YTD 2025", color: "text-violet-600", borderColor: "#8b5cf6" },
+              { label: "Converted to Studies", value: "23", sub: "IRB approved", color: "text-emerald-600", borderColor: "#22c55e" },
+              { label: "Clinical Impact Score", value: "9.2", sub: "/ 10 avg", color: "text-amber-600", borderColor: "#f59e0b" },
             ].map((kpi, i) => (
-              <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
+              <div key={i} className="p-5 rounded-3xl bg-secondary" style={{ borderLeft: `3px solid ${kpi.borderColor}` }}>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
                 <p className={`text-4xl font-bold ${kpi.color}`}>{kpi.value}</p>
                 <p className="text-xs text-muted-foreground mt-1">{kpi.sub}</p>
@@ -950,14 +952,14 @@ export default function ResearchPortal() {
               },
             ].map((hyp, i) => {
               const statusCfg = hyp.status === "ready"
-                ? { badge: "success" as const, label: "IRB Ready", bg: "bg-emerald-50", border: "border-emerald-200" }
+                ? { badge: "success" as const, label: "IRB Ready", borderColor: "#22c55e" }
                 : hyp.status === "under_review"
-                ? { badge: "warning" as const, label: "Under Review", bg: "bg-amber-50", border: "border-amber-200" }
-                : { badge: "info" as const, label: "New", bg: "bg-sky-50", border: "border-sky-200" };
-              const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-violet-700 bg-violet-100" : "text-teal-700 bg-teal-100";
+                ? { badge: "warning" as const, label: "Under Review", borderColor: "#f59e0b" }
+                : { badge: "info" as const, label: "New", borderColor: "#0ea5e9" };
+              const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-violet-700 bg-secondary" : "text-teal-700 bg-secondary";
               const impactColor = hyp.impact >= 9 ? "text-red-600" : hyp.impact >= 8 ? "text-amber-600" : "text-sky-600";
               return (
-                <div key={hyp.id} className={`p-5 rounded-3xl ${statusCfg.bg}`}>
+                <div key={hyp.id} className="p-5 rounded-3xl bg-secondary" style={{ borderLeft: `4px solid ${statusCfg.borderColor}` }}>
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-white/70 flex items-center justify-center shrink-0 mt-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground">H{i + 1}</span>
@@ -1020,13 +1022,13 @@ export default function ResearchPortal() {
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
-                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full transition-colors">
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                           <FileText className="w-3 h-3" /> Submit to IRB
                         </button>
-                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors">
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                           <Download className="w-3 h-3" /> Export Protocol
                         </button>
-                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-violet-700 bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-full transition-colors">
+                        <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                           <BookOpen className="w-3 h-3" /> Literature Search
                         </button>
                       </div>

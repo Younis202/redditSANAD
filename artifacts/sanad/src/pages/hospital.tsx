@@ -27,15 +27,15 @@ const UNIT_COLORS: Record<string, string> = {
 };
 
 const PRIORITY_COLORS = {
-  immediate: { bg: "bg-red-50", border: "border-red-300", badge: "destructive" as const, text: "text-red-600" },
-  urgent: { bg: "bg-amber-50", border: "border-amber-200", badge: "warning" as const, text: "text-amber-600" },
-  soon: { bg: "bg-sky-50", border: "border-sky-200", badge: "info" as const, text: "text-sky-600" },
+  immediate: { bg: "bg-secondary", borderColor: "#ef4444", badge: "destructive" as const, text: "text-red-600" },
+  urgent: { bg: "bg-secondary", borderColor: "#f59e0b", badge: "warning" as const, text: "text-amber-600" },
+  soon: { bg: "bg-secondary", borderColor: "#0ea5e9", badge: "info" as const, text: "text-sky-600" },
 };
 
 const OR_STATUS = {
-  in_progress: { bg: "bg-green-50", border: "border-green-200", badge: "success" as const, label: "In Progress", dot: "bg-green-500 animate-pulse" },
-  scheduled: { bg: "bg-sky-50", border: "border-sky-200", badge: "info" as const, label: "Scheduled", dot: "bg-sky-500" },
-  emergency: { bg: "bg-red-50", border: "border-red-300", badge: "destructive" as const, label: "Emergency", dot: "bg-red-500 animate-pulse" },
+  in_progress: { bg: "bg-secondary", borderColor: "#22c55e", badge: "success" as const, label: "In Progress", dot: "bg-emerald-500 animate-pulse" },
+  scheduled: { bg: "bg-secondary", borderColor: "#0ea5e9", badge: "info" as const, label: "Scheduled", dot: "bg-sky-500" },
+  emergency: { bg: "bg-secondary", borderColor: "#ef4444", badge: "destructive" as const, label: "Emergency", dot: "bg-red-500 animate-pulse" },
 };
 
 type TabId = "overview" | "icu" | "or" | "readmission" | "flow";
@@ -69,7 +69,7 @@ export default function HospitalPortal() {
           Hospital Operations Center
         </div>
         {icuCritical > 0 && (
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-full ml-2 animate-pulse">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-secondary px-3 py-1.5 rounded-full ml-2 animate-pulse">
             <AlertTriangle className="w-3 h-3" />
             {icuCritical} ICU Critical Alert{icuCritical > 1 ? "s" : ""}
           </div>
@@ -164,11 +164,8 @@ export default function HospitalPortal() {
                 {data?.bedStatus?.map((unit: any) => {
                   const color = UNIT_COLORS[unit.unit] ?? "#007AFF";
                   return (
-                    <div key={unit.unitKey} className={`p-4 rounded-2xl ${
-                      unit.status === "critical" ? "bg-red-50" :
-                      unit.status === "high" ? "bg-amber-50" :
-                      "bg-secondary"
-                    }`}>
+                    <div key={unit.unitKey} className="p-4 rounded-2xl bg-secondary"
+                      style={{ borderLeft: `3px solid ${unit.status === "critical" ? "#ef4444" : unit.status === "high" ? "#f59e0b" : "#e5e7eb"}` }}>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-bold text-foreground">{unit.unit}</p>
                         <Badge variant={
@@ -278,7 +275,7 @@ export default function HospitalPortal() {
                 {data?.priorityQueue?.map((p: any, i: number) => {
                   const style = PRIORITY_COLORS[p.priority as keyof typeof PRIORITY_COLORS] ?? PRIORITY_COLORS.soon;
                   return (
-                    <tr key={p.id} className={i < 3 ? "bg-red-50/20" : ""}>
+                    <tr key={p.id} style={i < 3 ? { borderLeft: "3px solid #ef4444" } : {}}>
                       <td><Badge variant={style.badge} className="text-[9px]">{p.priority}</Badge></td>
                       <td>
                         <p className="font-bold text-foreground">{p.name}</p>
@@ -302,7 +299,7 @@ export default function HospitalPortal() {
                         </div>
                       </td>
                       <td>
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.suggestedWard === "ICU" ? "bg-red-100 text-red-700" : p.suggestedWard === "Emergency" ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700"}`}>{p.suggestedWard}</span>
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full bg-secondary ${p.suggestedWard === "ICU" ? "text-red-600" : p.suggestedWard === "Emergency" ? "text-amber-600" : "text-sky-600"}`}>{p.suggestedWard}</span>
                       </td>
                       <td className="text-[10px] text-muted-foreground font-mono">
                         {p.lastVisit ? `${p.lastVisit.date} · ${p.lastVisit.department}` : "—"}
@@ -318,19 +315,20 @@ export default function HospitalPortal() {
 
       {activeTab === "icu" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
             <HeartPulse className="w-5 h-5 text-red-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-red-800">ICU Alert System — Real-time Patient Monitoring</p>
+              <p className="text-sm font-bold text-foreground">ICU Alert System — Real-time Patient Monitoring</p>
               <p className="text-xs text-red-600 mt-0.5">{(data?.icuAlerts ?? []).length} patients flagged · {icuCritical} require immediate action</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {(data?.icuAlerts ?? []).map((alert: any, i: number) => (
-              <div key={i} className={`p-5 rounded-2xl ${alert.severity === "critical" ? "bg-red-50" : "bg-amber-50"}`}>
+              <div key={i} className="p-5 rounded-2xl bg-secondary"
+                style={{ borderLeft: `3px solid ${alert.severity === "critical" ? "#ef4444" : "#f59e0b"}` }}>
                 <div className="flex items-start gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${alert.severity === "critical" ? "bg-red-100" : "bg-amber-100"}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-secondary`}>
                     <AlertTriangle className={`w-5 h-5 ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`} />
                   </div>
                   <div className="flex-1">
@@ -346,8 +344,8 @@ export default function HospitalPortal() {
                   </div>
                 </div>
 
-                <div className={`px-3 py-2 rounded-xl mb-2 ${alert.severity === "critical" ? "bg-red-100" : "bg-amber-100"}`}>
-                  <p className={`text-xs font-bold ${alert.severity === "critical" ? "text-red-800" : "text-amber-800"}`}>{alert.alertType}</p>
+                <div className={`px-3 py-2 rounded-xl mb-2 bg-secondary ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`}>
+                  <p className={`text-xs font-bold ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`}>{alert.alertType}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Clock className={`w-3 h-3 ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`} />
                     <p className={`text-[11px] font-bold ${alert.severity === "critical" ? "text-red-600" : "text-amber-600"}`}>Time window: {alert.timeWindow}</p>
@@ -356,7 +354,7 @@ export default function HospitalPortal() {
 
                 <div className="flex flex-wrap gap-1">
                   {alert.conditions.map((c: string, ci: number) => (
-                    <span key={ci} className="text-[10px] font-semibold bg-red-50 text-red-700 px-2 py-0.5 rounded-full">{c}</span>
+                    <span key={ci} className="text-[10px] font-semibold bg-secondary text-red-600 px-2 py-0.5 rounded-full">{c}</span>
                   ))}
                 </div>
               </div>
@@ -367,7 +365,7 @@ export default function HospitalPortal() {
 
       {activeTab === "or" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-sky-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #0ea5e9" }}>
             <Stethoscope className="w-5 h-5 text-sky-600 shrink-0" />
             <div>
               <p className="text-sm font-bold text-sky-800">Operating Room Schedule — Today</p>
@@ -385,7 +383,8 @@ export default function HospitalPortal() {
               {(data?.orSchedule ?? []).map((op: any, i: number) => {
                 const cfg = OR_STATUS[op.status as keyof typeof OR_STATUS] ?? OR_STATUS.scheduled;
                 return (
-                  <div key={i} className={`p-5 ${op.status === "emergency" ? "bg-red-50/30" : op.status === "in_progress" ? "bg-green-50/30" : ""}`}>
+                  <div key={i} className="p-5"
+                    style={op.status === "emergency" ? { borderLeft: "3px solid #ef4444" } : op.status === "in_progress" ? { borderLeft: "3px solid #22c55e" } : {}}>
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg}`}>
                         <span className={`w-2.5 h-2.5 rounded-full ${cfg.dot}`} />
@@ -415,13 +414,13 @@ export default function HospitalPortal() {
 
       {activeTab === "flow" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl">
-            <Brain className="w-5 h-5 text-blue-600 shrink-0" />
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #007AFF" }}>
+            <Brain className="w-5 h-5 text-primary shrink-0" />
             <div>
-              <p className="text-sm font-bold text-blue-800">AI Patient Flow Optimizer — Predictive Demand & Discharge Intelligence</p>
-              <p className="text-xs text-blue-600 mt-0.5">Real-time patient flow predictions, surge alerts, and discharge recommendations powered by SANAD Risk Engine v4.2</p>
+              <p className="text-sm font-bold text-foreground">AI Patient Flow Optimizer — Predictive Demand & Discharge Intelligence</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Real-time patient flow predictions, surge alerts, and discharge recommendations powered by SANAD Risk Engine v4.2</p>
             </div>
-            <span className="ml-auto text-[9px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full shrink-0">LIVE · Updating every 15min</span>
+            <span className="ml-auto text-[9px] font-bold text-primary bg-secondary px-2 py-1 rounded-full shrink-0">LIVE · Updating every 15min</span>
           </div>
 
           <div className="grid grid-cols-12 gap-4">
@@ -446,7 +445,8 @@ export default function HospitalPortal() {
                     const displayValue = isPast ? slot.actual! : slot.predicted;
                     const max = 70;
                     return (
-                      <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-xl ${slot.surge ? "bg-red-50" : "bg-secondary"}`}>
+                      <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-secondary"
+                        style={slot.surge ? { borderLeft: "3px solid #ef4444" } : {}}>
                         <span className="text-[10px] font-mono text-muted-foreground w-24 shrink-0">{slot.hour}</span>
                         <span className="text-[10px] text-muted-foreground w-20 shrink-0">{slot.label}</span>
                         <div className="flex-1 bg-background rounded-full h-2">
@@ -462,9 +462,9 @@ export default function HospitalPortal() {
                     );
                   })}
                 </div>
-                <div className="p-3.5 bg-amber-50 rounded-2xl">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 mb-1">AI Surge Warning — 15:00–21:00 Today</p>
-                  <p className="text-xs text-amber-900">AI predicts 116 patients across peak 6h window. Recommend activating surge protocol: call in 2 additional ER physicians + prepare 8 temporary overflow beds in corridor B.</p>
+                <div className="p-3.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #f59e0b" }}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">AI Surge Warning — 15:00–21:00 Today</p>
+                  <p className="text-xs text-foreground">AI predicts 116 patients across peak 6h window. Recommend activating surge protocol: call in 2 additional ER physicians + prepare 8 temporary overflow beds in corridor B.</p>
                 </div>
               </CardBody>
             </Card>
@@ -488,15 +488,15 @@ export default function HospitalPortal() {
                     <div key={i} className={`px-4 py-3 ${p.ready ? "" : "opacity-70"}`}>
                       <div className="flex items-center justify-between mb-0.5">
                         <p className="text-xs font-bold text-foreground">{p.name}</p>
-                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${p.confidence >= 80 ? "bg-emerald-100 text-emerald-700" : p.confidence >= 65 ? "bg-amber-100 text-amber-700" : "bg-secondary text-muted-foreground"}`}>{p.confidence}%</span>
+                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded bg-secondary ${p.confidence >= 80 ? "text-emerald-600" : p.confidence >= 65 ? "text-amber-600" : "text-muted-foreground"}`}>{p.confidence}%</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground">{p.ward} · LOS: {p.los}d</p>
                       <p className="text-[10px] text-foreground mt-0.5">{p.condition}</p>
                     </div>
                   ))}
                 </div>
-                <div className="px-4 py-3 bg-emerald-50 border-t border-emerald-100">
-                  <p className="text-[10px] font-bold text-emerald-800">Est. 3 discharges by 14:00 → frees 3 beds for surge</p>
+                <div className="px-4 py-3 bg-secondary border-t border-border" style={{ borderLeft: "3px solid #22c55e" }}>
+                  <p className="text-[10px] font-bold text-emerald-600">Est. 3 discharges by 14:00 → frees 3 beds for surge</p>
                 </div>
               </CardBody>
             </Card>
@@ -517,7 +517,8 @@ export default function HospitalPortal() {
                     { title: "Pre-position portable monitoring equipment in ER corridor", impact: "Surge prediction confidence: 94%", severity: "info" },
                     { title: "Notify blood bank: O+ and A+ units likely needed by 18:00", impact: "Based on trauma admission patterns + ED forecast", severity: "info" },
                   ].map((rec, i) => (
-                    <div key={i} className={`p-4 rounded-2xl ${rec.severity === "urgent" ? "bg-red-50" : rec.severity === "warning" ? "bg-amber-50" : "bg-secondary"}`}>
+                    <div key={i} className="p-4 rounded-2xl bg-secondary"
+                      style={{ borderLeft: `3px solid ${rec.severity === "urgent" ? "#ef4444" : rec.severity === "warning" ? "#f59e0b" : "#e5e7eb"}` }}>
                       <div className="flex items-start gap-2 mb-2">
                         <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${rec.severity === "urgent" ? "bg-red-500" : rec.severity === "warning" ? "bg-amber-500" : "bg-primary"}`} />
                         <p className="text-xs font-bold text-foreground">{rec.title}</p>
@@ -534,11 +535,11 @@ export default function HospitalPortal() {
 
       {activeTab === "readmission" && (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-violet-50 rounded-2xl">
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
             <Brain className="w-5 h-5 text-violet-600 shrink-0" />
             <div>
-              <p className="text-sm font-bold text-violet-800">AI Readmission Risk Analysis</p>
-              <p className="text-xs text-violet-600 mt-0.5">Patients with highest 30-day readmission probability — AI-calculated from clinical history</p>
+              <p className="text-sm font-bold text-foreground">AI Readmission Risk Analysis</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Patients with highest 30-day readmission probability — AI-calculated from clinical history</p>
             </div>
           </div>
 
@@ -550,9 +551,10 @@ export default function HospitalPortal() {
             </CardHeader>
             <div className="divide-y divide-border">
               {(data?.readmissionRisks ?? []).map((p: any, i: number) => (
-                <div key={i} className={`p-5 ${p.readmissionRisk >= 80 ? "bg-red-50/30" : p.readmissionRisk >= 60 ? "bg-amber-50/20" : ""}`}>
+                <div key={i} className="p-5"
+                  style={p.readmissionRisk >= 80 ? { borderLeft: "3px solid #ef4444" } : p.readmissionRisk >= 60 ? { borderLeft: "3px solid #f59e0b" } : {}}>
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 ${p.readmissionRisk >= 80 ? "bg-red-100" : p.readmissionRisk >= 60 ? "bg-amber-100" : "bg-secondary"}`}>
+                    <div className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 bg-secondary">
                       <p className={`text-lg font-bold tabular-nums ${p.readmissionRisk >= 80 ? "text-red-700" : p.readmissionRisk >= 60 ? "text-amber-700" : "text-foreground"}`}>{p.readmissionRisk}%</p>
                       <p className="text-[9px] text-muted-foreground">risk</p>
                     </div>
@@ -565,7 +567,8 @@ export default function HospitalPortal() {
                       </div>
                     </div>
                     <div className="shrink-0 max-w-[200px] text-right">
-                      <div className={`flex items-start gap-1.5 px-3 py-2 rounded-xl ${p.readmissionRisk >= 80 ? "bg-red-50" : "bg-secondary"}`}>
+                      <div className="flex items-start gap-1.5 px-3 py-2 rounded-xl bg-secondary"
+                        style={p.readmissionRisk >= 80 ? { borderLeft: "3px solid #ef4444" } : {}}>
                         <ChevronRight className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.readmissionRisk >= 80 ? "text-red-500" : "text-primary"}`} />
                         <p className={`text-[11px] font-semibold ${p.readmissionRisk >= 80 ? "text-red-700" : "text-foreground"}`}>{p.recommendedAction}</p>
                       </div>

@@ -30,13 +30,13 @@ async function fetchRetrainingJobs() {
   return res.json();
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; border: string; badge: any; dot: string }> = {
-  operational: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badge: "success" as const, dot: "bg-emerald-500" },
-  degraded: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", badge: "warning" as const, dot: "bg-amber-500 animate-pulse" },
-  drift_detected: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
-  monitoring: { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200", badge: "info" as const, dot: "bg-sky-500" },
-  stable: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badge: "success" as const, dot: "bg-emerald-500" },
-  needs_retraining: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
+const STATUS_COLORS: Record<string, { bg: string; text: string; border: string; borderColor: string; badge: any; dot: string }> = {
+  operational: { bg: "bg-secondary", text: "text-emerald-700", border: "", borderColor: "#22c55e", badge: "success" as const, dot: "bg-emerald-500" },
+  degraded: { bg: "bg-secondary", text: "text-amber-700", border: "", borderColor: "#f59e0b", badge: "warning" as const, dot: "bg-amber-500 animate-pulse" },
+  drift_detected: { bg: "bg-secondary", text: "text-red-700", border: "", borderColor: "#ef4444", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
+  monitoring: { bg: "bg-secondary", text: "text-sky-700", border: "", borderColor: "#0ea5e9", badge: "info" as const, dot: "bg-sky-500" },
+  stable: { bg: "bg-secondary", text: "text-emerald-700", border: "", borderColor: "#22c55e", badge: "success" as const, dot: "bg-emerald-500" },
+  needs_retraining: { bg: "bg-secondary", text: "text-red-700", border: "", borderColor: "#ef4444", badge: "destructive" as const, dot: "bg-red-500 animate-pulse" },
 };
 
 type ViewTab = "overview" | "engines" | "drift" | "retraining" | "decisions" | "fabric" | "stream";
@@ -64,14 +64,14 @@ const MATRIX_DATA = [
 ];
 
 const PORTAL_CARDS = [
-  { name: "Doctor Portal", icon: Stethoscope, bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconColor: "text-blue-600", sends: "Lab · Insurance · Supply · Research", receives: "Lab · Risk Engine · Insurance", events: "12,400", badge: "info" as const },
-  { name: "Lab Portal", icon: FlaskConical, bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconColor: "text-rose-600", sends: "Doctor · Risk Engine · Research · Family", receives: "Doctor · Admin", events: "34,800", badge: "destructive" as const },
-  { name: "Insurance Portal", icon: ShieldCheck, bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", sends: "Doctor · Admin · Supply", receives: "Doctor · Lab · Emergency", events: "8,200", badge: "success" as const },
-  { name: "Supply Chain", icon: Truck, bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconColor: "text-amber-600", sends: "Doctor · Admin · Hospital", receives: "Doctor · Lab · Emergency", events: "5,100", badge: "warning" as const },
-  { name: "Family Portal", icon: Users, bg: "bg-sky-50", border: "border-sky-200", iconBg: "bg-sky-100", iconColor: "text-sky-600", sends: "Doctor · Research · Admin", receives: "Doctor · Risk Engine · Lab", events: "3,400", badge: "info" as const },
-  { name: "Research Portal", icon: FileSearch, bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconColor: "text-violet-600", sends: "Doctor · Admin", receives: "Doctor · Lab · Family", events: "9,200", badge: "purple" as const },
-  { name: "Admin / Ministry", icon: Building2, bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconColor: "text-gray-600", sends: "Doctor · Insurance · Supply · Research", receives: "ALL portals", events: "2,800", badge: "outline" as const },
-  { name: "Emergency Portal", icon: HeartPulse, bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconColor: "text-red-600", sends: "Doctor · Insurance · Admin · Supply", receives: "Doctor · Lab · Admin", events: "6,700", badge: "destructive" as const },
+  { name: "Doctor Portal", icon: Stethoscope, bg: "bg-secondary", border: "", borderColor: "#007AFF", iconBg: "bg-primary/10", iconColor: "text-blue-600", sends: "Lab · Insurance · Supply · Research", receives: "Lab · Risk Engine · Insurance", events: "12,400", badge: "info" as const },
+  { name: "Lab Portal", icon: FlaskConical, bg: "bg-secondary", border: "", borderColor: "#f43f5e", iconBg: "bg-primary/10", iconColor: "text-rose-600", sends: "Doctor · Risk Engine · Research · Family", receives: "Doctor · Admin", events: "34,800", badge: "destructive" as const },
+  { name: "Insurance Portal", icon: ShieldCheck, bg: "bg-secondary", border: "", borderColor: "#22c55e", iconBg: "bg-primary/10", iconColor: "text-emerald-600", sends: "Doctor · Admin · Supply", receives: "Doctor · Lab · Emergency", events: "8,200", badge: "success" as const },
+  { name: "Supply Chain", icon: Truck, bg: "bg-secondary", border: "", borderColor: "#f59e0b", iconBg: "bg-primary/10", iconColor: "text-amber-600", sends: "Doctor · Admin · Hospital", receives: "Doctor · Lab · Emergency", events: "5,100", badge: "warning" as const },
+  { name: "Family Portal", icon: Users, bg: "bg-secondary", border: "", borderColor: "#0ea5e9", iconBg: "bg-primary/10", iconColor: "text-sky-600", sends: "Doctor · Research · Admin", receives: "Doctor · Risk Engine · Lab", events: "3,400", badge: "info" as const },
+  { name: "Research Portal", icon: FileSearch, bg: "bg-secondary", border: "", borderColor: "#8b5cf6", iconBg: "bg-primary/10", iconColor: "text-violet-600", sends: "Doctor · Admin", receives: "Doctor · Lab · Family", events: "9,200", badge: "purple" as const },
+  { name: "Admin / Ministry", icon: Building2, bg: "bg-secondary", border: "", borderColor: "#64748b", iconBg: "bg-primary/10", iconColor: "text-slate-600", sends: "Doctor · Insurance · Supply · Research", receives: "ALL portals", events: "2,800", badge: "outline" as const },
+  { name: "Emergency Portal", icon: HeartPulse, bg: "bg-secondary", border: "", borderColor: "#ef4444", iconBg: "bg-primary/10", iconColor: "text-red-600", sends: "Doctor · Insurance · Admin · Supply", receives: "Doctor · Lab · Admin", events: "6,700", badge: "destructive" as const },
 ];
 
 const STREAM_SEED: Array<{ ms: number; portal: string; portalColor: string; engine: string; patient: string; action: string; outcome: string; cascades: number; badge: "destructive"|"warning"|"success"|"info"|"purple"|"outline" }> = [
@@ -186,7 +186,7 @@ export default function AIControlCenter() {
           <Brain className="w-3 h-3" />
           AI Control Center
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           {metrics?.engines?.filter((e: any) => e.status === "operational").length} / {metrics?.engines?.length} engines operational
         </div>
@@ -218,12 +218,12 @@ export default function AIControlCenter() {
         <KpiCard
           title="Drift Risk" value={`${metrics?.driftRisk}%`}
           sub={`${metrics?.lowConfidenceCount} low-confidence decisions`}
-          icon={AlertCircle} iconBg={metrics?.driftRisk > 10 ? "bg-red-100" : "bg-emerald-100"} iconColor={metrics?.driftRisk > 10 ? "text-red-600" : "text-emerald-600"}
+          icon={AlertCircle} iconBg="bg-primary/10" iconColor={metrics?.driftRisk > 10 ? "text-red-600" : "text-primary"}
         />
         <KpiCard
           title="Total AI Decisions" value={metrics?.totalDecisions?.toLocaleString()}
           sub={`${metrics?.decisionsLast24h} in last 24 hours`}
-          icon={Zap} iconBg="bg-amber-100" iconColor="text-amber-600"
+          icon={Zap} iconBg="bg-primary/10" iconColor="text-primary"
         />
         <KpiCard
           title="Audit Records" value={metrics?.auditRecords?.toLocaleString()}
@@ -281,12 +281,12 @@ export default function AIControlCenter() {
                 ))}
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   {[
-                    { label: "Immediate", value: metrics?.urgencyBreakdown?.immediate, color: "text-red-600", bg: "bg-red-50" },
-                    { label: "Urgent", value: metrics?.urgencyBreakdown?.urgent, color: "text-amber-600", bg: "bg-amber-50" },
-                    { label: "Soon", value: metrics?.urgencyBreakdown?.soon, color: "text-sky-600", bg: "bg-sky-50" },
-                    { label: "Routine", value: metrics?.urgencyBreakdown?.routine, color: "text-emerald-600", bg: "bg-emerald-50" },
+                    { label: "Immediate", value: metrics?.urgencyBreakdown?.immediate, color: "text-red-600", borderColor: "#ef4444" },
+                    { label: "Urgent", value: metrics?.urgencyBreakdown?.urgent, color: "text-amber-600", borderColor: "#f59e0b" },
+                    { label: "Soon", value: metrics?.urgencyBreakdown?.soon, color: "text-sky-600", borderColor: "#0ea5e9" },
+                    { label: "Routine", value: metrics?.urgencyBreakdown?.routine, color: "text-emerald-600", borderColor: "#22c55e" },
                   ].map((u, i) => (
-                    <div key={i} className={`${u.bg} rounded-xl px-3 py-2 text-center`}>
+                    <div key={i} className="bg-secondary rounded-xl px-3 py-2 text-center" style={{ borderLeft: `3px solid ${u.borderColor}` }}>
                       <p className={`text-lg font-bold ${u.color}`}>{u.value}</p>
                       <p className="text-[10px] text-muted-foreground">{u.label}</p>
                     </div>
@@ -330,7 +330,7 @@ export default function AIControlCenter() {
               <CardHeader>
                 <Brain className="w-4 h-4 text-rose-600" />
                 <CardTitle>Population Learning Engine — Continuous Training Pipeline</CardTitle>
-                <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-secondary px-2 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active Training
                 </span>
               </CardHeader>
@@ -407,7 +407,7 @@ export default function AIControlCenter() {
             <CardHeader>
               <Zap className="w-4 h-4 text-amber-500" />
               <CardTitle>Event-Driven Architecture — Real-Time Message Bus Monitor</CardTitle>
-              <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+              <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-secondary px-2 py-1 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 9 Queues Active
               </span>
             </CardHeader>
@@ -470,10 +470,10 @@ export default function AIControlCenter() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-3 p-3 bg-emerald-50 rounded-2xl text-center">
-                    <p className="text-xs font-bold text-emerald-800">System Availability</p>
+                  <div className="mt-3 p-3 bg-secondary rounded-2xl text-center" style={{ borderLeft: "3px solid #22c55e" }}>
+                    <p className="text-xs font-bold text-foreground">System Availability</p>
                     <p className="text-2xl font-black text-emerald-700">99.97%</p>
-                    <p className="text-[10px] text-emerald-600">SLA: 99.9% · 90-day uptime</p>
+                    <p className="text-[10px] text-muted-foreground">SLA: 99.9% · 90-day uptime</p>
                   </div>
                 </div>
               </div>
@@ -494,7 +494,8 @@ export default function AIControlCenter() {
                 const hasDrift = driftInfo?.status === "drift_detected";
                 const statusCfg = STATUS_COLORS[hasDrift ? "drift_detected" : engine.status] ?? STATUS_COLORS.operational;
                 return (
-                  <div key={i} className={`flex items-center gap-4 px-5 py-3.5 ${hasDrift ? "bg-red-50/30" : ""}`}>
+                  <div key={i} className="flex items-center gap-4 px-5 py-3.5"
+                    style={hasDrift ? { borderLeft: "3px solid #ef4444" } : {}}>
                     <div className={`w-2 h-2 rounded-full ${statusCfg.dot} shrink-0`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground">{engine.name}</p>
@@ -557,7 +558,8 @@ export default function AIControlCenter() {
                       </div>
                     </div>
                     {driftInfo && (
-                      <div className={`${statusCfg.bg} rounded-xl px-3 py-2 mb-3`}>
+                      <div className="bg-secondary rounded-xl px-3 py-2 mb-3"
+                        style={statusCfg.borderColor ? { borderLeft: `3px solid ${statusCfg.borderColor}` } : {}}>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Drift Score</span>
                           <span className={`text-xs font-bold ${hasDrift ? "text-red-700" : "text-emerald-700"}`}>{driftInfo.driftScore} / {driftInfo.threshold}</span>
@@ -608,11 +610,11 @@ export default function AIControlCenter() {
           {driftDetected.length > 0 && (
             <div className="space-y-3">
               {driftDetected.map((engine: any, i: number) => (
-                <div key={i} className="flex items-start gap-4 px-5 py-4 bg-red-50 rounded-2xl">
+                <div key={i} className="flex items-start gap-4 px-5 py-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
                   <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-red-800">DRIFT DETECTED: {engine.engine}</p>
-                    <p className="text-xs text-red-600 mt-0.5">Drift score {engine.driftScore} exceeds threshold {engine.threshold} — Model predictions may be unreliable</p>
+                    <p className="text-sm font-bold text-foreground">DRIFT DETECTED: {engine.engine}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Drift score {engine.driftScore} exceeds threshold {engine.threshold} — Model predictions may be unreliable</p>
                   </div>
                   <button
                     onClick={() => { setRetrainingTarget(engine.engine); retrainMutation.mutate(engine.engine); }}
@@ -681,7 +683,8 @@ export default function AIControlCenter() {
                 { engine: "Behavioral AI", score: 7.2, cause: "Ramadan seasonal behavior patterns not captured in training data — medication adherence model degraded for observant patient cohort", action: "Augment training data with seasonal behavioral patterns; implement time-aware feature engineering" },
                 { engine: "Policy AI", score: 4.1, cause: "MOH Circular 47/1445 introduced new screening protocols not reflected in current policy ruleset — minor policy drift", action: "Manual rule update + full retrain scheduled for March 2026 review cycle" },
               ].map((item, i) => (
-                <div key={i} className={`px-4 py-3.5 rounded-2xl ${item.score > 5 ? "bg-red-50" : "bg-amber-50"}`}>
+                <div key={i} className="px-4 py-3.5 rounded-2xl bg-secondary"
+                  style={item.score > 5 ? { borderLeft: "3px solid #ef4444" } : { borderLeft: "3px solid #f59e0b" }}>
                   <div className="flex items-center justify-between mb-1.5">
                     <p className="text-sm font-bold text-foreground">{item.engine}</p>
                     <span className={`text-xs font-bold ${item.score > 5 ? "text-red-600" : "text-amber-600"}`}>Score: {item.score}</span>
@@ -725,7 +728,8 @@ export default function AIControlCenter() {
                 const jobResult = retrainResult[engine.name];
                 const isMonitoring = driftInfo?.status === "monitoring";
                 return (
-                  <div key={i} className={`flex items-center gap-4 px-5 py-4 ${hasDrift ? "bg-red-50/20" : ""}`}>
+                  <div key={i} className="flex items-center gap-4 px-5 py-4"
+                    style={hasDrift ? { borderLeft: "3px solid #ef4444" } : {}}>
                     <div className={`w-2 h-2 rounded-full ${hasDrift ? "bg-red-500 animate-pulse" : isMonitoring ? "bg-amber-500" : "bg-emerald-500"} shrink-0`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground">{engine.name}</p>
@@ -842,7 +846,7 @@ export default function AIControlCenter() {
                     <p className="text-sm font-bold text-foreground">{metrics?.totalDecisions?.toLocaleString()}</p>
                     <p className="text-[10px] text-muted-foreground">Total Decisions</p>
                   </div>
-                  <div className="bg-amber-50 px-3 py-2.5 rounded-xl text-center">
+                  <div className="bg-secondary px-3 py-2.5 rounded-xl text-center" style={{ borderLeft: "3px solid #f59e0b" }}>
                     <p className="text-sm font-bold text-amber-700">{metrics?.lowConfidenceCount?.toLocaleString()}</p>
                     <p className="text-[10px] text-muted-foreground">Low Confidence</p>
                   </div>
@@ -961,8 +965,9 @@ export default function AIControlCenter() {
                 </table>
               </div>
               <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border flex-wrap">
-                {[{ bg: "bg-red-100 text-red-700", l: "HIGH — strong dependency" }, { bg: "bg-amber-100 text-amber-700", l: "MED — moderate influence" }, { bg: "bg-sky-100 text-sky-700", l: "LOW — weak signal" }, { bg: "bg-secondary text-muted-foreground", l: "No direct link" }].map((x, i) => (
-                  <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold ${x.bg}`}>{x.l}</div>
+                {[{ borderColor: "#ef4444", color: "text-red-700", l: "HIGH — strong dependency" }, { borderColor: "#f59e0b", color: "text-amber-700", l: "MED — moderate influence" }, { borderColor: "#0ea5e9", color: "text-sky-700", l: "LOW — weak signal" }, { borderColor: "", color: "text-muted-foreground", l: "No direct link" }].map((x, i) => (
+                  <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold bg-secondary ${x.color}`}
+                    style={x.borderColor ? { borderLeft: `2px solid ${x.borderColor}` } : {}}>{x.l}</div>
                 ))}
               </div>
             </CardBody>
@@ -975,7 +980,8 @@ export default function AIControlCenter() {
               {PORTAL_CARDS.map((p, i) => {
                 const Icon = p.icon;
                 return (
-                  <div key={i} className={`rounded-2xl p-4 ${p.bg}`}>
+                  <div key={i} className="rounded-2xl p-4 bg-secondary"
+                    style={p.borderColor ? { borderLeft: `3px solid ${p.borderColor}` } : {}}>
                     <div className="flex items-center gap-2.5 mb-3">
                       <div className={`w-8 h-8 rounded-xl ${p.iconBg} flex items-center justify-center shrink-0`}>
                         <Icon className={`w-4 h-4 ${p.iconColor}`} />

@@ -99,19 +99,19 @@ function computeHealthScore(patient: {
   let summary: string;
 
   if (score >= 85) {
-    grade = "A"; label = "Excellent"; color = "text-emerald-600"; bg = "bg-emerald-50";
+    grade = "A"; label = "Excellent"; color = "text-emerald-600"; bg = "bg-secondary";
     summary = "Your health indicators are in great shape. Keep up your healthy habits!";
   } else if (score >= 70) {
-    grade = "B"; label = "Good"; color = "text-sky-600"; bg = "bg-sky-50";
+    grade = "B"; label = "Good"; color = "text-primary"; bg = "bg-secondary";
     summary = "Your health is generally good. A few areas could benefit from attention.";
   } else if (score >= 55) {
-    grade = "C"; label = "Fair"; color = "text-amber-600"; bg = "bg-amber-50";
+    grade = "C"; label = "Fair"; color = "text-amber-600"; bg = "bg-secondary";
     summary = "Some health factors need monitoring. Follow your doctor's recommendations.";
   } else if (score >= 40) {
-    grade = "D"; label = "Needs Attention"; color = "text-orange-600"; bg = "bg-orange-50";
+    grade = "D"; label = "Needs Attention"; color = "text-orange-600"; bg = "bg-secondary";
     summary = "Multiple health concerns detected. Regular medical follow-up is important.";
   } else {
-    grade = "F"; label = "High Risk"; color = "text-red-600"; bg = "bg-red-50";
+    grade = "F"; label = "High Risk"; color = "text-red-600"; bg = "bg-secondary";
     summary = "Significant health risks identified. Please see your doctor as soon as possible.";
   }
 
@@ -314,7 +314,8 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
           </p>
           <div className="space-y-2">
             {myAppointments.map((apt: any) => (
-              <div key={apt.id} className={`flex items-start gap-4 p-4 rounded-2xl ${apt.status === "confirmed" ? "bg-emerald-50" : "bg-secondary"}`}>
+              <div key={apt.id} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary"
+                style={apt.status === "confirmed" ? { borderLeft: "3px solid #22c55e" } : {}}>
                 <div className="w-10 h-10 rounded-xl bg-secondary flex flex-col items-center justify-center shrink-0">
                   <p className="text-[9px] font-bold text-muted-foreground uppercase">{new Date(apt.date).toLocaleString("en", { month: "short" })}</p>
                   <p className="text-lg font-bold text-foreground leading-none">{new Date(apt.date).getDate()}</p>
@@ -335,12 +336,12 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
 
       {/* Success Banner */}
       {booked && (
-        <div className="p-4 rounded-2xl bg-emerald-50">
+        <div className="p-4 rounded-2xl bg-secondary" style={{ borderLeft: "3px solid #22c55e" }}>
           <div className="flex items-start gap-3 mb-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-emerald-800">Appointment Confirmed!</p>
-              <p className="text-xs text-emerald-700 mt-0.5">Reference: <span className="font-mono font-bold">{booked.referenceNo}</span></p>
+              <p className="font-bold text-foreground">Appointment Confirmed!</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Reference: <span className="font-mono font-bold">{booked.referenceNo}</span></p>
             </div>
             <button onClick={() => setBooked(null)} className="ml-auto text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />
@@ -461,7 +462,7 @@ function AppointmentBooking({ patientId }: { patientId: number }) {
         </div>
 
         {bookingError && (
-          <div className="mb-3 px-4 py-2.5 bg-red-50 rounded-xl text-sm text-red-700 font-medium">
+          <div className="mb-3 px-4 py-2.5 bg-secondary rounded-xl text-sm text-red-700 font-medium" style={{ borderLeft: "3px solid #ef4444" }}>
             {bookingError}
           </div>
         )}
@@ -514,8 +515,8 @@ export default function CitizenPortal() {
       <Layout role="citizen">
         <div className="max-w-md mx-auto mt-10">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-3xl bg-amber-100 flex items-center justify-center mx-auto mb-5">
-              <Lock className="w-7 h-7 text-amber-600" />
+            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-5">
+              <Lock className="w-7 h-7 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Citizen Health Portal</h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -583,9 +584,9 @@ export default function CitizenPortal() {
   const highPriorityRecs = recommendations.filter(r => r.priority === "high").length;
 
   const priorityColors = {
-    high: { bg: "bg-red-50", border: "border-red-100", badge: "destructive" as const, dot: "bg-red-500" },
-    medium: { bg: "bg-amber-50", border: "border-amber-100", badge: "warning" as const, dot: "bg-amber-500" },
-    low: { bg: "bg-secondary", border: "border-border", badge: "outline" as const, dot: "bg-muted-foreground" },
+    high: { bg: "bg-secondary/60", borderColor: "#ef4444", badge: "destructive" as const, dot: "bg-red-500" },
+    medium: { bg: "bg-secondary/60", borderColor: "#f59e0b", badge: "warning" as const, dot: "bg-amber-500" },
+    low: { bg: "bg-secondary", borderColor: "transparent", badge: "outline" as const, dot: "bg-muted-foreground" },
   };
 
   return (
@@ -632,8 +633,8 @@ export default function CitizenPortal() {
             </div>
           )}
           <div className="flex items-center gap-4 p-5">
-            <div className="w-14 h-14 rounded-3xl bg-amber-100 flex items-center justify-center shrink-0">
-              <User className="w-7 h-7 text-amber-600" />
+            <div className="w-14 h-14 rounded-3xl bg-secondary flex items-center justify-center shrink-0">
+              <User className="w-7 h-7 text-primary" />
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-foreground mb-1.5">{patient.fullName}</h2>
@@ -641,7 +642,7 @@ export default function CitizenPortal() {
                 <span className="font-mono bg-secondary text-xs px-2.5 py-1 rounded-xl">{patient.nationalId}</span>
                 <span className="text-xs text-muted-foreground">DOB: {format(new Date(patient.dateOfBirth), "dd MMM yyyy")}</span>
                 <span className="text-xs text-muted-foreground">· {patient.gender}</span>
-                <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">Blood: {patient.bloodType}</span>
+                <span className="text-xs font-bold text-red-600 bg-secondary px-2.5 py-1 rounded-full">Blood: {patient.bloodType}</span>
               </div>
             </div>
           </div>
@@ -711,21 +712,19 @@ export default function CitizenPortal() {
           urgency === "immediate" ? "text-red-600" :
           urgency === "urgent"    ? "text-amber-600" :
           urgency === "soon"      ? "text-sky-600"   : "text-emerald-600";
-        const iconBg =
-          urgency === "immediate" ? "bg-red-100" :
-          urgency === "urgent"    ? "bg-amber-100" :
-          urgency === "soon"      ? "bg-sky-100"   : "bg-emerald-100";
-        const cardBorder =
-          urgency === "immediate" ? "bg-red-50" :
-          urgency === "urgent"    ? "bg-amber-50" :
-          urgency === "soon"      ? "bg-sky-50"   : "bg-emerald-50";
+        const iconBg = "bg-secondary";
+        const urgencyBorderColor =
+          urgency === "immediate" ? "#dc2626" :
+          urgency === "urgent"    ? "#f59e0b" :
+          urgency === "soon"      ? "#0ea5e9"   : "#22c55e";
         const scoreColor =
           urgency === "immediate" ? "text-red-600" :
           urgency === "urgent"    ? "text-amber-600" :
           urgency === "soon"      ? "text-sky-600"   : "text-emerald-600";
         const IconEl = urgency === "immediate" || urgency === "urgent" ? ShieldAlert : Brain;
         return (
-          <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 ${cardBorder} ${isImmediate ? "animate-pulse" : ""}`}>
+          <div className={`mb-4 rounded-2xl p-4 flex items-start gap-4 bg-secondary/60 ${isImmediate ? "animate-pulse" : ""}`}
+            style={{ borderLeft: `3px solid ${urgencyBorderColor}` }}>
             <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
               <IconEl className={`w-5 h-5 ${iconColor}`} />
             </div>
@@ -821,7 +820,7 @@ export default function CitizenPortal() {
                     </p>
                     <div className="space-y-2">
                       {aiDecision.digitalTwin.predictedConditions.map((c, i) => (
-                        <div key={i} className="flex items-start gap-3 px-4 py-3 bg-amber-50 rounded-xl">
+                        <div key={i} className="flex items-start gap-3 px-4 py-3 bg-secondary/60 rounded-xl">
                           <ArrowUpRight className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                           <p className="text-sm text-foreground">{c}</p>
                         </div>
@@ -976,9 +975,9 @@ export default function CitizenPortal() {
                   );
                 })}
                 {recommendations.length === 0 && (
-                  <div className="flex items-center gap-3 px-4 py-5 bg-emerald-50 rounded-2xl">
+                  <div className="flex items-center gap-3 px-4 py-5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <p className="text-sm font-semibold text-emerald-700">No urgent recommendations. Continue your healthy routine!</p>
+                    <p className="text-sm font-semibold text-foreground">No urgent recommendations. Continue your healthy routine!</p>
                   </div>
                 )}
               </div>
@@ -992,12 +991,12 @@ export default function CitizenPortal() {
               const hasVisit = (patient.visits ?? []).length > 0;
               const goodScore = healthScore.score >= 70;
               const achievements: Array<{ icon: React.ElementType; iconColor: string; iconBg: string; title: string; desc: string; earned: boolean; color: string }> = [
-                { icon: Pill,           iconColor: "text-violet-600", iconBg: "bg-violet-100", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-violet-50" },
-                { icon: FlaskConical,   iconColor: "text-sky-600",    iconBg: "bg-sky-100",    title: "Lab Tracker",         desc: "Lab results on record and monitored",  earned: hasLabs,         color: "bg-sky-50" },
-                { icon: Building2,      iconColor: "text-teal-600",   iconBg: "bg-teal-100",   title: "Health Checkup",      desc: "Clinical visit recorded this year",     earned: hasVisit,        color: "bg-teal-50" },
-                { icon: ShieldCheck,    iconColor: "text-emerald-600",iconBg: "bg-emerald-100",title: "Health Warrior",      desc: "Health score ≥ 70 / Good standing",     earned: goodScore,       color: "bg-emerald-50" },
-                { icon: HeartHandshake, iconColor: "text-indigo-600", iconBg: "bg-indigo-100", title: "Chronic Manager",     desc: "Managing chronic conditions with AI",   earned: conditions.length > 0, color: "bg-indigo-50" },
-                { icon: BarChart2,      iconColor: "text-amber-600",  iconBg: "bg-amber-100",  title: "SANAD Connected",     desc: "National health record fully linked",   earned: true,            color: "bg-amber-50" },
+                { icon: Pill,           iconColor: "text-primary",    iconBg: "bg-secondary", title: "Medication Adherent", desc: "Active prescriptions tracked in SANAD", earned: hasActiveMeds, color: "bg-secondary" },
+                { icon: FlaskConical,   iconColor: "text-primary",    iconBg: "bg-secondary", title: "Lab Tracker",         desc: "Lab results on record and monitored",  earned: hasLabs,         color: "bg-secondary" },
+                { icon: Building2,      iconColor: "text-primary",    iconBg: "bg-secondary", title: "Health Checkup",      desc: "Clinical visit recorded this year",     earned: hasVisit,        color: "bg-secondary" },
+                { icon: ShieldCheck,    iconColor: "text-emerald-600",iconBg: "bg-secondary", title: "Health Warrior",      desc: "Health score ≥ 70 / Good standing",     earned: goodScore,       color: "bg-secondary" },
+                { icon: HeartHandshake, iconColor: "text-primary",    iconBg: "bg-secondary", title: "Chronic Manager",     desc: "Managing chronic conditions with AI",   earned: conditions.length > 0, color: "bg-secondary" },
+                { icon: BarChart2,      iconColor: "text-amber-600",  iconBg: "bg-secondary", title: "SANAD Connected",     desc: "National health record fully linked",   earned: true,            color: "bg-secondary" },
               ];
               return (
                 <div>
@@ -1041,11 +1040,11 @@ export default function CitizenPortal() {
               </p>
               <div className="space-y-2">
                 {[
-                  { title: "30-Day Medication Streak", desc: "Take all medications on schedule for 30 days", progress: 73, unit: "days", target: 30, color: "bg-violet-500", bg: "bg-violet-50" },
-                  { title: "7-Day Walking Challenge", desc: "Walk 30 minutes daily — Heart health boost", progress: 57, unit: "days", target: 7, color: "bg-emerald-500", bg: "bg-emerald-50" },
-                  { title: "Annual Checkup Reminder", desc: "Book your comprehensive annual health screening", progress: 100, unit: "%", target: 100, color: "bg-sky-500", bg: "bg-sky-50" },
+                  { title: "30-Day Medication Streak", desc: "Take all medications on schedule for 30 days", progress: 73, unit: "days", target: 30, color: "bg-primary" },
+                  { title: "7-Day Walking Challenge", desc: "Walk 30 minutes daily — Heart health boost", progress: 57, unit: "days", target: 7, color: "bg-emerald-500" },
+                  { title: "Annual Checkup Reminder", desc: "Book your comprehensive annual health screening", progress: 100, unit: "%", target: 100, color: "bg-foreground" },
                 ].map((c, i) => (
-                  <div key={i} className={`p-3.5 rounded-2xl ${c.bg}`}>
+                  <div key={i} className="p-3.5 rounded-2xl bg-secondary">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <p className="text-[12px] font-bold text-foreground">{c.title}</p>
@@ -1073,7 +1072,8 @@ export default function CitizenPortal() {
                   { title: "Ophthalmology Screening", desc: "Diabetic retinopathy annual exam · King Faisal Specialist Hospital", daysLeft: 45, urgent: false },
                   { title: "Medication Refill", desc: "Metformin 500mg prescription expires in 18 days", daysLeft: 18, urgent: false },
                 ].map((r, i) => (
-                  <div key={i} className={`flex items-start gap-3 px-4 py-3 rounded-2xl ${r.urgent ? "bg-red-50" : "bg-secondary"}`}>
+                  <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-secondary"
+                    style={r.urgent ? { borderLeft: "3px solid #ef4444" } : {}}>
                     <Bell className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${r.urgent ? "text-red-500" : "text-muted-foreground"}`} />
                     <div className="flex-1 min-w-0">
                       <p className={`text-[12px] font-bold ${r.urgent ? "text-red-700" : "text-foreground"}`}>{r.title}</p>
@@ -1114,15 +1114,15 @@ export default function CitizenPortal() {
             {/* Cross-Portal Stats */}
             <div className="grid grid-cols-4 gap-3">
               {[
-                { label: "Doctor Visits", value: patient.visits?.length ?? 0, icon: Stethoscope, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
-                { label: "Lab Tests", value: patient.labResults?.length ?? 0, icon: FlaskConical, color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200" },
-                { label: "Prescriptions", value: patient.medications?.length ?? 0, icon: Pill, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200" },
-                { label: "Insurance Claims", value: Math.floor((patient.medications?.length ?? 2) * 1.4), icon: Shield, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
+                { label: "Doctor Visits",    value: patient.visits?.length ?? 0,                                icon: Stethoscope, color: "text-primary"     },
+                { label: "Lab Tests",        value: patient.labResults?.length ?? 0,                            icon: FlaskConical, color: "text-primary"    },
+                { label: "Prescriptions",    value: patient.medications?.length ?? 0,                           icon: Pill,        color: "text-primary"     },
+                { label: "Insurance Claims", value: Math.floor((patient.medications?.length ?? 2) * 1.4),       icon: Shield,      color: "text-emerald-600" },
               ].map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div key={i} className={`rounded-2xl p-4 ${item.bg} text-center`}>
-                    <div className={`w-8 h-8 rounded-xl bg-white mx-auto mb-2 flex items-center justify-center`}>
+                  <div key={i} className="rounded-2xl p-4 bg-secondary text-center">
+                    <div className="w-8 h-8 rounded-xl bg-white/70 mx-auto mb-2 flex items-center justify-center">
                       <Icon className={`w-4 h-4 ${item.color}`} />
                     </div>
                     <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
@@ -1224,7 +1224,7 @@ export default function CitizenPortal() {
               {patient.allergies?.length > 0 ? (
                 <div className="space-y-2">
                   {patient.allergies.map((a, i) => (
-                    <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 rounded-2xl">
+                    <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
                       <StatusDot status="critical" />
                       <span className="text-sm font-bold text-red-700">{a}</span>
                     </div>

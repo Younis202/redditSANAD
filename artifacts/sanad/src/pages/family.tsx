@@ -204,8 +204,8 @@ export default function FamilyPortal() {
       {!nationalId && (
         <Card>
           <CardBody className="py-16 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-pink-50 flex items-center justify-center mx-auto mb-4">
-              <Users className="w-7 h-7 text-pink-500" />
+            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-4">
+              <Users className="w-7 h-7 text-primary" />
             </div>
             <p className="font-bold text-foreground mb-1">No Family Profile Selected</p>
             <p className="text-sm text-muted-foreground mb-2">Enter a National ID to load genetic risk analysis, family tree, and hereditary condition mapping.</p>

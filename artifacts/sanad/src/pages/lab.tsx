@@ -141,27 +141,27 @@ export default function LabPortal() {
         <Card className="mb-4 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-              <span className="font-bold text-sm text-teal-800">Live Lab Alerts</span>
+              <div className="w-2 h-2 rounded-full bg-foreground animate-pulse" />
+              <span className="font-bold text-sm text-foreground">Live Lab Alerts</span>
               <Badge variant="info" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-teal-600 hover:text-teal-800 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-teal-400 hover:text-teal-700">
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="divide-y divide-teal-100 max-h-48 overflow-y-auto">
+          <div className="divide-y divide-border max-h-48 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-amber-500" : "bg-teal-400"}`} />
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-amber-500" : "bg-foreground"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-teal-900">{alert.title}</p>
-                  <p className="text-xs text-teal-700 mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
                 </div>
                 {!alert.read && (
-                  <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-teal-500 hover:text-teal-800 shrink-0">Dismiss</button>
+                  <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-muted-foreground hover:text-foreground shrink-0">Dismiss</button>
                 )}
               </div>
             ))}
@@ -215,7 +215,7 @@ export default function LabPortal() {
 
       {isLoading && (
         <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600" />
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
           <span className="text-sm font-medium">Retrieving patient records...</span>
         </div>
       )}
@@ -274,7 +274,7 @@ export default function LabPortal() {
           {chartsToShow.length > 0 && (
             <Card>
               <CardHeader>
-                <Activity className="w-4 h-4 text-teal-600" />
+                <Activity className="w-4 h-4 text-primary" />
                 <CardTitle>Lab Trends — Clinical Progression</CardTitle>
                 <span className="ml-auto text-[11px] font-medium text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
                   {chartsToShow.length} test{chartsToShow.length > 1 ? "s" : ""} charted
@@ -489,7 +489,7 @@ export default function LabPortal() {
           {showAddForm && (
             <Card>
               <CardHeader>
-                <FlaskConical className="w-4 h-4 text-teal-600" />
+                <FlaskConical className="w-4 h-4 text-primary" />
                 <CardTitle>Upload New Lab Result</CardTitle>
                 <button onClick={() => setShowAddForm(false)} className="ml-auto text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
@@ -578,7 +578,7 @@ export default function LabPortal() {
           {/* Lab Results List */}
           <Card>
             <CardHeader>
-              <FlaskConical className="w-4 h-4 text-teal-600" />
+              <FlaskConical className="w-4 h-4 text-primary" />
               <CardTitle>Lab Results with AI Interpretation</CardTitle>
               <Badge variant="outline" className="ml-auto">{data.labs.length} results</Badge>
             </CardHeader>
@@ -593,7 +593,7 @@ export default function LabPortal() {
                   <div key={lab.id} className="p-4"
                     style={lab.status === "critical" ? { borderLeft: "3px solid #ef4444" } : lab.status === "abnormal" ? { borderLeft: "3px solid #f59e0b" } : {}}>
                     <div className="flex items-start gap-4">
-                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-teal-500" />
+                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-primary" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-bold text-sm text-foreground">{lab.testName}</p>

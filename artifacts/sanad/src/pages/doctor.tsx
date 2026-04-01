@@ -139,14 +139,14 @@ export default function DoctorDashboard() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchId.trim()) { setPatientId(searchId.trim()); setActiveTab("overview"); setShowDropdown(false); }
+    if (searchId.trim()) { setPatientId(searchId.trim()); setActiveTab("decision"); setShowDropdown(false); }
   };
 
   const handleSelectPatient = (nationalId: string, name: string) => {
     setSearchId(nationalId);
     setSearchQuery(name);
     setPatientId(nationalId);
-    setActiveTab("overview");
+    setActiveTab("decision");
     setShowDropdown(false);
   };
 
@@ -1407,7 +1407,7 @@ export default function DoctorDashboard() {
               <div className="p-6">
                 {decisionLoading && (
                   <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-violet-600" />
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
                     <span className="text-sm font-medium">AI Decision Engine processing...</span>
                   </div>
                 )}

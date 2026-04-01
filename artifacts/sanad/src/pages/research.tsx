@@ -156,7 +156,7 @@ export default function ResearchPortal() {
     return (
       <Layout role="research">
         <div className="flex items-center justify-center gap-3 py-20 text-muted-foreground">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-500" />
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
           <span className="text-sm font-medium">Aggregating anonymized research data...</span>
         </div>
       </Layout>
@@ -479,7 +479,7 @@ export default function ResearchPortal() {
                       </div>
                     </div>
                     <div className="mt-3 w-full bg-white/60 rounded-full h-1.5">
-                      <div className="h-full rounded-full bg-teal-500 transition-all" style={{ width: `${enrollPct}%` }} />
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${enrollPct}%` }} />
                     </div>
                     <div className="flex items-center gap-4 mt-1.5 text-[10px] text-muted-foreground">
                       <span>{study.enrolled.toLocaleString()} / {study.cohortSize.toLocaleString()} participants</span>
@@ -598,8 +598,8 @@ export default function ResearchPortal() {
       {/* ─── CORRELATION ANALYSIS ─── */}
       {activeView === "correlations" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #14b8a6" }}>
-            <GitBranch className="w-5 h-5 text-teal-600 shrink-0" />
+          <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #007AFF" }}>
+            <GitBranch className="w-5 h-5 text-primary shrink-0" />
             <div>
               <p className="text-sm font-bold text-foreground">Disease Co-Occurrence Correlation Matrix</p>
               <p className="text-xs text-muted-foreground mt-0.5">AI-detected co-occurrence patterns across chronic conditions — values represent % of patients with Condition A who also have Condition B</p>
@@ -608,7 +608,7 @@ export default function ResearchPortal() {
 
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-teal-600" /><CardTitle>Chronic Disease Co-Occurrence Matrix</CardTitle></div>
+              <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-primary" /><CardTitle>Chronic Disease Co-Occurrence Matrix</CardTitle></div>
               <Badge variant="info">AI-Detected Patterns</Badge>
             </CardHeader>
             <CardBody className="p-0">
@@ -777,7 +777,7 @@ export default function ResearchPortal() {
 
             <Card className="col-span-12">
               <CardHeader>
-                <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-teal-600" /><CardTitle>Research Data Export</CardTitle></div>
+                <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-primary" /><CardTitle>Research Data Export</CardTitle></div>
                 <Badge variant="success">PDPL Compliant</Badge>
               </CardHeader>
               <CardBody>
@@ -789,7 +789,7 @@ export default function ResearchPortal() {
                   ].map((item, i) => (
                     <div key={i} className="p-4 bg-secondary rounded-2xl">
                       <div className="flex items-center gap-2 mb-2">
-                        <Database className="w-4 h-4 text-teal-600" />
+                        <Database className="w-4 h-4 text-primary" />
                         <p className="text-sm font-bold text-foreground">{item.title}</p>
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">{item.desc}</p>
@@ -800,7 +800,7 @@ export default function ResearchPortal() {
                         </div>
                         <button
                           onClick={item.onclick}
-                          className="flex items-center gap-1.5 text-[11px] font-semibold text-teal-700 hover:text-teal-800 transition-colors"
+                          className="flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors"
                         >
                           <Download className="w-3 h-3" />
                           Export
@@ -956,7 +956,7 @@ export default function ResearchPortal() {
                 : hyp.status === "under_review"
                 ? { badge: "warning" as const, label: "Under Review", borderColor: "#f59e0b" }
                 : { badge: "info" as const, label: "New", borderColor: "#0ea5e9" };
-              const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-violet-700 bg-secondary" : "text-teal-700 bg-secondary";
+              const noveltyColor = hyp.novelty === "VERY HIGH" ? "text-foreground font-black bg-secondary" : "text-foreground bg-secondary";
               const impactColor = hyp.impact >= 9 ? "text-red-600" : hyp.impact >= 8 ? "text-amber-600" : "text-sky-600";
               return (
                 <div key={hyp.id} className="p-5 rounded-3xl bg-secondary" style={{ borderLeft: `4px solid ${statusCfg.borderColor}` }}>
@@ -1011,7 +1011,7 @@ export default function ResearchPortal() {
                         </div>
                         <div className="bg-white/60 rounded-xl p-3">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <Target className="w-3 h-3 text-teal-600" /> Proposed Study
+                            <Target className="w-3 h-3 text-primary" /> Proposed Study
                           </p>
                           <p className="text-xs font-semibold text-foreground">{hyp.design}</p>
                           <div className="flex items-center gap-3 mt-1">

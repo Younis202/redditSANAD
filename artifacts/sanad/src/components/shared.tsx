@@ -478,7 +478,7 @@ export function Sheet({
         className={cn(
           "relative ml-auto h-full w-full flex flex-col",
           "bg-[rgba(255,255,255,0.96)] backdrop-blur-2xl",
-          "shadow-[−24px_0_80px_rgba(0,0,0,0.15)]",
+          "shadow-[-24px_0_80px_rgba(0,0,0,0.15)]",
           width
         )}
         style={{ borderLeft: "1px solid rgba(0,0,0,0.07)" }}

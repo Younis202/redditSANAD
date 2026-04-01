@@ -827,8 +827,8 @@ export default function SupplyChainPortal() {
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
                     <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <ReferenceLine x="Mar" stroke="#22c55e" strokeDasharray="4 2" label={{ value: "🌙 Ramadan", position: "top", fontSize: 10, fill: "#22c55e" }} />
-                    <ReferenceLine x="Jun" stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "🕋 Hajj", position: "top", fontSize: 10, fill: "#f59e0b" }} />
+                    <ReferenceLine x="Mar" stroke="#22c55e" strokeDasharray="4 2" label={{ value: "Ramadan", position: "top", fontSize: 10, fill: "#22c55e" }} />
+                    <ReferenceLine x="Jun" stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "Hajj Season", position: "top", fontSize: 10, fill: "#f59e0b" }} />
                     <Area type="monotone" dataKey="insulin" name="Insulin (000 vials)" stroke="#007AFF" fill="url(#gInsulin)" strokeWidth={2} dot={false} />
                     <Area type="monotone" dataKey="ors" name="ORS (000 sachets)" stroke="#10b981" fill="url(#gOrs)" strokeWidth={2} dot={false} />
                     <Area type="monotone" dataKey="glucagon" name="Glucagon Kits" stroke="#f59e0b" fill="url(#gGlucagon)" strokeWidth={2} dot={false} />

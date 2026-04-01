@@ -266,7 +266,7 @@ export default function AIControlCenter() {
                 {[
                   { label: "CPU Usage", value: metrics?.systemHealth?.cpu, unit: "%", color: "bg-blue-500" },
                   { label: "Memory Usage", value: metrics?.systemHealth?.memory, unit: "%", color: "bg-violet-500" },
-                  { label: "DB Connections", value: metrics?.systemHealth?.dbConnections, unit: " active", color: "bg-teal-500" },
+                  { label: "DB Connections", value: metrics?.systemHealth?.dbConnections, unit: " active", color: "bg-sky-500" },
                   { label: "Event Bus Lag", value: metrics?.systemHealth?.eventBusLag, unit: "ms", color: "bg-emerald-500" },
                 ].map((item, i) => (
                   <div key={i}>
@@ -432,7 +432,7 @@ export default function AIControlCenter() {
                   <div className="space-y-2">
                     {[
                       { queue: "clinical.risk.assessment", rate: "4,821 msg/s", latency: "18ms", depth: 42, pct: 84, color: "bg-blue-500" },
-                      { queue: "lab.result.ingest", rate: "2,140 msg/s", latency: "8ms", depth: 17, pct: 70, color: "bg-teal-500" },
+                      { queue: "lab.result.ingest", rate: "2,140 msg/s", latency: "8ms", depth: 17, pct: 70, color: "bg-emerald-500" },
                       { queue: "alert.critical.route", rate: "284 msg/s", latency: "3ms", depth: 5, pct: 55, color: "bg-red-500" },
                       { queue: "patient.prediction.run", rate: "1,203 msg/s", latency: "67ms", depth: 89, pct: 42, color: "bg-violet-500" },
                       { queue: "drug.interaction.check", rate: "987 msg/s", latency: "12ms", depth: 23, pct: 35, color: "bg-amber-500" },

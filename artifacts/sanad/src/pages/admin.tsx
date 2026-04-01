@@ -509,7 +509,7 @@ export default function AdminDashboard() {
                     { condition: "Dyslipidemia", prevalence: 19.3, trend: "stable", patients: "6.6M", color: "bg-violet-500" },
                     { condition: "Coronary Artery Disease", prevalence: 8.2, trend: "down", patients: "2.8M", color: "bg-rose-500" },
                     { condition: "Chronic Kidney Disease", prevalence: 6.7, trend: "up", patients: "2.3M", color: "bg-blue-500" },
-                    { condition: "COPD", prevalence: 4.1, trend: "stable", patients: "1.4M", color: "bg-teal-500" },
+                    { condition: "COPD", prevalence: 4.1, trend: "stable", patients: "1.4M", color: "bg-sky-500" },
                     { condition: "Depression / Mental Health", prevalence: 3.8, trend: "up", patients: "1.3M", color: "bg-indigo-500" },
                   ].map((d, i) => (
                     <div key={i} className="flex items-center gap-3">
@@ -702,7 +702,7 @@ export default function AdminDashboard() {
                     { cert: "ISO 27001 Information Security", status: "CERTIFIED", score: "Valid to Dec 2026", dot: "bg-emerald-600" },
                     { cert: "HIPAA-Equivalent Standard", status: "ALIGNED", score: "92.4%", dot: "bg-violet-600" },
                     { cert: "HL7 FHIR R4 Compliance", status: "CERTIFIED", score: "FHIR R4 Full", dot: "bg-sky-600" },
-                    { cert: "MOH Clinical Data Standards", status: "CERTIFIED", score: "Version 3.1", dot: "bg-teal-600" },
+                    { cert: "MOH Clinical Data Standards", status: "CERTIFIED", score: "Version 3.1", dot: "bg-indigo-600" },
                   ].map((c, i) => (
                     <div key={i} className="flex items-center gap-3 px-3 py-2.5 bg-secondary rounded-xl">
                       <div className={`w-2 h-2 rounded-full ${c.dot} shrink-0`} />
@@ -854,7 +854,7 @@ export default function AdminDashboard() {
                 { portal: "Emergency Portal", adoption: 98, users: 2847, color: "bg-red-500" },
                 { portal: "Doctor Decision Engine", adoption: 89, users: 12480, color: "bg-violet-500" },
                 { portal: "Pharmacy AI", adoption: 94, users: 4210, color: "bg-primary" },
-                { portal: "Lab AI Summary", adoption: 87, users: 6820, color: "bg-teal-500" },
+                { portal: "Lab AI Summary", adoption: 87, users: 6820, color: "bg-emerald-500" },
                 { portal: "Insurance Pre-Auth", adoption: 76, users: 1920, color: "bg-amber-500" },
                 { portal: "Family Risk Engine", adoption: 71, users: 3140, color: "bg-pink-500" },
                 { portal: "Research Hypothesis AI", adoption: 64, users: 480, color: "bg-indigo-500" },

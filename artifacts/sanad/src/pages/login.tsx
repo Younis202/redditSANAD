@@ -63,7 +63,7 @@ const ROLES: RoleConfig[] = [
   },
   {
     role: "lab", label: "Lab Portal", sublabel: "Results · AI Interpretation",
-    icon: FlaskConical, color: "text-teal-600", iconBg: "bg-teal-600",
+    icon: FlaskConical, color: "text-emerald-600", iconBg: "bg-emerald-600",
     href: "/lab",
     clearance: "RESTRICTED", employeeId: "LAB-DIR-0101", demoPassword: "SANAD@2025",
   },

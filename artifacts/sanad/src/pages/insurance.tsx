@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, KpiCard, DataLabel, PortalHero } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, KpiCard, DataLabel, PortalHero, Sheet } from "@/components/shared";
 import {
   Shield, Search, AlertTriangle, CheckCircle2, TrendingUp, DollarSign, Users, Brain,
   ShieldAlert, Zap, X, Clock, BarChart2, Activity, ChevronRight, FileCheck,
@@ -80,7 +80,7 @@ export default function InsurancePortal() {
   const [reviewingClaim, setReviewingClaim] = useState<string | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [reviewResults, setReviewResults] = useState<Record<string, any>>({});
-  const [expandedClaim, setExpandedClaim] = useState<string | null>(null);
+  const [claimSheet, setClaimSheet] = useState<any | null>(null);
   const [showSsePanel, setShowSsePanel] = useState(false);
   const { alerts: sseAlerts, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("insurance");
   const qc = useQueryClient();
@@ -99,6 +99,7 @@ export default function InsurancePortal() {
       setReviewResults(prev => ({ ...prev, [claimId]: result }));
       setReviewingClaim(null);
       setReviewNotes("");
+      setClaimSheet(null);
       qc.invalidateQueries({ queryKey: ["insurance-patient", nationalId] });
     },
   });
@@ -112,15 +113,7 @@ export default function InsurancePortal() {
 
   return (
     <Layout role="insurance">
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <Shield className="w-3 h-3" /> Insurance Operations Center
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-          AI Fraud Engine: Active · {dashboard?.fraudSuspected ?? "—"} cases flagged
-        </div>
-        <div className="ml-auto flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2 mb-5">
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
@@ -142,7 +135,6 @@ export default function InsurancePortal() {
               </button>
             ))}
           </div>
-        </div>
       </div>
 
       {/* SSE Fraud Alert Panel */}
@@ -588,69 +580,19 @@ export default function InsurancePortal() {
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
                               {canReview && !isReviewing && (
-                                <button onClick={() => setExpandedClaim(expandedClaim === claim.claimId ? null : claim.claimId)}
+                                <button onClick={() => setClaimSheet(claim)}
                                   className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-xl hover:bg-primary/20 transition-colors flex items-center gap-1">
                                   <FileCheck className="w-3 h-3" /> Review
                                 </button>
                               )}
-                              {claim.anomalyReasons?.length > 0 && (
-                                <button onClick={() => setExpandedClaim(expandedClaim === claim.claimId ? null : claim.claimId)}
+                              {claim.anomalyReasons?.length > 0 && !canReview && (
+                                <button onClick={() => setClaimSheet(claim)}
                                   className="text-[11px] font-bold text-amber-700 bg-secondary px-2.5 py-1 rounded-xl hover:bg-border transition-colors flex items-center gap-1">
                                   <Eye className="w-3 h-3" /> Details
                                 </button>
                               )}
                             </div>
                           </div>
-
-                          {/* Expanded Panel */}
-                          {expandedClaim === claim.claimId && (
-                            <div className="mx-5 mb-4 p-4 bg-secondary rounded-2xl space-y-3">
-                              {claim.anomalyReasons?.length > 0 && (
-                                <div>
-                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                    <AlertTriangle className="w-3 h-3 text-amber-500" /> Anomaly Reasons
-                                  </p>
-                                  {claim.anomalyReasons.map((r: string, i: number) => (
-                                    <div key={i} className="flex items-center gap-2 text-xs text-amber-700 mb-1">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />{r}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {reviewResult && (
-                                <div className="p-3 bg-secondary rounded-xl">
-                                  <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1">Review Complete</p>
-                                  <p className="text-xs text-foreground">{reviewResult.aiReason}</p>
-                                  <p className="text-[10px] text-muted-foreground mt-1">By {reviewResult.reviewedBy} · {new Date(reviewResult.reviewedAt).toLocaleString()}</p>
-                                </div>
-                              )}
-                              {canReview && (
-                                <div>
-                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                    <MessageSquare className="w-3 h-3" /> Review Notes (optional)
-                                  </p>
-                                  <Input placeholder="Add review notes..." value={reviewNotes} onChange={e => setReviewNotes(e.target.value)} className="mb-3 text-xs" />
-                                  <div className="flex gap-2">
-                                    <button onClick={() => reviewMutation.mutate({ claimId: claim.claimId, action: "approve" })}
-                                      disabled={reviewMutation.isPending}
-                                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50">
-                                      <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-                                    </button>
-                                    <button onClick={() => reviewMutation.mutate({ claimId: claim.claimId, action: "flag" })}
-                                      disabled={reviewMutation.isPending}
-                                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50">
-                                      <Clock className="w-3.5 h-3.5" /> Flag for Review
-                                    </button>
-                                    <button onClick={() => reviewMutation.mutate({ claimId: claim.claimId, action: "reject" })}
-                                      disabled={reviewMutation.isPending}
-                                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50">
-                                      <X className="w-3.5 h-3.5" /> Reject
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -990,6 +932,100 @@ export default function InsurancePortal() {
           )}
         </div>
       )}
+      {/* Claim Detail / Review Sheet */}
+      <Sheet
+        open={!!claimSheet}
+        onClose={() => { setClaimSheet(null); setReviewNotes(""); }}
+        title="Claim Detail"
+        subtitle={claimSheet ? `${claimSheet.claimId} · ${claimSheet.hospital}` : ""}
+        width="max-w-xl"
+      >
+        {claimSheet && (() => {
+          const reviewResult = reviewResults[claimSheet.claimId];
+          return (
+            <div className="space-y-5">
+              {/* Claim Summary */}
+              <div className="rounded-2xl bg-secondary p-4 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{claimSheet.claimId}</p>
+                    <p className="text-base font-bold text-foreground">{claimSheet.diagnosis}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{claimSheet.hospital} · {claimSheet.date}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xl font-bold text-foreground">SAR {claimSheet.estimatedCost?.toLocaleString()}</p>
+                    <Badge variant="outline" className="text-[10px] mt-0.5">{claimSheet.status}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Anomaly Reasons */}
+              {claimSheet.anomalyReasons?.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3 text-amber-500" /> AI Anomaly Flags
+                  </p>
+                  <div className="space-y-1.5">
+                    {claimSheet.anomalyReasons.map((r: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2.5 px-3 py-2 bg-secondary rounded-xl text-xs font-medium text-foreground">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />{r}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Previous Review Result */}
+              {reviewResult && (
+                <div className="p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Review Complete</p>
+                  <p className="text-sm text-foreground font-medium">{reviewResult.aiReason}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1.5">By {reviewResult.reviewedBy} · {new Date(reviewResult.reviewedAt).toLocaleString()}</p>
+                </div>
+              )}
+
+              {/* Review Form */}
+              {!reviewResult && (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <MessageSquare className="w-3 h-3" /> Review Notes (optional)
+                  </p>
+                  <textarea
+                    placeholder="Add review notes..."
+                    value={reviewNotes}
+                    onChange={e => setReviewNotes(e.target.value)}
+                    rows={3}
+                    className="w-full px-3.5 py-3 text-sm border border-border rounded-2xl bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-4"
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => reviewMutation.mutate({ claimId: claimSheet.claimId, action: "approve" })}
+                      disabled={reviewMutation.isPending}
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                    </button>
+                    <button
+                      onClick={() => reviewMutation.mutate({ claimId: claimSheet.claimId, action: "flag" })}
+                      disabled={reviewMutation.isPending}
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
+                    >
+                      <Clock className="w-3.5 h-3.5" /> Flag
+                    </button>
+                    <button
+                      onClick={() => reviewMutation.mutate({ claimId: claimSheet.claimId, action: "reject" })}
+                      disabled={reviewMutation.isPending}
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50"
+                    >
+                      <X className="w-3.5 h-3.5" /> Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </Sheet>
     </Layout>
   );
 }

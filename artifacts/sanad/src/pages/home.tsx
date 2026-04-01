@@ -1,146 +1,66 @@
 import React from "react";
 import { Link } from "wouter";
 import {
-  ShieldAlert, HeartPulse, User, Building2, ArrowRight,
-  Shield, Brain, Activity, FlaskConical, Pill, BedDouble,
-  Package, Users, Cpu, TrendingUp, Globe, Zap, Lock
+  Brain, Shield, Activity, Zap, Lock,
+  ArrowRight, Globe, Users, Building2,
+  HeartPulse, FlaskConical, ChevronRight,
+  ShieldCheck, Clock, TrendingUp, Cpu
 } from "lucide-react";
 
-const PORTALS = [
+const STATS = [
+  { value: "34.2M+", label: "Registered Citizens",   sub: "National Health IDs" },
+  { value: "450+",   label: "Connected Hospitals",    sub: "Across all 13 regions" },
+  { value: "847K",   label: "AI Decisions / Day",     sub: "Real-time clinical support" },
+  { value: "SAR 4.7B", label: "Annual AI Savings",   sub: "Across the health system" },
+];
+
+const FEATURES = [
   {
-    href: "/emergency",
-    icon: ShieldAlert,
-    label: "Emergency Response",
-    description: "Instant life-critical data for first responders — blood type, allergies, and medications in under one second.",
-    accent: "#dc2626",
-    accentLight: "rgba(220,38,38,0.08)",
-    tag: "First Responders",
-    clearance: "RESTRICTED",
-  },
-  {
-    href: "/doctor",
-    icon: HeartPulse,
-    label: "Physician Portal",
-    description: "Complete patient history, AI clinical decision engine, drug interaction checks, risk scoring, and e-prescribing.",
-    accent: "hsl(211 100% 50%)",
-    accentLight: "rgba(0,122,255,0.08)",
-    tag: "Clinical Staff",
-    clearance: "CONFIDENTIAL",
-  },
-  {
-    href: "/citizen",
-    icon: User,
-    label: "Citizen Portal",
-    description: "Secure personal health records, prescriptions, lab results, and an AI-powered 12-month Digital Twin forecast.",
-    accent: "#d97706",
-    accentLight: "rgba(217,119,6,0.08)",
-    tag: "Citizens",
-    clearance: "PUBLIC",
-  },
-  {
-    href: "/admin",
-    icon: Building2,
-    label: "Ministry Analytics",
-    description: "National population health intelligence, epidemic radar, policy decision support, and executive reporting.",
-    accent: "#059669",
-    accentLight: "rgba(5,150,105,0.08)",
-    tag: "Ministry Officials",
-    clearance: "SECRET",
-  },
-  {
-    href: "/lab",
-    icon: FlaskConical,
-    label: "Lab Portal",
-    description: "Upload results and receive instant AI interpretation — clinical flags, risk impact, and trend analysis for every test.",
-    accent: "#0d9488",
-    accentLight: "rgba(13,148,136,0.08)",
-    tag: "Lab Technicians",
-    clearance: "RESTRICTED",
-  },
-  {
-    href: "/pharmacy",
-    icon: Pill,
-    label: "Pharmacy Portal",
-    description: "Dispense with AI drug safety checks, allergy conflict detection, and real-time insurance verification.",
-    accent: "#9333ea",
-    accentLight: "rgba(147,51,234,0.08)",
-    tag: "Pharmacists",
-    clearance: "RESTRICTED",
-  },
-  {
-    href: "/hospital",
-    icon: BedDouble,
-    label: "Hospital Operations",
-    description: "Live bed occupancy across all wards, AI-prioritized patient queue, staff allocation, and capacity insights.",
-    accent: "#2563eb",
-    accentLight: "rgba(37,99,235,0.08)",
-    tag: "Hospital Managers",
-    clearance: "CONFIDENTIAL",
-  },
-  {
-    href: "/insurance",
-    icon: Shield,
-    label: "Insurance Portal",
-    description: "AI-powered pre-authorization, fraud detection, real-time clinical necessity scoring, and claims analytics.",
-    accent: "#7c3aed",
-    accentLight: "rgba(124,58,237,0.08)",
-    tag: "Insurers",
-    clearance: "CONFIDENTIAL",
-  },
-  {
-    href: "/ai-control",
     icon: Brain,
-    label: "AI Control Center",
-    description: "Monitor all 9 AI engines — confidence scores, model drift detection, retraining orchestration, and audit trails.",
-    accent: "#6d28d9",
-    accentLight: "rgba(109,40,217,0.08)",
-    tag: "AI Engineers",
-    clearance: "SECRET",
+    title: "9 AI Engines",
+    description: "From risk scoring to drug interaction checks, autonomous AI engines run every clinical event in real time.",
+    accent: "#007AFF",
   },
   {
-    href: "/research",
-    icon: FlaskConical,
-    label: "Research Portal",
-    description: "Anonymized population analytics, disease prevalence trends, lab abnormality rates, and AI hypothesis engine.",
-    accent: "#0f766e",
-    accentLight: "rgba(15,118,110,0.08)",
-    tag: "Researchers",
-    clearance: "CONFIDENTIAL",
+    icon: ShieldCheck,
+    title: "PDPL Compliant",
+    description: "All data governed by Royal Decree M/19 and NCA Healthcare Data Standard v2.0. Sovereign KSA infrastructure.",
+    accent: "#059669",
   },
   {
-    href: "/family",
-    icon: Users,
-    label: "Family Health Portal",
-    description: "Hereditary disease risk mapping, coordinated family screenings, and genetic risk inheritance pattern tracking.",
-    accent: "#be185d",
-    accentLight: "rgba(190,24,93,0.08)",
-    tag: "Care Coordinators",
-    clearance: "RESTRICTED",
+    icon: Activity,
+    title: "Real-time SSE",
+    description: "Live server-sent events connect 12 portals — a single clinical event cascades to every relevant stakeholder in milliseconds.",
+    accent: "#7c3aed",
   },
   {
-    href: "/supply-chain",
-    icon: Package,
-    label: "Supply Chain",
-    description: "Real-time drug inventory tracking, AI shortage prediction, automated reorder alerts, and seasonal surge planning.",
-    accent: "#c2410c",
-    accentLight: "rgba(194,65,12,0.08)",
-    tag: "Logistics",
-    clearance: "RESTRICTED",
+    icon: Clock,
+    title: "Sub-second Response",
+    description: "Emergency lookup returns blood type, allergies, medications, and AI clinical actions in under one second.",
+    accent: "#dc2626",
+  },
+  {
+    icon: TrendingUp,
+    title: "Digital Twin Engine",
+    description: "12-month AI health trajectory forecast per citizen. Predicts hospitalisation risk, chronic disease progression, and lab trends.",
+    accent: "#d97706",
+  },
+  {
+    icon: Cpu,
+    title: "Immutable Audit Trail",
+    description: "Every access event, AI decision, and data touch logged permanently per MOH Compliance Standard v2.0.",
+    accent: "#0284c7",
   },
 ];
 
-const CLEARANCE_DOT: Record<string, string> = {
-  PUBLIC:       "bg-emerald-500",
-  RESTRICTED:   "bg-amber-500",
-  CONFIDENTIAL: "bg-sky-500",
-  SECRET:       "bg-red-500",
-};
-const CLEARANCE_TEXT: Record<string, string> = {
-  PUBLIC:       "text-emerald-700",
-  RESTRICTED:   "text-amber-700",
-  CONFIDENTIAL: "text-sky-700",
-  SECRET:       "text-red-700",
-};
+const PORTALS = [
+  { icon: ShieldCheck,  label: "Emergency Response",  sub: "First Responders · SRCA",       accent: "#dc2626" },
+  { icon: HeartPulse,   label: "Physician Portal",     sub: "Clinical Decision Support",     accent: "#007AFF" },
+  { icon: Users,        label: "Citizen Portal",       sub: "Personal Health Records",       accent: "#d97706" },
+  { icon: Building2,    label: "Ministry Analytics",   sub: "National Intelligence",         accent: "#059669" },
+  { icon: FlaskConical, label: "Lab & Research",       sub: "Diagnostics & Population Data", accent: "#0f766e" },
+  { icon: Shield,       label: "Insurance & Supply",   sub: "Claims, Fraud & Logistics",     accent: "#7c3aed" },
+];
 
 export default function Home() {
   return (
@@ -148,187 +68,266 @@ export default function Home() {
 
       {/* ─── Header ─── */}
       <header
-        className="h-20 flex items-center justify-between px-10 sticky top-0 z-20"
+        className="h-[64px] flex items-center justify-between px-10 sticky top-0 z-20"
         style={{
-          background: "rgba(255,255,255,0.82)",
+          background: "rgba(255,255,255,0.88)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           borderBottom: "1px solid rgba(0,0,0,0.06)",
         }}
       >
         <div className="flex items-center gap-3">
-          <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center bg-[hsl(211_100%_50%)] shrink-0">
+          <div className="w-[32px] h-[32px] rounded-[9px] flex items-center justify-center bg-[hsl(211_100%_50%)] shrink-0">
             <img
               src={`${import.meta.env.BASE_URL}images/sanad-logo.png`}
               alt="Sanad"
-              className="w-[18px] h-[18px] brightness-0 invert"
+              className="w-[17px] h-[17px] brightness-0 invert"
             />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-bold text-[15px] text-foreground tracking-tight">Sanad</span>
+          <div className="flex items-baseline gap-2.5">
+            <span className="font-extrabold text-[15px] text-foreground tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>SANAD</span>
             <span className="text-[11px] text-muted-foreground font-medium hidden sm:block">National AI Health Intelligence Platform</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2.5">
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground px-3 py-1.5 rounded-full border border-black/[0.07] bg-white">
+            <Globe className="w-3 h-3 shrink-0" />
+            Ministry of Health — KSA
+          </div>
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-secondary px-3 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
             All Systems Live
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-white border border-black/[0.07] px-3 py-1.5 rounded-full">
-            <Globe className="w-3 h-3 shrink-0" />
-            <span className="hidden sm:block">Ministry of Health — KSA</span>
-          </div>
+          <Link href="/login">
+            <div className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-primary hover:bg-primary/90 px-4 py-1.5 rounded-full transition-colors cursor-pointer">
+              Sign In
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
         </div>
       </header>
 
-      {/* ─── Main ─── */}
-      <main className="flex-1 max-w-[1200px] mx-auto w-full px-10 pt-10 pb-12 flex flex-col gap-10">
+      <main className="flex-1">
 
-        {/* ─── Hero Card ─── */}
-        <div
-          className="relative overflow-hidden rounded-[28px] px-10 py-9"
-          style={{
-            background: "linear-gradient(135deg, hsl(211 100% 32%) 0%, hsl(220 90% 22%) 100%)",
-            boxShadow: "0 20px 60px rgba(0,80,200,0.25), 0 4px 12px rgba(0,0,0,0.12)",
-          }}
-        >
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full opacity-[0.07]"
-            style={{ background: "radial-gradient(circle, white 0%, transparent 70%)", transform: "translate(120px,-120px)" }} />
-          <div className="absolute bottom-0 left-1/2 w-[300px] h-[300px] rounded-full opacity-[0.05]"
-            style={{ background: "radial-gradient(circle, white 0%, transparent 70%)", transform: "translateY(100px)" }} />
+        {/* ─── HERO ─── */}
+        <section className="relative overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(160deg, hsl(211 100% 24%) 0%, hsl(230 80% 15%) 55%, hsl(270 60% 12%) 100%)",
+            }}
+          />
+          <div
+            className="absolute top-[-80px] right-[-80px] w-[600px] h-[600px] rounded-full opacity-[0.08]"
+            style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}
+          />
+          <div
+            className="absolute bottom-[-100px] left-[20%] w-[400px] h-[400px] rounded-full opacity-[0.05]"
+            style={{ background: "radial-gradient(circle, #60a5fa 0%, transparent 70%)" }}
+          />
 
-          <div className="relative z-10 flex items-center justify-between gap-8">
-            <div className="flex-1 min-w-0">
-              <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-white/60 mb-4 px-3 py-1 rounded-full border border-white/15 bg-white/8">
-                <Brain className="w-3 h-3" />
-                AI-Driven National Health Operating System · v3.0
-              </div>
-              <h1 className="text-[38px] font-bold text-white tracking-tight leading-[1.1] mb-3">
-                Saudi Arabia's Digital<br />
-                <span className="text-white/80">Health Backbone</span>
-              </h1>
-              <p className="text-[14px] text-white/65 max-w-[520px] leading-relaxed mb-6">
-                Connecting <span className="text-white font-semibold">450+ hospitals</span> and <span className="text-white font-semibold">34M citizen records</span> with AI-powered clinical decision support. Every event triggers an AI decision — in milliseconds.
-              </p>
-              <div className="flex items-center gap-3 flex-wrap">
-                {[
-                  { icon: Zap, label: "9 AI Engines" },
-                  { icon: Lock, label: "PDPL Compliant" },
-                  { icon: Activity, label: "Real-time SSE" },
-                  { icon: TrendingUp, label: "99.99% Uptime" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex items-center gap-1.5 text-[11px] font-medium text-white/70 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full">
-                    <Icon className="w-3 h-3" />
-                    {label}
-                  </div>
-                ))}
+          <div className="relative z-10 max-w-[1160px] mx-auto px-10 pt-20 pb-24">
+            <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-white/50 mb-7 px-3.5 py-1.5 rounded-full border border-white/[0.12] bg-white/[0.05]">
+              <Zap className="w-3 h-3 text-blue-400" />
+              AI-Driven National Health Operating System · v3.0
+            </div>
+
+            <h1
+              className="text-[56px] font-black text-white tracking-tight leading-[1.06] mb-6 max-w-[700px]"
+              style={{ fontFamily: "'Manrope', sans-serif" }}
+            >
+              The intelligence layer for<br />
+              <span style={{ background: "linear-gradient(90deg, #60a5fa, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                Saudi Healthcare
+              </span>
+            </h1>
+
+            <p className="text-[16px] text-white/55 leading-relaxed mb-10 max-w-[560px]">
+              SANAD connects <span className="text-white/90 font-semibold">450+ hospitals</span> and <span className="text-white/90 font-semibold">34M citizen records</span> through 9 AI engines — delivering clinical decisions, risk scoring, and real-time alerts to 12 specialist portals.
+            </p>
+
+            <div className="flex items-center gap-3 flex-wrap mb-14">
+              <Link href="/login">
+                <div className="flex items-center gap-2 px-6 py-3 bg-white text-[hsl(211_100%_30%)] text-[14px] font-bold rounded-2xl hover:bg-white/90 transition-colors cursor-pointer shadow-lg shadow-black/20">
+                  Access SANAD Platform
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </Link>
+              <div className="flex items-center gap-2 px-5 py-3 bg-white/[0.08] text-white/80 text-[13px] font-semibold rounded-2xl border border-white/[0.12] cursor-default">
+                <Lock className="w-3.5 h-3.5 text-white/50" />
+                PDPL-Compliant · Role-Based Access
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="shrink-0 grid grid-cols-2 gap-3">
-              {[
-                { value: "34.2M+", label: "Registered Citizens" },
-                { value: "450+",   label: "Connected Hospitals" },
-                { value: "SAR 4.7B", label: "AI Savings Generated" },
-                { value: "847K",   label: "AI Decisions / Day" },
-              ].map(({ value, label }) => (
-                <div key={label} className="bg-white/10 border border-white/15 rounded-[16px] px-5 py-4 text-center min-w-[120px]">
-                  <p className="text-[22px] font-bold text-white leading-none mb-1">{value}</p>
-                  <p className="text-[10px] text-white/55 font-medium">{label}</p>
+            {/* Stats strip */}
+            <div className="grid grid-cols-4 gap-3">
+              {STATS.map(({ value, label, sub }) => (
+                <div
+                  key={label}
+                  className="rounded-2xl px-5 py-4"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
+                >
+                  <p className="text-[28px] font-black text-white leading-none tracking-tight">{value}</p>
+                  <p className="text-[12px] text-white/80 font-semibold mt-1">{label}</p>
+                  <p className="text-[10px] text-white/35 font-medium mt-0.5">{sub}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ─── Portal Grid ─── */}
-        <div>
-          <div className="flex items-center justify-between mb-5">
+        {/* ─── 12 PORTALS PREVIEW ─── */}
+        <section className="max-w-[1160px] mx-auto px-10 py-16">
+          <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-0.5">Access Portals</p>
-              <p className="text-[19px] font-bold text-foreground tracking-tight">Select Your Role</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground mb-1.5">Platform Coverage</p>
+              <h2 className="text-[28px] font-black text-foreground tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>
+                12 Specialist Portals
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-[460px]">
+                Every clinical role — from emergency responders to insurance auditors — operates through a dedicated, role-locked portal with tailored AI tools.
+              </p>
             </div>
-            <div className="text-[11px] text-muted-foreground bg-white border border-black/[0.06] px-3 py-1.5 rounded-full font-medium">
-              12 portals · Role-based access
-            </div>
+            <Link href="/login">
+              <div className="flex items-center gap-1.5 text-[12px] font-semibold text-primary cursor-pointer hover:text-primary/80 transition-colors">
+                View all portals
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
-            {PORTALS.map((portal) => (
-              <PortalCard key={portal.href} {...portal} />
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {PORTALS.map(({ icon: Icon, label, sub, accent }) => (
+              <div
+                key={label}
+                className="flex items-center gap-4 p-5 rounded-[20px] transition-all duration-200 hover:scale-[1.01]"
+                style={{
+                  background: "rgba(255,255,255,0.70)",
+                  backdropFilter: "blur(20px)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                }}
+              >
+                <div className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: accent }}>
+                  <Icon className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-foreground leading-tight">{label}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
+
+          <div
+            className="rounded-[20px] px-6 py-4 flex items-center justify-between"
+            style={{
+              background: "rgba(255,255,255,0.60)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+            }}
+          >
+            <p className="text-[12px] text-muted-foreground font-medium">
+              Plus: Family Health, Hospital Operations, Pharmacy, Supply Chain, Lab, Research — all role-locked with individual AI decision stacks.
+            </p>
+            <Link href="/login">
+              <div className="flex items-center gap-1.5 text-[12px] font-bold text-primary whitespace-nowrap ml-6 cursor-pointer hover:text-primary/80 transition-colors">
+                Sign in to access
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* ─── FEATURES GRID ─── */}
+        <section className="max-w-[1160px] mx-auto px-10 pb-16">
+          <div className="mb-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground mb-1.5">Platform Architecture</p>
+            <h2 className="text-[28px] font-black text-foreground tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>
+              Built for national-scale healthcare
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            {FEATURES.map(({ icon: Icon, title, description, accent }) => (
+              <div
+                key={title}
+                className="p-6 rounded-[20px]"
+                style={{
+                  background: "rgba(255,255,255,0.70)",
+                  backdropFilter: "blur(20px)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-[12px] flex items-center justify-center mb-4"
+                  style={{ background: accent }}
+                >
+                  <Icon className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-[14px] font-bold text-foreground mb-1.5">{title}</p>
+                <p className="text-[12px] text-muted-foreground leading-relaxed">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ─── CTA SECTION ─── */}
+        <section className="max-w-[1160px] mx-auto px-10 pb-20">
+          <div
+            className="rounded-[28px] px-12 py-12 flex items-center justify-between gap-8 overflow-hidden relative"
+            style={{
+              background: "linear-gradient(135deg, hsl(211 100% 32%) 0%, hsl(220 90% 22%) 100%)",
+              boxShadow: "0 20px 60px rgba(0,80,200,0.25)",
+            }}
+          >
+            <div
+              className="absolute top-0 right-0 w-[360px] h-[360px] rounded-full opacity-[0.07] pointer-events-none"
+              style={{ background: "radial-gradient(circle, white 0%, transparent 70%)", transform: "translate(100px,-100px)" }}
+            />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40 mb-2">Get Started</p>
+              <h2 className="text-[32px] font-black text-white tracking-tight leading-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>
+                Ready to access<br />your portal?
+              </h2>
+              <p className="text-[13px] text-white/60 mt-3 max-w-[360px] leading-relaxed">
+                Sign in with your Ministry-issued credentials or National ID via Nafath to access your role-specific dashboard.
+              </p>
+            </div>
+            <Link href="/login">
+              <div className="flex items-center gap-2.5 px-8 py-4 bg-white text-[hsl(211_100%_30%)] text-[15px] font-bold rounded-2xl hover:bg-white/90 transition-colors cursor-pointer shadow-xl shadow-black/20 shrink-0">
+                Access SANAD Platform
+                <ArrowRight className="w-5 h-5" />
+              </div>
+            </Link>
+          </div>
+        </section>
 
       </main>
 
       {/* ─── Footer ─── */}
       <footer
-        className="px-10 py-4 flex items-center justify-between"
-        style={{ borderTop: "1px solid rgba(0,0,0,0.06)", background: "rgba(255,255,255,0.6)" }}
+        className="px-10 py-5 flex items-center justify-between"
+        style={{ borderTop: "1px solid rgba(0,0,0,0.06)", background: "rgba(255,255,255,0.70)" }}
       >
-        <p className="text-[11px] text-muted-foreground">© 2026 Ministry of Health — Kingdom of Saudi Arabia · All Rights Reserved</p>
-        <p className="text-[11px] text-muted-foreground font-mono">SANAD v3.0 · AI-FIRST · PDPL-COMPLIANT</p>
+        <div className="flex items-center gap-2">
+          <div className="w-[22px] h-[22px] rounded-[6px] flex items-center justify-center bg-[hsl(211_100%_50%)] shrink-0">
+            <img
+              src={`${import.meta.env.BASE_URL}images/sanad-logo.png`}
+              alt="Sanad"
+              className="w-[11px] h-[11px] brightness-0 invert"
+            />
+          </div>
+          <p className="text-[11px] text-muted-foreground">© 2026 Ministry of Health — Kingdom of Saudi Arabia · All Rights Reserved</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <p className="text-[11px] text-muted-foreground font-mono">SANAD v3.0 · PDPL-COMPLIANT</p>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+            99.99% Uptime
+          </div>
+        </div>
       </footer>
     </div>
-  );
-}
-
-function PortalCard({ href, icon: Icon, label, description, accent, accentLight, tag, clearance }: {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  description: string;
-  accent: string;
-  accentLight: string;
-  tag: string;
-  clearance: string;
-}) {
-  return (
-    <Link href={href}>
-      <div
-        className="group flex flex-col h-full p-5 rounded-[2rem] cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
-        style={{
-          background: "rgba(255,255,255,0.70)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-        }}
-        onMouseEnter={e => {
-          (e.currentTarget as HTMLElement).style.boxShadow = "0 16px 48px rgba(0,0,0,0.10)";
-        }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(0,0,0,0.05)";
-        }}
-      >
-        {/* Top row */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0" style={{ background: accent }}>
-            <Icon className="w-[20px] h-[20px] text-white" />
-          </div>
-          <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${CLEARANCE_TEXT[clearance] ?? "text-muted-foreground"}`}>
-            <span className={`w-[5px] h-[5px] rounded-full shrink-0 ${CLEARANCE_DOT[clearance] ?? "bg-muted-foreground"}`} />
-            {clearance}
-          </span>
-        </div>
-
-        {/* Content */}
-        <p className="text-[13px] font-bold text-foreground mb-1.5 leading-tight tracking-tight">{label}</p>
-        <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">{description}</p>
-
-        {/* Footer */}
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-[10px] font-semibold text-muted-foreground">{tag}</span>
-          <div
-            className="flex items-center gap-1 text-[11px] font-semibold translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
-            style={{ color: accent }}
-          >
-            <ArrowRight className="w-3.5 h-3.5" />
-          </div>
-        </div>
-      </div>
-    </Link>
   );
 }

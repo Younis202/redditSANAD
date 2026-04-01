@@ -183,17 +183,20 @@ export default function EmergencyPage() {
             Lookup
           </button>
         </form>
-        <p className="text-xs text-muted-foreground mt-2 ml-1">
-          Demo IDs: {["1000000001","1000000003","1000000005"].map(id => (
-            <span
+        <div className="flex items-center gap-2 mt-3 ml-1 flex-wrap">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Demo Patient IDs:</span>
+          {["1000000001","1000000003","1000000005"].map(id => (
+            <button
               key={id}
-              className="font-mono text-primary hover:text-primary/70 cursor-pointer transition-colors"
+              type="button"
               onClick={() => { setNationalId(id); setSubmittedId(id); }}
+              className="font-mono text-[11px] font-bold text-primary bg-secondary hover:bg-border px-2.5 py-1 rounded-lg transition-colors"
             >
-              {id}{" "}
-            </span>
+              {id}
+            </button>
           ))}
-        </p>
+          <span className="text-[10px] text-muted-foreground ml-1">— enter patient National ID, not responder ID</span>
+        </div>
       </div>
 
       {/* ── LOADING ── */}

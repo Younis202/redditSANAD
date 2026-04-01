@@ -3,7 +3,14 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.5 — Design System Full Purge + Component Upgrade (Latest)
+## v3.6 — Deep Audit + UX Overhaul (Latest)
+1. **Home page complete redesign** — Was a confusing copy of the login page (same portal grid). Now a true dark navy landing page: big "The intelligence layer for Saudi Healthcare" hero headline with gradient text, stats strip (34.2M+, 450+, 847K, SAR 4.7B), portals overview grid, feature highlights (6 cards), and a CTA section — all pointing to "Access SANAD Platform →" (goes to /login). Login page now has its own distinct identity: light, auth-focused.
+2. **API 403 spam fixed** — Layout was calling `/api/alerts/system` for ALL roles, but lab/pharmacy/hospital/insurance/ai-control/research/family/supply-chain lacked `/api/alerts` permission → constant 403 errors. Fixed: added `/api/alerts` to all 12 role permission sets.
+3. **Bottom action bar overhauled** — Removed 3 non-functional dead buttons (Live Feed, +, Settings). New bar shows: portal identity pill (icon + name + job title) + Dashboard link + live clock + Sign Out. Every element is now functional.
+4. **Non-functional search bar removed** — The header search bar searched nothing. Removed entirely from the layout. Clean header now has: logo + nav links | All Systems Live + bell + user avatar.
+5. **Emergency portal UX** — Demo patient IDs now shown as clickable button chips (not tiny inline text). Added clear note "enter patient National ID, not responder ID" to prevent the confusion of entering SRCA-07-RYD (responder ID) vs 1000000001 (patient ID).
+
+## v3.5 — Design System Full Purge + Component Upgrade
 1. **Zero forbidden bg classes** — Final global elimination of ALL forbidden Tailwind bg/border classes across every file: `shared.tsx`, `layout.tsx`, `login.tsx`, `home.tsx`, `App.tsx`, `admin.tsx`, `ai-control.tsx`. Final scan confirms zero violations across all 12 portals.
 2. **Clearance badge system** — Replaced all `bg-*-100` clearance badges with elegant colored-dot + neutral bg pattern: `bg-secondary` + `text-*-700` + 5px solid colored dot. Applied across login, home, App.tsx consent gate.
 3. **Badge component redesign** — All 7 Badge variants (default, info, success, warning, destructive, outline, purple) now use `bg-secondary` base + colored text + semantic dot instead of forbidden colored backgrounds.

@@ -3,9 +3,9 @@ import { Link, useLocation } from "wouter";
 import {
   ShieldAlert, HeartPulse, User, Building2,
   LayoutDashboard, LogOut, Bell,
-  Activity, FlaskConical, Pill, BedDouble,
+  FlaskConical, Pill, BedDouble,
   Shield, Brain, Users, Package, AlertTriangle, CheckCircle2, X,
-  Search, Plus, Settings
+  Clock
 } from "lucide-react";
 import { cn } from "./shared";
 import { useAuth } from "@/contexts/auth-context";
@@ -195,6 +195,70 @@ const roleConfigs: Record<Role, {
   },
 };
 
+function LiveClock() {
+  const [time, setTime] = React.useState(() => new Date().toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit" }));
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date().toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit" })), 10000);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{time}</span>;
+}
+
+function BottomBar({ config, logout }: { config: typeof roleConfigs[Role]; logout: () => void }) {
+  const IconEl = config.icon;
+  return (
+    <div
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-2 rounded-[2.5rem] shadow-[0_8px_40px_rgba(0,0,0,0.14)] z-50"
+      style={{
+        background: "rgba(255,255,255,0.85)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        border: "1px solid rgba(255,255,255,0.50)",
+      }}
+    >
+      {/* Portal identity */}
+      <div className="flex items-center gap-2 px-4 py-2 rounded-[1.8rem]" style={{ background: "rgba(0,0,0,0.04)" }}>
+        <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center shrink-0", config.accentBg)}>
+          <IconEl className="w-3.5 h-3.5 text-white" />
+        </div>
+        <div className="flex flex-col leading-none">
+          <span className="text-[11px] font-bold text-foreground whitespace-nowrap">{config.sublabel}</span>
+          <span className="text-[9px] text-muted-foreground mt-0.5 whitespace-nowrap">{config.userRole}</span>
+        </div>
+      </div>
+
+      <div className="w-px h-7 bg-black/[0.08] mx-1" />
+
+      {/* Overview */}
+      <Link href={config.nav[0]?.href ?? "/"}>
+        <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2.5 rounded-2xl hover:bg-black/[0.05] transition-all">
+          <LayoutDashboard className="w-4 h-4" />
+          <span className="text-xs font-bold whitespace-nowrap">Dashboard</span>
+        </div>
+      </Link>
+
+      <div className="w-px h-7 bg-black/[0.08] mx-1" />
+
+      {/* Live time */}
+      <div className="flex items-center gap-1.5 px-3 py-2.5 text-muted-foreground select-none">
+        <Clock className="w-3.5 h-3.5" />
+        <span className="text-xs font-mono font-semibold"><LiveClock /></span>
+      </div>
+
+      <div className="w-px h-7 bg-black/[0.08] mx-1" />
+
+      {/* Sign out */}
+      <div
+        onClick={() => { logout(); window.location.href = "/login"; }}
+        className="flex items-center gap-2 text-slate-500 hover:text-red-500 cursor-pointer px-3 py-2.5 rounded-2xl hover:bg-secondary transition-all"
+      >
+        <LogOut className="w-4 h-4" />
+        <span className="text-xs font-bold">Sign Out</span>
+      </div>
+    </div>
+  );
+}
+
 export function Layout({ children, role }: { children: React.ReactNode; role: Role }) {
   const [location] = useLocation();
   const config = roleConfigs[role];
@@ -289,18 +353,8 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
             </div>
           </div>
 
-          {/* Right: Search + Status + Bell + User */}
+          {/* Right: Status + Bell + User */}
           <div className="flex items-center gap-4">
-
-            {/* Search */}
-            <div className="hidden lg:flex items-center bg-black/[0.05] px-4 py-2.5 rounded-full gap-2.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <Search className="w-4 h-4 text-slate-400 shrink-0" />
-              <input
-                className="bg-transparent border-none text-sm w-44 placeholder:text-slate-400 font-medium focus:outline-none"
-                placeholder="Search patients..."
-                type="text"
-              />
-            </div>
 
             {/* All Systems Live */}
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-secondary px-3.5 py-2 rounded-full whitespace-nowrap">
@@ -418,48 +472,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
       </main>
 
       {/* ─── Floating Bottom Action Bar ─── */}
-      <div
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-8 py-4 rounded-[2.5rem] shadow-2xl z-50"
-        style={{
-          background: "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
-          border: "1px solid rgba(255,255,255,0.30)",
-        }}
-      >
-        <Link href={config.nav[0]?.href ?? "/"}>
-          <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
-            <LayoutDashboard className="w-4 h-4" />
-            <span className="text-xs font-bold whitespace-nowrap">Overview</span>
-          </div>
-        </Link>
-
-        <div className="w-px h-8 bg-slate-200" />
-
-        <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
-          <Activity className="w-4 h-4" />
-          <span className="text-xs font-bold">Live Feed</span>
-        </div>
-
-        <button className="bg-primary text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-all">
-          <Plus className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-2 text-slate-500 hover:text-primary cursor-pointer px-3 py-2 rounded-xl hover:bg-black/[0.05] transition-all">
-          <Settings className="w-4 h-4" />
-          <span className="text-xs font-bold">Settings</span>
-        </div>
-
-        <div className="w-px h-8 bg-slate-200" />
-
-        <div
-          onClick={() => { logout(); window.location.href = "/login"; }}
-          className="flex items-center gap-2 text-slate-500 hover:text-red-500 cursor-pointer px-3 py-2 rounded-xl hover:bg-secondary transition-all"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="text-xs font-bold">Sign Out</span>
-        </div>
-      </div>
+      <BottomBar config={config} logout={logout} />
 
     </div>
   );

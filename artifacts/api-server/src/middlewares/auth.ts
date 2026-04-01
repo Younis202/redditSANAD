@@ -16,18 +16,18 @@ const VALID_ROLES = new Set([
 ]);
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-  emergency: ["/api/emergency", "/api/patients", "/api/ai", "/api/alerts"],
-  doctor: ["/api/patients", "/api/ai", "/api/lab", "/api/lab-results", "/api/medications", "/api/visits", "/api/alerts", "/api/appointments"],
-  citizen: ["/api/patients", "/api/lab-results", "/api/medications", "/api/visits", "/api/appointments"],
-  admin: ["/api/admin", "/api/patients", "/api/ai", "/api/ai-control", "/api/alerts", "/api/lab", "/api/medications", "/api/visits"],
-  lab: ["/api/lab", "/api/patients", "/api/lab-results"],
-  pharmacy: ["/api/pharmacy", "/api/patients", "/api/medications", "/api/supply-chain"],
-  hospital: ["/api/hospital", "/api/patients", "/api/visits", "/api/appointments"],
-  insurance: ["/api/insurance", "/api/patients", "/api/medications"],
-  "ai-control": ["/api/ai-control", "/api/ai", "/api/admin"],
-  research: ["/api/research", "/api/admin"],
-  family: ["/api/family", "/api/patients"],
-  "supply-chain": ["/api/supply-chain", "/api/medications"],
+  emergency:      ["/api/emergency", "/api/patients", "/api/ai", "/api/alerts"],
+  doctor:         ["/api/patients", "/api/ai", "/api/lab", "/api/lab-results", "/api/medications", "/api/visits", "/api/alerts", "/api/appointments"],
+  citizen:        ["/api/patients", "/api/lab-results", "/api/medications", "/api/visits", "/api/appointments", "/api/alerts"],
+  admin:          ["/api/admin", "/api/patients", "/api/ai", "/api/ai-control", "/api/alerts", "/api/lab", "/api/medications", "/api/visits"],
+  lab:            ["/api/lab", "/api/patients", "/api/lab-results", "/api/alerts"],
+  pharmacy:       ["/api/pharmacy", "/api/patients", "/api/medications", "/api/supply-chain", "/api/alerts"],
+  hospital:       ["/api/hospital", "/api/patients", "/api/visits", "/api/appointments", "/api/alerts"],
+  insurance:      ["/api/insurance", "/api/patients", "/api/medications", "/api/alerts"],
+  "ai-control":   ["/api/ai-control", "/api/ai", "/api/admin", "/api/alerts"],
+  research:       ["/api/research", "/api/admin", "/api/alerts"],
+  family:         ["/api/family", "/api/patients", "/api/alerts"],
+  "supply-chain": ["/api/supply-chain", "/api/medications", "/api/alerts"],
 };
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {

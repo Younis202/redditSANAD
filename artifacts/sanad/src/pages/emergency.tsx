@@ -101,8 +101,8 @@ export default function EmergencyPage() {
                     alert.severity === "critical" ? "bg-red-500 animate-pulse" :
                     alert.severity === "high" ? "bg-amber-400" : "bg-sky-400"}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 leading-snug">{alert.title}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
+                    <p className="text-sm font-semibold text-foreground leading-snug">{alert.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
                   </div>
                   {!alert.read && (
                     <button
@@ -132,25 +132,25 @@ export default function EmergencyPage() {
             <Zap className="w-3 h-3" />
             Emergency Mode Active
           </div>
-          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${
-            sseConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400"}`}
-            style={{ border: sseConnected ? "1px solid #a7f3d0" : "1px solid #e2e8f0" }}
-          >
-            <Radio className={`w-3 h-3 ${sseConnected ? "text-emerald-500" : "text-slate-300"}`} />
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border ${
+            sseConnected
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200/70"
+              : "bg-secondary text-muted-foreground border-black/[0.06]"
+          }`}>
+            <Radio className={`w-3 h-3 ${sseConnected ? "text-emerald-500" : "text-muted-foreground/50"}`} />
             {sseConnected ? "9 AI Engines · Live" : "Connecting..."}
           </div>
           {sseUnread > 0 && (
             <button
               onClick={() => setAlertsOpen(p => !p)}
-              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
-              style={{ border: "1px solid #fecaca" }}
+              className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-50 border border-red-200/70 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors"
             >
               <Bell className="w-3 h-3" />
               {sseUnread} alert{sseUnread > 1 ? "s" : ""}
             </button>
           )}
           {patient && (
-            <div className="ml-auto text-xs text-slate-400 font-mono">
+            <div className="ml-auto text-xs text-muted-foreground font-mono">
               Last update · {new Date().toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
             </div>
           )}
@@ -158,13 +158,13 @@ export default function EmergencyPage() {
 
         <form onSubmit={handleSearch} className="flex gap-3">
           <div className="flex-1 relative">
-            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4.5 h-4.5 pointer-events-none" />
+            <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 w-4.5 h-4.5 pointer-events-none" />
             <input
               autoFocus
               value={nationalId}
               onChange={e => setNationalId(e.target.value)}
               placeholder="Enter National ID to retrieve patient data..."
-              className="w-full h-12 pl-11 pr-4 rounded-2xl text-sm font-mono text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
+              className="w-full h-12 pl-11 pr-4 rounded-2xl text-sm font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
               style={{ background: "rgba(255,255,255,0.80)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.60)" }}
             />
           </div>
@@ -176,11 +176,11 @@ export default function EmergencyPage() {
             Lookup
           </button>
         </form>
-        <p className="text-xs text-slate-400 mt-2 ml-1">
+        <p className="text-xs text-muted-foreground mt-2 ml-1">
           Demo IDs: {["1000000001","1000000003","1000000005"].map(id => (
             <span
               key={id}
-              className="font-mono text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
+              className="font-mono text-primary hover:text-primary/70 cursor-pointer transition-colors"
               onClick={() => { setNationalId(id); setSubmittedId(id); }}
             >
               {id}{" "}
@@ -192,8 +192,8 @@ export default function EmergencyPage() {
       {/* ── LOADING ── */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-slate-200 border-t-red-500 animate-spin" />
-          <p className="text-sm font-semibold text-slate-500">Retrieving patient record...</p>
+          <div className="w-10 h-10 rounded-full border-2 border-black/[0.06] border-t-red-500 animate-spin" />
+          <p className="text-sm font-semibold text-muted-foreground">Retrieving patient record...</p>
         </div>
       )}
 
@@ -215,17 +215,17 @@ export default function EmergencyPage() {
             <ShieldAlert className="w-8 h-8 text-red-400" />
           </div>
           <div>
-            <p className="text-lg font-bold text-slate-800">Emergency Lookup Ready</p>
-            <p className="text-sm text-slate-400 max-w-sm mt-1 leading-relaxed">
+            <p className="text-lg font-bold text-foreground">Emergency Lookup Ready</p>
+            <p className="text-sm text-muted-foreground max-w-sm mt-1 leading-relaxed">
               Enter a National ID to retrieve blood type, allergies, medications, and AI-generated clinical actions in under one second.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-3 mt-2 w-full max-w-xs">
             {[{ label: "Response", value: "< 1s", icon: Timer }, { label: "Confidence", value: "97%", icon: Brain }, { label: "AI Sources", value: "9 Live", icon: Activity }].map(({ label, value, icon: Icon }) => (
               <Card key={label} className="p-4 flex flex-col items-center gap-2">
-                <Icon className="w-4 h-4 text-slate-300" />
-                <p className="text-base font-black text-slate-800">{value}</p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
+                <Icon className="w-4 h-4 text-muted-foreground/40" />
+                <p className="text-base font-black text-foreground">{value}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
               </Card>
             ))}
           </div>
@@ -240,17 +240,17 @@ export default function EmergencyPage() {
           <Card>
             <CardBody>
               <div className="flex items-start gap-5">
-                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-                  <User className="w-8 h-8 text-slate-300" />
+                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center shrink-0">
+                  <User className="w-8 h-8 text-muted-foreground/40" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-[28px] font-black text-slate-900 leading-tight tracking-tight">{patient.fullName}</h1>
-                  <p className="text-sm text-slate-400 font-mono mt-1">PATIENT ID · {patient.nationalId}</p>
+                  <h1 className="text-[28px] font-black text-foreground leading-tight tracking-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>{patient.fullName}</h1>
+                  <p className="text-sm text-muted-foreground font-mono mt-1">PATIENT ID · {patient.nationalId}</p>
                   <div className="flex items-center gap-2 flex-wrap mt-3">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${riskBadge.bg} ${riskBadge.text}`}>{riskBadge.label}</span>
-                    <span className="text-xs text-slate-400 font-semibold">Response SLA: <span className="text-slate-700 font-bold">{SLA[riskLevel]}</span></span>
+                    <span className="text-xs text-muted-foreground font-semibold">Response SLA: <span className="text-foreground font-bold">{SLA[riskLevel]}</span></span>
                     {(patient as any).riskScore !== undefined && (
-                      <span className="text-xs text-slate-400 font-semibold">AI Score: <span className="text-slate-700 font-bold">{(patient as any).riskScore}/100</span></span>
+                      <span className="text-xs text-muted-foreground font-semibold">AI Score: <span className="text-foreground font-bold">{(patient as any).riskScore}/100</span></span>
                     )}
                     <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
                       <StatusDot status="active" />
@@ -269,17 +269,17 @@ export default function EmergencyPage() {
                     <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1.5">Critical</p>
                   )}
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Age / Sex</p>
-                  <p className="text-3xl font-black text-slate-800 leading-none">{patient.age ?? "—"}</p>
-                  <p className="text-sm text-slate-500 font-semibold mt-1">{patient.gender}</p>
+                <div className="bg-secondary rounded-2xl p-4">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Age / Sex</p>
+                  <p className="text-3xl font-black text-foreground leading-none">{patient.age ?? "—"}</p>
+                  <p className="text-sm text-muted-foreground font-semibold mt-1">{patient.gender}</p>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4 col-span-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Emergency Contact</p>
+                <div className="bg-secondary rounded-2xl p-4 col-span-2">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Emergency Contact</p>
                   {patient.emergencyContact ? (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-bold text-slate-800">{patient.emergencyContact}</p>
+                        <p className="text-sm font-bold text-foreground">{patient.emergencyContact}</p>
                         <p className="text-lg font-black text-blue-600 font-mono mt-0.5 tracking-tight">{patient.emergencyPhone}</p>
                       </div>
                       <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0">
@@ -288,7 +288,7 @@ export default function EmergencyPage() {
                       </button>
                     </div>
                   ) : (
-                    <p className="text-sm text-slate-400">Not on record</p>
+                    <p className="text-sm text-muted-foreground">Not on record</p>
                   )}
                 </div>
               </div>
@@ -340,18 +340,18 @@ export default function EmergencyPage() {
                   </div>
                   <CardTitle>Active Medications</CardTitle>
                 </div>
-                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span className="text-[11px] font-bold text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
                   {patient.currentMedications.length}
                 </span>
               </CardHeader>
               <CardBody className="p-2">
                 {patient.currentMedications.length > 0 ? patient.currentMedications.map((med, i) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                    <span className="text-[11px] font-black text-slate-300 tabular-nums w-5 shrink-0">{i + 1}</span>
-                    <span className="text-sm font-semibold text-slate-700">{med}</span>
+                  <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary transition-colors">
+                    <span className="text-[11px] font-black text-muted-foreground/40 tabular-nums w-5 shrink-0">{i + 1}</span>
+                    <span className="text-sm font-semibold text-foreground">{med}</span>
                   </div>
                 )) : (
-                  <div className="px-3 py-4 text-sm text-slate-400">No active medications on record</div>
+                  <div className="px-3 py-4 text-sm text-muted-foreground">No active medications on record</div>
                 )}
               </CardBody>
             </Card>
@@ -364,18 +364,18 @@ export default function EmergencyPage() {
                   </div>
                   <CardTitle>Chronic Conditions</CardTitle>
                 </div>
-                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span className="text-[11px] font-bold text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
                   {chronicConds.length}
                 </span>
               </CardHeader>
               <CardBody className="p-2">
                 {chronicConds.length > 0 ? chronicConds.map((c, i) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                    <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
-                    <span className="text-sm font-semibold text-slate-700">{c}</span>
+                  <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary transition-colors">
+                    <span className="w-2 h-2 rounded-full bg-muted-foreground/30 shrink-0" />
+                    <span className="text-sm font-semibold text-foreground">{c}</span>
                   </div>
                 )) : (
-                  <div className="px-3 py-4 text-sm text-slate-400">No chronic conditions on record</div>
+                  <div className="px-3 py-4 text-sm text-muted-foreground">No chronic conditions on record</div>
                 )}
               </CardBody>
             </Card>
@@ -393,7 +393,7 @@ export default function EmergencyPage() {
                 </div>
                 <span className="text-[11px] font-bold text-amber-700 bg-amber-200 px-2.5 py-1 rounded-full">{drugInteractions.length} detected</span>
               </CardHeader>
-              <CardBody className="divide-y divide-slate-50 p-0">
+              <CardBody className="divide-y divide-border p-0">
                 {drugInteractions.map((ix, i) => {
                   const sev = ix.severity;
                   const sevColor = sev === "critical" ? "text-red-700 bg-red-100" : sev === "high" ? "text-orange-700 bg-orange-100" : "text-amber-700 bg-amber-100";
@@ -403,12 +403,12 @@ export default function EmergencyPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full ${sevColor}`}>{sev}</span>
-                            <span className="text-sm font-bold text-slate-800">{ix.conflictingDrug}</span>
+                            <span className="text-sm font-bold text-foreground">{ix.conflictingDrug}</span>
                           </div>
-                          <p className="text-sm text-slate-600 leading-relaxed">{ix.description}</p>
-                          <div className="flex items-start gap-2 mt-2 p-2.5 bg-slate-50 rounded-xl">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wide shrink-0 mt-0.5">Recommendation</span>
-                            <p className="text-xs font-semibold text-slate-700">{ix.recommendation}</p>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{ix.description}</p>
+                          <div className="flex items-start gap-2 mt-2 p-2.5 bg-secondary rounded-xl">
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wide shrink-0 mt-0.5">Recommendation</span>
+                            <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
                           </div>
                         </div>
                       </div>
@@ -436,20 +436,20 @@ export default function EmergencyPage() {
 
               {riskFactors.length > 0 && (
                 <CardBody>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Why this risk score?</p>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Why this risk score?</p>
                   <div className="space-y-2">
                     {riskFactors.map((f, i) => {
                       const impactBar = f.impact === "high" ? "bg-red-500 w-full" : f.impact === "moderate" ? "bg-amber-500 w-2/3" : "bg-blue-400 w-1/3";
                       const impactText = f.impact === "high" ? "text-red-700 bg-red-50" : f.impact === "moderate" ? "text-amber-700 bg-amber-50" : "text-blue-700 bg-blue-50";
                       return (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <div key={i} className="flex items-start gap-3 p-3 bg-secondary rounded-xl">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-bold text-slate-800">{f.factor}</span>
+                              <span className="text-xs font-bold text-foreground">{f.factor}</span>
                               <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md ${impactText}`}>{f.impact}</span>
                             </div>
-                            <p className="text-xs text-slate-500 leading-relaxed">{f.description}</p>
-                            <div className="mt-1.5 h-1 bg-slate-200 rounded-full overflow-hidden">
+                            <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
+                            <div className="mt-1.5 h-1 bg-border rounded-full overflow-hidden">
                               <div className={`h-full rounded-full ${impactBar}`} />
                             </div>
                           </div>
@@ -462,7 +462,7 @@ export default function EmergencyPage() {
 
               {aiRecommendations.length > 0 && (
                 <CardBody className="pt-0">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">AI Recommendations</p>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">AI Recommendations</p>
                   <div className="space-y-2">
                     {aiRecommendations.map((rec, i) => (
                       <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 bg-violet-50 rounded-xl">
@@ -486,11 +486,11 @@ export default function EmergencyPage() {
                   </div>
                   <CardTitle className="text-red-700 uppercase tracking-wide">Immediate Actions Required</CardTitle>
                 </div>
-                <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-white px-2.5 py-1 rounded-full" style={{ border: "1px solid #fecaca" }}>
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-white border border-red-200/70 px-2.5 py-1 rounded-full">
                   <Clock className="w-3 h-3" /> Act within 3 min
                 </span>
               </CardHeader>
-              <CardBody className="divide-y divide-slate-50 p-0">
+              <CardBody className="divide-y divide-border p-0">
                 {immediate.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
                   const Icon = cfg.icon;
@@ -505,9 +505,9 @@ export default function EmergencyPage() {
                           <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">IMMEDIATE</span>
                         </div>
                         <p className={`font-bold text-sm ${cfg.textColor}`}>{action.description}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{action.reason}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{action.reason}</p>
                       </div>
-                      <span className="text-xl font-black text-slate-100 tabular-nums shrink-0 mt-1">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="text-xl font-black text-black/[0.06] tabular-nums shrink-0 mt-1">{String(i + 1).padStart(2, "0")}</span>
                     </div>
                   );
                 })}
@@ -525,9 +525,9 @@ export default function EmergencyPage() {
                   </div>
                   <CardTitle>Clinical Guidance</CardTitle>
                 </div>
-                <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">{guidance.length} notes</span>
+                <span className="text-[11px] font-bold text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">{guidance.length} notes</span>
               </CardHeader>
-              <CardBody className="divide-y divide-slate-50 p-0">
+              <CardBody className="divide-y divide-border p-0">
                 {guidance.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
                   const Icon = cfg.icon;
@@ -537,10 +537,10 @@ export default function EmergencyPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: cfg.accent }}>{cfg.label}</span>
-                          <span className="text-[10px] text-slate-400">· {action.priority}</span>
+                          <span className="text-[10px] text-muted-foreground">· {action.priority}</span>
                         </div>
-                        <p className="text-sm font-semibold text-slate-800">{action.description}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{action.reason}</p>
+                        <p className="text-sm font-semibold text-foreground">{action.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
                       </div>
                     </div>
                   );
@@ -557,50 +557,20 @@ export default function EmergencyPage() {
                   <div className="w-7 h-7 rounded-xl bg-red-100 flex items-center justify-center">
                     <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
                   </div>
-                  <CardTitle>System Alerts</CardTitle>
+                  <CardTitle className="text-red-700">System Alerts</CardTitle>
                 </div>
+                <span className="text-[11px] font-bold text-red-600 bg-red-50 border border-red-200/70 px-2.5 py-1 rounded-full">{patient.criticalAlerts.length}</span>
               </CardHeader>
-              <CardBody className="divide-y divide-slate-50 p-0">
-                {patient.criticalAlerts.map((alert, i) => (
+              <CardBody className="divide-y divide-border p-0">
+                {patient.criticalAlerts.map((alert: string, i: number) => (
                   <div key={i} className="flex items-center gap-3 px-5 py-3.5">
-                    <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
-                    <p className="text-sm font-semibold text-slate-800">{alert}</p>
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                    <p className="text-sm font-semibold text-foreground">{alert}</p>
                   </div>
                 ))}
               </CardBody>
             </Card>
           )}
-
-          {/* 9. PROTOCOL REFERENCE — collapsible */}
-          <Card>
-            <button
-              onClick={() => setProtocolsOpen(p => !p)}
-              className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-slate-50/60 transition-colors rounded-[2rem]"
-            >
-              <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center">
-                <Brain className="w-3.5 h-3.5 text-slate-400" />
-              </div>
-              <span className="text-sm font-semibold text-slate-600">Clinical Protocol Reference</span>
-              <span className="ml-auto text-xs text-slate-400">{protocolsOpen ? "Collapse" : "Expand"}</span>
-              {protocolsOpen ? <ChevronUp className="w-4 h-4 text-slate-300" /> : <ChevronDown className="w-4 h-4 text-slate-300" />}
-            </button>
-            {protocolsOpen && (
-              <CardBody className="pt-0 grid grid-cols-5 gap-2">
-                {[
-                  { label: "ACLS",   sub: "Cardiac Arrest",     color: "text-red-600",    bg: "bg-red-50"    },
-                  { label: "BLS",    sub: "Basic Life Support",  color: "text-amber-700",  bg: "bg-amber-50"  },
-                  { label: "Sepsis", sub: "Hour-1 Bundle",       color: "text-orange-700", bg: "bg-orange-50" },
-                  { label: "Stroke", sub: "FAST Protocol",       color: "text-violet-700", bg: "bg-violet-50" },
-                  { label: "ACS",    sub: "STEMI Protocol",      color: "text-rose-700",   bg: "bg-rose-50"   },
-                ].map(({ label, sub, color, bg }) => (
-                  <button key={label} className={`flex flex-col items-center gap-1 py-3.5 rounded-2xl ${bg} hover:opacity-80 transition-opacity`}>
-                    <span className={`text-sm font-black ${color}`}>{label}</span>
-                    <span className="text-[10px] text-slate-400">{sub}</span>
-                  </button>
-                ))}
-              </CardBody>
-            )}
-          </Card>
 
         </div>
       )}

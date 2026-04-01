@@ -226,14 +226,14 @@ export default function LabPortal() {
       {data && (
         <div className="space-y-4">
           {/* Patient Card */}
-          <div className="rounded-[2rem] overflow-hidden" style={{background:"rgba(255,255,255,0.70)",backdropFilter:"blur(20px)",boxShadow:"0 8px 32px rgba(0,0,0,0.04)"}}>
+          <Card className="overflow-hidden">
             {data.patient.allergies?.length > 0 && (
               <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 <p className="text-xs font-bold uppercase tracking-widest">KNOWN ALLERGIES: {data.patient.allergies.join(", ")}</p>
               </div>
             )}
-            <div className="bg-white p-5 flex items-center justify-between gap-5">
+            <CardBody className="flex items-center justify-between gap-5">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Patient Identified</p>
                 <p className="text-2xl font-bold text-foreground">{data.patient.name}</p>
@@ -260,8 +260,8 @@ export default function LabPortal() {
                   <Plus className="w-4 h-4" /> Add Result
                 </Button>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
 
           {/* ─── Trend Charts ─── */}
           {chartsToShow.length > 0 && (

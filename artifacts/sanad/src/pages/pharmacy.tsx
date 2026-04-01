@@ -219,7 +219,7 @@ export default function PharmacyPortal() {
       {data && (
         <div className="space-y-4">
           {/* Patient Card */}
-          <div className="rounded-3xl overflow-hidden shadow-sm bg-white/70" style={{backdropFilter:"blur(20px)"}}>
+          <Card className="overflow-hidden">
             {data.patient.allergies?.length > 0 && (
               <div className="bg-red-600 text-white px-5 py-2.5 flex items-center gap-2.5">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -234,7 +234,7 @@ export default function PharmacyPortal() {
                 </p>
               </div>
             )}
-            <div className="bg-white p-5 flex items-start justify-between gap-5">
+            <CardBody className="flex items-start justify-between gap-5">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Patient Record</p>
                 <p className="text-2xl font-bold text-foreground">{data.patient.name}</p>
@@ -265,8 +265,8 @@ export default function PharmacyPortal() {
                   <p className="text-3xl font-bold tabular-nums text-foreground">{data.summary.insuranceCovered}</p>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
 
           {/* Prescriptions */}
           <Card>

@@ -195,7 +195,7 @@ export default function InsurancePortal() {
             gradient="linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)"
             badge="Insurance Ops · MOH / CCHI"
             stats={[
-              { label: "Fraud Alerts", value: dashboard?.fraudAlerts ?? "—" },
+              { label: "Fraud Suspected", value: dashboard?.fraudSuspected ?? "—" },
               { label: "Pending Claims", value: dashboard?.pendingClaims ?? "—" },
               { label: "Total Policies", value: dashboard?.totalPolicies?.toLocaleString() ?? "—" },
             ]}

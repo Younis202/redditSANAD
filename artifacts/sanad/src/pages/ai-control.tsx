@@ -507,7 +507,7 @@ export default function AIControlCenter() {
                       </div>
                       <span className="text-xs font-bold text-foreground w-8">{engine.accuracy}%</span>
                       {driftInfo && (
-                        <span className={`text-[10px] font-bold ${driftInfo.driftScore > 5 ? "text-red-600 bg-red-50" : driftInfo.driftScore > 3 ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50"} px-2 py-0.5 rounded-full`}>
+                        <span className={`text-[10px] font-bold bg-secondary ${driftInfo.driftScore > 5 ? "text-red-600" : driftInfo.driftScore > 3 ? "text-amber-600" : "text-emerald-600"} px-2 py-0.5 rounded-full`}>
                           Drift: {driftInfo.driftScore}
                         </span>
                       )}
@@ -648,7 +648,7 @@ export default function AIControlCenter() {
                   const pct = (engine.driftScore / 10) * 100;
                   const color = engine.driftScore > 5 ? "bg-red-500" : engine.driftScore > 3 ? "bg-amber-500" : "bg-emerald-500";
                   const textColor = engine.driftScore > 5 ? "text-red-700" : engine.driftScore > 3 ? "text-amber-700" : "text-emerald-700";
-                  const bg = engine.driftScore > 5 ? "bg-red-50" : engine.driftScore > 3 ? "bg-amber-50" : "bg-secondary";
+                  const bg = "bg-secondary";
                   const statusCfg = STATUS_COLORS[engine.status] ?? STATUS_COLORS.stable;
                   return (
                     <div key={i} className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl ${bg}`}>
@@ -948,11 +948,11 @@ export default function AIControlCenter() {
                             {i === j ? (
                               <span className="text-muted-foreground/20 text-[8px]">—</span>
                             ) : (
-                              <span className={`inline-flex items-center justify-center w-7 h-7 rounded-xl text-[9px] font-bold ${
-                                cell === 3 ? "bg-red-100 text-red-700" :
-                                cell === 2 ? "bg-amber-100 text-amber-700" :
-                                cell === 1 ? "bg-sky-100 text-sky-700" :
-                                "bg-secondary text-muted-foreground/30"
+                              <span className={`inline-flex items-center justify-center w-7 h-7 rounded-xl text-[9px] font-bold bg-secondary ${
+                                cell === 3 ? "text-red-700" :
+                                cell === 2 ? "text-amber-700" :
+                                cell === 1 ? "text-sky-700" :
+                                "text-muted-foreground/30"
                               }`}>
                                 {cell === 3 ? "HIGH" : cell === 2 ? "MED" : cell === 1 ? "LOW" : "—"}
                               </span>

@@ -25,7 +25,7 @@ export function Card({ className, children, dark, style, ...props }: React.HTMLA
 
 export function CardHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex items-center justify-between px-5 py-4 border-b border-black/[0.055]", className)} {...props}>
+    <div className={cn("flex items-center justify-between px-6 py-4 border-b border-black/[0.055]", className)} {...props}>
       {children}
     </div>
   );
@@ -41,7 +41,7 @@ export function CardTitle({ className, children, ...props }: React.HTMLAttribute
 
 export function CardBody({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("p-5", className)} {...props}>
+    <div className={cn("p-6", className)} {...props}>
       {children}
     </div>
   );
@@ -103,7 +103,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "flex h-9 w-full rounded-[11px] border border-black/[0.1] bg-white px-4 py-2 text-[13px]",
+        "flex h-10 w-full rounded-[12px] border border-black/[0.1] bg-white px-4 py-2 text-[13px]",
         "placeholder:text-muted-foreground/55",
         "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/35",
         "transition-all duration-150",
@@ -120,7 +120,7 @@ export function Select({ className, children, ...props }: React.SelectHTMLAttrib
   return (
     <select
       className={cn(
-        "flex h-9 w-full rounded-[11px] border border-black/[0.1] bg-white px-4 py-2 text-[13px]",
+        "flex h-10 w-full rounded-[12px] border border-black/[0.1] bg-white px-4 py-2 text-[13px]",
         "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/35",
         "transition-all duration-150",
         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -134,6 +134,26 @@ export function Select({ className, children, ...props }: React.SelectHTMLAttrib
 }
 
 /* ─── Badge ─────────────────────────────────────────────── */
+const BADGE_DOTS: Record<string, string> = {
+  default:     "bg-primary",
+  info:        "bg-sky-500",
+  success:     "bg-emerald-500",
+  warning:     "bg-amber-500",
+  destructive: "bg-red-500",
+  outline:     "",
+  purple:      "bg-violet-500",
+};
+
+const BADGE_TEXT: Record<string, string> = {
+  default:     "text-primary",
+  info:        "text-sky-700",
+  success:     "text-emerald-700",
+  warning:     "text-amber-700",
+  destructive: "text-red-700",
+  outline:     "text-muted-foreground",
+  purple:      "text-violet-700",
+};
+
 export function Badge({
   children,
   variant = "default",
@@ -143,20 +163,19 @@ export function Badge({
   variant?: "default" | "success" | "warning" | "destructive" | "outline" | "info" | "purple";
   className?: string;
 }) {
-  const variants = {
-    default:     "bg-primary/10 text-primary",
-    info:        "bg-sky-100 text-sky-700",
-    success:     "bg-emerald-100 text-emerald-700",
-    warning:     "bg-amber-100 text-amber-700",
-    destructive: "bg-red-100 text-red-700",
-    outline:     "bg-white text-muted-foreground border border-black/[0.08]",
-    purple:      "bg-violet-100 text-violet-700",
-  };
+  const dotColor = BADGE_DOTS[variant];
+  const textColor = BADGE_TEXT[variant];
+
   return (
     <span className={cn(
-      "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wide",
-      variants[variant], className
+      "inline-flex items-center gap-1.5 rounded-full px-2.5 py-[3px] text-[10.5px] font-semibold tracking-wide bg-secondary",
+      variant === "outline" && "border border-black/[0.09]",
+      textColor,
+      className
     )}>
+      {dotColor && (
+        <span className={cn("w-[5px] h-[5px] rounded-full shrink-0", dotColor)} />
+      )}
       {children}
     </span>
   );
@@ -173,18 +192,18 @@ export function PageHeader({ title, subtitle, action, breadcrumb }: {
     <div className="flex items-start justify-between mb-8">
       <div>
         {breadcrumb && (
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-2 px-3 py-1 bg-primary/10 text-primary rounded-full inline-block">{breadcrumb}</p>
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.12em] mb-2 px-3 py-1 bg-primary/10 rounded-full inline-block">{breadcrumb}</p>
         )}
         <h1 className="text-5xl font-extrabold text-foreground tracking-tight leading-tight" style={{ fontFamily: "'Manrope', sans-serif" }}>{title}</h1>
-        {subtitle && <p className="mt-2 text-[14px] text-muted-foreground leading-relaxed font-medium">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-[14px] text-muted-foreground leading-relaxed font-medium max-w-2xl">{subtitle}</p>}
       </div>
-      {action && <div className="shrink-0 ml-4 flex gap-3">{action}</div>}
+      {action && <div className="shrink-0 ml-4 flex gap-3 items-center">{action}</div>}
     </div>
   );
 }
 
 /* ─── KPI Card ──────────────────────────────────────────── */
-export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary", iconColor = "text-primary", trend, trendUp }: {
+export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-primary/10", iconColor = "text-primary", trend, trendUp }: {
   title: string;
   value: string | number;
   sub?: string;
@@ -196,7 +215,7 @@ export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary"
 }) {
   return (
     <Card className="card-lift">
-      <CardBody className="p-5">
+      <CardBody className="p-6">
         <div className="flex items-start justify-between mb-4">
           {Icon && (
             <div className={cn("w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0", iconBg)}>
@@ -205,16 +224,20 @@ export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary"
           )}
           {trend && (
             <span className={cn(
-              "text-[10.5px] font-bold px-2.5 py-1 rounded-full",
-              trendUp === false
-                ? "text-red-600 bg-red-50"
-                : "text-emerald-600 bg-emerald-50"
-            )}>{trend}</span>
+              "inline-flex items-center gap-1 text-[10.5px] font-bold px-2.5 py-1 rounded-full bg-secondary",
+              trendUp === false ? "text-red-600" : "text-emerald-600"
+            )}>
+              <span className={cn(
+                "w-[5px] h-[5px] rounded-full shrink-0",
+                trendUp === false ? "bg-red-500" : "bg-emerald-500"
+              )} />
+              {trend}
+            </span>
           )}
         </div>
         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-2">{title}</p>
         <p className="text-[44px] font-black text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
-        {sub && <p className="text-[11.5px] text-muted-foreground mt-2 leading-relaxed font-medium">{sub}</p>}
+        {sub && <p className="text-[11.5px] text-muted-foreground mt-2.5 leading-relaxed font-medium">{sub}</p>}
       </CardBody>
     </Card>
   );
@@ -281,15 +304,17 @@ export function AlertBanner({ children, variant = "warning" }: {
   variant?: "warning" | "destructive" | "info";
 }) {
   const styles = {
-    warning:     "bg-amber-50 border-amber-200/70 text-amber-900",
-    destructive: "bg-red-50 border-red-200/70 text-red-900",
-    info:        "bg-sky-50 border-sky-200/70 text-sky-900",
+    warning:     { text: "text-amber-800", dot: "bg-amber-500", border: "#f59e0b" },
+    destructive: { text: "text-red-800",   dot: "bg-red-500",   border: "#ef4444" },
+    info:        { text: "text-sky-800",   dot: "bg-sky-500",   border: "#0ea5e9" },
   };
+  const s = styles[variant];
   return (
-    <div className={cn(
-      "flex items-center gap-3 px-4 py-3 rounded-[14px] border text-[13px] font-medium mb-5",
-      styles[variant]
-    )}>
+    <div
+      className={cn("flex items-center gap-3 px-4 py-3 rounded-[14px] text-[13px] font-medium mb-5 bg-secondary", s.text)}
+      style={{ borderLeft: `3px solid ${s.border}` }}
+    >
+      <span className={cn("w-2 h-2 rounded-full shrink-0", s.dot)} />
       {children}
     </div>
   );
@@ -393,9 +418,54 @@ export function PortalHero({
 /* ─── LiveChip ──────────────────────────────────────────── */
 export function LiveChip({ label, pulse = true }: { label: string; pulse?: boolean }) {
   return (
-    <div className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+    <div className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-700 bg-secondary px-3 py-1.5 rounded-full">
       <span className={cn("w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block", pulse && "animate-pulse")} />
       {label}
+    </div>
+  );
+}
+
+/* ─── EmptyState ────────────────────────────────────────── */
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+      <div className="w-16 h-16 rounded-[20px] bg-secondary flex items-center justify-center mb-4">
+        <Icon className="w-8 h-8 text-muted-foreground" />
+      </div>
+      <p className="text-[15px] font-bold text-foreground mb-1.5">{title}</p>
+      {description && <p className="text-[13px] text-muted-foreground max-w-xs leading-relaxed">{description}</p>}
+      {action && <div className="mt-5">{action}</div>}
+    </div>
+  );
+}
+
+/* ─── StatRow ───────────────────────────────────────────── */
+export function StatRow({ items }: {
+  items: { label: string; value: string | number; color?: string }[];
+}) {
+  return (
+    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+      {items.map((item) => (
+        <div key={item.label} className="text-center">
+          <p
+            className="text-[28px] font-black tabular-nums leading-none mb-1"
+            style={{ fontFamily: "'Manrope', sans-serif", color: item.color ?? "hsl(var(--foreground))" }}
+          >
+            {item.value}
+          </p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.08em]">{item.label}</p>
+        </div>
+      ))}
     </div>
   );
 }

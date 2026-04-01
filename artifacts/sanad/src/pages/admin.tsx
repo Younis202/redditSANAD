@@ -604,7 +604,7 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {HOSPITALS.map((h) => {
-                    const compositeColor = h.composite >= 90 ? "text-emerald-700 bg-emerald-50" : h.composite >= 75 ? "text-amber-700 bg-amber-50" : "text-red-700 bg-red-50";
+                    const compositeColor = h.composite >= 90 ? "text-emerald-700 bg-secondary" : h.composite >= 75 ? "text-amber-700 bg-secondary" : "text-red-700 bg-secondary";
                     const aiColor = h.ai >= 90 ? "text-emerald-600" : h.ai >= 75 ? "text-amber-600" : "text-red-600";
                     const mortalityColor = h.mortality < 1.5 ? "text-emerald-600" : h.mortality < 2.5 ? "text-amber-600" : "text-red-600";
                     const rankColors = ["bg-amber-400 text-white", "bg-slate-400 text-white", "bg-orange-400 text-white"];
@@ -658,12 +658,12 @@ export default function AdminDashboard() {
             <CardBody>
               <div className="grid grid-cols-4 gap-4 mb-5">
                 {[
-                  { label: "NCA CSF Score", value: "94.2", sub: "Cyber Security Framework v2.0", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", dot: "bg-emerald-500" },
-                  { label: "PDPL Compliance", value: "97.8%", sub: "Personal Data Protection Law", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200", dot: "bg-blue-500" },
-                  { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-200", dot: "bg-violet-500" },
-                  { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", dot: "bg-amber-500" },
+                  { label: "NCA CSF Score", value: "94.2", sub: "Cyber Security Framework v2.0", color: "text-emerald-600", borderColor: "#10b981", dot: "bg-emerald-500" },
+                  { label: "PDPL Compliance", value: "97.8%", sub: "Personal Data Protection Law", color: "text-blue-600", borderColor: "#3b82f6", dot: "bg-blue-500" },
+                  { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", borderColor: "#8b5cf6", dot: "bg-violet-500" },
+                  { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", borderColor: "#f59e0b", dot: "bg-amber-500" },
                 ].map((item, i) => (
-                  <div key={i} className={`p-4 rounded-2xl ${item.bg}`}>
+                  <div key={i} className="p-4 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${item.borderColor}` }}>
                     <div className="flex items-start justify-between mb-2">
                       <span className={`w-2.5 h-2.5 rounded-full mt-1 ${item.dot}`} />
                       <span className={`text-2xl font-black tabular-nums ${item.color}`}>{item.value}</span>

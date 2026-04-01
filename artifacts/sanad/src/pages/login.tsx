@@ -15,7 +15,6 @@ type RoleConfig = {
   sublabel: string;
   icon: React.ElementType;
   color: string;
-  bg: string;
   iconBg: string;
   href: string;
   badge?: string;
@@ -24,83 +23,89 @@ type RoleConfig = {
   demoPassword: string;
 };
 
-const CLEARANCE_COLORS: Record<string, string> = {
-  PUBLIC:       "bg-emerald-100 text-emerald-700",
-  RESTRICTED:   "bg-amber-100 text-amber-700",
-  CONFIDENTIAL: "bg-blue-100 text-blue-700",
-  SECRET:       "bg-red-100 text-red-700",
+const CLEARANCE_DOT: Record<string, string> = {
+  PUBLIC:       "bg-emerald-500",
+  RESTRICTED:   "bg-amber-500",
+  CONFIDENTIAL: "bg-sky-500",
+  SECRET:       "bg-red-500",
+};
+const CLEARANCE_TEXT: Record<string, string> = {
+  PUBLIC:       "text-emerald-700",
+  RESTRICTED:   "text-amber-700",
+  CONFIDENTIAL: "text-sky-700",
+  SECRET:       "text-red-700",
 };
 
 const ROLES: RoleConfig[] = [
   {
     role: "emergency", label: "Emergency Response", sublabel: "First Responders · SRCA",
-    icon: ShieldAlert, color: "text-red-600", bg: "bg-red-50", iconBg: "bg-red-600",
+    icon: ShieldAlert, color: "text-red-600", iconBg: "bg-red-600",
     href: "/emergency", badge: "24/7",
     clearance: "RESTRICTED", employeeId: "SRCA-07-RYD", demoPassword: "SANAD@2025",
   },
   {
     role: "doctor", label: "Physician Portal", sublabel: "Clinical Decision Support",
-    icon: HeartPulse, color: "text-blue-600", bg: "bg-blue-50", iconBg: "bg-blue-600",
+    icon: HeartPulse, color: "text-blue-600", iconBg: "bg-blue-600",
     href: "/doctor",
     clearance: "CONFIDENTIAL", employeeId: "MOH-DOC-4821", demoPassword: "SANAD@2025",
   },
   {
     role: "citizen", label: "Citizen Portal", sublabel: "Personal Health Record",
-    icon: User, color: "text-amber-600", bg: "bg-amber-50", iconBg: "bg-amber-500",
+    icon: User, color: "text-amber-600", iconBg: "bg-amber-500",
     href: "/citizen",
     clearance: "PUBLIC", employeeId: "1000000001", demoPassword: "SANAD@2025",
   },
   {
     role: "admin", label: "Ministry Dashboard", sublabel: "National Health Intelligence",
-    icon: Building2, color: "text-indigo-600", bg: "bg-indigo-50", iconBg: "bg-indigo-600",
+    icon: Building2, color: "text-indigo-600", iconBg: "bg-indigo-600",
     href: "/admin", badge: "Gov",
     clearance: "SECRET", employeeId: "MOH-DIR-0001", demoPassword: "SANAD@2025",
   },
   {
     role: "lab", label: "Lab Portal", sublabel: "Results · AI Interpretation",
-    icon: FlaskConical, color: "text-teal-600", bg: "bg-teal-50", iconBg: "bg-teal-600",
+    icon: FlaskConical, color: "text-teal-600", iconBg: "bg-teal-600",
     href: "/lab",
     clearance: "RESTRICTED", employeeId: "LAB-DIR-0101", demoPassword: "SANAD@2025",
   },
   {
     role: "pharmacy", label: "Pharmacy Portal", sublabel: "Dispense · Drug Safety AI",
-    icon: Pill, color: "text-cyan-600", bg: "bg-cyan-50", iconBg: "bg-cyan-600",
+    icon: Pill, color: "text-cyan-600", iconBg: "bg-cyan-600",
     href: "/pharmacy",
     clearance: "RESTRICTED", employeeId: "PHARM-01-RYD", demoPassword: "SANAD@2025",
   },
   {
     role: "hospital", label: "Hospital Operations", sublabel: "Bed Mgmt · Capacity",
-    icon: BedDouble, color: "text-sky-600", bg: "bg-sky-50", iconBg: "bg-sky-600",
+    icon: BedDouble, color: "text-sky-600", iconBg: "bg-sky-600",
     href: "/hospital",
     clearance: "RESTRICTED", employeeId: "HOSP-ADM-0001", demoPassword: "SANAD@2025",
   },
   {
     role: "insurance", label: "Insurance Portal", sublabel: "Claims · Fraud Detection",
-    icon: Shield, color: "text-purple-600", bg: "bg-purple-50", iconBg: "bg-purple-600",
+    icon: Shield, color: "text-purple-600", iconBg: "bg-purple-600",
     href: "/insurance",
     clearance: "CONFIDENTIAL", employeeId: "INS-MGR-3310", demoPassword: "SANAD@2025",
   },
   {
     role: "ai-control", label: "AI Control Center", sublabel: "Model Governance · Ops",
-    icon: Cpu, color: "text-violet-600", bg: "bg-violet-50", iconBg: "bg-violet-600",
+    icon: Cpu, color: "text-violet-600", iconBg: "bg-violet-600",
     href: "/ai-control",
     clearance: "SECRET", employeeId: "AI-ENG-0001", demoPassword: "SANAD@2025",
   },
   {
     role: "research", label: "Research Portal", sublabel: "Population Analytics · AI",
-    icon: FlaskConical, color: "text-emerald-600", bg: "bg-emerald-50", iconBg: "bg-emerald-600",
+    icon: FlaskConical, color: "text-emerald-600", iconBg: "bg-emerald-600",
     href: "/research",
     clearance: "CONFIDENTIAL", employeeId: "RES-DIR-0091", demoPassword: "SANAD@2025",
   },
   {
     role: "family", label: "Family Health", sublabel: "Genetic Risk · Linking",
-    icon: Users, color: "text-pink-600", bg: "bg-pink-50", iconBg: "bg-pink-600",
+    icon: Users, color: "text-pink-600", iconBg: "bg-pink-600",
     href: "/family",
     clearance: "RESTRICTED", employeeId: "FAM-COO-5521", demoPassword: "SANAD@2025",
   },
   {
     role: "supply-chain", label: "Supply Chain", sublabel: "Drug Availability · Shortages",
-    icon: Package, color: "text-orange-600", bg: "bg-orange-50", iconBg: "bg-orange-600",
+    icon: Package, color: "text-orange-600", iconBg: "bg-orange-600",
     href: "/supply-chain",
     clearance: "RESTRICTED", employeeId: "SUP-NPS-4401", demoPassword: "SANAD@2025",
   },
@@ -201,7 +206,7 @@ export default function LoginPage() {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-secondary px-3 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
             All Systems Live
           </div>
@@ -269,7 +274,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-secondary px-3 py-1.5 rounded-full">
                   <CheckCircle2 className="w-3.5 h-3.5" /> MOH Certified
                 </div>
                 <button
@@ -306,21 +311,17 @@ export default function LoginPage() {
                     }}
                   >
                     {r.badge && (
-                      <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full ${r.bg} ${r.color}`}>
+                      <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${r.color}`}>
                         {r.badge}
                       </span>
                     )}
-                    <div
-                      className="w-10 h-10 rounded-[12px] flex items-center justify-center mb-4"
-                      style={{ background: "" }}
-                    >
-                      <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${r.iconBg}`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
+                    <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center mb-4 ${r.iconBg}`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
                     <p className="text-[13px] font-bold text-foreground mb-0.5 leading-tight">{r.label}</p>
                     <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">{r.sublabel}</p>
-                    <span className={`inline-flex text-[9.5px] font-bold px-2 py-0.5 rounded-full ${CLEARANCE_COLORS[r.clearance]}`}>
+                    <span className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-secondary ${CLEARANCE_TEXT[r.clearance] ?? "text-muted-foreground"}`}>
+                      <span className={`w-[5px] h-[5px] rounded-full shrink-0 ${CLEARANCE_DOT[r.clearance] ?? "bg-muted-foreground"}`} />
                       {r.clearance}
                     </span>
                   </button>
@@ -360,7 +361,8 @@ export default function LoginPage() {
                   <p className="text-[16px] font-bold text-foreground leading-tight">{selectedRole.label}</p>
                   <p className="text-[12px] text-muted-foreground mt-0.5">{selectedRole.sublabel}</p>
                 </div>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${CLEARANCE_COLORS[selectedRole.clearance]}`}>
+                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-secondary ${CLEARANCE_TEXT[selectedRole.clearance] ?? "text-muted-foreground"}`}>
+                  <span className={`w-[5px] h-[5px] rounded-full shrink-0 ${CLEARANCE_DOT[selectedRole.clearance] ?? "bg-muted-foreground"}`} />
                   {selectedRole.clearance}
                 </span>
               </div>
@@ -416,15 +418,15 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 rounded-xl">
+                  <div className="flex items-center gap-2.5 px-4 py-3 bg-secondary rounded-xl text-red-700" style={{ borderLeft: "3px solid #ef4444" }}>
                     <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-                    <p className="text-[12px] text-red-700">{error}</p>
+                    <p className="text-[12px]">{error}</p>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2.5 px-4 py-3 bg-blue-50 rounded-xl">
-                  <Fingerprint className="w-4 h-4 text-blue-500 shrink-0" />
-                  <p className="text-[11.5px] text-blue-700">
+                <div className="flex items-center gap-2.5 px-4 py-3 bg-secondary rounded-xl text-sky-700" style={{ borderLeft: "3px solid #0ea5e9" }}>
+                  <Fingerprint className="w-4 h-4 text-sky-500 shrink-0" />
+                  <p className="text-[11.5px]">
                     Demo credentials pre-filled. Click <strong>Authenticate</strong> to enter.
                   </p>
                 </div>

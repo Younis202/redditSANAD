@@ -129,11 +129,17 @@ const PORTALS = [
   },
 ];
 
-const CLEARANCE_STYLE: Record<string, string> = {
-  PUBLIC:       "bg-emerald-100 text-emerald-700",
-  RESTRICTED:   "bg-amber-100 text-amber-700",
-  CONFIDENTIAL: "bg-blue-100 text-blue-700",
-  SECRET:       "bg-red-100 text-red-700",
+const CLEARANCE_DOT: Record<string, string> = {
+  PUBLIC:       "bg-emerald-500",
+  RESTRICTED:   "bg-amber-500",
+  CONFIDENTIAL: "bg-sky-500",
+  SECRET:       "bg-red-500",
+};
+const CLEARANCE_TEXT: Record<string, string> = {
+  PUBLIC:       "text-emerald-700",
+  RESTRICTED:   "text-amber-700",
+  CONFIDENTIAL: "text-sky-700",
+  SECRET:       "text-red-700",
 };
 
 export default function Home() {
@@ -164,7 +170,7 @@ export default function Home() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-secondary px-3 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
             All Systems Live
           </div>
@@ -302,7 +308,8 @@ function PortalCard({ href, icon: Icon, label, description, accent, accentLight,
           <div className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0" style={{ background: accent }}>
             <Icon className="w-[20px] h-[20px] text-white" />
           </div>
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${CLEARANCE_STYLE[clearance] ?? "bg-secondary text-muted-foreground"}`}>
+          <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary ${CLEARANCE_TEXT[clearance] ?? "text-muted-foreground"}`}>
+            <span className={`w-[5px] h-[5px] rounded-full shrink-0 ${CLEARANCE_DOT[clearance] ?? "bg-muted-foreground"}`} />
             {clearance}
           </span>
         </div>

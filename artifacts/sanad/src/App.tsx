@@ -76,10 +76,16 @@ function ConsentGate({ children }: { children: React.ReactNode }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-foreground">{item.title}</p>
-                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full ${
-                      item.level === "CONFIDENTIAL" ? "bg-violet-100 text-violet-700" :
-                      item.level === "RESTRICTED" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
-                    }`}>{item.level}</span>
+                    <span className={`inline-flex items-center gap-1 text-[8px] font-black px-1.5 py-0.5 rounded-full bg-secondary ${
+                      item.level === "CONFIDENTIAL" ? "text-violet-700" :
+                      item.level === "RESTRICTED" ? "text-amber-700" : "text-emerald-700"
+                    }`}>
+                      <span className={`w-[4px] h-[4px] rounded-full shrink-0 ${
+                        item.level === "CONFIDENTIAL" ? "bg-violet-500" :
+                        item.level === "RESTRICTED" ? "bg-amber-500" : "bg-emerald-500"
+                      }`} />
+                      {item.level}
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                 </div>
@@ -87,7 +93,7 @@ function ConsentGate({ children }: { children: React.ReactNode }) {
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+          <div className="mt-4 p-3 bg-secondary rounded-xl text-xs text-amber-800" style={{ borderLeft: "3px solid #f59e0b" }}>
             <p className="font-bold mb-0.5">Legal Basis</p>
             <p>Governed by Royal Decree No. M/19, MOH Circular 3/1/3, and NCA Healthcare Data Standard v2.0. All data remains within sovereign KSA infrastructure.</p>
           </div>

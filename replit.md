@@ -3,7 +3,18 @@
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.4 — Doctor Portal iOS Design Overhaul (Latest)
+## v3.5 — Design System Full Purge + Component Upgrade (Latest)
+1. **Zero forbidden bg classes** — Final global elimination of ALL forbidden Tailwind bg/border classes across every file: `shared.tsx`, `layout.tsx`, `login.tsx`, `home.tsx`, `App.tsx`, `admin.tsx`, `ai-control.tsx`. Final scan confirms zero violations across all 12 portals.
+2. **Clearance badge system** — Replaced all `bg-*-100` clearance badges with elegant colored-dot + neutral bg pattern: `bg-secondary` + `text-*-700` + 5px solid colored dot. Applied across login, home, App.tsx consent gate.
+3. **Badge component redesign** — All 7 Badge variants (default, info, success, warning, destructive, outline, purple) now use `bg-secondary` base + colored text + semantic dot instead of forbidden colored backgrounds.
+4. **AlertBanner redesign** — All 3 variants (warning, destructive, info) now use `bg-secondary` + `borderLeft` hex inline style + semantic dot — no forbidden classes.
+5. **KpiCard trend badge** — Upgraded from `bg-red-50`/`bg-emerald-50` to `bg-secondary` + colored dot + colored text.
+6. **LiveChip** — Changed from `bg-emerald-50` to `bg-secondary`.
+7. **Layout** — Alert dropdown: icon backgrounds changed from `bg-red-100`/`bg-amber-100`/`bg-blue-100` to `bg-secondary`; unread row from `bg-blue-50/50` to `bg-primary/[0.03]`; sign-out hover from `hover:bg-red-50` to `hover:bg-secondary`.
+8. **New shared components** — Added `EmptyState` (icon + title + description + action) and `StatRow` (horizontal stats strip) to the shared component library.
+9. **Improved CardBody/CardHeader padding** — Increased from `p-5` to `p-6` for more breathing room across all cards.
+
+## v3.4 — Doctor Portal iOS Design Overhaul
 1. **Patient Identity Card** — Completely redesigned: red full-width allergy alert strip at card top (matching Emergency portal), larger bold patient name (text-2xl), clean data pills row (blood type in red, AI risk score with color-coded badge, first 2 chronic conditions + count)
 2. **AI Priority Strip** — Changed from solid-colored buttons to clean white cards with colored icon squares (left-border accent style), better typography hierarchy
 3. **Empty State** — Premium stethoscope icon card with larger typography and cleaner demo ID bar

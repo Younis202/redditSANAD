@@ -303,7 +303,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
             </div>
 
             {/* All Systems Live */}
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-3.5 py-2 rounded-full whitespace-nowrap">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-secondary px-3.5 py-2 rounded-full whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
               All Systems Live
             </div>
@@ -361,19 +361,15 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
                           key={alert.id}
                           className={cn(
                             "px-4 py-3 border-b border-black/[0.04] last:border-0 transition-colors",
-                            !alert.isRead ? "bg-blue-50/50" : ""
+                            !alert.isRead ? "bg-primary/[0.03]" : ""
                           )}
                         >
                           <div className="flex items-start gap-2.5">
-                            <div className={cn(
-                              "w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                              alert.severity === "critical" ? "bg-red-100" :
-                              alert.severity === "warning" ? "bg-amber-100" : "bg-blue-100"
-                            )}>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-secondary">
                               <AlertTriangle className={cn(
                                 "w-3 h-3",
                                 alert.severity === "critical" ? "text-red-600" :
-                                alert.severity === "warning" ? "text-amber-600" : "text-blue-600"
+                                alert.severity === "warning" ? "text-amber-600" : "text-sky-600"
                               )} />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -458,7 +454,7 @@ export function Layout({ children, role }: { children: React.ReactNode; role: Ro
 
         <div
           onClick={() => { logout(); window.location.href = "/login"; }}
-          className="flex items-center gap-2 text-slate-500 hover:text-red-500 cursor-pointer px-3 py-2 rounded-xl hover:bg-red-50 transition-all"
+          className="flex items-center gap-2 text-slate-500 hover:text-red-500 cursor-pointer px-3 py-2 rounded-xl hover:bg-secondary transition-all"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-xs font-bold">Sign Out</span>

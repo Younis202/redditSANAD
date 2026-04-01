@@ -592,291 +592,349 @@ export default function DoctorDashboard() {
             />
 
             {activeTab === "overview" && (
-              <div className="divide-y divide-border">
-                {/* Clinical Decision Panel */}
-                {riskScore && (
-                  <div className="p-5 bg-secondary/30">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <Brain className="w-3.5 h-3.5 text-violet-600" /> Clinical Intelligence — Decision Summary
-                    </p>
-                    <div className="flex items-stretch gap-4">
-                      {/* Score Block */}
-                      <div className="rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[130px] shrink-0 text-white" style={{
-                        background: riskScore.riskLevel === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
-                          riskScore.riskLevel === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
-                          riskScore.riskLevel === "medium" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
-                          "linear-gradient(135deg, #059669, #064e3b)"
-                      }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Risk Score</p>
-                        <p className="text-5xl font-bold tabular-nums leading-none">{riskScore.riskScore}</p>
-                        <p className="text-white/60 text-xs mt-1">/ 100</p>
-                        <div className="mt-3 border border-white/25 rounded-xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide">
-                          {riskScore.riskLevel}
-                        </div>
+              <div className="p-6 space-y-6">
+                {/* KPI Hero Row */}
+                <div className="grid grid-cols-3 gap-4">
+                  {riskScore ? (
+                    <div className="rounded-3xl p-5 text-white flex flex-col justify-between min-h-[130px]" style={{
+                      background: riskScore.riskLevel === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                        riskScore.riskLevel === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                        riskScore.riskLevel === "medium" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
+                        "linear-gradient(135deg, #059669, #064e3b)"
+                    }}>
+                      <p className="text-[11px] font-semibold text-white/60 uppercase tracking-widest">AI Risk Score</p>
+                      <div>
+                        <p className="text-[52px] font-black leading-none tabular-nums">{riskScore.riskScore}</p>
+                        <p className="text-white/60 text-xs mt-1">/ 100 · <span className="font-bold text-white/80 uppercase">{riskScore.riskLevel}</span></p>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl p-5 bg-secondary/60 flex flex-col justify-between min-h-[130px]">
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">AI Risk Score</p>
+                      <p className="text-[52px] font-black leading-none text-muted-foreground">—</p>
+                    </div>
+                  )}
+                  <div className="rounded-3xl p-5 bg-secondary/60 flex flex-col justify-between min-h-[130px]">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Chronic Conditions</p>
+                    <div>
+                      <p className="text-[52px] font-black leading-none text-foreground tabular-nums">{patient.chronicConditions?.length ?? 0}</p>
+                      <p className="text-xs text-muted-foreground mt-1">documented diagnoses</p>
+                    </div>
+                  </div>
+                  <div className="rounded-3xl p-5 bg-secondary/60 flex flex-col justify-between min-h-[130px]">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Active Medications</p>
+                    <div>
+                      <p className="text-[52px] font-black leading-none text-foreground tabular-nums">{activeMeds.length}</p>
+                      <p className="text-xs text-muted-foreground mt-1">current prescriptions</p>
+                    </div>
+                  </div>
+                </div>
 
-                      {/* WHY Block */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                          <TriangleAlert className="w-3 h-3 text-amber-500" /> WHY — Top Risk Factors
-                        </p>
-                        <div className="space-y-1.5">
-                          {riskScore.factors.slice(0, 4).map((f: any, i: number) => (
-                            <div key={i} className="flex items-center gap-2.5 px-3 py-2 bg-white/60 rounded-xl">
-                              <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                f.impact === "high" ? "bg-red-500" :
-                                f.impact === "moderate" ? "bg-amber-500" : "bg-primary"
-                              }`} />
-                              <span className="text-xs font-semibold text-foreground flex-1 truncate">{f.factor}</span>
-                              <Badge variant={f.impact === "high" ? "destructive" : f.impact === "moderate" ? "warning" : "info"} className="text-[9px] shrink-0">{f.impact}</Badge>
-                            </div>
-                          ))}
-                          {riskScore.factors.length === 0 && (
-                            <p className="text-xs text-muted-foreground px-2">No significant risk factors detected.</p>
-                          )}
-                        </div>
+                {/* Risk Factors */}
+                {riskScore && riskScore.factors.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+                        <TriangleAlert className="w-4 h-4 text-white" />
                       </div>
-
-                      {/* ACTION Block */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                          <ChevronRight className="w-3 h-3 text-primary" /> RECOMMENDED ACTIONS
-                        </p>
-                        <div className="space-y-1.5">
-                          {riskScore.recommendations.slice(0, 3).map((rec: string, i: number) => (
-                            <div key={i} className="flex items-start gap-2 px-3 py-2 bg-white/60 rounded-xl">
-                              <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
-                              <p className="text-xs text-foreground leading-snug">{rec}</p>
-                            </div>
-                          ))}
-                        </div>
-                        {topPredictions.length > 0 && (
-                          <div className="mt-2 px-3 py-2 bg-secondary rounded-xl" style={{ borderLeft: "2px solid #f59e0b" }}>
-                            <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI Alert</p>
-                            <p className="text-xs text-foreground font-medium">{topPredictions[0]?.title}</p>
-                          </div>
-                        )}
+                      <div>
+                        <p className="text-sm font-bold text-foreground">Top Risk Factors</p>
+                        <p className="text-[11px] text-muted-foreground">AI-identified clinical drivers</p>
                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      {riskScore.factors.slice(0, 4).map((f: any, i: number) => (
+                        <div key={i} className="flex items-center gap-3 p-3.5 rounded-2xl bg-secondary/60"
+                          style={{ borderLeft: `3px solid ${f.impact === "high" ? "#ef4444" : f.impact === "moderate" ? "#f59e0b" : "#3b82f6"}` }}>
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${f.impact === "high" ? "bg-red-500" : f.impact === "moderate" ? "bg-amber-500" : "bg-primary"}`} />
+                          <span className="text-sm font-semibold text-foreground flex-1">{f.factor}</span>
+                          <Badge variant={f.impact === "high" ? "destructive" : f.impact === "moderate" ? "warning" : "info"} className="text-[10px]">{f.impact}</Badge>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* Conditions + Allergies */}
-                <div className="grid grid-cols-2 divide-x divide-border">
-                  <div className="p-5">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <Activity className="w-3.5 h-3.5" /> Chronic Conditions
-                    </p>
+                <div className="grid grid-cols-2 gap-5">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)" }}>
+                        <Activity className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground">Chronic Conditions</p>
+                    </div>
                     {patient.chronicConditions?.length > 0 ? (
                       <div className="space-y-2">
                         {patient.chronicConditions.map((c, i) => (
-                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl">
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                            <span className="text-sm font-semibold">{c}</span>
+                          <div key={i} className="flex items-center gap-3 p-3.5 bg-secondary/60 rounded-2xl">
+                            <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black text-white shrink-0" style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)" }}>{i + 1}</span>
+                            <span className="text-sm font-semibold text-foreground">{c}</span>
                           </div>
                         ))}
                       </div>
-                    ) : <p className="text-sm text-muted-foreground">None on record.</p>}
+                    ) : <p className="text-sm text-muted-foreground px-1">None on record.</p>}
                   </div>
-                  <div className="p-5">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <AlertCircle className="w-3.5 h-3.5 text-red-500" /> Documented Allergies
-                    </p>
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #dc2626, #991b1b)" }}>
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground">Documented Allergies</p>
+                    </div>
                     {patient.allergies?.length > 0 ? (
                       <div className="space-y-2">
                         {patient.allergies.map((a, i) => (
-                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl">
-                            <StatusDot status="critical" />
+                          <div key={i} className="flex items-center gap-3 p-3.5 bg-secondary/60 rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
+                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
                             <span className="text-sm font-bold text-red-600">{a}</span>
                           </div>
                         ))}
                       </div>
-                    ) : <p className="text-sm text-muted-foreground">No known allergies.</p>}
+                    ) : (
+                      <div className="p-3.5 bg-secondary/60 rounded-2xl">
+                        <p className="text-sm text-muted-foreground">No known allergies</p>
+                      </div>
+                    )}
                   </div>
+                </div>
+
+                {/* Recommendations + AI Alert */}
+                <div className="space-y-3">
+                  {riskScore?.recommendations?.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4c1d95)" }}>
+                          <Lightbulb className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">Recommended Actions</p>
+                          <p className="text-[11px] text-muted-foreground">AI-generated clinical guidance</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {riskScore.recommendations.slice(0, 3).map((rec: string, i: number) => (
+                          <div key={i} className="flex items-start gap-3 p-3.5 rounded-2xl bg-secondary/60">
+                            <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <p className="text-sm text-foreground leading-snug">{rec}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {topPredictions.length > 0 && (
+                    <div className="p-4 rounded-2xl bg-secondary/60" style={{ borderLeft: "3px solid #f59e0b" }}>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Brain className="w-3.5 h-3.5 text-amber-600" />
+                        <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wide">AI Prediction Alert</span>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{topPredictions[0]?.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{topPredictions[0]?.description}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {activeTab === "timeline" && (
-              <div className="p-5">
-                <div className="flex items-center gap-3 mb-5">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Smart Clinical Timeline</p>
-                  <div className="flex items-center gap-2 ml-auto">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-sky-500" /> Visit</div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-violet-500" /> Lab</div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Medication</div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><TrendingUp className="w-3 h-3 text-amber-500" /> Trend</div>
+              <div className="p-6">
+                {/* Legend */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-3 mb-0">
+                    <div className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)" }}>
+                      <Clock className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Smart Clinical Timeline</p>
+                      <p className="text-[11px] text-muted-foreground">{timeline.length} events · chronological order</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 ml-auto">
+                    <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-sky-500" /><span className="text-xs text-muted-foreground">Visit</span></div>
+                    <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-violet-500" /><span className="text-xs text-muted-foreground">Lab</span></div>
+                    <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /><span className="text-xs text-muted-foreground">Rx</span></div>
                   </div>
                 </div>
-                <div className="relative">
-                  <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
-                  <div className="space-y-4">
-                    {timeline.slice(0, 30).map((event, idx) => {
-                      const cfg = timelineIconMap[event.type];
-                      const Icon = cfg.icon;
 
-                      let trendIndicator: React.ReactNode = null;
-                      let trendBg = "";
-                      if (event.type === "lab") {
-                        const labGroup = labsByName[event.title] ?? [];
-                        const trend = getTrend(labGroup);
-                        const isAbnormal = event.status === "abnormal";
-                        const isCritical = event.status === "critical";
-                        if (trend === "rising") {
-                          trendIndicator = <TrendingUp className={`w-3.5 h-3.5 ${isAbnormal || isCritical ? "text-red-500" : "text-amber-500"}`} />;
-                          trendBg = isCritical ? "border-l-4 border-red-500 pl-3" : isAbnormal ? "border-l-4 border-amber-400 pl-3" : "";
-                        } else if (trend === "falling") {
-                          trendIndicator = <TrendingDown className="w-3.5 h-3.5 text-sky-500" />;
-                        } else {
-                          trendIndicator = <Minus className="w-3 h-3 text-muted-foreground/40" />;
+                {timeline.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="font-bold text-foreground">No timeline data</p>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <div className="absolute left-[18px] top-0 bottom-0 w-px bg-border" />
+                    <div className="space-y-3">
+                      {timeline.slice(0, 30).map((event, idx) => {
+                        const cfg = timelineIconMap[event.type];
+                        const Icon = cfg.icon;
+                        const typeColor = event.type === "visit" ? "#0284c7" : event.type === "lab" ? "#7c3aed" : "#059669";
+
+                        let trendIndicator: React.ReactNode = null;
+                        let leftBorder = "";
+                        if (event.type === "lab") {
+                          const labGroup = labsByName[event.title] ?? [];
+                          const trend = getTrend(labGroup);
+                          const isAbnormal = event.status === "abnormal";
+                          const isCritical = event.status === "critical";
+                          if (trend === "rising") {
+                            trendIndicator = <TrendingUp className={`w-3 h-3 ${isAbnormal || isCritical ? "text-red-500" : "text-amber-500"}`} />;
+                            leftBorder = isCritical ? "border-l-2 border-red-400" : isAbnormal ? "border-l-2 border-amber-400" : "";
+                          } else if (trend === "falling") {
+                            trendIndicator = <TrendingDown className="w-3 h-3 text-sky-500" />;
+                          } else {
+                            trendIndicator = <Minus className="w-3 h-3 text-muted-foreground/30" />;
+                          }
                         }
-                      }
 
-                      const isVisitEmergency = event.type === "visit" && event.badge === "emergency";
-                      const isCriticalLab = event.type === "lab" && event.status === "critical";
+                        const isVisitEmergency = event.type === "visit" && event.badge === "emergency";
+                        const isCriticalLab = event.type === "lab" && event.status === "critical";
+                        const isUrgent = isCriticalLab || isVisitEmergency;
 
-                      return (
-                        <div key={`${event.type}-${event.id}-${idx}`} className={`flex gap-4 relative pl-14 ${trendBg}`}>
-                          <div className={`absolute left-2 top-1.5 w-6 h-6 rounded-full ${
-                            isCriticalLab ? "bg-secondary" : isVisitEmergency ? "bg-secondary" : cfg.bg
-                          } flex items-center justify-center border-2 border-background z-10 ${
-                            isCriticalLab || isVisitEmergency ? "ring-2 ring-red-300 ring-offset-1" : ""
-                          }`}>
-                            <Icon className={`w-3 h-3 ${isCriticalLab || isVisitEmergency ? "text-red-600" : cfg.color}`} />
-                          </div>
-                          <div className="flex-1 min-w-0 pb-4 border-b border-border last:border-0">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <p className={`font-semibold text-sm truncate ${isCriticalLab ? "text-red-700" : "text-foreground"}`}>{event.title}</p>
-                                  {trendIndicator}
+                        return (
+                          <div key={`${event.type}-${event.id}-${idx}`} className={`flex gap-4 pl-12 relative`}>
+                            <div className="absolute left-[7px] top-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-background z-10 shadow-sm"
+                              style={{ background: isUrgent ? "linear-gradient(135deg, #dc2626, #991b1b)" : `linear-gradient(135deg, ${typeColor}cc, ${typeColor})` }}>
+                              <Icon className="w-2.5 h-2.5 text-white" />
+                            </div>
+                            <div className={`flex-1 min-w-0 p-3.5 rounded-2xl bg-secondary/50 ${leftBorder} ${isUrgent ? "ring-1 ring-red-200" : ""}`}>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <p className={`font-semibold text-sm truncate ${isUrgent ? "text-red-600" : "text-foreground"}`}>{event.title}</p>
+                                    {trendIndicator}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground truncate">{event.subtitle}</p>
+                                  {isUrgent && (
+                                    <p className="text-[10px] font-bold text-red-600 mt-0.5 uppercase tracking-wide">
+                                      {isCriticalLab ? "Critical — immediate review" : "Emergency admission"}
+                                    </p>
+                                  )}
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-0.5 truncate">{event.subtitle}</p>
-                                {isCriticalLab && (
-                                  <p className="text-[10px] font-bold text-red-600 mt-0.5">CRITICAL — Immediate review required</p>
-                                )}
-                                {isVisitEmergency && (
-                                  <p className="text-[10px] font-bold text-red-600 mt-0.5">Emergency admission</p>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {event.badge && (
-                                  <Badge variant={event.badgeVariant ?? "outline"} className="text-[10px]">{event.badge}</Badge>
-                                )}
-                                <span className="text-[10px] text-muted-foreground font-mono whitespace-nowrap">
-                                  {format(event.date, "dd MMM yyyy")}
-                                </span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {event.badge && (
+                                    <Badge variant={event.badgeVariant ?? "outline"} className="text-[10px]">{event.badge}</Badge>
+                                  )}
+                                  <span className="text-[10px] text-muted-foreground font-mono whitespace-nowrap bg-background rounded-lg px-2 py-1">
+                                    {format(event.date, "dd MMM yy")}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                    {timeline.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-8">No timeline data available.</p>
-                    )}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
             {activeTab === "medications" && (
-              <div>
-                <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.05]" style={{ background: "hsl(240 6% 97%)" }}>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-semibold text-muted-foreground">{activeMeds.length} active prescription{activeMeds.length !== 1 ? "s" : ""}</p>
-                    {(medMatrixData?.interactions?.length ?? 0) > 0 && (
-                      <Badge variant={(medMatrixData?.interactions?.some(i => i.severity === "critical")) ? "destructive" : "warning"}>
-                        {medMatrixData!.interactions.length} interaction{medMatrixData!.interactions.length > 1 ? "s" : ""} detected
-                      </Badge>
-                    )}
+              <div className="p-6 space-y-5">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #059669, #064e3b)" }}>
+                      <Pill className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Active Prescriptions</p>
+                      <p className="text-[11px] text-muted-foreground">{activeMeds.length} medications · {(medMatrixData?.interactions?.length ?? 0) > 0 && <span className="text-amber-600 font-semibold">{medMatrixData!.interactions.length} interaction{medMatrixData!.interactions.length > 1 ? "s" : ""} detected</span>}</p>
+                    </div>
                   </div>
                   <PrescribeModal patientId={patient.id} />
                 </div>
 
-                {/* AI Interaction Matrix */}
+                {/* Drug Interaction Cards */}
                 {(medMatrixData?.interactions?.length ?? 0) > 0 && (
-                  <div className="p-4 border-b border-black/[0.05] bg-secondary/30 space-y-2.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-3">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> AI Drug Interaction Analysis — {medMatrixData!.interactions.length} conflict{medMatrixData!.interactions.length > 1 ? "s" : ""} found
-                    </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #d97706, #92400e)" }}>
+                        <AlertCircle className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground">AI Drug Interaction Analysis</p>
+                      <Badge variant={(medMatrixData?.interactions?.some(i => i.severity === "critical")) ? "destructive" : "warning"} className="ml-auto">
+                        {medMatrixData!.interactions.length} conflict{medMatrixData!.interactions.length > 1 ? "s" : ""}
+                      </Badge>
+                    </div>
                     {medMatrixData!.interactions.map((ix, i) => (
-                      <div key={i} className="rounded-2xl p-4 bg-secondary"
+                      <div key={i} className="rounded-2xl p-4 bg-secondary/60"
                         style={{ borderLeft: `3px solid ${ix.severity === "critical" ? "#ef4444" : ix.severity === "high" ? "#f59e0b" : "#38bdf8"}` }}>
-                        <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-white/60 flex items-center justify-center shrink-0">
-                            <AlertCircle className={`w-4 h-4 ${
-                              ix.severity === "critical" ? "text-red-600" : ix.severity === "high" ? "text-amber-600" : "text-sky-600"
-                            }`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                              <span className="font-black text-sm text-foreground">{ix.drug1}</span>
-                              <span className="text-muted-foreground text-xs">↔</span>
-                              <span className="font-black text-sm text-foreground">{ix.drug2}</span>
-                              <Badge variant={ix.severity === "critical" ? "destructive" : ix.severity === "high" ? "warning" : "info"} className="ml-auto text-[10px] shrink-0 uppercase">
-                                {ix.severity} severity
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-foreground/80 mb-2">{ix.description}</p>
-                            <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-white/50">
-                              <Lightbulb className="w-3 h-3 text-foreground shrink-0 mt-0.5" />
-                              <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <span className="font-black text-sm text-foreground">{ix.drug1}</span>
+                          <span className="text-muted-foreground font-mono">↔</span>
+                          <span className="font-black text-sm text-foreground">{ix.drug2}</span>
+                          <Badge variant={ix.severity === "critical" ? "destructive" : ix.severity === "high" ? "warning" : "info"} className="ml-auto text-[10px] uppercase">
+                            {ix.severity}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-foreground/80 mb-2">{ix.description}</p>
+                        <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-white/60">
+                          <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                          <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <table className="w-full data-table">
-                  <thead><tr>
-                    <th>Drug Name</th><th>Dosage</th><th>Frequency</th>
-                    <th>Prescribed By</th><th>Hospital</th><th>Start Date</th><th>Status</th>
-                  </tr></thead>
-                  <tbody>
-                    {patient.medications?.map(med => {
-                      const hasCritical = medMatrixData?.interactions?.some(
-                        ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "critical"
-                      );
-                      const hasHigh = medMatrixData?.interactions?.some(
-                        ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "high"
-                      );
-                      return (
-                        <tr key={med.id}>
-                          <td className="font-bold text-foreground">
-                            <div className="flex items-center gap-2">
-                              {med.drugName}
-                              {(hasCritical || hasHigh) && (
-                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-secondary ${hasCritical ? "text-red-600" : "text-amber-600"}`}>
-                                  {hasCritical ? "CRITICAL" : "HIGH"}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="font-mono text-sm">{med.dosage}</td>
-                          <td className="text-muted-foreground">{med.frequency}</td>
-                          <td>{med.prescribedBy}</td>
-                          <td className="text-muted-foreground text-xs">{med.hospital}</td>
-                          <td className="text-muted-foreground font-mono text-xs">
+                {/* Medication Cards */}
+                <div className="space-y-2">
+                  {patient.medications?.map(med => {
+                    const hasCritical = medMatrixData?.interactions?.some(
+                      ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "critical"
+                    );
+                    const hasHigh = medMatrixData?.interactions?.some(
+                      ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "high"
+                    );
+                    const alertColor = hasCritical ? "#ef4444" : hasHigh ? "#f59e0b" : null;
+                    return (
+                      <div key={med.id} className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/60 hover:bg-secondary/80 transition-colors"
+                        style={alertColor ? { borderLeft: `3px solid ${alertColor}` } : {}}>
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: med.isActive ? "linear-gradient(135deg, #059669, #064e3b)" : "var(--secondary)" }}>
+                          <Pill className={`w-4 h-4 ${med.isActive ? "text-white" : "text-muted-foreground"}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-foreground truncate">{med.drugName}</p>
+                            {(hasCritical || hasHigh) && (
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-secondary ${hasCritical ? "text-red-600" : "text-amber-600"}`}>
+                                {hasCritical ? "CRITICAL" : "HIGH"}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            <span className="font-mono font-semibold text-foreground">{med.dosage}</span> · {med.frequency} · Dr. {med.prescribedBy}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <Badge variant={med.isActive ? "success" : "outline"} className="text-[10px] mb-1">{med.isActive ? "Active" : "Completed"}</Badge>
+                          <p className="text-[10px] text-muted-foreground font-mono">
                             {med.startDate ? format(safeDate(med.startDate), "dd MMM yyyy") : "—"}
-                          </td>
-                          <td><Badge variant={med.isActive ? "success" : "outline"}>{med.isActive ? "Active" : "Completed"}</Badge></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
             {activeTab === "labs" && (
               <div>
-                <div className="flex items-center gap-3 px-5 py-3 border-b border-black/[0.05]" style={{ background: "hsl(240 6% 97%)" }}>
-                  {criticalLabs > 0 && <Badge variant="destructive">{criticalLabs} Critical</Badge>}
-                  {abnormalLabs > 0 && <Badge variant="warning">{abnormalLabs} Abnormal</Badge>}
-                  <span className="text-xs text-muted-foreground ml-auto">{labResults.length} results · sparkline shows value trend over time</span>
+                <div className="flex items-center gap-4 p-5 pb-0">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4c1d95)" }}>
+                    <FlaskConical className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Laboratory Results</p>
+                    <p className="text-[11px] text-muted-foreground">{labResults.length} results · sparkline shows trend over time</p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-auto">
+                    {criticalLabs > 0 && <Badge variant="destructive">{criticalLabs} Critical</Badge>}
+                    {abnormalLabs > 0 && <Badge variant="warning">{abnormalLabs} Abnormal</Badge>}
+                  </div>
                 </div>
 
                 {/* HbA1c Explicit Trend — Priority Glycemic Control Chart */}
@@ -1168,39 +1226,71 @@ export default function DoctorDashboard() {
             )}
 
             {activeTab === "visits" && (
-              <div>
-                <div className="px-5 py-3 border-b border-black/[0.05]" style={{ background: "hsl(240 6% 97%)" }}>
-                  <p className="text-xs font-semibold text-muted-foreground">{patient.visits?.length ?? 0} recorded visits</p>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7, #0c4a6e)" }}>
+                    <Building2 className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Hospital Visits</p>
+                    <p className="text-[11px] text-muted-foreground">{patient.visits?.length ?? 0} recorded visits across all facilities</p>
+                  </div>
                 </div>
-                <table className="w-full data-table">
-                  <thead><tr>
-                    <th>Hospital</th><th>Department</th><th>Physician</th><th>Visit Type</th><th>Diagnosis</th><th>Date</th>
-                  </tr></thead>
-                  <tbody>
-                    {patient.visits?.map(visit => (
-                      <tr key={visit.id}>
-                        <td className="font-bold text-foreground">{visit.hospital}</td>
-                        <td>{visit.department}</td>
-                        <td className="text-muted-foreground">{visit.doctor ? `Dr. ${visit.doctor}` : "—"}</td>
-                        <td><Badge variant={visit.visitType === "emergency" ? "destructive" : visit.visitType === "inpatient" ? "warning" : "outline"}>{visit.visitType}</Badge></td>
-                        <td className="text-muted-foreground max-w-xs truncate">{visit.diagnosis}</td>
-                        <td className="text-muted-foreground font-mono text-xs">{format(safeDate(visit.visitDate), "dd MMM yyyy")}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="space-y-2">
+                  {patient.visits?.map(visit => (
+                    <div key={visit.id} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/60 hover:bg-secondary/80 transition-colors"
+                      style={visit.visitType === "emergency" ? { borderLeft: "3px solid #ef4444" } : visit.visitType === "inpatient" ? { borderLeft: "3px solid #f59e0b" } : {}}>
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{
+                        background: visit.visitType === "emergency" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                          visit.visitType === "inpatient" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                          "linear-gradient(135deg, #0284c7, #0c4a6e)"
+                      }}>
+                        <Building2 className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-bold text-foreground">{visit.hospital}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {visit.department}{visit.doctor ? ` · Dr. ${visit.doctor}` : ""}
+                            </p>
+                            {visit.diagnosis && (
+                              <p className="text-xs text-foreground/80 mt-1 leading-snug">{visit.diagnosis}</p>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <Badge variant={visit.visitType === "emergency" ? "destructive" : visit.visitType === "inpatient" ? "warning" : "outline"} className="text-[10px] mb-1">{visit.visitType}</Badge>
+                            <p className="text-[10px] text-muted-foreground font-mono block">{format(safeDate(visit.visitDate), "dd MMM yyyy")}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
             {activeTab === "predictions" && (
-              <div className="p-5">
-                <div className="flex items-center gap-3 mb-5">
-                  <Brain className="w-4 h-4 text-violet-600" />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">AI Clinical Predictions</p>
-                  <Badge variant="outline" className="ml-auto">{predictions.length} total</Badge>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #7c3aed, #4c1d95)" }}>
+                    <Brain className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">AI Clinical Predictions</p>
+                    <p className="text-[11px] text-muted-foreground">{predictions.length} prediction{predictions.length !== 1 ? "s" : ""} · ML-powered risk analysis</p>
+                  </div>
+                  <div className="ml-auto flex gap-2">
+                    {predictions.filter(p => p.severity === "critical").length > 0 && (
+                      <Badge variant="destructive">{predictions.filter(p => p.severity === "critical").length} critical</Badge>
+                    )}
+                    {predictions.filter(p => p.severity === "high").length > 0 && (
+                      <Badge variant="warning">{predictions.filter(p => p.severity === "high").length} high</Badge>
+                    )}
+                  </div>
                 </div>
                 {predictions.length === 0 ? (
-                  <div className="py-12 text-center">
+                  <div className="py-16 text-center">
                     <Brain className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="font-bold text-foreground mb-1">No Predictions Generated</p>
                     <p className="text-sm text-muted-foreground">Insufficient clinical data for predictive analysis.</p>
@@ -1209,26 +1299,32 @@ export default function DoctorDashboard() {
                   <div className="space-y-3">
                     {predictions.map((p, i) => {
                       const style = predictionSeverityStyle[p.severity] ?? predictionSeverityStyle.low;
+                      const iconBg = p.severity === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                        p.severity === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                        p.severity === "moderate" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
+                        "linear-gradient(135deg, #64748b, #334155)";
+                      const borderColor = p.severity === "critical" ? "#ef4444" : p.severity === "high" ? "#f59e0b" : p.severity === "moderate" ? "#38bdf8" : "#e2e8f0";
                       return (
-                        <div key={i} className={`p-4 ${style.bg} rounded-2xl`}>
+                        <div key={i} className="p-4 rounded-2xl bg-secondary/60" style={{ borderLeft: `3px solid ${borderColor}` }}>
                           <div className="flex items-start gap-3">
-                            <div className={`w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0`}>
+                            <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: iconBg }}>
                               {p.severity === "critical" || p.severity === "high" ? (
-                                <TriangleAlert className={`w-4 h-4 ${style.icon}`} />
+                                <TriangleAlert className="w-4 h-4 text-white" />
                               ) : (
-                                <Zap className={`w-4 h-4 ${style.icon}`} />
+                                <Zap className="w-4 h-4 text-white" />
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                 <Badge variant={style.badge as any} className="text-[10px]">{p.severity}</Badge>
-                                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{p.type.replace("_", " ")}</span>
-                                <span className="ml-auto text-[10px] text-muted-foreground">Confidence: {p.confidence}</span>
+                                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{p.type.replace(/_/g, " ")}</span>
+                                <span className="ml-auto text-[10px] text-muted-foreground font-mono bg-background rounded-md px-1.5 py-0.5">Confidence: {p.confidence}</span>
                               </div>
                               <p className="font-bold text-sm text-foreground">{p.title}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{p.description}</p>
-                              <div className="mt-2 p-2.5 bg-white/60 border border-white rounded-xl">
-                                <p className="text-xs font-semibold text-foreground">Recommendation: {p.recommendation}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{p.description}</p>
+                              <div className="mt-2.5 flex items-start gap-2 p-2.5 rounded-xl bg-white/60">
+                                <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                                <p className="text-xs font-semibold text-foreground">{p.recommendation}</p>
                               </div>
                             </div>
                           </div>
@@ -1241,11 +1337,16 @@ export default function DoctorDashboard() {
             )}
 
             {activeTab === "alerts" && (
-              <div>
-                <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.05]" style={{ background: "hsl(240 6% 97%)" }}>
-                  <div className="flex items-center gap-2">
-                    {unreadAlerts > 0 && <Badge variant="destructive">{unreadAlerts} unread</Badge>}
-                    <span className="text-xs text-muted-foreground">{alerts.length} total alerts</span>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: unreadAlerts > 0 ? "linear-gradient(135deg, #dc2626, #991b1b)" : "linear-gradient(135deg, #64748b, #334155)" }}>
+                      <Bell className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Clinical Alerts</p>
+                      <p className="text-[11px] text-muted-foreground">{alerts.length} total · {unreadAlerts > 0 ? <span className="text-red-600 font-semibold">{unreadAlerts} unread</span> : "all read"}</p>
+                    </div>
                   </div>
                   {unreadAlerts > 0 && (
                     <Button
@@ -1263,54 +1364,47 @@ export default function DoctorDashboard() {
                   )}
                 </div>
                 {alerts.length === 0 ? (
-                  <div className="py-12 text-center">
+                  <div className="py-16 text-center">
                     <BellOff className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="font-bold text-foreground mb-1">No Alerts</p>
                     <p className="text-sm text-muted-foreground">No clinical alerts for this patient.</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border">
-                    {alerts.map(alert => (
-                      <div key={alert.id} className={`flex items-start gap-4 px-5 py-4 transition-colors ${alert.isRead ? "opacity-60" : ""}`}>
-                        <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                          alert.severity === "critical" ? "bg-red-600" :
-                          alert.severity === "high" ? "bg-amber-500" :
-                          alert.severity === "moderate" ? "bg-sky-500" : "bg-secondary"
-                        }`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <Badge variant={
-                              alert.severity === "critical" ? "destructive" :
-                              alert.severity === "high" ? "warning" :
-                              alert.severity === "moderate" ? "info" : "outline"
-                            } className="text-[10px]">{alert.severity}</Badge>
-                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{alert.alertType}</span>
+                  <div className="space-y-2">
+                    {alerts.map(alert => {
+                      const alertBg = alert.severity === "critical" ? "#ef4444" : alert.severity === "high" ? "#f59e0b" : alert.severity === "moderate" ? "#38bdf8" : "#e2e8f0";
+                      return (
+                        <div key={alert.id} className={`flex items-start gap-3 p-4 rounded-2xl bg-secondary/60 transition-all ${alert.isRead ? "opacity-50" : ""}`}
+                          style={!alert.isRead ? { borderLeft: `3px solid ${alertBg}` } : {}}>
+                          <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: alertBg }} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant={
+                                alert.severity === "critical" ? "destructive" :
+                                alert.severity === "high" ? "warning" :
+                                alert.severity === "moderate" ? "info" : "outline"
+                              } className="text-[10px]">{alert.severity}</Badge>
+                              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{alert.alertType}</span>
+                              <span className="ml-auto text-[10px] text-muted-foreground font-mono">{format(safeDate(alert.createdAt), "dd MMM HH:mm")}</span>
+                            </div>
+                            <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{alert.message}</p>
                           </div>
-                          <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{alert.message}</p>
-                          <p className="text-[10px] text-muted-foreground mt-1 font-mono">
-                            {format(safeDate(alert.createdAt), "dd MMM yyyy HH:mm")}
-                          </p>
+                          {!alert.isRead && (
+                            <Button variant="ghost" size="sm" onClick={() => handleMarkRead(alert.id)} className="shrink-0 text-xs self-start">
+                              <CheckCheck className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
                         </div>
-                        {!alert.isRead && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleMarkRead(alert.id)}
-                            className="shrink-0 text-xs"
-                          >
-                            <CheckCheck className="w-3.5 h-3.5" /> Read
-                          </Button>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             )}
 
             {activeTab === "decision" && (
-              <div className="p-5">
+              <div className="p-6">
                 {decisionLoading && (
                   <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-violet-600" />
@@ -1318,67 +1412,72 @@ export default function DoctorDashboard() {
                   </div>
                 )}
                 {!decisionLoading && !aiDecision && (
-                  <div className="py-12 text-center">
+                  <div className="py-16 text-center">
                     <Brain className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="font-bold text-foreground">No decision data</p>
+                    <p className="text-sm text-muted-foreground mt-1">Load a patient to run the AI engine.</p>
                   </div>
                 )}
                 {!decisionLoading && aiDecision && (
-                  <div className="space-y-5">
-                    {/* Urgency Header Strip */}
-                    <div className="rounded-2xl p-5 text-white" style={{
+                  <div className="space-y-6">
+                    {/* Urgency Hero Card */}
+                    <div className="rounded-3xl p-6 text-white" style={{
                       background: aiDecision.urgency === "immediate" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
                         aiDecision.urgency === "urgent" ? "linear-gradient(135deg, #d97706, #92400e)" :
                         aiDecision.urgency === "soon" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
                         "linear-gradient(135deg, #059669, #064e3b)"
                     }}>
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Urgency Level</span>
-                            <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
-                              {aiDecision.urgency}
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="bg-white/15 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-white/20">
+                              {aiDecision.urgency} urgency
                             </span>
+                            <span className="text-white/60 text-[11px]">Model: SANAD-Risk-v4.2</span>
                           </div>
-                          <p className="text-lg font-bold leading-snug">{aiDecision.primaryAction}</p>
-                          <div className="flex items-center gap-3 mt-3">
-                            <span className="flex items-center gap-1.5 text-xs font-semibold text-white/80">
-                              <Clock className="w-3.5 h-3.5" /> {aiDecision.timeWindow}
-                            </span>
-                            <span className="flex items-center gap-1.5 text-xs font-semibold text-white/80">
-                              <Zap className="w-3.5 h-3.5" /> Confidence: {Math.round(aiDecision.confidence * 100)}%
-                            </span>
+                          <p className="text-xl font-bold leading-snug mb-4">{aiDecision.primaryAction}</p>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-white/70" />
+                              <span className="text-xs font-semibold text-white/80">{aiDecision.timeWindow}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Zap className="w-3.5 h-3.5 text-white/70" />
+                              <span className="text-xs font-semibold text-white/80">Confidence: {Math.round(aiDecision.confidence * 100)}%</span>
+                            </div>
                           </div>
+                          {aiDecision.explainability.uncertaintyNote && (
+                            <div className="mt-4 px-3 py-2 bg-white/15 rounded-xl text-xs font-semibold text-white flex items-center gap-2">
+                              <TriangleAlert className="w-3.5 h-3.5 shrink-0 text-white/80" />
+                              {aiDecision.explainability.uncertaintyNote}
+                            </div>
+                          )}
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-5xl font-bold tabular-nums leading-none">{aiDecision.riskScore}</p>
-                          <p className="text-white/60 text-xs mt-1">/ 100</p>
-                          <p className="text-xs font-bold uppercase tracking-wide mt-2 text-white/80">{aiDecision.riskLevel} risk</p>
+                          <p className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">Risk Score</p>
+                          <p className="text-[64px] font-black tabular-nums leading-none">{aiDecision.riskScore}</p>
+                          <p className="text-white/50 text-sm mt-0.5">/ 100</p>
+                          <div className="mt-2 border border-white/20 rounded-xl px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80">
+                            {aiDecision.riskLevel} risk
+                          </div>
                         </div>
                       </div>
-                      {aiDecision.explainability.uncertaintyNote && (
-                        <div className="mt-3 px-3 py-2 bg-white/20 rounded-xl text-xs font-semibold text-white flex items-center gap-2">
-                          <TriangleAlert className="w-3.5 h-3.5 shrink-0 text-white/80" />
-                          {aiDecision.explainability.uncertaintyNote}
-                        </div>
-                      )}
                     </div>
 
-                    {/* WHY Factors */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* WHY Factors + Recommendations */}
+                    <div className="grid grid-cols-2 gap-5">
                       <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <TriangleAlert className="w-3.5 h-3.5 text-amber-500" /> WHY — Clinical Factors
-                        </p>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+                            <TriangleAlert className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <p className="text-sm font-bold text-foreground">WHY — Clinical Drivers</p>
+                        </div>
                         <div className="space-y-2">
                           {aiDecision.whyFactors.map((f, i) => (
-                            <div key={i} className="flex items-start gap-3 px-3.5 py-3 rounded-2xl bg-secondary"
+                            <div key={i} className="flex items-start gap-3 p-3.5 rounded-2xl bg-secondary/60"
                               style={{ borderLeft: `3px solid ${f.impact === "critical" ? "#ef4444" : f.impact === "high" ? "#f59e0b" : f.impact === "moderate" ? "#38bdf8" : "#e2e8f0"}` }}>
-                              <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
-                                f.impact === "critical" ? "bg-red-600" :
-                                f.impact === "high" ? "bg-amber-500" :
-                                f.impact === "moderate" ? "bg-sky-500" : "bg-muted-foreground"
-                              }`} />
+                              <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${f.impact === "critical" ? "bg-red-600" : f.impact === "high" ? "bg-amber-500" : f.impact === "moderate" ? "bg-sky-500" : "bg-muted-foreground"}`} />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-0.5">
                                   <span className="text-xs font-bold text-foreground truncate">{f.factor}</span>
@@ -1392,34 +1491,35 @@ export default function DoctorDashboard() {
                       </div>
 
                       <div className="space-y-4">
-                        {/* Recommendations */}
                         <div>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <ChevronRight className="w-3.5 h-3.5 text-primary" /> Recommended Actions
-                          </p>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)" }}>
+                              <Lightbulb className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <p className="text-sm font-bold text-foreground">Recommended Actions</p>
+                          </div>
                           <div className="space-y-2">
                             {aiDecision.recommendations.map((rec, i) => (
-                              <div key={i} className="flex items-start gap-2.5 px-3.5 py-2.5 bg-primary/5 rounded-xl">
-                                <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                              <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-secondary/60">
+                                <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                                 <p className="text-xs text-foreground leading-snug">{rec}</p>
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        {/* Explainability */}
-                        <div className="p-4 bg-secondary rounded-2xl">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Clinical Basis</p>
-                          <div className="space-y-1">
+                        <div className="p-4 bg-secondary/60 rounded-2xl">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Clinical Basis</p>
+                          <div className="space-y-1.5">
                             {aiDecision.explainability.clinicalBasis.map((b, i) => (
                               <p key={i} className="text-xs text-foreground flex items-start gap-1.5">
-                                <span className="text-primary shrink-0">·</span> {b}
+                                <span className="text-primary shrink-0 font-bold">·</span> {b}
                               </p>
                             ))}
                           </div>
-                          <div className="flex items-center gap-2 mt-3">
-                            <span className="text-[10px] text-muted-foreground font-mono">SOURCE: {aiDecision.source}</span>
-                            <span className="ml-auto text-[10px] font-bold text-foreground">CONFIDENCE: {Math.round(aiDecision.confidence * 100)}%</span>
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                            <span className="text-[10px] text-muted-foreground font-mono">{aiDecision.source}</span>
+                            <span className="ml-auto text-[10px] font-bold text-foreground">{Math.round(aiDecision.confidence * 100)}% confidence</span>
                           </div>
                         </div>
                       </div>
@@ -1520,21 +1620,22 @@ export default function DoctorDashboard() {
                     {/* Behavioral Flags */}
                     {aiDecision.behavioralFlags && aiDecision.behavioralFlags.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <Activity className="w-3.5 h-3.5 text-sky-600" /> Behavioral AI Flags
-                        </p>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7, #0c4a6e)" }}>
+                            <Activity className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <p className="text-sm font-bold text-foreground">Behavioral AI Flags</p>
+                        </div>
                         <div className="space-y-2">
                           {aiDecision.behavioralFlags.map((flag, i) => (
-                            <div key={i} className="flex items-start gap-3 p-4 rounded-2xl bg-secondary">
-                              <Bell className={`w-4 h-4 shrink-0 mt-0.5 ${
-                                flag.severity === "high" ? "text-amber-600" :
-                                flag.severity === "moderate" ? "text-sky-600" : "text-muted-foreground"
-                              }`} />
-                              <div>
+                            <div key={i} className="flex items-start gap-3 p-4 rounded-2xl bg-secondary/60"
+                              style={{ borderLeft: `3px solid ${flag.severity === "high" ? "#f59e0b" : flag.severity === "moderate" ? "#38bdf8" : "#e2e8f0"}` }}>
+                              <Bell className={`w-4 h-4 shrink-0 mt-0.5 ${flag.severity === "high" ? "text-amber-600" : flag.severity === "moderate" ? "text-sky-600" : "text-muted-foreground"}`} />
+                              <div className="flex-1 min-w-0">
                                 <p className="text-sm font-bold text-foreground">{flag.description}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">→ {flag.recommendation}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{flag.recommendation}</p>
                               </div>
-                              <Badge variant={flag.severity === "high" ? "warning" : flag.severity === "moderate" ? "info" : "outline"} className="ml-auto shrink-0 text-[9px]">{flag.severity}</Badge>
+                              <Badge variant={flag.severity === "high" ? "warning" : flag.severity === "moderate" ? "info" : "outline"} className="shrink-0 text-[9px]">{flag.severity}</Badge>
                             </div>
                           ))}
                         </div>
@@ -1580,10 +1681,15 @@ export default function DoctorDashboard() {
 
                       return (
                         <div>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Stethoscope className="w-3.5 h-3.5 text-teal-600" /> Differential Diagnosis Engine — AI Computed
-                            <span className="ml-auto text-[9px] font-normal text-muted-foreground normal-case tracking-normal">Based on ICD-10 · WHO · ADA · KDIGO · ACC/AHA</span>
-                          </p>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0d9488, #065f46)" }}>
+                              <Stethoscope className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-foreground">Differential Diagnosis Engine</p>
+                              <p className="text-[11px] text-muted-foreground">ICD-10 · WHO · ADA · KDIGO · ACC/AHA</p>
+                            </div>
+                          </div>
                           <div className="space-y-2">
                             {sorted.slice(0, 6).map((dx, i) => {
                               const priorityCfg = {
@@ -1627,10 +1733,15 @@ export default function DoctorDashboard() {
                     {/* ─── XAI Visual Score Breakdown ─── */}
                     {aiDecision.whyFactors && aiDecision.whyFactors.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <Brain className="w-3.5 h-3.5 text-indigo-600" /> XAI — Explainable AI Score Breakdown
-                          <span className="ml-auto text-[9px] font-normal text-muted-foreground normal-case tracking-normal">Total risk score: {aiDecision.riskScore}/100 · Model: SANAD-Risk-v4.2</span>
-                        </p>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #6366f1, #3730a3)" }}>
+                            <Brain className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-foreground">XAI — Score Breakdown</p>
+                            <p className="text-[11px] text-muted-foreground">Risk: {aiDecision.riskScore}/100 · SANAD-Risk-v4.2</p>
+                          </div>
+                        </div>
                         <div className="p-4 bg-secondary rounded-2xl">
                           <div className="space-y-2.5">
                             {aiDecision.whyFactors.map((f: any, i: number) => {
@@ -1677,9 +1788,15 @@ export default function DoctorDashboard() {
                       if (refs.length === 0) return null;
                       return (
                         <div>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Evidence-Based Clinical References — WHO · NICE · ACC · ADA · KDIGO
-                          </p>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #d97706, #92400e)" }}>
+                              <Lightbulb className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">Evidence-Based References</p>
+                              <p className="text-[11px] text-muted-foreground">WHO · NICE · ACC · ADA · KDIGO · ESC</p>
+                            </div>
+                          </div>
                           <div className="grid grid-cols-2 gap-2">
                             {refs.map((r, i) => (
                               <div key={i} className="p-3.5 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${(r as any).leftColor}` }}>
@@ -1713,9 +1830,15 @@ export default function DoctorDashboard() {
                       if (correlations.length === 0) return null;
                       return (
                         <div>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <TrendingUp className="w-3.5 h-3.5 text-rose-600" /> Cross-Lab Correlation Engine — Compound Risk Detection
-                          </p>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)" }}>
+                              <TrendingUp className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">Cross-Lab Correlation Engine</p>
+                              <p className="text-[11px] text-muted-foreground">Compound risk detection across biomarkers</p>
+                            </div>
+                          </div>
                           <div className="space-y-2">
                             {correlations.map((c, i) => (
                               <div key={i} className="p-4 rounded-2xl bg-secondary"
@@ -1749,12 +1872,18 @@ export default function DoctorDashboard() {
             )}
 
             {activeTab === "audit" && (
-              <div className="p-5">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Shield className="w-3.5 h-3.5 text-primary" /> Immutable Audit Trail — WHO · WHAT · WHEN · WHY
-                </p>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0f172a, #1e293b)" }}>
+                    <Shield className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Immutable Audit Trail</p>
+                    <p className="text-[11px] text-muted-foreground">WHO · WHAT · WHEN · WHY · Tamper-proof log</p>
+                  </div>
+                </div>
                 {(!auditData || (auditData as any)?.auditLog?.length === 0) ? (
-                  <div className="py-12 text-center">
+                  <div className="py-16 text-center">
                     <Shield className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="font-bold text-foreground">No audit records yet</p>
                     <p className="text-sm text-muted-foreground mt-1">Run the Decision Engine to generate audit entries.</p>
@@ -1762,20 +1891,28 @@ export default function DoctorDashboard() {
                 ) : (
                   <div className="space-y-2">
                     {((auditData as any)?.auditLog ?? []).map((log: any, i: number) => (
-                      <div key={i} className="flex items-start gap-3 px-4 py-3 bg-secondary rounded-2xl">
-                        <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
+                      <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-secondary/60">
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Shield className="w-3.5 h-3.5 text-primary" />
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="text-xs font-bold text-foreground">{log.what}</p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                WHO: <span className="font-semibold">{log.who}</span> · ROLE: {log.whoRole}
-                                {log.confidence && ` · CONFIDENCE: ${Math.round(log.confidence * 100)}%`}
-                              </p>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-foreground">{log.what}</p>
+                              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                                <span className="text-[10px] text-muted-foreground">
+                                  <span className="font-semibold text-foreground">{log.who}</span> · {log.whoRole}
+                                </span>
+                                {log.confidence && (
+                                  <span className="text-[10px] font-mono bg-background rounded-md px-1.5 py-0.5 text-muted-foreground">
+                                    {Math.round(log.confidence * 100)}% confidence
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-[10px] text-muted-foreground font-mono shrink-0">
-                              {log.createdAt ? format(new Date(log.createdAt), "dd MMM yyyy HH:mm") : "—"}
-                            </p>
+                            <span className="text-[10px] text-muted-foreground font-mono shrink-0 bg-background rounded-lg px-2 py-1">
+                              {log.createdAt ? format(new Date(log.createdAt), "dd MMM HH:mm") : "—"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1786,63 +1923,84 @@ export default function DoctorDashboard() {
             )}
 
             {activeTab === "ai" && riskScore && (
-              <div className="p-5">
-                <div className="flex items-start gap-6">
-                  <div className="rounded-2xl p-6 min-w-[200px] text-center text-white" style={{
+              <div className="p-6 space-y-6">
+                {/* Risk Score Hero */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-1 rounded-3xl p-6 text-white flex flex-col items-center justify-center text-center" style={{
                     background: riskScore.riskLevel === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
                       riskScore.riskLevel === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
-                      "linear-gradient(135deg, #007AFF, #004b9d)"
+                      riskScore.riskLevel === "medium" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
+                      "linear-gradient(135deg, #059669, #064e3b)"
                   }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-3">AI Risk Score</p>
-                    <p className="text-6xl font-bold tabular-nums leading-none">{riskScore.riskScore}</p>
-                    <p className="text-white/60 text-sm mt-1">/ 100 risk score</p>
-                    <div className="mt-4 border border-white/20 rounded-xl px-3 py-1.5 text-xs font-bold uppercase tracking-wide">
-                      {riskScore.riskLevel} risk level
+                    <p className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-3">AI Risk Score</p>
+                    <p className="text-[60px] font-black tabular-nums leading-none">{riskScore.riskScore}</p>
+                    <p className="text-white/50 text-sm mt-1">/ 100</p>
+                    <div className="mt-4 border border-white/20 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest">
+                      {riskScore.riskLevel} risk
                     </div>
                   </div>
-
-                  <div className="flex-1 space-y-4">
-                    <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                        {riskScore.factors.length} Risk Factors Identified
-                      </p>
-                      <div className="space-y-2.5">
-                        {riskScore.factors.map((f: any, i: number) => (
-                          <div key={i} className="flex items-start gap-3 p-3.5 bg-secondary rounded-2xl">
-                            <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
-                              f.impact === "high" ? "bg-red-500" :
-                              f.impact === "moderate" ? "bg-amber-500" : "bg-primary"
-                            }`} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-sm font-bold text-foreground">{f.factor}</span>
-                                <Badge variant={
-                                  f.impact === "high" ? "destructive" :
-                                  f.impact === "moderate" ? "warning" : "info"
-                                } className="text-[10px] shrink-0">{f.impact} impact</Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5">{f.description}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {riskScore.recommendations && riskScore.recommendations.length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Clinical Recommendations</p>
-                        <div className="space-y-2">
-                          {riskScore.recommendations.map((rec: string, i: number) => (
-                            <div key={i} className="flex items-start gap-2.5 p-3 bg-primary/5 rounded-xl">
-                              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                              <p className="text-xs text-foreground">{rec}</p>
-                            </div>
-                          ))}
+                  <div className="col-span-2 grid grid-cols-2 gap-3">
+                    {[
+                      { label: "Risk Factors", value: riskScore.factors.length, sub: "identified by AI", color: "linear-gradient(135deg, #f59e0b, #d97706)" },
+                      { label: "Critical Factors", value: riskScore.factors.filter((f: any) => f.impact === "high").length, sub: "high impact", color: "linear-gradient(135deg, #dc2626, #991b1b)" },
+                      { label: "Recommendations", value: riskScore.recommendations?.length ?? 0, sub: "clinical actions", color: "linear-gradient(135deg, #007AFF, #004b9d)" },
+                      { label: "Confidence", value: `${Math.round((aiDecision?.confidence ?? 0.85) * 100)}%`, sub: "model accuracy", color: "linear-gradient(135deg, #7c3aed, #4c1d95)" },
+                    ].map((kpi, i) => (
+                      <div key={i} className="rounded-2xl p-4 bg-secondary/60 flex flex-col justify-between min-h-[80px]">
+                        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{kpi.label}</p>
+                        <div>
+                          <p className="text-[32px] font-black leading-none text-foreground tabular-nums">{kpi.value}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{kpi.sub}</p>
                         </div>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
+
+                {/* Risk Factors */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+                      <TriangleAlert className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <p className="text-sm font-bold text-foreground">{riskScore.factors.length} Risk Factors Identified</p>
+                  </div>
+                  <div className="space-y-2">
+                    {riskScore.factors.map((f: any, i: number) => (
+                      <div key={i} className="flex items-start gap-3 p-4 rounded-2xl bg-secondary/60"
+                        style={{ borderLeft: `3px solid ${f.impact === "high" ? "#ef4444" : f.impact === "moderate" ? "#f59e0b" : "#3b82f6"}` }}>
+                        <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${f.impact === "high" ? "bg-red-500" : f.impact === "moderate" ? "bg-amber-500" : "bg-primary"}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-3 mb-0.5">
+                            <span className="text-sm font-bold text-foreground">{f.factor}</span>
+                            <Badge variant={f.impact === "high" ? "destructive" : f.impact === "moderate" ? "warning" : "info"} className="text-[10px] shrink-0">{f.impact}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{f.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recommendations */}
+                {riskScore.recommendations?.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)" }}>
+                        <Lightbulb className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground">Clinical Recommendations</p>
+                    </div>
+                    <div className="space-y-2">
+                      {riskScore.recommendations.map((rec: string, i: number) => (
+                        <div key={i} className="flex items-start gap-3 p-3.5 rounded-2xl bg-secondary/60">
+                          <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          <p className="text-sm text-foreground leading-snug">{rec}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </Card>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
 import {
   FlaskConical, Brain, Activity, TrendingUp, Users, Lightbulb, Lock,
   BarChart2, Download, BookOpen, Microscope, GitBranch, Target, Zap,
@@ -253,9 +253,17 @@ export default function ResearchPortal() {
         </Card>
       )}
 
-      <PageHeader
-        title="Clinical Research & Population Analytics"
+      <PortalHero
+        title="Clinical Research & Analytics"
         subtitle="Anonymized population-level health intelligence · Clinical study management · Disease correlation engine · National insights"
+        icon={FlaskConical}
+        gradient="linear-gradient(135deg, #7c3aed 0%, #2e1065 100%)"
+        badge="Health Data Science · MOH"
+        stats={[
+          { label: "Anonymized Records", value: data?.totalAnonymizedRecords ? `${(data.totalAnonymizedRecords / 1000).toFixed(0)}K+` : "34K+" },
+          { label: "Active Studies", value: CLINICAL_STUDIES.filter(s => s.status === "active").length },
+          { label: "Avg AI Confidence", value: `${data?.aiMetrics?.avgConfidence ?? 97}%` },
+        ]}
       />
 
       {/* KPI Strip */}

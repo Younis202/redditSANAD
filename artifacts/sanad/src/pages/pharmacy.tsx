@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, Badge, PageHeader, DataLabel
+  Input, Button, Badge, PageHeader, DataLabel, PortalHero
 } from "@/components/shared";
 import {
   Pill, Search, AlertTriangle, CheckCircle2, Shield, ShieldAlert,
@@ -109,34 +109,34 @@ export default function PharmacyPortal() {
 
   return (
     <Layout role="pharmacy">
-      {/* Live Alert Bell */}
-      <div className="flex items-center justify-between mb-4">
-        <PageHeader
-          title="Pharmacy Portal"
-          subtitle="Prescription dispensing · AI drug safety · Insurance verification"
-        />
-        <div className="flex items-center gap-2 shrink-0 ml-4">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary text-muted-foreground">
-            <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
-            {sseConnected ? "Live" : "Connecting..."}
-          </div>
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-orange-50 hover:bg-orange-100" : "bg-secondary hover:bg-border"
-              }`}
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-orange-600" : "text-muted-foreground"}`} />
-              {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
-                  {sseUnread > 9 ? "9+" : sseUnread}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      <PortalHero
+        title="Pharmacy Portal"
+        subtitle="Prescription dispensing · AI drug safety · Insurance verification · Real-time interaction alerts"
+        icon={Pill}
+        gradient="linear-gradient(135deg, #9333ea 0%, #581c87 100%)"
+        badge="Clinical Pharmacy · MOH"
+        stats={[
+          { label: "Drugs Monitored", value: "15K+" },
+          { label: "Safety Checks / Day", value: "47K+" },
+          { label: "Interaction Engine", value: "Live" },
+        ]}
+        action={
+          <button
+            onClick={() => setShowSsePanel(p => !p)}
+            className="relative flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full"
+            style={{ background: "rgba(255,255,255,0.18)", color: sseUnread > 0 ? "white" : "rgba(255,255,255,0.70)" }}
+          >
+            <Bell className="w-3.5 h-3.5" />
+            {sseUnread > 0 ? `${sseUnread} Alert${sseUnread > 1 ? "s" : ""}` : "Live Alerts"}
+            <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-300" : "bg-amber-400 animate-pulse"}`} />
+            {sseUnread > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-400 text-white text-[9px] font-bold flex items-center justify-center">
+                {sseUnread > 9 ? "9+" : sseUnread}
+              </span>
+            )}
+          </button>
+        }
+      />
 
       {/* SSE Drug Interaction Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (

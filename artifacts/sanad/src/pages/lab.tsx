@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, Badge, PageHeader, StatusDot, DataLabel
+  Input, Button, Badge, PageHeader, StatusDot, DataLabel, PortalHero
 } from "@/components/shared";
 import {
   FlaskConical, Search, AlertTriangle, CheckCircle2, Zap,
@@ -169,22 +169,29 @@ export default function LabPortal() {
         </Card>
       )}
 
-      <div className="flex items-start justify-between mb-5">
-        <PageHeader
-          title="Lab Portal"
-          subtitle="Upload results · AI interpretation · Clinical flags"
-        />
-        <button
-          onClick={() => setShowSsePanel(p => !p)}
-          className={`relative flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl transition-colors ${
-            sseUnread > 0 ? "bg-teal-50 text-teal-700" : "bg-secondary text-muted-foreground"
-          }`}
-        >
-          <Bell className="w-3.5 h-3.5" />
-          {sseUnread > 0 ? `${sseUnread} Live Alert${sseUnread > 1 ? "s" : ""}` : "Live Alerts"}
-          <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-400" : "bg-gray-300"}`} />
-        </button>
-      </div>
+      <PortalHero
+        title="Lab Portal"
+        subtitle="Upload results · AI interpretation · Clinical flags · Real-time critical result notifications"
+        icon={FlaskConical}
+        gradient="linear-gradient(135deg, #0d9488 0%, #134e4a 100%)"
+        badge="Laboratory Services · MOH"
+        stats={[
+          { label: "Tests / Day", value: "12K+" },
+          { label: "Critical Flag Rate", value: "8.2%" },
+          { label: "AI Accuracy", value: "99.1%" },
+        ]}
+        action={
+          <button
+            onClick={() => setShowSsePanel(p => !p)}
+            className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full"
+            style={{ background: "rgba(255,255,255,0.18)", color: sseUnread > 0 ? "white" : "rgba(255,255,255,0.70)" }}
+          >
+            <Bell className="w-3.5 h-3.5" />
+            {sseUnread > 0 ? `${sseUnread} Live Alert${sseUnread > 1 ? "s" : ""}` : "Live Alerts"}
+            <span className={`w-1.5 h-1.5 rounded-full ${sseConnected ? "bg-emerald-300" : "bg-gray-400"}`} />
+          </button>
+        }
+      />
 
       {/* Search */}
       <Card className="mb-5">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, DataLabel } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, DataLabel, PortalHero } from "@/components/shared";
 import {
   Users, Search, Heart, AlertTriangle, Shield, Dna, CalendarDays, Activity,
   User, X, ChevronRight, TrendingUp, Brain, Zap, CheckCircle2, Clock, Info, Bell
@@ -184,19 +184,28 @@ export default function FamilyPortal() {
         </Card>
       )}
 
-      <div className="flex items-start justify-between mb-5">
-        <PageHeader title="Family Health & Genetic Risk Portal" subtitle="Map familial disease inheritance, shared genetic risks, and coordinate family-wide preventive screening." />
-        {data && (
-          <div className="flex gap-1.5 shrink-0 ml-6">
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full transition-all ${activeTab === t.id ? "bg-foreground text-background" : "bg-secondary text-muted-foreground hover:text-foreground"}`}>
-                {t.icon}{t.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <PortalHero
+        title="Family Health & Genetic Risk"
+        subtitle="Map familial disease inheritance, shared genetic risks, and coordinate family-wide preventive screening."
+        icon={Users}
+        gradient="linear-gradient(135deg, #db2777 0%, #831843 100%)"
+        badge="Family Health Portal · MOH"
+        stats={[
+          { label: "Family Members", value: data?.members?.length ?? "—" },
+          { label: "Shared Conditions", value: data?.sharedConditions?.length ?? "—" },
+          { label: "Family Risk Score", value: data?.familyRiskScore ?? "—" },
+        ]}
+      />
+      {data && (
+        <div className="flex gap-1.5 mb-5">
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full transition-all ${activeTab === t.id ? "bg-foreground text-background" : "bg-secondary text-muted-foreground hover:text-foreground"}`}>
+              {t.icon}{t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {!nationalId && (
         <Card>

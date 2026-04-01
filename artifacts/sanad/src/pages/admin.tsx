@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout } from "@/components/layout";
-import { PageHeader, Card, CardHeader, CardTitle, CardBody, KpiCard, Badge, AlertBanner, SectionDivider } from "@/components/shared";
+import { PageHeader, Card, CardHeader, CardTitle, CardBody, KpiCard, Badge, AlertBanner, SectionDivider, PortalHero } from "@/components/shared";
 import { useGetAdminStats, useGetPopulationHealth } from "@workspace/api-client-react";
 import { useNationalIntelligence } from "@/hooks/use-ai-decision";
 import {
@@ -99,11 +99,19 @@ export default function AdminDashboard() {
         </AlertBanner>
       )}
 
-      <PageHeader
+      <PortalHero
         title="Ministry Analytics"
         subtitle="Real-time national infrastructure metrics and population health intelligence — Kingdom of Saudi Arabia."
+        icon={Building}
+        gradient="linear-gradient(135deg, #1f2937 0%, #0f172a 100%)"
+        badge="Ministry of Health · KSA"
+        stats={[
+          { label: "Citizens", value: stats?.totalPatients ? `${(stats.totalPatients / 1_000_000).toFixed(1)}M` : "34M+" },
+          { label: "Hospitals", value: stats?.totalHospitals ?? "450+" },
+          { label: "AI Decisions / Day", value: stats?.aiDecisionsToday?.toLocaleString() ?? "847K" },
+        ]}
         action={
-          <span className="text-xs font-mono bg-white/80 border border-black/[0.07] rounded-xl px-3 py-2 text-muted-foreground">
+          <span className="text-xs font-mono bg-white/20 text-white/70 rounded-xl px-3 py-2">
             {new Date().toLocaleString("en-SA", { dateStyle: "medium", timeStyle: "short" })}
           </span>
         }

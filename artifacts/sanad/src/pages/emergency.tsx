@@ -8,7 +8,7 @@ import {
   Fingerprint, Heart, Droplet, User
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, PageHeader, StatusDot } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, PageHeader, StatusDot, PortalHero } from "@/components/shared";
 import { useEmergencyLookup } from "@workspace/api-client-react";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
@@ -119,10 +119,17 @@ export default function EmergencyPage() {
         </div>
       )}
 
-      {/* ── PAGE HEADER ── */}
-      <PageHeader
+      <PortalHero
         title="Emergency Lookup"
         subtitle="Instant AI-powered patient record retrieval — blood type, allergies, medications, and clinical actions in under one second."
+        icon={ShieldAlert}
+        gradient="linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)"
+        badge="Emergency Response · SRCA"
+        stats={[
+          { label: "Hospitals", value: "450+" },
+          { label: "Response Time", value: "<1s" },
+          { label: "AI Engines", value: "Live" },
+        ]}
       />
 
       {/* ── STATUS PILLS + SEARCH ── */}

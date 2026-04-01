@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, KpiCard, DataLabel } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, KpiCard, DataLabel, PortalHero } from "@/components/shared";
 import {
   Shield, Search, AlertTriangle, CheckCircle2, TrendingUp, DollarSign, Users, Brain,
   ShieldAlert, Zap, X, Clock, BarChart2, Activity, ChevronRight, FileCheck,
@@ -188,7 +188,18 @@ export default function InsurancePortal() {
       {/* ─── DASHBOARD TAB ─── */}
       {activeTab === "dashboard" && (
         <div className="space-y-5">
-          <PageHeader title="Insurance Portal" subtitle="National health insurance operations, AI fraud detection, risk-based pricing, and portfolio analytics." />
+          <PortalHero
+            title="Insurance Operations"
+            subtitle="National health insurance operations, AI fraud detection, risk-based pricing, and portfolio analytics."
+            icon={Shield}
+            gradient="linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)"
+            badge="Insurance Ops · MOH / CCHI"
+            stats={[
+              { label: "Fraud Alerts", value: dashboard?.fraudAlerts ?? "—" },
+              { label: "Pending Claims", value: dashboard?.pendingClaims ?? "—" },
+              { label: "Total Policies", value: dashboard?.totalPolicies?.toLocaleString() ?? "—" },
+            ]}
+          />
 
           {loadingDash ? (
             <div className="flex items-center gap-3 py-16 justify-center text-muted-foreground">
@@ -354,7 +365,10 @@ export default function InsurancePortal() {
       {activeTab === "patient" && (
         <div className="space-y-5">
           <div className="flex items-start justify-between mb-2">
-            <PageHeader title="Policy Lookup & Fraud Analysis" subtitle="AI-powered per-patient fraud scoring, anomaly detection, and claim review workflow." />
+            <div className="mb-4">
+              <h2 className="text-2xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Policy Lookup & Fraud Analysis</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">AI-powered per-patient fraud scoring, anomaly detection, and claim review workflow.</p>
+            </div>
             <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) setNationalId(searchId.trim()); }} className="flex items-center gap-2 shrink-0 ml-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -887,7 +901,10 @@ export default function InsurancePortal() {
 
       {activeTab === "portfolio" && (
         <div className="space-y-5">
-          <PageHeader title="Portfolio Risk Intelligence" subtitle="National insurance portfolio risk distribution, pricing bands, and actuarial overview." />
+          <div className="mb-4">
+            <h2 className="text-2xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Portfolio Risk Intelligence</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">National insurance portfolio risk distribution, pricing bands, and actuarial overview.</p>
+          </div>
           {dashboard && (
             <>
               <div className="grid grid-cols-4 gap-4">

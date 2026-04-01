@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
 import {
   Brain, Activity, AlertTriangle, CheckCircle2, Zap, TrendingUp,
   RefreshCw, RotateCcw, Shield, Cpu, Database, Clock, Settings, BarChart2,
@@ -195,9 +195,17 @@ export default function AIControlCenter() {
         </div>
       </div>
 
-      <PageHeader
-        title="AI Governance & Control Center"
+      <PortalHero
+        title="AI Governance & Control"
         subtitle="9-engine real-time monitor · Model drift detection · Retraining orchestration · Decision audit trail"
+        icon={Brain}
+        gradient="linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)"
+        badge="AI Control Center · SANAD"
+        stats={[
+          { label: "Model Confidence", value: `${metrics?.avgConfidence ?? 97}%` },
+          { label: "AI Engines", value: 9 },
+          { label: "Uptime", value: metrics?.systemHealth?.uptime ?? "99.99%" },
+        ]}
       />
 
       {/* KPI Strip */}

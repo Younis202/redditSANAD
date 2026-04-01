@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, PageHeader, Badge, StatusDot, Tabs, DataLabel, Select
+  Input, Button, PageHeader, Badge, StatusDot, Tabs, DataLabel, Select, PortalHero
 } from "@/components/shared";
 import { useGetPatientByNationalId } from "@workspace/api-client-react";
 import { useAiDecision } from "@/hooks/use-ai-decision";
@@ -590,13 +590,25 @@ export default function CitizenPortal() {
 
   return (
     <Layout role="citizen">
-      <PageHeader
+      <PortalHero
         title={`My Health — ${patient.fullName.split(" ")[0]}`}
         subtitle="Your personal AI health score, recommendations, and complete national health record."
+        icon={User}
+        gradient="linear-gradient(135deg, #059669 0%, #064e3b 100%)"
+        badge="National Health Record · PDPL Compliant"
+        stats={[
+          { label: "Health Score", value: computeHealthScore(patient).score },
+          { label: "Active Medications", value: (patient.medications ?? []).filter((m: any) => m.isActive).length },
+          { label: "Lab Results", value: patient.labResults?.length ?? 0 },
+        ]}
         action={
-          <Button variant="outline" size="sm" onClick={() => { setIsLoggedIn(false); setLoginId(""); }}>
+          <button
+            onClick={() => { setIsLoggedIn(false); setLoginId(""); }}
+            className="text-sm font-semibold px-4 py-2 rounded-full transition-all"
+            style={{ background: "rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.85)" }}
+          >
             Sign Out
-          </Button>
+          </button>
         }
       />
 

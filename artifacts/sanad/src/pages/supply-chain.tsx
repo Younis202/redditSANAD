@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
 import {
   Package, AlertTriangle, TrendingUp, Brain, Truck, Zap, CheckCircle2,
   BarChart2, Globe, AlertCircle, ArrowUpRight, Clock, RefreshCw,
@@ -183,9 +183,17 @@ export default function SupplyChainPortal() {
         </Card>
       )}
 
-      <PageHeader
+      <PortalHero
         title="National Drug Supply Chain"
         subtitle="Real-time inventory · AI shortage prediction · Regional distribution optimization · Procurement management"
+        icon={Package}
+        gradient="linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)"
+        badge="Supply Chain Intel · MOH"
+        stats={[
+          { label: "Drug Lines", value: data?.summary?.totalDrugs ?? "—" },
+          { label: "Critical Shortages", value: data?.summary?.criticalShortages ?? "—" },
+          { label: "Hospitals Covered", value: "450+" },
+        ]}
       />
 
       {/* KPI Strip */}

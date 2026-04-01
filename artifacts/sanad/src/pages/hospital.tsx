@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Badge, PageHeader, KpiCard
+  Badge, PageHeader, KpiCard, PortalHero
 } from "@/components/shared";
 import {
   Building2, BedDouble, Users, Brain, Activity, AlertTriangle,
@@ -84,9 +84,17 @@ export default function HospitalPortal() {
         <span className="text-[11px] font-mono text-muted-foreground">Live · auto-refresh 60s</span>
       </div>
 
-      <PageHeader
+      <PortalHero
         title={data?.hospitalName ?? "Hospital Portal"}
-        subtitle="Bed management · ICU alerts · OR scheduling · Readmission risk"
+        subtitle="Bed management · ICU alerts · OR scheduling · AI readmission risk prediction"
+        icon={BedDouble}
+        gradient="linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%)"
+        badge="Hospital Operations · MOH"
+        stats={[
+          { label: "Total Beds", value: data?.totalBeds?.toLocaleString() ?? "—" },
+          { label: "Occupancy", value: data?.overallOccupancy ? `${data.overallOccupancy}%` : "—" },
+          { label: "AI Alerts", value: data?.units?.filter((u: any) => u.status === "critical").length ?? "—" },
+        ]}
       />
 
       {/* KPI row */}

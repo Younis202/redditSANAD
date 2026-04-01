@@ -79,7 +79,7 @@
 @layer base {
   * { @apply border-border; box-sizing: border-box; }
   body {
-    background: #F5F5F7;
+    background: linear-gradient(160deg, #EAECF5 0%, #F2F2F7 30%, #F5F5F7 60%, #F0F1F8 100%) fixed;
     @apply text-foreground font-sans antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

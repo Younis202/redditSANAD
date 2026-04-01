@@ -195,26 +195,26 @@ export function KpiCard({ title, value, sub, icon: Icon, iconBg = "bg-secondary"
   trendUp?: boolean;
 }) {
   return (
-    <Card>
+    <Card className="card-lift">
       <CardBody className="p-5">
         <div className="flex items-start justify-between mb-4">
           {Icon && (
-            <div className={cn("w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0", iconBg)}>
-              <Icon className={cn("w-[18px] h-[18px]", iconColor)} />
+            <div className={cn("w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0", iconBg)}>
+              <Icon className={cn("w-5 h-5", iconColor)} />
             </div>
           )}
           {trend && (
             <span className={cn(
-              "text-[10.5px] font-semibold px-2 py-0.5 rounded-full",
+              "text-[10.5px] font-bold px-2.5 py-1 rounded-full",
               trendUp === false
                 ? "text-red-600 bg-red-50"
                 : "text-emerald-600 bg-emerald-50"
             )}>{trend}</span>
           )}
         </div>
-        <p className="text-[9.5px] font-semibold text-muted-foreground uppercase tracking-[0.09em] mb-1">{title}</p>
-        <p className="text-4xl font-extrabold text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
-        {sub && <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{sub}</p>}
+        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-2">{title}</p>
+        <p className="text-[44px] font-black text-foreground tabular-nums leading-none" style={{ fontFamily: "'Manrope', sans-serif" }}>{value}</p>
+        {sub && <p className="text-[11.5px] text-muted-foreground mt-2 leading-relaxed font-medium">{sub}</p>}
       </CardBody>
     </Card>
   );
@@ -315,6 +315,87 @@ export function SectionDivider({ label }: { label: string }) {
     <div className="flex items-center gap-3 my-6">
       <p className="text-[9.5px] font-bold text-muted-foreground uppercase tracking-[0.1em] whitespace-nowrap">{label}</p>
       <div className="flex-1 h-px bg-black/[0.06]" />
+    </div>
+  );
+}
+
+/* ─── PortalHero ────────────────────────────────────────── */
+export function PortalHero({
+  title,
+  subtitle,
+  icon: Icon,
+  gradient,
+  badge,
+  stats,
+  action,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  gradient: string;
+  badge?: string;
+  stats?: { label: string; value: string | number }[];
+  action?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[2rem] mb-8 overflow-hidden relative" style={{ background: gradient }}>
+      <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full pointer-events-none" style={{ background: "rgba(255,255,255,0.05)" }} />
+      <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full pointer-events-none" style={{ background: "rgba(0,0,0,0.10)" }} />
+      <div className="absolute top-0 right-0 w-80 h-full pointer-events-none" style={{ background: "linear-gradient(to left, rgba(0,0,0,0.15), transparent)" }} />
+      <div className="relative px-8 py-7">
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)" }}>
+              <Icon className="w-6 h-6 text-white" />
+            </div>
+            {badge && (
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] rounded-full px-3.5 py-1" style={{ color: "rgba(255,255,255,0.75)", background: "rgba(255,255,255,0.13)" }}>
+                {badge}
+              </span>
+            )}
+          </div>
+          {stats && stats.length > 0 && (
+            <div className="flex items-start gap-8">
+              {stats.map((s, i) => (
+                <div key={i} className="text-right">
+                  <p className="font-black text-white leading-none tabular-nums" style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(20px, 2.5vw, 30px)" }}>
+                    {s.value}
+                  </p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h1 className="font-black text-white leading-none tracking-tight" style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(26px, 3.5vw, 40px)" }}>
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="mt-2 text-[13px] font-medium leading-relaxed max-w-2xl" style={{ color: "rgba(255,255,255,0.60)" }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
+          {action && <div className="shrink-0 ml-4">{action}</div>}
+        </div>
+        {children && <div className="mt-5">{children}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── LiveChip ──────────────────────────────────────────── */
+export function LiveChip({ label, pulse = true }: { label: string; pulse?: boolean }) {
+  return (
+    <div className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+      <span className={cn("w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block", pulse && "animate-pulse")} />
+      {label}
     </div>
   );
 }

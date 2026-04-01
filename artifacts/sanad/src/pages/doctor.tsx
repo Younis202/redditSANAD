@@ -13,7 +13,7 @@ import {
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, Badge, PageHeader, Tabs, KpiCard, StatusDot, Select, DataLabel, AlertBanner, PortalHero
+  Input, Button, Badge, PageHeader, Tabs, KpiCard, StatusDot, Select, DataLabel, AlertBanner
 } from "@/components/shared";
 import {
   useGetPatientByNationalId,
@@ -333,79 +333,86 @@ export default function DoctorDashboard() {
         </Card>
       )}
 
-      {/* ── Portal hero ── */}
-      <PortalHero
-        title="Physician Dashboard"
-        subtitle="Patient clinical records, prescribing, AI-assisted risk analysis, and predictive alerts."
-        icon={Stethoscope}
-        gradient="linear-gradient(135deg, #007AFF 0%, #004b9d 100%)"
-        badge="Physician Portal · MOH"
-        stats={[
-          { label: "Active Patients", value: "34M+" },
-          { label: "AI Decisions / Day", value: "847K" },
-          { label: "Diagnostic Accuracy", value: "97.3%" },
-        ]}
-      />
+      {/* ══════════════════════════════════════════════════
+          PHYSICIAN COMMAND CENTER HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #020a18 0%, #041224 50%, #020c1c 100%)", boxShadow: "0 0 60px rgba(0,122,255,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #004b9d, #007AFF, #60a5fa, #007AFF, #004b9d)" }} />
 
-      {/* ── Search bar + SSE bell ── */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-secondary hover:bg-border"
-              title={sseConnected ? "Live alerts connected" : "Connecting…"}
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-foreground" : "text-muted-foreground"}`} />
-              {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
-                  {sseUnread > 9 ? "9+" : sseUnread}
-                </span>
-              )}
-            </button>
-            <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${sseConnected ? "bg-emerald-400" : "bg-gray-300"}`} />
+        <div className="px-6 py-5">
+          <div className="flex items-center justify-between gap-6">
+            {/* Identity */}
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(0,122,255,0.22)", border: "1px solid rgba(0,122,255,0.35)" }}>
+                <Stethoscope className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">Physician Dashboard</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">Clinical records · AI diagnostics · Prescribing · Predictive risk alerts · MOH</p>
+              </div>
+            </div>
+
+            {/* Search + Bell */}
+            <div className="flex items-center gap-2 flex-1 justify-end">
+              <button onClick={() => setShowSsePanel(p => !p)}
+                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80 shrink-0"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+                title={sseConnected ? "Live alerts connected" : "Connecting…"}>
+                <Bell className="w-3.5 h-3.5 text-white/50" />
+                {sseUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center border border-[#020a18]">
+                    {sseUnread > 9 ? "9+" : sseUnread}
+                  </span>
+                )}
+                <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-[#020a18] ${sseConnected ? "bg-emerald-400" : "bg-gray-600"}`} />
+              </button>
+              <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-sm">
+                <div className="relative flex-1" ref={searchRef}>
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: "rgba(0,122,255,0.50)" }} />
+                  <input
+                    placeholder="Patient name or National ID..."
+                    className="w-full h-10 pl-9 pr-4 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none font-medium"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: (searchQuery || searchId) ? "1.5px solid rgba(0,122,255,0.55)" : "1px solid rgba(255,255,255,0.10)",
+                    }}
+                    value={searchQuery || searchId}
+                    onChange={(e) => { const v = e.target.value; setSearchQuery(v); setSearchId(v); setShowDropdown(true); }}
+                    onFocus={() => setShowDropdown(true)}
+                  />
+                  {showDropdown && searchPatients.length > 0 && (
+                    <div className="absolute top-full right-0 mt-2 w-80 rounded-2xl z-50 overflow-hidden"
+                      style={{ background: "rgba(4,18,36,0.98)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.40), 0 0 0 1px rgba(0,122,255,0.15)" }}>
+                      {searchPatients.map((p: any) => (
+                        <button key={p.id} type="button"
+                          onClick={() => handleSelectPatient(p.nationalId, p.fullName)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ background: "rgba(0,122,255,0.15)", border: "1px solid rgba(0,122,255,0.25)" }}>
+                            <UserIcon className="w-4 h-4 text-blue-400" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-white truncate">{p.fullName}</p>
+                            <p className="text-[10px] text-white/40 font-mono">{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
+                          </div>
+                          {p.riskLevel === "critical" && <span className="text-[9px] font-black text-red-400 px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(220,38,38,0.15)" }}>Critical</span>}
+                          {p.riskLevel === "high" && <span className="text-[9px] font-black text-amber-400 px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(245,158,11,0.15)" }}>High Risk</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button type="submit"
+                  className="h-10 px-5 rounded-xl font-black text-sm text-white shrink-0"
+                  style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)", boxShadow: "0 2px 12px rgba(0,122,255,0.30)" }}>
+                  Load
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-        <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <div className="relative" ref={searchRef}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Name or National ID..."
-              className="pl-9 w-72"
-              value={searchQuery || searchId}
-              onChange={(e) => {
-                const v = e.target.value;
-                setSearchQuery(v);
-                setSearchId(v);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-            />
-            {showDropdown && searchPatients.length > 0 && (
-              <div className="absolute top-full right-0 mt-1 w-80 rounded-[2rem] z-50 overflow-hidden" style={{ background: "rgba(255,255,255,0.96)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)" }}>
-                {searchPatients.map((p: any) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handleSelectPatient(p.nationalId, p.fullName)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary text-left transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <UserIcon className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-foreground truncate">{p.fullName}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono">{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
-                    </div>
-                    {p.riskLevel === "critical" && <span className="text-[9px] font-bold text-red-600 bg-secondary px-1.5 py-0.5 rounded-full shrink-0">Critical</span>}
-                    {p.riskLevel === "high" && <span className="text-[9px] font-bold text-amber-600 bg-secondary px-1.5 py-0.5 rounded-full shrink-0">High Risk</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <Button type="submit" size="md">Load Patient</Button>
-        </form>
       </div>
 
       {/* ── Empty state ── */}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, DataLabel, PortalHero } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, DataLabel } from "@/components/shared";
 import {
   Users, Search, Heart, AlertTriangle, Shield, Dna, CalendarDays, Activity,
   User, X, ChevronRight, TrendingUp, Brain, Zap, CheckCircle2, Clock, Info, Bell
@@ -113,30 +113,112 @@ export default function FamilyPortal() {
 
   return (
     <Layout role="family">
-      <div className="flex items-center gap-2 mb-5">
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-secondary" : "bg-secondary hover:bg-border"
-              }`}
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-primary" : "text-muted-foreground"}`} />
-              {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                  {sseUnread > 9 ? "9+" : sseUnread}
-                </span>
-              )}
-            </button>
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) { setNationalId(searchId.trim()); setActiveTab("tree"); } }} className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input placeholder="National ID..." className="pl-9 w-52" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+      {/* ══════════════════════════════════════════════════
+          FAMILY HEALTH INTELLIGENCE HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #0a0108 0%, #1a0818 50%, #090006 100%)", boxShadow: "0 0 60px rgba(219,39,119,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #831843, #db2777, #f472b6, #db2777, #831843)" }} />
+
+        <div className="px-6 py-5">
+          {/* Identity + Search */}
+          <div className="flex items-start justify-between gap-6 mb-5">
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(219,39,119,0.22)", border: "1px solid rgba(219,39,119,0.35)" }}>
+                <Heart className="w-6 h-6 text-pink-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">Family Health & Genetic Risk</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">Hereditary disease mapping · Genetic risk cascade · Family-wide screening coordination</p>
+              </div>
             </div>
-            <Button type="submit" size="md">Load Family Profile</Button>
-          </form>
+            <div className="flex items-center gap-2 flex-1 justify-end">
+              <button onClick={() => setShowSsePanel(p => !p)}
+                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80 shrink-0"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                <Bell className="w-3.5 h-3.5 text-white/50" />
+                {sseUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-500 text-white text-[9px] font-black flex items-center justify-center border border-[#0a0108]">
+                    {sseUnread > 9 ? "9+" : sseUnread}
+                  </span>
+                )}
+              </button>
+              <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) { setNationalId(searchId.trim()); setActiveTab("tree"); } }}
+                className="flex items-center gap-2 flex-1 max-w-md">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: "rgba(219,39,119,0.50)" }} />
+                  <input
+                    value={searchId}
+                    onChange={(e) => setSearchId(e.target.value)}
+                    placeholder="National ID — load family health profile..."
+                    className="w-full h-10 pl-9 pr-4 rounded-xl text-sm font-mono text-white placeholder:text-white/25 focus:outline-none"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: searchId ? "1.5px solid rgba(219,39,119,0.55)" : "1px solid rgba(255,255,255,0.10)",
+                    }}
+                  />
+                </div>
+                <button type="submit"
+                  className="h-10 px-5 rounded-xl font-black text-sm text-white shrink-0"
+                  style={{ background: "linear-gradient(135deg, #db2777, #9d174d)", boxShadow: "0 2px 12px rgba(219,39,119,0.25)" }}>
+                  Load
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* KPIs (only when data loaded) */}
+          {data && (
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              {[
+                { label: "Family Members Mapped", value: data.members?.length ?? "—", sub: `${data.summary?.highRiskMembers ?? 0} high-risk`, accent: "#db2777" },
+                { label: "Shared Conditions", value: data.sharedConditions?.length ?? "—", sub: "Hereditary disease links", accent: "#f472b6" },
+                { label: "Family Risk Score", value: data.familyRiskScore ?? "—", sub: data.summary?.overallFamilyRisk ?? "Assessed", accent: data.summary?.overallFamilyRisk === "HIGH" ? "#ef4444" : data.summary?.overallFamilyRisk === "MODERATE" ? "#d97706" : "#22c55e" },
+              ].map((kpi, i) => (
+                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5">{kpi.label}</p>
+                  <p className="text-2xl font-black tabular-nums" style={{ color: kpi.accent }}>{kpi.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Demo IDs */}
+          {!data && !nationalId && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-white/25 uppercase tracking-wider">Demo:</span>
+              {["1000000001","1000000003","1000000005"].map(id => (
+                <button key={id} type="button"
+                  onClick={() => { setSearchId(id); setNationalId(id); setActiveTab("tree"); }}
+                  className="font-mono text-[11px] font-bold px-3 py-1 rounded-lg transition-all hover:text-pink-300"
+                  style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  {id}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Tab bar (only when data) */}
+          {data && (
+            <div className="flex gap-1.5">
+              {tabs.map(t => {
+                const isActive = activeTab === t.id;
+                return (
+                  <button key={t.id} onClick={() => setActiveTab(t.id)}
+                    className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl transition-all"
+                    style={{
+                      background: isActive ? "rgba(219,39,119,0.30)" : "rgba(255,255,255,0.04)",
+                      border:     isActive ? "1px solid rgba(219,39,119,0.50)" : "1px solid rgba(255,255,255,0.07)",
+                      color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                    }}>
+                    {t.icon}{t.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -178,40 +260,12 @@ export default function FamilyPortal() {
         </Card>
       )}
 
-      <PortalHero
-        title="Family Health & Genetic Risk"
-        subtitle="Map familial disease inheritance, shared genetic risks, and coordinate family-wide preventive screening."
-        icon={Users}
-        gradient="linear-gradient(135deg, #db2777 0%, #831843 100%)"
-        badge="Family Health Portal · MOH"
-        stats={[
-          { label: "Family Members", value: data?.members?.length ?? "—" },
-          { label: "Shared Conditions", value: data?.sharedConditions?.length ?? "—" },
-          { label: "Family Risk Score", value: data?.familyRiskScore ?? "—" },
-        ]}
-      />
-      {data && (
-        <div className="flex gap-1.5 mb-5">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full transition-all ${activeTab === t.id ? "bg-foreground text-background" : "bg-secondary text-muted-foreground hover:text-foreground"}`}>
-              {t.icon}{t.label}
-            </button>
-          ))}
-        </div>
-      )}
-
       {!nationalId && (
-        <Card>
-          <CardBody className="py-16 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Users className="w-7 h-7 text-primary" />
-            </div>
-            <p className="font-bold text-foreground mb-1">No Family Profile Selected</p>
-            <p className="text-sm text-muted-foreground mb-2">Enter a National ID to load genetic risk analysis, family tree, and hereditary condition mapping.</p>
-            <p className="text-xs text-muted-foreground font-mono bg-secondary inline-block px-3 py-1.5 rounded-xl">Demo: 1000000001 · 1000000003 · 1000000005</p>
-          </CardBody>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-center rounded-3xl" style={{ border: "1px solid rgba(219,39,119,0.10)" }}>
+          <Heart className="w-10 h-10 text-pink-400/30" />
+          <p className="font-bold text-foreground">Enter a National ID above to load the family health profile</p>
+          <p className="text-sm text-muted-foreground">Genetic risk analysis · family tree · hereditary condition mapping</p>
+        </div>
       )}
       {isLoading && (
         <div className="flex items-center gap-3 py-16 text-muted-foreground justify-center">

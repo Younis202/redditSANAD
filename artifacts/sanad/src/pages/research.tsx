@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge } from "@/components/shared";
 import {
   FlaskConical, Brain, Activity, TrendingUp, Users, Lightbulb, Lock,
   BarChart2, Download, BookOpen, Microscope, GitBranch, Target, Zap,
@@ -174,46 +174,96 @@ export default function ResearchPortal() {
 
   return (
     <Layout role="research">
-      {/* Header Strip */}
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <FlaskConical className="w-3 h-3" />
-          Research Portal
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
-          <Lock className="w-3 h-3" />
-          All data anonymized · GDPR + PDPL compliant
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-secondary hover:bg-border" : "bg-secondary hover:bg-border"
-              }`}
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-primary" : "text-muted-foreground"}`} />
-              {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                  {sseUnread > 9 ? "9+" : sseUnread}
-                </span>
-              )}
-            </button>
+      {/* ══════════════════════════════════════════════════
+          RESEARCH INTELLIGENCE HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #08040f 0%, #120820 50%, #080410 100%)", boxShadow: "0 0 60px rgba(124,58,237,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #2e1065, #7c3aed, #d97706, #7c3aed, #2e1065)" }} />
+
+        <div className="px-6 py-5">
+          {/* Identity + Actions */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(124,58,237,0.22)", border: "1px solid rgba(124,58,237,0.35)" }}>
+                <Microscope className="w-6 h-6 text-violet-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">Clinical Research & Analytics</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">Anonymized population intelligence · Disease correlation engine · Clinical study management · National insights</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span className="text-[10px] font-black text-emerald-300">PDPL · GDPR Compliant</span>
+              </div>
+              <button onClick={() => setShowSsePanel(p => !p)}
+                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                <Bell className="w-3.5 h-3.5 text-white/50" />
+                {sseUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-500 text-white text-[9px] font-black flex items-center justify-center border border-[#08040f]">
+                    {sseUnread > 9 ? "9+" : sseUnread}
+                  </span>
+                )}
+              </button>
+              <button onClick={() => handleExport("csv")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
+                <Download className="w-3 h-3" /> CSV
+              </button>
+              <button onClick={() => handleExport("json")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
+                <Database className="w-3 h-3" /> JSON
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => handleExport("csv")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground bg-secondary px-3 py-1.5 rounded-full hover:bg-border transition-colors"
-          >
-            <Download className="w-3 h-3" />
-            Export CSV
-          </button>
-          <button
-            onClick={() => handleExport("json")}
-            className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground bg-secondary px-3 py-1.5 rounded-full hover:bg-border transition-colors"
-          >
-            <Database className="w-3 h-3" />
-            Export JSON
-          </button>
+
+          {/* KPI Strip */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "Anonymized Records", value: data?.totalAnonymizedRecords?.toLocaleString() ?? "34K+", sub: "Fully de-identified", icon: Users, accent: "#7c3aed" },
+              { label: "Active Studies", value: CLINICAL_STUDIES.filter(s => s.status === "active").length, sub: `${CLINICAL_STUDIES.length} total registered`, icon: BookOpen, accent: "#0ea5e9" },
+              { label: "AI Decisions Analyzed", value: data?.aiMetrics?.totalDecisions?.toLocaleString() ?? "—", sub: `${data?.aiMetrics?.avgConfidence ?? 97}% avg confidence`, icon: Brain, accent: "#d97706" },
+              { label: "Lab Results", value: data?.totalLabResults?.toLocaleString() ?? "—", sub: "Cross-patient trend data", icon: FlaskConical, accent: "#10b981" },
+            ].map((kpi, i) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeView === tab.id;
+              return (
+                <button key={tab.id} onClick={() => setActiveView(tab.id)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
+                  style={{
+                    background: isActive ? "rgba(124,58,237,0.30)" : "rgba(255,255,255,0.04)",
+                    border:     isActive ? "1px solid rgba(124,58,237,0.50)" : "1px solid rgba(255,255,255,0.07)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                  }}>
+                  <Icon className="w-3 h-3" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -253,45 +303,6 @@ export default function ResearchPortal() {
         </Card>
       )}
 
-      <PortalHero
-        title="Clinical Research & Analytics"
-        subtitle="Anonymized population-level health intelligence · Clinical study management · Disease correlation engine · National insights"
-        icon={FlaskConical}
-        gradient="linear-gradient(135deg, #7c3aed 0%, #2e1065 100%)"
-        badge="Health Data Science · MOH"
-        stats={[
-          { label: "Anonymized Records", value: data?.totalAnonymizedRecords ? `${(data.totalAnonymizedRecords / 1000).toFixed(0)}K+` : "34K+" },
-          { label: "Active Studies", value: CLINICAL_STUDIES.filter(s => s.status === "active").length },
-          { label: "Avg AI Confidence", value: `${data?.aiMetrics?.avgConfidence ?? 97}%` },
-        ]}
-      />
-
-      {/* KPI Strip */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard title="Anonymized Records" value={data?.totalAnonymizedRecords?.toLocaleString()} sub="Fully de-identified" icon={Users} iconBg="bg-primary/10" iconColor="text-primary" />
-        <KpiCard title="Active Studies" value={CLINICAL_STUDIES.filter(s => s.status === "active").length} sub={`${CLINICAL_STUDIES.length} total registered`} icon={BookOpen} iconBg="bg-primary/10" iconColor="text-primary" />
-        <KpiCard title="AI Decisions Analyzed" value={data?.aiMetrics?.totalDecisions?.toLocaleString()} sub={`${data?.aiMetrics?.avgConfidence}% avg confidence`} icon={Brain} iconBg="bg-primary/10" iconColor="text-primary" />
-        <KpiCard title="Lab Results" value={data?.totalLabResults?.toLocaleString()} sub="Cross-patient trend data" icon={FlaskConical} iconBg="bg-primary/10" iconColor="text-primary" />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveView(tab.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
-                activeView === tab.id ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="w-3 h-3" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
 
       {/* ─── OVERVIEW ─── */}
       {activeView === "overview" && (

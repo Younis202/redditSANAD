@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, PageHeader, KpiCard, DataLabel, PortalHero, Sheet } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Input, Button, Badge, DataLabel, Sheet, KpiCard } from "@/components/shared";
 import {
   Shield, Search, AlertTriangle, CheckCircle2, TrendingUp, DollarSign, Users, Brain,
   ShieldAlert, Zap, X, Clock, BarChart2, Activity, ChevronRight, FileCheck,
@@ -113,28 +113,72 @@ export default function InsurancePortal() {
 
   return (
     <Layout role="insurance">
-      <div className="flex items-center justify-end gap-2 mb-5">
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-secondary hover:bg-border"
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-foreground" : "text-muted-foreground"}`} />
+      {/* ══════════════════════════════════════════════════
+          INSURANCE OPERATIONS COMMAND HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #020c16 0%, #051626 50%, #020c18 100%)", boxShadow: "0 0 60px rgba(2,132,199,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #0c4a6e, #0284c7, #38bdf8, #0284c7, #0c4a6e)" }} />
+
+        <div className="px-6 py-5">
+          {/* Identity + Bell */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(2,132,199,0.22)", border: "1px solid rgba(2,132,199,0.35)" }}>
+                <Shield className="w-6 h-6 text-sky-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">Insurance Operations</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">National health insurance · AI fraud detection · Risk-based pricing · Portfolio analytics · MOH / CCHI</p>
+              </div>
+            </div>
+            <button onClick={() => setShowSsePanel(p => !p)}
+              className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
+              <Bell className="w-3.5 h-3.5 text-white/50" />
               {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-sky-500 text-white text-[9px] font-black flex items-center justify-center border border-[#020c16]">
                   {sseUnread > 9 ? "9+" : sseUnread}
                 </span>
               )}
             </button>
           </div>
-          <div className="flex gap-1.5">
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full transition-all ${activeTab === t.id ? "bg-foreground text-background" : "bg-secondary text-muted-foreground hover:text-foreground"}`}>
-                {t.icon}{t.label}
-              </button>
+
+          {/* KPI Strip */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "Active Policies", value: dashboard?.totalPolicies?.toLocaleString() ?? "—", sub: "National coverage", accent: "#0ea5e9" },
+              { label: "Total Claims", value: dashboard?.totalClaims?.toLocaleString() ?? "—", sub: `${dashboard?.pendingClaims ?? "—"} awaiting review`, accent: "#38bdf8" },
+              { label: "Total Payout", value: dashboard ? `SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K` : "—", sub: `Avg SAR ${dashboard?.avgClaimValue?.toLocaleString() ?? "—"}/claim`, accent: "#34d399" },
+              { label: "Fraud Flagged", value: dashboard?.fraudSuspected ?? "—", sub: `${dashboard?.fraudRate ?? "—"}% fraud rate`, accent: dashboard?.fraudSuspected > 0 ? "#f87171" : "#34d399" },
+            ].map((kpi, i) => (
+              <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5">{kpi.label}</p>
+                <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
+                <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+              </div>
             ))}
           </div>
+
+          {/* Tab bar */}
+          <div className="flex gap-1.5">
+            {tabs.map(t => {
+              const isActive = activeTab === t.id;
+              return (
+                <button key={t.id} onClick={() => setActiveTab(t.id)}
+                  className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl transition-all"
+                  style={{
+                    background: isActive ? "rgba(2,132,199,0.30)" : "rgba(255,255,255,0.04)",
+                    border:     isActive ? "1px solid rgba(2,132,199,0.50)" : "1px solid rgba(255,255,255,0.07)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                  }}>
+                  {t.icon}{t.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* SSE Fraud Alert Panel */}
@@ -178,32 +222,13 @@ export default function InsurancePortal() {
       {/* ─── DASHBOARD TAB ─── */}
       {activeTab === "dashboard" && (
         <div className="space-y-5">
-          <PortalHero
-            title="Insurance Operations"
-            subtitle="National health insurance operations, AI fraud detection, risk-based pricing, and portfolio analytics."
-            icon={Shield}
-            gradient="linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)"
-            badge="Insurance Ops · MOH / CCHI"
-            stats={[
-              { label: "Fraud Suspected", value: dashboard?.fraudSuspected ?? "—" },
-              { label: "Pending Claims", value: dashboard?.pendingClaims ?? "—" },
-              { label: "Total Policies", value: dashboard?.totalPolicies?.toLocaleString() ?? "—" },
-            ]}
-          />
-
           {loadingDash ? (
             <div className="flex items-center gap-3 py-16 justify-center text-muted-foreground">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-violet-600" />
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-sky-500" />
               <span className="text-sm">Loading insurance operations...</span>
             </div>
           ) : dashboard && (
             <>
-              <div className="grid grid-cols-4 gap-4">
-                <KpiCard title="Active Policies" value={dashboard.totalPolicies?.toLocaleString()} sub="National coverage" icon={Users} iconBg="bg-secondary" iconColor="text-primary" />
-                <KpiCard title="Total Claims" value={dashboard.totalClaims?.toLocaleString()} sub={`${dashboard.pendingClaims} awaiting review`} icon={Shield} iconBg="bg-primary/10" iconColor="text-primary" />
-                <KpiCard title="Total Payout" value={`SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K`} sub={`Avg SAR ${dashboard.avgClaimValue?.toLocaleString()} per claim`} icon={DollarSign} iconBg="bg-secondary" iconColor="text-emerald-600" />
-                <KpiCard title="Fraud Flagged" value={dashboard.fraudSuspected} sub={`${dashboard.fraudRate}% fraud rate`} icon={ShieldAlert} iconBg="bg-secondary" iconColor="text-red-600" />
-              </div>
 
               <div className="grid grid-cols-12 gap-5">
                 {/* Claims Trend */}

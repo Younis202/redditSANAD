@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge } from "@/components/shared";
 import {
   Package, AlertTriangle, TrendingUp, Brain, Truck, Zap, CheckCircle2,
   BarChart2, Globe, AlertCircle, ArrowUpRight, Clock, RefreshCw,
@@ -116,31 +116,93 @@ export default function SupplyChainPortal() {
         </div>
       )}
 
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <Package className="w-3 h-3" />
-          Supply Chain
-        </div>
-        <div className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-secondary ${criticals > 0 ? "text-red-600" : "text-emerald-600"}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${criticals > 0 ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
-          {criticals > 0 ? `${criticals} Critical Shortages` : "No Critical Shortages"}
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowSsePanel(p => !p)}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-secondary hover:bg-border transition-colors"
-            >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-primary" : "text-muted-foreground"}`} />
-              {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                  {sseUnread > 9 ? "9+" : sseUnread}
+      {/* ══════════════════════════════════════════════════
+          SUPPLY CHAIN INTELLIGENCE HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #0a0600 0%, #180f00 50%, #0d0800 100%)", boxShadow: "0 0 60px rgba(234,88,12,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #7c2d12, #ea580c, #f59e0b, #ea580c, #7c2d12)" }} />
+
+        <div className="px-6 py-5">
+          {/* Identity + Status */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(234,88,12,0.22)", border: "1px solid rgba(234,88,12,0.35)" }}>
+                <Truck className="w-6 h-6 text-orange-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">National Drug Supply Chain</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">Real-time inventory · AI shortage prediction · Regional distribution · Procurement management</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                style={{ background: criticals > 0 ? "rgba(220,38,38,0.18)" : "rgba(34,197,94,0.10)", border: criticals > 0 ? "1px solid rgba(220,38,38,0.30)" : "1px solid rgba(34,197,94,0.20)" }}>
+                <span className={`w-1.5 h-1.5 rounded-full ${criticals > 0 ? "bg-red-400 animate-pulse" : "bg-emerald-400"}`} />
+                <span className="text-[10px] font-black" style={{ color: criticals > 0 ? "#fca5a5" : "#86efac" }}>
+                  {criticals > 0 ? `${criticals} Critical Shortages` : "No Critical Shortages"}
                 </span>
-              )}
-            </button>
+              </div>
+              <button onClick={() => setShowSsePanel(p => !p)}
+                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                <Bell className="w-3.5 h-3.5 text-white/50" />
+                {sseUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center border border-[#0a0600]">
+                    {sseUnread > 9 ? "9+" : sseUnread}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
-          <div className="font-mono text-[11px] text-muted-foreground bg-secondary px-3 py-1.5 rounded-full">
-            Inventory Value: SAR {data?.summary?.totalInventoryValue?.toLocaleString()}
+
+          {/* KPI Strip */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "Drug Lines Tracked", value: data?.summary?.totalDrugs ?? "—", sub: "National formulary", icon: Package, accent: "#f97316" },
+              { label: "Critical Shortages", value: data?.summary?.criticalShortages ?? "—", sub: `${data?.summary?.reorderAlerts ?? 0} reorder alerts`, icon: AlertTriangle, accent: criticals > 0 ? "#ef4444" : "#22c55e" },
+              { label: "Adequate Stock", value: data?.summary?.adequate ?? "—", sub: "Lines fully stocked", icon: CheckCircle2, accent: "#22c55e" },
+              { label: "Inventory Value", value: `SAR ${(data?.summary?.totalInventoryValue ?? 0).toLocaleString()}`, sub: "Current stock value", icon: BarChart2, accent: "#f59e0b" },
+            ].map((kpi, i) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const isAlert = tab.id === "reorder" && criticals > 0;
+              return (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
+                  style={{
+                    background: isActive ? (isAlert ? "rgba(220,38,38,0.35)" : "rgba(234,88,12,0.30)") : "rgba(255,255,255,0.04)",
+                    border:     isActive ? (isAlert ? "1px solid rgba(220,38,38,0.50)" : "1px solid rgba(234,88,12,0.50)") : "1px solid rgba(255,255,255,0.07)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                  }}>
+                  <Icon className="w-3 h-3" />
+                  {tab.label}
+                  {isAlert && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center border border-[#0a0600]">
+                      {criticals}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -181,54 +243,6 @@ export default function SupplyChainPortal() {
         </Card>
       )}
 
-      <PortalHero
-        title="National Drug Supply Chain"
-        subtitle="Real-time inventory · AI shortage prediction · Regional distribution optimization · Procurement management"
-        icon={Package}
-        gradient="linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)"
-        badge="Supply Chain Intel · MOH"
-        stats={[
-          { label: "Drug Lines", value: data?.summary?.totalDrugs ?? "—" },
-          { label: "Critical Shortages", value: data?.summary?.criticalShortages ?? "—" },
-          { label: "Hospitals Covered", value: "450+" },
-        ]}
-      />
-
-      {/* KPI Strip */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard title="Total Drug Lines" value={data?.summary?.totalDrugs} sub="Tracked nationally" icon={Package} iconBg="bg-primary/10" iconColor="text-primary" />
-        <KpiCard
-          title="Critical Shortages" value={data?.summary?.criticalShortages}
-          sub={`${data?.summary?.reorderAlerts} reorder alerts active`}
-          icon={AlertTriangle} iconBg="bg-primary/10" iconColor={criticals > 0 ? "text-red-600" : "text-primary"}
-        />
-        <KpiCard title="Adequate Stock" value={data?.summary?.adequate} sub="Lines fully stocked" icon={CheckCircle2} iconBg="bg-primary/10" iconColor="text-primary" />
-        <KpiCard title="Inventory Value" value={`SAR ${data?.summary?.totalInventoryValue?.toLocaleString()}`} sub="Current stock value" icon={BarChart2} iconBg="bg-primary/10" iconColor="text-primary" />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 mb-5">
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                activeTab === tab.id ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="w-3 h-3" />
-              {tab.label}
-              {tab.id === "reorder" && criticals > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
-                  {criticals}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
 
       {/* ─── INVENTORY ─── */}
       {activeTab === "inventory" && (

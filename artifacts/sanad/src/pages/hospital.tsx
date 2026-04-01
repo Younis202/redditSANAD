@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Layout } from "@/components/layout";
 import {
-  Card, CardHeader, CardTitle, CardBody,
-  Badge, PageHeader, KpiCard, PortalHero
+  Card, CardHeader, CardTitle, CardBody, Badge
 } from "@/components/shared";
 import {
   Building2, BedDouble, Users, Brain, Activity, AlertTriangle,
@@ -63,89 +62,90 @@ export default function HospitalPortal() {
 
   return (
     <Layout role="hospital">
-      <PortalHero
-        title={data?.hospitalName ?? "Hospital Portal"}
-        subtitle="Bed management · ICU alerts · OR scheduling · AI readmission risk prediction"
-        icon={BedDouble}
-        gradient="linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%)"
-        badge="Hospital Operations · MOH"
-        stats={[
-          { label: "Total Beds", value: data?.totalBeds?.toLocaleString() ?? "—" },
-          { label: "Occupancy", value: data?.overallOccupancy ? `${data.overallOccupancy}%` : "—" },
-          { label: "AI Alerts", value: data?.units?.filter((u: any) => u.status === "critical").length ?? "—" },
-        ]}
-        action={
-          <div className="flex items-center gap-2">
-            {icuCritical > 0 && (
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-white animate-pulse px-3 py-1.5 rounded-full" style={{ background: "rgba(239,68,68,0.85)" }}>
-                <AlertTriangle className="w-3 h-3" />
-                {icuCritical} ICU Critical
+      {/* ══════════════════════════════════════════════════
+          HOSPITAL OPERATIONS COMMAND HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #060c1a 0%, #0a1628 50%, #060d1c 100%)", boxShadow: "0 0 60px rgba(37,99,235,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #1e3a8a, #2563eb, #3b82f6, #2563eb, #1e3a8a)" }} />
+
+        <div className="px-6 py-5">
+          {/* Identity + Actions */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(37,99,235,0.22)", border: "1px solid rgba(37,99,235,0.35)" }}>
+                <Building2 className="w-6 h-6 text-blue-400" />
               </div>
-            )}
-            <button
-              onClick={() => refetch()}
-              className="flex items-center gap-1.5 text-[11px] font-semibold px-3.5 py-2 rounded-full transition-all"
-              style={{ background: "rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.80)" }}
-            >
-              <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`} />
-              Refresh
-            </button>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">{data?.hospitalName ?? "Hospital Operations"}</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">Bed management · ICU alerts · OR scheduling · AI readmission prediction</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {icuCritical > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl animate-pulse"
+                  style={{ background: "rgba(220,38,38,0.20)", border: "1px solid rgba(220,38,38,0.35)" }}>
+                  <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-[10px] font-black text-red-300">{icuCritical} ICU Critical</span>
+                </div>
+              )}
+              <button onClick={() => refetch()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
+                <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`} />
+                <span className="text-[10px] font-bold">Refresh</span>
+              </button>
+            </div>
           </div>
-        }
-      />
 
-      {/* KPI row */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
-        <KpiCard
-          title="Total Beds"
-          value={data?.totalBeds?.toLocaleString() ?? "—"}
-          icon={BedDouble}
-          sub={`${data?.overallOccupancy}% occupied`}
-          trend={data?.overallOccupancy >= 80 ? "High Occupancy" : "Normal"}
-        />
-        <KpiCard
-          title="Occupied Beds"
-          value={data?.totalOccupied?.toLocaleString() ?? "—"}
-          icon={Users}
-          sub={`${(data?.totalBeds ?? 0) - (data?.totalOccupied ?? 0)} available`}
-        />
-        <KpiCard
-          title="OR Today"
-          value={data?.pendingSurgeries ?? "—"}
-          icon={Stethoscope}
-          sub={`${(data?.orSchedule ?? []).filter((s: any) => s.status === "in_progress").length} in progress`}
-        />
-        <KpiCard
-          title="Avg Length of Stay"
-          value={`${data?.avgLengthOfStay} days`}
-          icon={Zap}
-          sub={`${data?.dischargesToday} discharges today`}
-        />
-      </div>
+          {/* KPI Strip */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "Total Beds", value: data?.totalBeds?.toLocaleString() ?? "—", sub: `${data?.overallOccupancy ?? "—"}% occupied`, icon: BedDouble, accent: "#3b82f6" },
+              { label: "Occupied", value: data?.totalOccupied?.toLocaleString() ?? "—", sub: `${((data?.totalBeds ?? 0) - (data?.totalOccupied ?? 0))} available`, icon: Users, accent: data?.overallOccupancy >= 80 ? "#ef4444" : "#22c55e" },
+              { label: "OR Today", value: data?.pendingSurgeries ?? "—", sub: `${(data?.orSchedule ?? []).filter((s: any) => s.status === "in_progress").length} in progress`, icon: Stethoscope, accent: "#a855f7" },
+              { label: "Avg Length of Stay", value: `${data?.avgLengthOfStay ?? "—"}d`, sub: `${data?.dischargesToday ?? "—"} discharges today`, icon: Clock, accent: "#0ea5e9" },
+            ].map((kpi, i) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+                </div>
+              );
+            })}
+          </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 mb-5">
-        {([
-          { id: "overview", label: "Bed Overview" },
-          { id: "icu", label: `ICU Alerts ${icuCritical > 0 ? `(${icuCritical} critical)` : ""}` },
-          { id: "or", label: "OR Schedule" },
-          { id: "readmission", label: "Readmission Risk" },
-          { id: "flow", label: "AI Patient Flow" },
-        ] as { id: TabId; label: string }[]).map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-              activeTab === tab.id
-                ? tab.id === "icu" && icuCritical > 0
-                  ? "bg-red-600 text-white"
-                  : "bg-primary text-white"
-                : "bg-secondary text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+          {/* Tab bar */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {([
+              { id: "overview",    label: "Bed Overview" },
+              { id: "icu",        label: icuCritical > 0 ? `ICU Alerts (${icuCritical} critical)` : "ICU Alerts" },
+              { id: "or",         label: "OR Schedule" },
+              { id: "readmission",label: "Readmission Risk" },
+              { id: "flow",       label: "AI Patient Flow" },
+            ] as { id: TabId; label: string }[]).map(tab => {
+              const isActive = activeTab === tab.id;
+              const isAlert = tab.id === "icu" && icuCritical > 0;
+              return (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className="px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap"
+                  style={{
+                    background: isActive ? (isAlert ? "rgba(220,38,38,0.40)" : "rgba(37,99,235,0.35)") : "rgba(255,255,255,0.04)",
+                    border:     isActive ? (isAlert ? "1px solid rgba(220,38,38,0.50)" : "1px solid rgba(37,99,235,0.50)") : "1px solid rgba(255,255,255,0.07)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                  }}>
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {activeTab === "overview" && (

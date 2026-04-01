@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, Badge, PageHeader, KpiCard, PortalHero } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, Badge } from "@/components/shared";
 import {
   Brain, Activity, AlertTriangle, CheckCircle2, Zap, TrendingUp,
   RefreshCw, RotateCcw, Shield, Cpu, Database, Clock, Settings, BarChart2,
@@ -181,79 +181,107 @@ export default function AIControlCenter() {
         </div>
       )}
 
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <Brain className="w-3 h-3" />
-          AI Control Center
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-secondary px-3 py-1.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          {metrics?.engines?.filter((e: any) => e.status === "operational").length} / {metrics?.engines?.length} engines operational
-        </div>
-        <div className="ml-auto font-mono text-[11px] text-muted-foreground bg-secondary px-3 py-1.5 rounded-full">
-          Uptime {metrics?.systemHealth?.uptime} · Last retrain: {metrics?.systemHealth?.lastRetraining}
-        </div>
-      </div>
+      {/* ══════════════════════════════════════════════════
+          AI CONTROL COMMAND HEADER
+      ══════════════════════════════════════════════════ */}
+      <div className="rounded-3xl overflow-hidden mb-6"
+        style={{ background: "linear-gradient(135deg, #06080f 0%, #0e0b1e 50%, #080610 100%)", boxShadow: "0 0 60px rgba(79,70,229,0.10)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg, #1e1b4b, #4f46e5, #a855f7, #e11d48, #4f46e5, #1e1b4b)" }} />
 
-      <PortalHero
-        title="AI Governance & Control"
-        subtitle="9-engine real-time monitor · Model drift detection · Retraining orchestration · Decision audit trail"
-        icon={Brain}
-        gradient="linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)"
-        badge="AI Control Center · SANAD"
-        stats={[
-          { label: "Model Confidence", value: `${metrics?.avgConfidence ?? 97}%` },
-          { label: "AI Engines", value: 9 },
-          { label: "Uptime", value: metrics?.systemHealth?.uptime ?? "99.99%" },
-        ]}
-      />
-
-      {/* KPI Strip */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <KpiCard
-          title="Model Confidence" value={`${metrics?.avgConfidence}%`}
-          sub={metrics?.modelStatus === "optimal" ? "Optimal performance" : metrics?.modelStatus === "needs_retraining" ? "Retraining required" : `Status: ${metrics?.modelStatus}`}
-          icon={Brain} iconBg="bg-rose-100" iconColor="text-rose-600"
-        />
-        <KpiCard
-          title="Drift Risk" value={`${metrics?.driftRisk}%`}
-          sub={`${metrics?.lowConfidenceCount} low-confidence decisions`}
-          icon={AlertCircle} iconBg="bg-primary/10" iconColor={metrics?.driftRisk > 10 ? "text-red-600" : "text-primary"}
-        />
-        <KpiCard
-          title="Total AI Decisions" value={metrics?.totalDecisions?.toLocaleString()}
-          sub={`${metrics?.decisionsLast24h} in last 24 hours`}
-          icon={Zap} iconBg="bg-primary/10" iconColor="text-primary"
-        />
-        <KpiCard
-          title="Audit Records" value={metrics?.auditRecords?.toLocaleString()}
-          sub="Fully traceable · Tamper-evident"
-          icon={Shield} iconBg="bg-primary/10" iconColor="text-primary"
-        />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
-                activeTab === tab.id ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="w-3 h-3" />
-              {tab.label}
-              {tab.id === "drift" && driftDetected.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
-                  {driftDetected.length}
+        <div className="px-6 py-5">
+          {/* Row 1: Identity + Status */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 relative"
+                style={{ background: "rgba(79,70,229,0.22)", border: "1px solid rgba(79,70,229,0.35)" }}>
+                <Brain className="w-6 h-6 text-indigo-400" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#06080f]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white leading-tight">AI Governance & Control</h1>
+                <p className="text-[11px] text-white/40 mt-0.5">9-engine monitor · Drift detection · Retraining orchestration · Decision audit trail</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-black text-emerald-300">
+                  {metrics?.engines?.filter((e: any) => e.status === "operational").length ?? "—"} / {metrics?.engines?.length ?? 9} Operational
                 </span>
-              )}
-            </button>
-          );
-        })}
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span className="font-mono text-[10px] text-white/30">Uptime {metrics?.systemHealth?.uptime ?? "99.99%"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: KPI strip */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {[
+              {
+                label: "Model Confidence", value: `${metrics?.avgConfidence ?? 97}%`,
+                sub: metrics?.modelStatus === "optimal" ? "Optimal performance" : metrics?.modelStatus === "needs_retraining" ? "Retraining required" : "Stable",
+                icon: Brain, accent: "#a855f7", glow: "rgba(168,85,247,0.20)",
+              },
+              {
+                label: "Drift Risk", value: `${metrics?.driftRisk ?? 0}%`,
+                sub: `${metrics?.lowConfidenceCount ?? 0} low-confidence decisions`,
+                icon: AlertCircle, accent: metrics?.driftRisk > 10 ? "#ef4444" : "#22c55e", glow: metrics?.driftRisk > 10 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.10)",
+              },
+              {
+                label: "AI Decisions", value: (metrics?.totalDecisions ?? 0).toLocaleString(),
+                sub: `${metrics?.decisionsLast24h ?? 0} in last 24h`,
+                icon: Zap, accent: "#4f46e5", glow: "rgba(79,70,229,0.15)",
+              },
+              {
+                label: "Audit Records", value: (metrics?.auditRecords ?? 0).toLocaleString(),
+                sub: "Tamper-evident · Immutable",
+                icon: Shield, accent: "#0ea5e9", glow: "rgba(14,165,233,0.15)",
+              },
+            ].map((kpi, i) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={i} className="rounded-2xl px-4 py-3.5"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", boxShadow: `inset 0 0 30px ${kpi.glow}` }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Row 3: Tab bar */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
+                  style={{
+                    background: isActive ? "rgba(79,70,229,0.35)" : "rgba(255,255,255,0.04)",
+                    border:     isActive ? "1px solid rgba(79,70,229,0.50)" : "1px solid rgba(255,255,255,0.07)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                    boxShadow:  isActive ? "0 0 16px rgba(79,70,229,0.25)" : "none",
+                  }}>
+                  <Icon className="w-3 h-3" />
+                  {tab.label}
+                  {tab.id === "drift" && driftDetected.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center border border-[#06080f]">
+                      {driftDetected.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* ─── OVERVIEW ─── */}

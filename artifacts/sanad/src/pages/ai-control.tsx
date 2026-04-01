@@ -1036,7 +1036,45 @@ export default function AIControlCenter() {
             </div>
           </div>
 
-          {/* Live stream */}
+          {/* Cascade Flow Diagram */}
+          <Card>
+            <CardHeader>
+              <Activity className="w-4 h-4 text-violet-600" />
+              <CardTitle>AI Decision Cascade — Live Trace</CardTitle>
+              <Badge variant="purple" className="text-[9px] ml-auto">SAMPLE TRACE · Patient 1000000023</Badge>
+            </CardHeader>
+            <CardBody>
+              <p className="text-[10px] text-muted-foreground mb-4">HbA1c 9.2% lab result triggers a 7-step cross-portal AI cascade in under 250ms — zero human intervention required.</p>
+              <div className="flex items-stretch gap-0 overflow-x-auto pb-2">
+                {CASCADE_CHAIN.map((step, i) => (
+                  <React.Fragment key={step.step}>
+                    <div className="flex flex-col items-center shrink-0" style={{ minWidth: 120 }}>
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-2 text-white shrink-0 ${step.color}`}>
+                        <step.icon className="w-4 h-4" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[8px] font-black text-foreground uppercase tracking-widest leading-tight">{step.portal.replace(" Portal", "")}</p>
+                        <p className="text-[7px] font-mono text-muted-foreground mt-0.5">{step.latency}</p>
+                        <Badge variant={step.badge} className="text-[7px] mt-1 px-1">{step.action.replace("_", " ")}</Badge>
+                      </div>
+                    </div>
+                    {i < CASCADE_CHAIN.length - 1 && (
+                      <div className="flex items-center shrink-0 px-1 mt-5">
+                        <div className="w-8 h-px bg-border relative">
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
+                            style={{ borderLeft: "6px solid var(--border)", borderTop: "3px solid transparent", borderBottom: "3px solid transparent" }} />
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              <div className="mt-3 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <p className="text-[10px] font-bold text-emerald-700">Total cascade latency: 234ms · 7 engines activated · 0 human interventions · 4 portals updated</p>
+              </div>
+            </CardBody>
+          </Card>
+
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">

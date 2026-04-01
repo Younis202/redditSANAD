@@ -273,6 +273,119 @@ export default function FamilyPortal() {
                 <p className="text-xs text-muted-foreground ml-auto">Colors indicate AI Risk Score</p>
               </CardHeader>
               <CardBody>
+                {/* ── SVG Clinical Pedigree Diagram ── */}
+                {(() => {
+                  const parents: any[] = data.parents ?? [];
+                  const siblings: any[] = data.siblings ?? [];
+                  const children: any[] = data.children ?? [];
+                  const gen2 = [{ ...data.patient, relationship: "Index Patient", isPatient: true }, ...siblings];
+
+                  const nodeR = 22;
+                  const colW = 90;
+                  const rowH = 90;
+                  const topPad = 36;
+                  const leftPad = 30;
+
+                  const getColor = (m: any) => m.riskScore >= 70 ? "#ef4444" : m.riskScore >= 40 ? "#f59e0b" : "#22c55e";
+
+                  const maxPerRow = Math.max(parents.length, gen2.length, children.length);
+                  const svgW = Math.max(maxPerRow * colW + leftPad * 2, 300);
+                  const svgH = topPad + (children.length > 0 ? 3 : 2) * rowH + 20;
+
+                  const centerX = (list: any[], idx: number) => leftPad + (svgW - leftPad * 2) / Math.max(list.length, 1) * (idx + 0.5);
+                  const p1Y = topPad + nodeR;
+                  const p2Y = topPad + rowH + nodeR;
+                  const p3Y = topPad + 2 * rowH + nodeR;
+
+                  return (
+                    <div className="mb-5 overflow-x-auto">
+                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-2">Clinical Pedigree Diagram</p>
+                      <svg width={svgW} height={svgH} className="block mx-auto">
+                        {/* Connector: Parents to Gen2 midpoint */}
+                        {parents.length > 0 && (
+                          <>
+                            {parents.map((_, i) => (
+                              <line key={i} x1={centerX(parents, i)} y1={p1Y + nodeR} x2={centerX(parents, i)} y2={p1Y + rowH * 0.4} stroke="#e2e8f0" strokeWidth={1.5} />
+                            ))}
+                            {parents.length >= 2 && (
+                              <line x1={centerX(parents, 0)} y1={p1Y + rowH * 0.4} x2={centerX(parents, parents.length - 1)} y2={p1Y + rowH * 0.4} stroke="#e2e8f0" strokeWidth={1.5} />
+                            )}
+                            {/* Down to index patient */}
+                            <line x1={centerX(parents, Math.floor((parents.length - 1) / 2)) + (parents.length % 2 === 0 ? colW / 4 : 0)} y1={p1Y + rowH * 0.4} x2={centerX(gen2, 0)} y2={p2Y - nodeR} stroke="#e2e8f0" strokeWidth={1.5} />
+                          </>
+                        )}
+                        {/* Connector: Gen2 to Children */}
+                        {children.length > 0 && (
+                          <>
+                            <line x1={centerX(gen2, 0)} y1={p2Y + nodeR} x2={centerX(gen2, 0)} y2={p2Y + rowH * 0.4} stroke="#e2e8f0" strokeWidth={1.5} />
+                            {children.length >= 2 && (
+                              <line x1={centerX(children, 0)} y1={p2Y + rowH * 0.4} x2={centerX(children, children.length - 1)} y2={p2Y + rowH * 0.4} stroke="#e2e8f0" strokeWidth={1.5} />
+                            )}
+                            {children.map((_, i) => (
+                              <line key={i} x1={centerX(children, i)} y1={p2Y + rowH * 0.4} x2={centerX(children, i)} y2={p3Y - nodeR} stroke="#e2e8f0" strokeWidth={1.5} />
+                            ))}
+                          </>
+                        )}
+
+                        {/* Generation 1: Parents */}
+                        {parents.map((m: any, i: number) => {
+                          const cx = centerX(parents, i); const cy = p1Y;
+                          const col = getColor(m);
+                          return (
+                            <g key={m.id}>
+                              <circle cx={cx} cy={cy} r={nodeR} fill={col} fillOpacity={0.15} stroke={col} strokeWidth={2} />
+                              <text x={cx} y={cy - 2} textAnchor="middle" fill={col} fontSize={9} fontWeight="bold">{Math.round(m.riskScore)}</text>
+                              <text x={cx} y={cy + 9} textAnchor="middle" fill={col} fontSize={7}>risk</text>
+                              <text x={cx} y={cy + nodeR + 12} textAnchor="middle" fill="#64748b" fontSize={8} fontWeight="bold">{m.fullName?.split(" ")[0]}</text>
+                              <text x={cx} y={cy + nodeR + 22} textAnchor="middle" fill="#94a3b8" fontSize={7}>{m.relationship ?? "Parent"} · {m.age}y</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Generation 2: Index Patient + Siblings */}
+                        {gen2.map((m: any, i: number) => {
+                          const cx = centerX(gen2, i); const cy = p2Y;
+                          const col = getColor(m);
+                          const isP = !!m.isPatient;
+                          return (
+                            <g key={m.id ?? i}>
+                              {isP && <circle cx={cx} cy={cy} r={nodeR + 5} fill="none" stroke="#007AFF" strokeWidth={2} strokeDasharray="4 2" />}
+                              <circle cx={cx} cy={cy} r={nodeR} fill={col} fillOpacity={isP ? 0.25 : 0.12} stroke={col} strokeWidth={isP ? 2.5 : 2} />
+                              <text x={cx} y={cy - 2} textAnchor="middle" fill={col} fontSize={9} fontWeight="bold">{Math.round(m.riskScore)}</text>
+                              <text x={cx} y={cy + 9} textAnchor="middle" fill={col} fontSize={7}>risk</text>
+                              <text x={cx} y={cy + nodeR + 14} textAnchor="middle" fill={isP ? "#007AFF" : "#64748b"} fontSize={8} fontWeight="bold">{m.fullName?.split(" ")[0]}</text>
+                              <text x={cx} y={cy + nodeR + 24} textAnchor="middle" fill="#94a3b8" fontSize={7}>{isP ? "Index" : m.relationship} · {m.age}y</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Generation 3: Children */}
+                        {children.map((m: any, i: number) => {
+                          const cx = centerX(children, i); const cy = p3Y;
+                          const col = getColor(m);
+                          return (
+                            <g key={m.id}>
+                              <circle cx={cx} cy={cy} r={nodeR} fill={col} fillOpacity={0.12} stroke={col} strokeWidth={2} />
+                              <text x={cx} y={cy - 2} textAnchor="middle" fill={col} fontSize={9} fontWeight="bold">{Math.round(m.riskScore)}</text>
+                              <text x={cx} y={cy + 9} textAnchor="middle" fill={col} fontSize={7}>risk</text>
+                              <text x={cx} y={cy + nodeR + 14} textAnchor="middle" fill="#64748b" fontSize={8} fontWeight="bold">{m.fullName?.split(" ")[0]}</text>
+                              <text x={cx} y={cy + nodeR + 24} textAnchor="middle" fill="#94a3b8" fontSize={7}>{m.relationship} · {m.age}y</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Legend */}
+                        {[{ c: "#ef4444", l: "High Risk ≥70" }, { c: "#f59e0b", l: "Moderate 40-69" }, { c: "#22c55e", l: "Low Risk <40" }].map((leg, li) => (
+                          <g key={li}>
+                            <circle cx={leftPad + li * 100} cy={svgH - 10} r={5} fill={leg.c} fillOpacity={0.3} stroke={leg.c} strokeWidth={1.5} />
+                            <text x={leftPad + li * 100 + 9} y={svgH - 6} fill="#94a3b8" fontSize={7}>{leg.l}</text>
+                          </g>
+                        ))}
+                      </svg>
+                    </div>
+                  );
+                })()}
+
                 <div className="space-y-6">
                   {/* Parents */}
                   {data.parents?.length > 0 && (

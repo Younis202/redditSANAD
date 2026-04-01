@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import { PageHeader, Card, CardHeader, CardTitle, CardBody, KpiCard, Badge, AlertBanner, SectionDivider, PortalHero } from "@/components/shared";
 import { useGetAdminStats, useGetPopulationHealth } from "@workspace/api-client-react";
 import { useNationalIntelligence } from "@/hooks/use-ai-decision";
 import {
-  Users, Activity, ShieldAlert, Building, TrendingUp, AlertTriangle,
+  Users, Activity, ShieldAlert, Building, TrendingUp, TrendingDown, AlertTriangle,
   Globe, Brain, Zap, Radio, Lightbulb, Target, Heart, CheckCircle2,
-  Shield, Star, Settings, Lock, BarChart3, Clock, Network, GitBranch
+  Shield, Star, Settings, Lock, BarChart3, Clock, Network, GitBranch, SlidersHorizontal
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -74,6 +74,23 @@ export default function AdminDashboard() {
   const { data: popHealth, isLoading: healthLoading } = useGetPopulationHealth();
   const { data: intelligence } = useNationalIntelligence();
   const stats = statsRaw as any;
+
+  // National Policy Simulator state
+  const [simHba1c, setSimHba1c] = useState(1.5);      // HbA1c reduction % (0.5–3)
+  const [simReach, setSimReach] = useState(40);         // Patient reach % (10–90)
+
+  const simResults = useMemo(() => {
+    const DM_POP = 3_400_000;
+    const patientsReached = Math.round(DM_POP * (simReach / 100));
+    const hospitalizationsPrevented = Math.round(patientsReached * 0.035 * simHba1c * 0.5);
+    const sarSaved = hospitalizationsPrevented * 8_000;
+    const macePrevented = Math.round(patientsReached * 0.015 * 0.14 * simHba1c);
+    const qalysGained = Math.round(macePrevented * 0.25);
+    const y1 = { hospitalizations: hospitalizationsPrevented, sar: sarSaved, mace: macePrevented };
+    const y2 = { hospitalizations: Math.round(hospitalizationsPrevented * 1.8), sar: Math.round(sarSaved * 1.8), mace: Math.round(macePrevented * 1.8) };
+    const y3 = { hospitalizations: Math.round(hospitalizationsPrevented * 2.8), sar: Math.round(sarSaved * 2.8), mace: Math.round(macePrevented * 2.8) };
+    return { patientsReached, hospitalizationsPrevented, sarSaved, macePrevented, qalysGained, y1, y2, y3 };
+  }, [simHba1c, simReach]);
 
   if (statsLoading || healthLoading) {
     return (
@@ -847,11 +864,53 @@ export default function AdminDashboard() {
             </CardBody>
           </Card>
 
+          {/* ─── KSA Regional Health Heatmap ─── */}
+          {stats?.regionalStats && stats.regionalStats.length > 0 && (
+            <Card className="col-span-12">
+              <CardHeader>
+                <CardTitle>KSA Regional Health Intelligence Map</CardTitle>
+                <Badge variant="outline">{stats.regionalStats.length} regions</Badge>
+                <div className="ml-auto flex items-center gap-3 text-[9px] font-semibold text-muted-foreground">
+                  {[{ c: "#22c55e", l: ">90% Coverage" }, { c: "#f59e0b", l: "75-90%" }, { c: "#ef4444", l: "<75% / Alert" }].map(i => (
+                    <div key={i.l} className="flex items-center gap-1"><div className="w-3 h-3 rounded" style={{ background: i.c, opacity: 0.6 }} />{i.l}</div>
+                  ))}
+                </div>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-4 gap-3 mb-2">
+                  {stats.regionalStats.map((r: any, i: number) => {
+                    const cov = parseInt((r.coverage ?? "0%").replace("%", ""), 10);
+                    const color = cov >= 90 ? "#22c55e" : cov >= 75 ? "#f59e0b" : "#ef4444";
+                    const textColor = cov >= 90 ? "text-emerald-700" : cov >= 75 ? "text-amber-700" : "text-red-700";
+                    return (
+                      <div key={i} className="relative p-3 rounded-2xl overflow-hidden bg-secondary/50"
+                        style={{ borderLeft: `3px solid ${color}` }}>
+                        <div className="absolute top-0 right-0 w-16 h-16 rounded-full opacity-[0.06]" style={{ background: color, transform: "translate(30%, -30%)" }} />
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 truncate">{r.region}</p>
+                        <div className="flex items-end justify-between mb-2">
+                          <p className={`text-xl font-bold ${textColor}`}>{r.coverage}</p>
+                          <p className="text-[10px] font-bold text-muted-foreground">{r.hospitals} hosp.</p>
+                        </div>
+                        <div className="h-1.5 rounded-full overflow-hidden bg-background mb-1.5">
+                          <div className="h-full rounded-full" style={{ width: r.coverage, background: color }} />
+                        </div>
+                        <div className="flex justify-between text-[8px] text-muted-foreground">
+                          <span>{r.patients?.toLocaleString()} pts</span>
+                          {r.highRisk > 5 && <span className="text-red-500 font-bold">{r.highRisk} high-risk</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardBody>
+            </Card>
+          )}
+
           {/* ─── Regional Stats Table ─── */}
           {stats?.regionalStats && stats.regionalStats.length > 0 && (
             <Card className="col-span-12">
               <CardHeader>
-                <CardTitle>Regional Health Overview</CardTitle>
+                <CardTitle>Regional Health Detail Table</CardTitle>
                 <Badge variant="outline">{stats.regionalStats.length} regions</Badge>
               </CardHeader>
               <CardBody className="p-0">
@@ -1443,6 +1502,113 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
+
+        {/* ─── NATIONAL POLICY IMPACT SIMULATOR ─── */}
+        <SectionDivider label="National Policy Impact Simulator · AI-Powered Outcome Projection" />
+        <div className="rounded-3xl overflow-hidden" style={{ background: "linear-gradient(135deg, #0c1a3a 0%, #0a3d62 50%, #0c1a3a 100%)" }}>
+          {/* Header */}
+          <div className="flex items-center gap-4 px-7 py-5 border-b border-white/10">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "rgba(0,122,255,0.25)", border: "1px solid rgba(0,122,255,0.30)" }}>
+              <SlidersHorizontal className="w-5 h-5 text-[#38bdf8]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-black text-white/40 uppercase tracking-widest mb-0.5">SANAD AI Policy Engine</p>
+              <p className="text-lg font-black text-white">National Diabetes Intervention Simulator</p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-[10px] text-white/30 uppercase tracking-widest">Evidence base</p>
+              <p className="text-[11px] font-bold text-[#38bdf8]">UKPDS · ADA 2024 · MOH Saudi DM Guidelines</p>
+            </div>
+          </div>
+
+          {/* Sliders */}
+          <div className="grid grid-cols-2 gap-6 px-7 py-6">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-bold text-white">HbA1c Reduction Target</p>
+                <span className="text-2xl font-black text-[#22c55e] tabular-nums">{simHba1c.toFixed(1)}%</span>
+              </div>
+              <input
+                type="range" min="0.5" max="3" step="0.1"
+                value={simHba1c}
+                onChange={e => setSimHba1c(parseFloat(e.target.value))}
+                className="w-full accent-emerald-400 cursor-pointer"
+              />
+              <div className="flex justify-between mt-1">
+                <span className="text-[9px] text-white/30">0.5% (minimal)</span>
+                <span className="text-[9px] text-white/30">3.0% (intensive)</span>
+              </div>
+              <p className="text-[10px] text-white/40 mt-2">Each 1% HbA1c reduction: ↓14% MACE · ↓37% retinopathy · ↓24% nephropathy (UKPDS)</p>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-bold text-white">Patient Reach</p>
+                <span className="text-2xl font-black text-[#38bdf8] tabular-nums">{simReach}%</span>
+              </div>
+              <input
+                type="range" min="10" max="90" step="5"
+                value={simReach}
+                onChange={e => setSimReach(parseInt(e.target.value))}
+                className="w-full accent-sky-400 cursor-pointer"
+              />
+              <div className="flex justify-between mt-1">
+                <span className="text-[9px] text-white/30">10% ({Math.round(340_000).toLocaleString()})</span>
+                <span className="text-[9px] text-white/30">90% ({Math.round(3_060_000).toLocaleString()})</span>
+              </div>
+              <p className="text-[10px] text-white/40 mt-2">Saudi Arabia has ~3.4M diagnosed diabetic patients eligible for this intervention.</p>
+            </div>
+          </div>
+
+          {/* Outcome KPIs */}
+          <div className="grid grid-cols-5 divide-x divide-white/10 border-t border-white/10">
+            {[
+              { label: "Patients Reached", value: simResults.patientsReached.toLocaleString(), sub: "diabetic patients", icon: Users, color: "#38bdf8" },
+              { label: "Hospitalizations Prevented", value: simResults.hospitalizationsPrevented.toLocaleString(), sub: "per year", icon: ShieldAlert, color: "#22c55e" },
+              { label: "SAR Saved", value: `${(simResults.sarSaved / 1_000_000).toFixed(1)}M`, sub: "healthcare cost", icon: TrendingDown, color: "#22c55e" },
+              { label: "MACE Events Prevented", value: simResults.macePrevented.toLocaleString(), sub: "CV events / yr", icon: Heart, color: "#f59e0b" },
+              { label: "QALYs Gained", value: simResults.qalysGained.toLocaleString(), sub: "quality-adj. yrs", icon: Star, color: "#a78bfa" },
+            ].map((kpi) => (
+              <div key={kpi.label} className="flex flex-col items-center py-5 px-3 gap-1 text-center">
+                <kpi.icon className="w-4 h-4 mb-1" style={{ color: kpi.color }} />
+                <p className="text-2xl font-black tabular-nums" style={{ color: kpi.color }}>{kpi.value}</p>
+                <p className="text-[9px] font-bold text-white/70">{kpi.label}</p>
+                <p className="text-[8px] text-white/30">{kpi.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* 3-Year Projection Chart */}
+          <div className="px-7 py-5 border-t border-white/10">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-4">3-Year Cumulative Projection — Hospitalizations Prevented</p>
+            <div className="h-36">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { year: "Year 1", value: simResults.y1.hospitalizations, cost: Math.round(simResults.y1.sar / 1_000_000) },
+                  { year: "Year 2", value: simResults.y2.hospitalizations, cost: Math.round(simResults.y2.sar / 1_000_000) },
+                  { year: "Year 3", value: simResults.y3.hospitalizations, cost: Math.round(simResults.y3.sar / 1_000_000) },
+                ]} barSize={56}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <RechartsTooltip
+                    contentStyle={{ background: "rgba(15,23,42,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, fontSize: 11 }}
+                    labelStyle={{ color: "rgba(255,255,255,0.7)", fontWeight: 700 }}
+                    itemStyle={{ color: "#22c55e" }}
+                    formatter={(v: any) => [`${Number(v).toLocaleString()} hospitalizations`, "Prevented"]}
+                  />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                    {[0, 1, 2].map(i => (
+                      <Cell key={i} fill={`rgba(34,197,94,${0.5 + i * 0.2})`} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[9px] text-white/25 text-right mt-2">
+              Projections based on UKPDS HbA1c–outcome correlations. Saudi DM population: 3.4M · Average hospitalization cost: SAR 8,000 · For policy planning purposes only.
+            </p>
+          </div>
+        </div>
 
     </Layout>
   );

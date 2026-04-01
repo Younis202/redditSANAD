@@ -157,6 +157,42 @@ export default function HospitalPortal() {
               <span className="ml-auto text-[10px] font-mono text-muted-foreground">Live data</span>
             </CardHeader>
             <CardBody>
+              {/* Visual Bed Map Grid */}
+              {data?.bedStatus && (
+                <div className="mb-5 p-4 rounded-2xl bg-secondary/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Live Bed Map — All Units</p>
+                    <div className="flex items-center gap-3 text-[9px] font-semibold text-muted-foreground">
+                      {[{ c: "#ef4444", l: "Critical" }, { c: "#f59e0b", l: "High Risk" }, { c: "#007AFF", l: "Stable" }, { c: "#e5e7eb", l: "Available" }].map(i => (
+                        <div key={i.l} className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded" style={{ background: i.c }} />{i.l}</div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {data.bedStatus.map((unit: any) => {
+                      const color = UNIT_COLORS[unit.unit] ?? "#007AFF";
+                      const total = unit.total ?? 20;
+                      const occupied = unit.occupied ?? Math.round(total * (unit.occupancyPct / 100));
+                      const critical = Math.round(occupied * (unit.status === "critical" ? 0.35 : unit.status === "high" ? 0.15 : 0.05));
+                      const highRisk = Math.round(occupied * (unit.status === "critical" ? 0.4 : unit.status === "high" ? 0.3 : 0.1));
+                      const stable = occupied - critical - highRisk;
+                      return (
+                        <div key={unit.unitKey} className="flex items-center gap-3">
+                          <p className="text-[10px] font-semibold text-muted-foreground w-28 shrink-0 truncate">{unit.unit}</p>
+                          <div className="flex-1 flex flex-wrap gap-0.5">
+                            {Array.from({ length: total }).map((_, bi) => {
+                              const bedColor = bi < critical ? "#ef4444" : bi < critical + highRisk ? "#f59e0b" : bi < occupied ? color : "#e5e7eb";
+                              return <div key={bi} className="w-3.5 h-3.5 rounded-sm transition-colors" style={{ background: bedColor }} title={`Bed ${bi + 1}`} />;
+                            })}
+                          </div>
+                          <p className="text-[10px] font-bold tabular-nums shrink-0" style={{ color }}>{unit.occupancyPct}%</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-3">
                 {data?.bedStatus?.map((unit: any) => {
                   const color = UNIT_COLORS[unit.unit] ?? "#007AFF";

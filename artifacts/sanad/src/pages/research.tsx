@@ -985,20 +985,32 @@ export default function ResearchPortal() {
 
                       <div className="grid grid-cols-4 gap-3 mb-3">
                         <div className="bg-white/60 rounded-xl p-2.5">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Sample Size</p>
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Sample Size</p>
                           <p className="text-sm font-bold text-foreground">n={hyp.statistical.n.toLocaleString()}</p>
+                          <p className="text-[8px] text-muted-foreground mt-0.5">{hyp.design}</p>
                         </div>
                         <div className="bg-white/60 rounded-xl p-2.5">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Correlation r</p>
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Correlation r</p>
                           <p className="text-sm font-bold text-primary">{hyp.statistical.correlation}</p>
+                          <div className="mt-1.5 h-1.5 bg-white rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-primary" style={{ width: `${hyp.statistical.correlation * 100}%` }} />
+                          </div>
                         </div>
                         <div className="bg-white/60 rounded-xl p-2.5">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">p-value</p>
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">p-value</p>
                           <p className="text-sm font-bold text-foreground font-mono">{hyp.statistical.pValue}</p>
+                          <div className="flex items-center gap-0.5 mt-1.5">
+                            {[1,2,3,4,5].map(s => (
+                              <div key={s} className={`w-3 h-1.5 rounded ${(hyp.statistical.pValue === "<0.0001" && s <= 5) || (hyp.statistical.pValue === "<0.001" && s <= 4) || (hyp.statistical.pValue === "<0.01" && s <= 3) ? "bg-emerald-500" : "bg-white"}`} />
+                            ))}
+                          </div>
                         </div>
                         <div className="bg-white/60 rounded-xl p-2.5">
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Confidence</p>
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Confidence</p>
                           <p className="text-sm font-bold text-emerald-600">{hyp.statistical.confidence}%</p>
+                          <div className="mt-1.5 h-1.5 bg-white rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${hyp.statistical.confidence}%` }} />
+                          </div>
                         </div>
                       </div>
 

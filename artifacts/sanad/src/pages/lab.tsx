@@ -589,11 +589,37 @@ export default function LabPortal() {
                   <p className="font-bold text-foreground">No lab results on record</p>
                 </div>
               ) : (
-                data.labs.map((lab: any) => (
+                data.labs.map((lab: any) => {
+                  // Parse reference range for gauge visualization
+                  const refRange = lab.referenceRange ?? "";
+                  const resultVal = parseFloat(lab.result);
+                  let gaugeMin = 0, gaugeMax = 100, refLo = 0, refHi = 100, valuePct = 50;
+                  const dashMatch = refRange.match(/^([0-9.]+)\s*[-–]\s*([0-9.]+)/);
+                  const ltMatch = refRange.match(/^<\s*([0-9.]+)/);
+                  const gtMatch = refRange.match(/^>\s*([0-9.]+)/);
+                  if (dashMatch) {
+                    refLo = parseFloat(dashMatch[1]); refHi = parseFloat(dashMatch[2]);
+                    gaugeMin = refLo * 0.6; gaugeMax = refHi * 1.6;
+                    valuePct = Math.max(2, Math.min(98, ((resultVal - gaugeMin) / (gaugeMax - gaugeMin)) * 100));
+                  } else if (ltMatch) {
+                    refLo = 0; refHi = parseFloat(ltMatch[1]);
+                    gaugeMax = refHi * 2;
+                    valuePct = Math.max(2, Math.min(98, (resultVal / gaugeMax) * 100));
+                  } else if (gtMatch) {
+                    refLo = parseFloat(gtMatch[1]); refHi = 9999;
+                    gaugeMax = refLo * 2; gaugeMin = 0;
+                    valuePct = Math.max(2, Math.min(98, (resultVal / gaugeMax) * 100));
+                  }
+                  const hasGauge = !!(dashMatch || ltMatch || gtMatch) && !isNaN(resultVal);
+                  const gaugeColor = lab.status === "critical" ? "#ef4444" : lab.status === "abnormal" ? "#f59e0b" : "#22c55e";
+                  const refLoPct = dashMatch ? Math.max(0, ((refLo - gaugeMin) / (gaugeMax - gaugeMin)) * 100) : ltMatch ? 0 : Math.max(0, ((refLo - gaugeMin) / (gaugeMax - gaugeMin)) * 100);
+                  const refHiPct = dashMatch ? Math.min(100, ((refHi - gaugeMin) / (gaugeMax - gaugeMin)) * 100) : ltMatch ? Math.min(100, (refHi / gaugeMax) * 100) : 80;
+
+                  return (
                   <div key={lab.id} className="p-4"
                     style={lab.status === "critical" ? { borderLeft: "3px solid #ef4444" } : lab.status === "abnormal" ? { borderLeft: "3px solid #f59e0b" } : {}}>
                     <div className="flex items-start gap-4">
-                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-primary" />
+                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: gaugeColor }} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-bold text-sm text-foreground">{lab.testName}</p>
@@ -609,6 +635,28 @@ export default function LabPortal() {
                           {lab.referenceRange && <p className="text-[10px] text-muted-foreground font-mono bg-secondary px-2 py-0.5 rounded-full">REF: {lab.referenceRange}</p>}
                           <p className="text-[10px] text-muted-foreground">{lab.hospital}</p>
                         </div>
+
+                        {/* Reference Range Gauge */}
+                        {hasGauge && (
+                          <div className="mb-3">
+                            <div className="relative h-3 rounded-full overflow-hidden bg-secondary">
+                              {/* Normal zone */}
+                              <div className="absolute top-0 h-full rounded" style={{
+                                left: `${refLoPct}%`, width: `${Math.max(0, refHiPct - refLoPct)}%`,
+                                background: "rgba(34,197,94,0.20)", borderLeft: "1px solid rgba(34,197,94,0.5)", borderRight: "1px solid rgba(34,197,94,0.5)"
+                              }} />
+                              {/* Result marker */}
+                              <div className="absolute top-0 h-full w-0.5 -ml-px" style={{ left: `${valuePct}%`, background: gaugeColor }} />
+                              <div className="absolute w-3 h-3 rounded-full -translate-x-1/2 border-2 border-white shadow" style={{ left: `${valuePct}%`, top: 0, background: gaugeColor }} />
+                            </div>
+                            <div className="flex justify-between mt-0.5">
+                              <span className="text-[8px] text-muted-foreground font-mono">{gaugeMin.toFixed(1)}</span>
+                              <span className="text-[8px] text-emerald-600 font-mono font-bold">Normal: {lab.referenceRange}</span>
+                              <span className="text-[8px] text-muted-foreground font-mono">{gaugeMax.toFixed(1)}</span>
+                            </div>
+                          </div>
+                        )}
+
                         <div className="px-3 py-2.5 rounded-xl text-xs bg-secondary"
                           style={{ borderLeft: `3px solid ${lab.status === "critical" ? "#ef4444" : lab.status === "abnormal" ? "#f59e0b" : "#22c55e"}` }}>
                           <div className="flex items-start gap-2">
@@ -626,7 +674,8 @@ export default function LabPortal() {
                       </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </Card>

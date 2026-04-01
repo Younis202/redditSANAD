@@ -112,6 +112,12 @@ export default function EmergencyPage() {
   const [isOnline, setIsOnline]           = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
   const [offlineDismissed, setOfflineDismissed] = useState(false);
 
+  // Protocol activation state
+  const [activeProtocolCode, setActiveProtocolCode] = useState<string | null>(null);
+  const [protocolActivatedAt, setProtocolActivatedAt] = useState<Date | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
   useEffect(() => {
     const goOnline  = () => { setIsOnline(true);  setOfflineDismissed(false); };
     const goOffline = () => { setIsOnline(false); setOfflineDismissed(false); };
@@ -119,6 +125,43 @@ export default function EmergencyPage() {
     window.addEventListener("offline", goOffline);
     return () => { window.removeEventListener("online", goOnline); window.removeEventListener("offline", goOffline); };
   }, []);
+
+  // Live timer for active protocol
+  useEffect(() => {
+    if (!protocolActivatedAt) { setElapsedSeconds(0); return; }
+    const id = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - protocolActivatedAt.getTime()) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [protocolActivatedAt]);
+
+  function fmtElapsed(sec: number) {
+    const m = Math.floor(sec / 60).toString().padStart(2, "0");
+    const s = (sec % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  }
+
+  function activateProtocol(code: string) {
+    setActiveProtocolCode(code);
+    setProtocolActivatedAt(new Date());
+    setCompletedSteps(new Set());
+    setProtocolsOpen(true);
+  }
+
+  function deactivateProtocol() {
+    setActiveProtocolCode(null);
+    setProtocolActivatedAt(null);
+    setCompletedSteps(new Set());
+    setElapsedSeconds(0);
+  }
+
+  function toggleStep(key: string) {
+    setCompletedSteps(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
 
   const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread,
           markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("emergency");
@@ -746,6 +789,11 @@ export default function EmergencyPage() {
                 </div>
                 <CardTitle>Emergency Protocols</CardTitle>
                 <span className="text-[10px] font-bold text-red-700 bg-secondary px-2 py-0.5 rounded-full">ACLS · MOH · SRCA</span>
+                {activeProtocolCode && (
+                  <span className="text-[10px] font-black text-white bg-red-600 px-2.5 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" /> ACTIVE
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => setProtocolsOpen(p => !p)}
@@ -755,29 +803,109 @@ export default function EmergencyPage() {
                 {protocolsOpen ? "Hide" : "Show"} protocols
               </button>
             </CardHeader>
+
+            {/* Active Protocol Banner */}
+            {activeProtocolCode && (() => {
+              const proto = EMERGENCY_PROTOCOLS.find(p => p.code === activeProtocolCode)!;
+              const doneCount = Array.from(completedSteps).filter(k => k.startsWith(activeProtocolCode + "-")).length;
+              const totalSteps = proto.steps.length;
+              const pct = Math.round((doneCount / totalSteps) * 100);
+              return (
+                <div className="mx-4 mb-3 mt-1 rounded-2xl overflow-hidden" style={{ border: `2px solid ${proto.color}`, background: `${proto.color}0d` }}>
+                  <div className="flex items-center gap-4 px-4 py-3" style={{ background: proto.color }}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black text-white/70 uppercase tracking-widest">ACTIVE PROTOCOL</p>
+                      <p className="text-sm font-black text-white">{proto.code} — {proto.title}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wide">Elapsed</p>
+                      <p className="text-2xl font-black tabular-nums text-white font-mono">{fmtElapsed(elapsedSeconds)}</p>
+                    </div>
+                    <button
+                      onClick={deactivateProtocol}
+                      className="shrink-0 ml-2 flex items-center gap-1 text-[10px] font-black bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl transition-colors"
+                    >
+                      <CheckCircle2 className="w-3 h-3" /> End
+                    </button>
+                  </div>
+                  <div className="px-4 py-2.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] font-bold text-foreground">{doneCount} of {totalSteps} steps completed</p>
+                      <p className="text-[10px] font-black" style={{ color: proto.color }}>{pct}%</p>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: proto.color }} />
+                    </div>
+                    {pct === 100 && (
+                      <p className="text-[10px] font-bold text-emerald-600 mt-2 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> All steps complete — document and deactivate when ready
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
             {protocolsOpen && (
               <CardBody className="space-y-3">
-                {EMERGENCY_PROTOCOLS.map((protocol) => (
-                  <div key={protocol.code} className="rounded-2xl overflow-hidden border border-border">
-                    <div className="flex items-center gap-3 px-4 py-3" style={{ background: `${protocol.color}08`, borderBottom: `2px solid ${protocol.color}` }}>
-                      <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-md text-white" style={{ background: protocol.color }}>{protocol.code}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-foreground">{protocol.title}</p>
-                        <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5">
-                          <BookOpen className="w-2.5 h-2.5 shrink-0" /> {protocol.org}
-                        </p>
+                {EMERGENCY_PROTOCOLS.map((protocol) => {
+                  const isActive = activeProtocolCode === protocol.code;
+                  const protoSteps = protocol.steps.length;
+                  const donePct = isActive ? Math.round((Array.from(completedSteps).filter(k => k.startsWith(protocol.code + "-")).length / protoSteps) * 100) : 0;
+                  return (
+                    <div key={protocol.code} className="rounded-2xl overflow-hidden border transition-all" style={{ borderColor: isActive ? protocol.color : "hsl(var(--border))", boxShadow: isActive ? `0 0 0 2px ${protocol.color}30` : "none" }}>
+                      <div className="flex items-center gap-3 px-4 py-3" style={{ background: isActive ? `${protocol.color}14` : `${protocol.color}06`, borderBottom: `2px solid ${protocol.color}` }}>
+                        <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-md text-white" style={{ background: protocol.color }}>{protocol.code}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground">{protocol.title}</p>
+                          <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5">
+                            <BookOpen className="w-2.5 h-2.5 shrink-0" /> {protocol.org}
+                          </p>
+                        </div>
+                        {isActive ? (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[10px] font-black tabular-nums font-mono" style={{ color: protocol.color }}>{fmtElapsed(elapsedSeconds)}</span>
+                            <span className="text-[10px] font-bold" style={{ color: protocol.color }}>{donePct}%</span>
+                            <button onClick={deactivateProtocol} className="text-[10px] font-bold text-muted-foreground hover:text-foreground bg-secondary hover:bg-border px-2.5 py-1 rounded-xl transition-colors">End</button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => activateProtocol(protocol.code)}
+                            disabled={!!activeProtocolCode}
+                            className="shrink-0 flex items-center gap-1 text-[10px] font-black px-3 py-1.5 rounded-xl transition-colors text-white disabled:opacity-40"
+                            style={{ background: protocol.color }}
+                          >
+                            <Zap className="w-3 h-3" /> Activate
+                          </button>
+                        )}
+                      </div>
+                      <div className="divide-y divide-border/60">
+                        {protocol.steps.map((step, si) => {
+                          const stepKey = `${protocol.code}-${si}`;
+                          const done = completedSteps.has(stepKey);
+                          return (
+                            <div
+                              key={si}
+                              className={`flex items-start gap-3 px-4 py-2.5 transition-colors ${isActive ? "cursor-pointer hover:bg-secondary/40" : ""} ${done ? "bg-secondary/60" : ""}`}
+                              onClick={isActive ? () => toggleStep(stepKey) : undefined}
+                            >
+                              {isActive ? (
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${done ? "border-transparent" : ""}`}
+                                  style={{ borderColor: done ? protocol.color : protocol.color + "60", background: done ? protocol.color : "transparent" }}>
+                                  {done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                                </div>
+                              ) : (
+                                <span className="w-5 h-5 rounded-full border-2 flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5" style={{ borderColor: protocol.color, color: protocol.color }}>{si + 1}</span>
+                              )}
+                              <p className={`text-xs leading-relaxed transition-colors ${done ? "line-through text-muted-foreground/50" : "text-foreground"}`}>{step}</p>
+                              {done && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5 ml-auto" />}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                    <div className="divide-y divide-border/60">
-                      {protocol.steps.map((step, si) => (
-                        <div key={si} className="flex items-start gap-3 px-4 py-2.5">
-                          <span className="w-5 h-5 rounded-full border-2 flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5" style={{ borderColor: protocol.color, color: protocol.color }}>{si + 1}</span>
-                          <p className="text-xs text-foreground leading-relaxed">{step}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <p className="text-[9px] text-muted-foreground text-right pt-1">Protocols verified against MOH Saudi Arabia 2024 clinical guidelines. For reference only — clinical judgment applies.</p>
               </CardBody>
             )}

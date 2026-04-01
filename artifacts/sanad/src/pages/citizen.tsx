@@ -904,69 +904,119 @@ export default function CitizenPortal() {
 
         {activeTab === "health-score" && healthScore && (
           <div className="p-5 space-y-5">
-            {/* Score interpretation */}
-            <div className={`flex items-start gap-4 p-5 ${healthScore.bg} rounded-2xl`}>
-              <div className="flex-shrink-0">
-                <div className="relative w-20 h-20">
-                  <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E5E7EB" strokeWidth="2.5" />
-                    <circle
-                      cx="18" cy="18" r="15.9" fill="none"
-                      stroke={healthScore.score >= 85 ? "#22c55e" : healthScore.score >= 70 ? "#38bdf8" : healthScore.score >= 55 ? "#f59e0b" : healthScore.score >= 40 ? "#f97316" : "#ef4444"}
-                      strokeWidth="2.5"
-                      strokeDasharray={`${healthScore.score} 100`}
+            {/* === HERO RING CHART === */}
+            <div className="rounded-3xl overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" }}>
+              <div className="flex items-center gap-6 p-6">
+                {/* Big animated ring */}
+                <div className="relative shrink-0" style={{ width: 160, height: 160 }}>
+                  <svg viewBox="0 0 120 120" width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
+                    {/* Background track */}
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="10" />
+                    {/* Grade zones (decorative) */}
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(239,68,68,0.2)" strokeWidth="10"
+                      strokeDasharray="31.4 283.2" strokeDashoffset="0" strokeLinecap="butt" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(249,115,22,0.2)" strokeWidth="10"
+                      strokeDasharray="31.4 283.2" strokeDashoffset="-31.4" strokeLinecap="butt" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(234,179,8,0.2)" strokeWidth="10"
+                      strokeDasharray="47.1 283.2" strokeDashoffset="-62.8" strokeLinecap="butt" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(56,189,248,0.2)" strokeWidth="10"
+                      strokeDasharray="56.5 283.2" strokeDashoffset="-109.9" strokeLinecap="butt" />
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(34,197,94,0.2)" strokeWidth="10"
+                      strokeDasharray="62.8 283.2" strokeDashoffset="-166.4" strokeLinecap="butt" />
+                    {/* Main progress arc */}
+                    <circle cx="60" cy="60" r="50" fill="none"
+                      stroke={healthScore.score >= 85 ? "#22c55e" : healthScore.score >= 70 ? "#38bdf8" : healthScore.score >= 55 ? "#eab308" : healthScore.score >= 40 ? "#f97316" : "#ef4444"}
+                      strokeWidth="10"
+                      strokeDasharray={`${(healthScore.score / 100) * 314.16} 314.16`}
                       strokeLinecap="round"
+                      style={{ transition: "stroke-dasharray 1s ease" }}
                     />
                   </svg>
+                  {/* Center text */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className={`text-xl font-bold tabular-nums ${healthScore.color}`}>{healthScore.score}</span>
-                    <span className="text-[9px] text-muted-foreground">/100</span>
+                    <span className="text-4xl font-black tabular-nums text-white">{healthScore.score}</span>
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">/100</span>
+                  </div>
+                </div>
+
+                {/* Grade and summary */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-5xl font-black text-white" style={{ color: healthScore.score >= 85 ? "#22c55e" : healthScore.score >= 70 ? "#38bdf8" : healthScore.score >= 55 ? "#eab308" : healthScore.score >= 40 ? "#f97316" : "#ef4444" }}>
+                      {healthScore.grade}
+                    </span>
+                    <div>
+                      <p className="text-lg font-bold text-white">{healthScore.label}</p>
+                      <p className="text-[11px] text-white/50 uppercase tracking-wide font-semibold">AI Health Score</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-white/70 leading-relaxed mb-4">{healthScore.summary}</p>
+                  {/* Grade scale */}
+                  <div className="flex items-center gap-1">
+                    {[
+                      { g: "F", label: "0–39", c: "#ef4444" },
+                      { g: "D", label: "40–54", c: "#f97316" },
+                      { g: "C", label: "55–69", c: "#eab308" },
+                      { g: "B", label: "70–84", c: "#38bdf8" },
+                      { g: "A", label: "85–100", c: "#22c55e" },
+                    ].map((z) => (
+                      <div key={z.g} className={`flex-1 rounded-lg py-1.5 text-center transition-all ${healthScore.grade === z.g ? "ring-2 ring-white/40" : "opacity-50"}`}
+                        style={{ background: `${z.c}20`, border: `1px solid ${z.c}40` }}>
+                        <p className="text-xs font-black" style={{ color: z.c }}>{z.g}</p>
+                        <p className="text-[8px] text-white/40 font-mono">{z.label}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className={`text-2xl font-bold ${healthScore.color}`}>{healthScore.label}</h3>
-                  <Badge variant={healthScore.grade === "A" ? "success" : healthScore.grade === "B" ? "info" : healthScore.grade === "C" ? "warning" : "destructive"}>
-                    Grade {healthScore.grade}
-                  </Badge>
-                </div>
-                <p className="text-sm text-foreground font-medium leading-relaxed">{healthScore.summary}</p>
-                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Based on your live medical data</span>
-                  <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> AI-powered analysis</span>
-                </div>
+
+              {/* Mini KPIs */}
+              <div className="grid grid-cols-4 divide-x divide-white/10 border-t border-white/10">
+                {[
+                  { label: "Conditions", value: patient.chronicConditions?.length ?? 0, icon: Activity, good: 0 },
+                  { label: "Active Meds", value: activeMeds.length, icon: Pill, good: 2 },
+                  { label: "Abnormal Labs", value: abnormal, icon: FlaskConical, good: 0 },
+                  { label: "AI Insights", value: recommendations.length, icon: Lightbulb, good: 0 },
+                ].map((kpi) => {
+                  const isOk = kpi.value <= kpi.good;
+                  return (
+                    <div key={kpi.label} className="flex flex-col items-center py-4 gap-1">
+                      <kpi.icon className={`w-4 h-4 ${isOk ? "text-emerald-400" : kpi.value > 3 ? "text-red-400" : "text-amber-400"}`} />
+                      <p className={`text-xl font-black tabular-nums ${isOk ? "text-emerald-400" : kpi.value > 3 ? "text-red-400" : "text-amber-400"}`}>{kpi.value}</p>
+                      <p className="text-[9px] font-semibold text-white/40 uppercase tracking-wide">{kpi.label}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Score Factors */}
+            {/* === SCORE BREAKDOWN BARS === */}
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Star className="w-3.5 h-3.5" /> Score Breakdown
+                <Star className="w-3.5 h-3.5" /> What Affects Your Score
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {[
-                  { label: "Chronic Conditions", value: patient.chronicConditions?.length ?? 0, max: 5, good: 0, icon: Activity },
-                  { label: "Active Medications", value: activeMeds.length, max: 8, good: 2, icon: Pill },
-                  { label: "Abnormal Labs", value: abnormal, max: 5, good: 0, icon: FlaskConical },
-                  { label: "Recent Visits", value: patient.visits?.length ?? 0, max: 10, good: 1, icon: CalendarDays },
+                  { label: "Chronic Conditions", value: patient.chronicConditions?.length ?? 0, max: 5, good: 0, icon: Activity, tip: "Fewer conditions = higher score" },
+                  { label: "Active Medications", value: activeMeds.length, max: 8, good: 2, icon: Pill, tip: "Complex polypharmacy impacts score" },
+                  { label: "Abnormal Lab Results", value: abnormal, max: 5, good: 0, icon: FlaskConical, tip: "Abnormal labs reduce your score" },
+                  { label: "Recent Emergency Visits", value: (patient.visits ?? []).filter((v: any) => v.visitType === "emergency").length, max: 4, good: 0, icon: CalendarDays, tip: "Emergency visits indicate acute risk" },
                 ].map((item) => {
-                  const pct = Math.max(5, 100 - (item.value / item.max) * 100);
                   const isGood = item.value <= item.good;
+                  const badPct = Math.min(100, (item.value / item.max) * 100);
+                  const statusColor = isGood ? "#22c55e" : badPct >= 70 ? "#ef4444" : "#f59e0b";
                   return (
-                    <div key={item.label} className="flex items-center gap-3 px-4 py-3 bg-secondary rounded-2xl">
-                      <item.icon className={`w-4 h-4 shrink-0 ${isGood ? "text-emerald-500" : item.value >= item.max * 0.7 ? "text-red-500" : "text-amber-500"}`} />
+                    <div key={item.label} className="flex items-center gap-4 px-4 py-3 bg-secondary rounded-2xl">
+                      <item.icon className="w-4 h-4 shrink-0" style={{ color: statusColor }} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-foreground truncate">{item.label}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 bg-background rounded-full h-1.5">
-                            <div
-                              className={`h-full rounded-full ${isGood ? "bg-emerald-500" : item.value >= item.max * 0.7 ? "bg-red-500" : "bg-amber-500"}`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] text-muted-foreground tabular-nums">{item.value}</span>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs font-semibold text-foreground">{item.label}</p>
+                          <span className="text-[10px] font-bold tabular-nums" style={{ color: statusColor }}>{item.value}</span>
                         </div>
+                        <div className="h-1.5 bg-background rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.max(4, badPct)}%`, background: statusColor }} />
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-1">{item.tip}</p>
                       </div>
                     </div>
                   );

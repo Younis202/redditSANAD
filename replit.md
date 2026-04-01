@@ -1,9 +1,24 @@
-# SANAD — National AI Health Intelligence Platform v3.0
+# SANAD — National AI Health Intelligence Platform v4.0
 
 ## Overview
 SANAD is a national AI-first health platform for Saudi Arabia. It connects medical records via National IDs and runs a full AI brain with 9 engines, event-driven decisions, Digital Twin projections, and an immutable audit trail. It serves 12 operator portals.
 
-## v3.8 — Full Assessment Implementation (Latest)
+## v4.0 — World-Class Visual Intelligence Upgrade (Latest)
+New clinical visualizations and AI intelligence displays added across all 12 portals:
+
+1. **Lab Portal** — Reference range gauge bars on every test result row: parses "3.5–5.0", "<5", ">40" format ranges; renders animated marker showing where the result falls; green zone = normal range; colored dot (red/amber/green) tracks status
+2. **Hospital Portal** — Live Bed Map grid visualization: each bed shown as a 14×14px colored square (red=critical, amber=high-risk, blue=stable, grey=available); row per ward with occupancy% label; instant visual capacity assessment
+3. **Doctor Portal** — Drug-Drug Interaction Matrix: NxN grid of all active medications; color-coded cells (CRIT/HIGH/MOD/SAFE); diagonal=self; matches active medications against `medMatrixData.interactions`; legend with 4 severity colors
+4. **AI Control Portal** — AI Decision Cascade Flow Diagram: horizontal scrollable node chain showing all 7 cascade steps (Lab→Risk Engine→Doctor→Insurance→Supply Chain→Family→Research); portal icon + latency + action badge; summary bar showing 234ms total cascade
+5. **Family Portal** — SVG Clinical Pedigree Diagram: proper clinical pedigree with circle nodes per member; color-coded by risk score (red/amber/green); connecting lines between generations (P1/P2/P3); dashed ring around index patient; risk score label inside each node; legend at bottom
+6. **Research Portal** — Statistical bar visualizations in hypothesis cards: correlation r shown as filled bar (0–1 scale); p-value significance as 5-segment bar (more filled = more significant); confidence % bar; study design label added to sample size box
+7. **Admin Portal** — KSA Regional Health Intelligence Map: grid of 13-region cards (4-col grid); each card shows coverage %, hospital count, patient count, high-risk flag; colored left border + background glow by coverage tier (green/amber/red)
+8. **Doctor Portal (cont.)** — AI SOAP Note Generator (📝 Note tab): auto-generates full MOH-formatted clinical note with S/O/A/P sections, Copy + Print buttons (from prior session)
+9. **Emergency Portal** — Protocol Activation Mode: live MM:SS countdown, checkable steps, animated ACTIVE badge (from prior session)
+10. **Citizen Portal** — SVG Animated Health Ring: dark theme 160×160 animated arc, grade zones F-A, 4-KPI strip, score breakdown (from prior session)
+11. **Admin Portal** — National Policy Simulator: HbA1c/reach sliders → real-time SAR savings, MACE prevented, QALYs (from prior session)
+
+## v3.8 — Full Assessment Implementation
 All 12 assessment points from colleague technical review fully implemented:
 1. **Entry/Auth** — Nafath SSO + OAuth2 button, 3-step login (role → credentials → PDPL consent), session context via AuthProvider, all requests carry x-user-role identity header
 2. **Emergency** — Life-critical 2-second priority strip (blood type 42px, allergies, top action, risk/SLA), ACLS-CA/ACLS-ACS/MOH-SEP/MOH-STROKE protocol engine with step-by-step action buttons, data freshness timestamp, offline-first detection (navigator.onLine + window events) with dismissible offline banner and always-visible online/offline pill

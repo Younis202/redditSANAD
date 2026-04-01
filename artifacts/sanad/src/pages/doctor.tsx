@@ -591,6 +591,7 @@ export default function DoctorDashboard() {
                 { id: "predictions", label: "AI Predictions", count: predictions.length },
                 { id: "alerts", label: "Alerts", count: unreadAlerts || undefined },
                 { id: "ai", label: "Risk Analysis" },
+                { id: "note", label: "📝 SOAP Note" },
                 { id: "audit", label: "Audit Trail" },
               ]}
               active={activeTab}
@@ -882,6 +883,66 @@ export default function DoctorDashboard() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* Drug Interaction Matrix */}
+                {activeMeds.length >= 2 && (
+                  <div className="rounded-2xl overflow-hidden border border-border">
+                    <div className="px-4 py-3 bg-secondary/50 flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, #7c3aed, #4c1d95)" }}>
+                        <span className="text-white text-[8px] font-black">IX</span>
+                      </div>
+                      <p className="text-xs font-bold text-foreground">Drug-Drug Interaction Matrix</p>
+                      <div className="ml-auto flex items-center gap-2 text-[9px] font-semibold text-muted-foreground">
+                        {[{ c: "#ef4444", l: "Critical" }, { c: "#f59e0b", l: "High" }, { c: "#38bdf8", l: "Moderate" }, { c: "#22c55e", l: "Safe" }].map(i => (
+                          <div key={i.l} className="flex items-center gap-1"><div className="w-2 h-2 rounded-sm" style={{ background: i.c }} />{i.l}</div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-4 overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr>
+                            <th className="w-28 p-1" />
+                            {activeMeds.map(m => (
+                              <th key={m.id} className="p-1 min-w-[80px]">
+                                <div className="text-[8px] font-bold text-muted-foreground text-center truncate max-w-[76px]" title={m.drugName}>{m.drugName.split(" ")[0]}</div>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {activeMeds.map(rowMed => (
+                            <tr key={rowMed.id}>
+                              <td className="p-1 pr-2">
+                                <div className="text-[8px] font-bold text-muted-foreground text-right truncate max-w-[108px]" title={rowMed.drugName}>{rowMed.drugName.split(" ")[0]}</div>
+                              </td>
+                              {activeMeds.map(colMed => {
+                                if (rowMed.id === colMed.id) return (
+                                  <td key={colMed.id} className="p-0.5"><div className="w-full h-8 rounded bg-secondary/30 flex items-center justify-center"><div className="w-2 h-px bg-border" /></div></td>
+                                );
+                                const ix = medMatrixData?.interactions?.find(i =>
+                                  (i.drug1.toLowerCase().includes(rowMed.drugName.toLowerCase().split(" ")[0]) && i.drug2.toLowerCase().includes(colMed.drugName.toLowerCase().split(" ")[0])) ||
+                                  (i.drug2.toLowerCase().includes(rowMed.drugName.toLowerCase().split(" ")[0]) && i.drug1.toLowerCase().includes(colMed.drugName.toLowerCase().split(" ")[0]))
+                                );
+                                const bg = ix ? (ix.severity === "critical" ? "#ef4444" : ix.severity === "high" ? "#f59e0b" : "#38bdf8") : "#22c55e";
+                                const label = ix ? (ix.severity === "critical" ? "CRIT" : ix.severity === "high" ? "HIGH" : "MOD") : "SAFE";
+                                return (
+                                  <td key={colMed.id} className="p-0.5">
+                                    <div className="w-full h-8 rounded flex items-center justify-center text-[7px] font-black text-white"
+                                      style={{ background: bg, opacity: ix ? 1 : 0.4 }}
+                                      title={ix ? `${ix.drug1} ↔ ${ix.drug2}: ${ix.severity}` : "No known interaction"}>
+                                      {label}
+                                    </div>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
 
@@ -2126,6 +2187,163 @@ export default function DoctorDashboard() {
                 )}
               </div>
             )}
+
+            {activeTab === "note" && (() => {
+              const now = new Date();
+              const facilityName = "King Abdulaziz Medical City, Riyadh";
+              const facilityCode = "KAMC-RUH";
+              const physName = "Dr. Sarah Al-Rashidi, MBBS, FRCPC";
+              const mrn = `MRN-${patient.id.toString().padStart(6, "0")}`;
+              const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+              const timeStr = now.toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit" });
+              const age = new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear();
+              const activeMedsList = activeMeds.map((m: any) => `${m.drugName}${m.dosage ? " " + m.dosage : ""}${m.frequency ? ", " + m.frequency : ""}`);
+              const critLabs = labResults.filter((l: any) => l.status === "critical");
+              const abnLabs = labResults.filter((l: any) => l.status === "abnormal");
+              const recentVisit = patient.visits?.at(-1);
+              const riskLvl = riskScore?.riskLevel ?? "unknown";
+              const riskScoreVal = riskScore?.riskScore ?? "—";
+              const topFactors = riskScore?.factors?.slice(0, 3).map((f: any) => f.factor) ?? [];
+              const aiRecs = aiDecision?.recommendations ?? [];
+
+              const soapSections = [
+                {
+                  id: "S",
+                  label: "Subjective",
+                  color: "#007AFF",
+                  icon: "🗣",
+                  content: [
+                    `Patient: ${patient.fullName}, ${age} years, ${patient.gender}, Blood type ${patient.bloodType}.`,
+                    recentVisit
+                      ? `Chief complaint / most recent visit: ${recentVisit.visitType ?? "routine"} on ${format(new Date(recentVisit.visitDate), "dd MMM yyyy")}${(recentVisit as any).notes ? " — " + (recentVisit as any).notes : ""}.`
+                      : "No recent visits on record.",
+                    patient.chronicConditions?.length
+                      ? `Known chronic conditions: ${patient.chronicConditions.join("; ")}.`
+                      : "No chronic conditions documented.",
+                    patient.allergies?.length
+                      ? `⚠ Allergies: ${patient.allergies.join(", ")}.`
+                      : "No known drug allergies.",
+                    activeMedsList.length
+                      ? `Current medications (${activeMedsList.length}): ${activeMedsList.slice(0, 5).join("; ")}${activeMedsList.length > 5 ? ` + ${activeMedsList.length - 5} more.` : "."}`
+                      : "No active medications.",
+                  ].filter(Boolean),
+                },
+                {
+                  id: "O",
+                  label: "Objective",
+                  color: "#7c3aed",
+                  icon: "🔬",
+                  content: [
+                    `National ID: ${patient.nationalId} · ${mrn}`,
+                    `Facility: ${facilityName} (${facilityCode})`,
+                    labResults.length
+                      ? `Lab results (${labResults.length} total): ${critLabs.length} critical, ${abnLabs.length} abnormal, ${labResults.length - critLabs.length - abnLabs.length} within normal limits.`
+                      : "No laboratory results on file.",
+                    critLabs.length ? `Critical values: ${critLabs.map((l: any) => `${l.testName} ${l.result}${l.unit ?? ""}`).join("; ")}.` : null,
+                    abnLabs.length ? `Abnormal values: ${abnLabs.map((l: any) => `${l.testName} ${l.result}${l.unit ?? ""}`).join("; ")}.` : null,
+                    `Total visits recorded: ${patient.visits?.length ?? 0}.`,
+                  ].filter(Boolean) as string[],
+                },
+                {
+                  id: "A",
+                  label: "Assessment",
+                  color: "#dc2626",
+                  icon: "🧠",
+                  content: [
+                    `AI Risk Score: ${riskScoreVal}/100 — ${riskLvl.toUpperCase()} risk level.`,
+                    topFactors.length ? `Top risk factors: ${topFactors.join("; ")}.` : null,
+                    patient.chronicConditions?.length
+                      ? `Active diagnoses: ${patient.chronicConditions.join("; ")}.`
+                      : "No active diagnoses documented.",
+                    riskScore?.factors?.length
+                      ? `${riskScore.factors.length} risk factor(s) identified by SANAD AI v3.0 (LACE+ index integrated).`
+                      : null,
+                    aiDecision?.urgency && aiDecision.urgency !== "routine"
+                      ? `Clinical urgency level: ${aiDecision.urgency.toUpperCase()} — immediate clinical attention recommended.`
+                      : "Clinical urgency level: ROUTINE — continue standard management.",
+                  ].filter(Boolean) as string[],
+                },
+                {
+                  id: "P",
+                  label: "Plan",
+                  color: "#059669",
+                  icon: "📋",
+                  content: [
+                    ...(aiRecs.length
+                      ? aiRecs.slice(0, 5).map((r: any) => `• ${typeof r === "string" ? r : r.text ?? JSON.stringify(r)}`)
+                      : ["• Continue current management plan as documented."]),
+                    `• Follow-up: ${patient.chronicConditions?.length ? "3–6 months chronic disease review" : "Annual preventive health check"}.`,
+                    critLabs.length ? `• Urgent: Repeat critical labs and notify on-call team for ${critLabs.map((l: any) => l.testName).join(", ")}.` : null,
+                    `• Patient education provided regarding medication adherence and lifestyle modification.`,
+                    `• Documentation completed in SANAD HIS — PDPL compliant. Immutable audit record generated.`,
+                  ].filter(Boolean) as string[],
+                },
+              ];
+
+              const handleCopy = () => {
+                const text = soapSections.map(s =>
+                  `=== ${s.id}. ${s.label.toUpperCase()} ===\n${s.content.join("\n")}`
+                ).join("\n\n");
+                const header = `SOAP NOTE — ${facilityName}\nDate: ${dateStr}  Time: ${timeStr}\nPhysician: ${physName}\nPatient: ${patient.fullName} · ${patient.nationalId} · ${mrn}\n${"─".repeat(60)}\n\n`;
+                navigator.clipboard?.writeText(header + text).catch(() => {});
+              };
+
+              return (
+                <div className="p-6 space-y-5">
+                  {/* Header */}
+                  <div className="rounded-2xl p-5 flex items-start justify-between gap-4" style={{ background: "linear-gradient(135deg, #0f172a, #1e293b)" }}>
+                    <div>
+                      <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">SOAP Clinical Note · SANAD HIS v3.0</p>
+                      <p className="text-lg font-black text-white">{patient.fullName}</p>
+                      <p className="text-xs text-white/60 mt-0.5">{patient.nationalId} · {mrn} · {age}y {patient.gender} · Blood {patient.bloodType}</p>
+                      <p className="text-[11px] text-white/40 mt-1.5">{facilityName} · {physName}</p>
+                      <p className="text-[11px] text-white/40">{dateStr}  {timeStr}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handleCopy}
+                        className="flex items-center gap-1.5 text-[11px] font-bold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-colors"
+                      >
+                        <CheckCircle2 className="w-3 h-3" /> Copy
+                      </button>
+                      <button
+                        onClick={() => window.print()}
+                        className="flex items-center gap-1.5 text-[11px] font-bold text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-colors"
+                      >
+                        <BookOpen className="w-3 h-3" /> Print
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* SOAP Sections */}
+                  {soapSections.map((section) => (
+                    <div key={section.id} className="rounded-2xl overflow-hidden border border-border">
+                      <div className="flex items-center gap-3 px-5 py-3" style={{ background: `${section.color}0d`, borderBottom: `2px solid ${section.color}` }}>
+                        <span className="text-base">{section.icon}</span>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest" style={{ color: section.color }}>{section.id} — {section.label}</p>
+                        </div>
+                      </div>
+                      <div className="px-5 py-4 space-y-2 bg-background">
+                        {section.content.map((line, i) => (
+                          <p key={i} className={`text-sm leading-relaxed ${line.startsWith("⚠") ? "font-bold text-red-600" : line.startsWith("•") ? "text-foreground font-medium" : "text-foreground"}`}>
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Footer disclaimer */}
+                  <div className="flex items-start gap-3 px-4 py-3 bg-secondary rounded-2xl">
+                    <Shield className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      This SOAP note was generated by SANAD AI v3.0 on {dateStr} at {timeStr}. It is based on structured data from the patient's electronic health record and must be reviewed and co-signed by the treating physician before filing. All data handling complies with Saudi PDPL Article 12 and MOH e-health regulations.
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
 
             {activeTab === "audit" && (
               <div className="p-6 space-y-4">

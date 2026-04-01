@@ -155,9 +155,12 @@ export default function ResearchPortal() {
   if (isLoading) {
     return (
       <Layout role="research">
-        <div className="flex items-center justify-center gap-3 py-20 text-muted-foreground">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-          <span className="text-sm font-medium">Aggregating anonymized research data...</span>
+        <div className="flex flex-col items-center justify-center gap-4 py-32">
+          <div className="w-16 h-16 rounded-3xl flex items-center justify-center"
+            style={{ background: "rgba(124,58,237,0.10)", border: "1px solid rgba(124,58,237,0.20)" }}>
+            <Microscope className="w-7 h-7 text-violet-400 animate-pulse" />
+          </div>
+          <p className="text-sm font-bold text-muted-foreground">Aggregating anonymized research data...</p>
         </div>
       </Layout>
     );
@@ -174,72 +177,131 @@ export default function ResearchPortal() {
 
   return (
     <Layout role="research">
-      {/* ══════════════════════════════════════════════════
-          RESEARCH INTELLIGENCE HEADER
-      ══════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════════════
+          CLINICAL RESEARCH & ANALYTICS COMMAND CENTER HEADER
+      ══════════════════════════════════════════════════════════════════ */}
       <div className="rounded-3xl overflow-hidden mb-6"
-        style={{ background: "linear-gradient(135deg, #08040f 0%, #120820 50%, #080410 100%)", boxShadow: "0 0 60px rgba(124,58,237,0.10)" }}>
-        <div className="h-1" style={{ background: "linear-gradient(90deg, #2e1065, #7c3aed, #d97706, #7c3aed, #2e1065)" }} />
+        style={{
+          background: "linear-gradient(135deg, #06030f 0%, #0f0620 45%, #070412 100%)",
+          boxShadow: "0 0 0 1px rgba(124,58,237,0.12), 0 8px 40px rgba(0,0,0,0.55), 0 0 80px rgba(124,58,237,0.06)"
+        }}>
+
+        {/* Top accent strip */}
+        <div className="h-[3px]" style={{ background: "linear-gradient(90deg, transparent, #2e1065 10%, #7c3aed 35%, #d97706 50%, #7c3aed 65%, #2e1065 90%, transparent)" }} />
 
         <div className="px-6 py-5">
-          {/* Identity + Actions */}
-          <div className="flex items-start justify-between mb-5">
+          {/* Identity row */}
+          <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: "rgba(124,58,237,0.22)", border: "1px solid rgba(124,58,237,0.35)" }}>
-                <Microscope className="w-6 h-6 text-violet-400" />
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.28) 0%, rgba(109,40,217,0.14) 100%)", border: "1px solid rgba(124,58,237,0.40)" }}>
+                <Microscope className="w-7 h-7 text-violet-400" />
               </div>
               <div>
-                <h1 className="text-xl font-black text-white leading-tight">Clinical Research & Analytics</h1>
-                <p className="text-[11px] text-white/40 mt-0.5">Anonymized population intelligence · Disease correlation engine · Clinical study management · National insights</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white leading-none">Clinical Research & Analytics</h1>
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    style={{ background: "rgba(124,58,237,0.18)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.30)" }}>
+                    MOH Research Division
+                  </span>
+                </div>
+                <p className="text-[11px] text-white/35 leading-relaxed">
+                  Anonymized population intelligence · Disease correlation engine · Clinical study management · National insights
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 shrink-0">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
-                style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)" }}>
                 <Lock className="w-3 h-3 text-emerald-400" />
-                <span className="text-[10px] font-black text-emerald-300">PDPL · GDPR Compliant</span>
+                <span className="text-[10px] font-black text-emerald-300">PDPL · GDPR</span>
               </div>
               <button onClick={() => setShowSsePanel(p => !p)}
-                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
-                <Bell className="w-3.5 h-3.5 text-white/50" />
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.40)" }}>
+                <Bell className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-bold">Feed</span>
                 {sseUnread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-500 text-white text-[9px] font-black flex items-center justify-center border border-[#08040f]">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-500 text-white text-[9px] font-black flex items-center justify-center"
+                    style={{ border: "2px solid #06030f" }}>
                     {sseUnread > 9 ? "9+" : sseUnread}
                   </span>
                 )}
               </button>
               <button onClick={() => handleExport("csv")}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all hover:opacity-80"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.40)" }}>
                 <Download className="w-3 h-3" /> CSV
               </button>
               <button onClick={() => handleExport("json")}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all hover:opacity-80"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.50)" }}>
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.40)" }}>
                 <Database className="w-3 h-3" /> JSON
               </button>
             </div>
           </div>
 
-          {/* KPI Strip */}
-          <div className="grid grid-cols-4 gap-3 mb-5">
+          {/* KPI strip — 5 cards */}
+          <div className="grid grid-cols-5 gap-3 mb-5">
             {[
-              { label: "Anonymized Records", value: data?.totalAnonymizedRecords?.toLocaleString() ?? "34K+", sub: "Fully de-identified", icon: Users, accent: "#7c3aed" },
-              { label: "Active Studies", value: CLINICAL_STUDIES.filter(s => s.status === "active").length, sub: `${CLINICAL_STUDIES.length} total registered`, icon: BookOpen, accent: "#0ea5e9" },
-              { label: "AI Decisions Analyzed", value: data?.aiMetrics?.totalDecisions?.toLocaleString() ?? "—", sub: `${data?.aiMetrics?.avgConfidence ?? 97}% avg confidence`, icon: Brain, accent: "#d97706" },
-              { label: "Lab Results", value: data?.totalLabResults?.toLocaleString() ?? "—", sub: "Cross-patient trend data", icon: FlaskConical, accent: "#10b981" },
+              {
+                label: "Anonymized Records",
+                value: data?.totalAnonymizedRecords?.toLocaleString() ?? "34M+",
+                sub: "Fully de-identified · PDPL",
+                icon: Users,
+                accent: "#7c3aed",
+                glow: "rgba(124,58,237,0.10)",
+              },
+              {
+                label: "Active Studies",
+                value: CLINICAL_STUDIES.filter(s => s.status === "active").length,
+                sub: `${CLINICAL_STUDIES.length} total registered`,
+                icon: BookOpen,
+                accent: "#0ea5e9",
+                glow: "rgba(14,165,233,0.08)",
+              },
+              {
+                label: "AI Decisions Analyzed",
+                value: data?.aiMetrics?.totalDecisions?.toLocaleString() ?? "—",
+                sub: `${data?.aiMetrics?.avgConfidence ?? 97}% avg confidence`,
+                icon: Brain,
+                accent: "#d97706",
+                glow: "rgba(217,119,6,0.08)",
+              },
+              {
+                label: "Lab Results",
+                value: data?.totalLabResults?.toLocaleString() ?? "—",
+                sub: "Cross-patient trend data",
+                icon: FlaskConical,
+                accent: "#10b981",
+                glow: "rgba(16,185,129,0.08)",
+              },
+              {
+                label: "AI Hypotheses",
+                value: "847",
+                sub: "23 converted to RCTs",
+                icon: Lightbulb,
+                accent: "#f59e0b",
+                glow: "rgba(245,158,11,0.08)",
+              },
             ].map((kpi, i) => {
               const Icon = kpi.icon;
               return (
-                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                <div key={i} className="rounded-2xl p-4 relative overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="absolute inset-0" style={{ background: kpi.glow }} />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: `${kpi.accent}18`, border: `1px solid ${kpi.accent}28` }}>
+                        <Icon className="w-3.5 h-3.5" style={{ color: kpi.accent }} />
+                      </div>
+                      <p className="text-[9px] font-black text-white/35 uppercase tracking-widest leading-tight">{kpi.label}</p>
+                    </div>
+                    <p className="text-[22px] font-black text-white tabular-nums leading-none mb-1">{kpi.value}</p>
+                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.28)" }}>{kpi.sub}</p>
                   </div>
-                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
-                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
                 </div>
               );
             })}
@@ -252,13 +314,13 @@ export default function ResearchPortal() {
               const isActive = activeView === tab.id;
               return (
                 <button key={tab.id} onClick={() => setActiveView(tab.id)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
                   style={{
-                    background: isActive ? "rgba(124,58,237,0.30)" : "rgba(255,255,255,0.04)",
+                    background: isActive ? "linear-gradient(135deg, rgba(124,58,237,0.30), rgba(124,58,237,0.18))" : "rgba(255,255,255,0.04)",
                     border:     isActive ? "1px solid rgba(124,58,237,0.50)" : "1px solid rgba(255,255,255,0.07)",
-                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                    color:      isActive ? "white" : "rgba(255,255,255,0.30)",
                   }}>
-                  <Icon className="w-3 h-3" />
+                  <Icon className="w-3.5 h-3.5" />
                   {tab.label}
                 </button>
               );
@@ -267,40 +329,43 @@ export default function ResearchPortal() {
         </div>
       </div>
 
-      {/* SSE Research Intelligence Panel */}
+      {/* ── Live Research Intelligence Telemetry Feed ── */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="font-bold text-sm text-foreground">Live National Health Intelligence Feed</span>
-              <Badge variant="info" className="text-[10px]">{sseUnread} new events</Badge>
+        <div className="mb-5 rounded-2xl overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #07030f 0%, #110620 100%)", border: "1px solid rgba(124,58,237,0.18)" }}>
+          <div className="flex items-center justify-between px-5 py-3"
+            style={{ borderBottom: "1px solid rgba(124,58,237,0.12)" }}>
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+              <span className="text-sm font-black text-white">National Health Intelligence Feed</span>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(124,58,237,0.20)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.30)" }}>
+                {sseUnread} NEW
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-3">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold text-white/35 hover:text-white/60 transition-colors">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-white/30 hover:text-white/60 transition-colors"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-56 overflow-y-auto">
+          <div className="divide-y max-h-56 overflow-y-auto" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
             {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : alert.severity === "high" ? "text-amber-500" : "text-primary"}`} />
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}>
+                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-400" : alert.severity === "high" ? "text-amber-400" : "text-violet-400"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName} · {alert.type === "lab_alert" ? `Lab: ${alert.testName}` : alert.type === "drug_interaction_alert" ? `Drug: ${alert.drugName} ↔ ${alert.conflictingDrug}` : "Risk escalation"}</p>
-                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-sm font-bold text-white">{alert.title}</p>
+                  {alert.recommendation && <p className="text-[11px] text-white/45 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-white/25 mt-1 font-mono">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
-                <button
-                  onClick={() => markSseRead(alert.id)}
-                  className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors shrink-0"
-                >
+                <button onClick={() => markSseRead(alert.id)}
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors shrink-0"
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.10)" }}>
                   Logged
                 </button>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
 
@@ -339,7 +404,11 @@ export default function ResearchPortal() {
               { id: "drugs", label: "Drug Utilization" },
               { id: "age", label: "Age × Risk" },
             ].map(tab => (
-              <button key={tab.id} onClick={() => setSelectedConditions(tab.id as any)} className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedConditions === tab.id ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:text-foreground"}`}>
+              <button key={tab.id} onClick={() => setSelectedConditions(tab.id as any)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
+                style={selectedConditions === tab.id
+                  ? { background: "rgba(124,58,237,0.20)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.35)" }
+                  : { background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))", border: "1px solid transparent" }}>
                 {tab.label}
               </button>
             ))}
@@ -477,7 +546,7 @@ export default function ResearchPortal() {
                           <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
                           <span className="font-mono text-[10px] text-muted-foreground">{study.id}</span>
                           <Badge variant={cfg.badge} className="text-[10px]">{cfg.label}</Badge>
-                          <span className="text-[10px] font-semibold text-muted-foreground bg-white/60 px-2 py-0.5 rounded-full">{study.phase}</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">{study.phase}</span>
                         </div>
                         <h3 className="text-sm font-bold text-foreground leading-snug">{study.title}</h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
@@ -489,8 +558,8 @@ export default function ResearchPortal() {
                         <p className="text-[10px] text-muted-foreground">Enrolled</p>
                       </div>
                     </div>
-                    <div className="mt-3 w-full bg-white/60 rounded-full h-1.5">
-                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${enrollPct}%` }} />
+                    <div className="mt-3 w-full bg-background rounded-full h-1.5">
+                      <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${enrollPct}%` }} />
                     </div>
                     <div className="flex items-center gap-4 mt-1.5 text-[10px] text-muted-foreground">
                       <span>{study.enrolled.toLocaleString()} / {study.cohortSize.toLocaleString()} participants</span>
@@ -836,7 +905,10 @@ export default function ResearchPortal() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p className="font-bold text-foreground text-sm">SANAD AI Research Intelligence Engine — Active</p>
-                <Badge variant="purple" className="text-[10px]">GPT-4o Clinical</Badge>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(124,58,237,0.15)", color: "#c4b5fd", border: "1px solid rgba(124,58,237,0.25)" }}>
+                  GPT-4o Clinical
+                </span>
               </div>
               <p className="text-xs text-muted-foreground">Continuously analyzes 34,012,489 anonymized patient records across 12 disease categories to auto-generate evidence-grade research hypotheses. Each hypothesis is evaluated for statistical significance, novelty index, and clinical impact potential.</p>
               <div className="flex items-center gap-4 mt-2">
@@ -972,8 +1044,9 @@ export default function ResearchPortal() {
               return (
                 <div key={hyp.id} className="p-5 rounded-3xl bg-secondary" style={{ borderLeft: `4px solid ${statusCfg.borderColor}` }}>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-white/70 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-[10px] font-bold text-muted-foreground">H{i + 1}</span>
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5"
+                      style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.25)" }}>
+                      <span className="text-[11px] font-black text-violet-400">H{i + 1}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3 mb-2">
@@ -992,54 +1065,54 @@ export default function ResearchPortal() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-foreground bg-white/60 rounded-xl px-3 py-2 mb-3 leading-relaxed">{hyp.evidence}</p>
+                      <p className="text-xs text-foreground bg-background rounded-xl px-3 py-2.5 mb-3 leading-relaxed border border-border">{hyp.evidence}</p>
 
                       <div className="grid grid-cols-4 gap-3 mb-3">
-                        <div className="bg-white/60 rounded-xl p-2.5">
+                        <div className="bg-background rounded-xl p-2.5 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Sample Size</p>
                           <p className="text-sm font-bold text-foreground">n={hyp.statistical.n.toLocaleString()}</p>
                           <p className="text-[8px] text-muted-foreground mt-0.5">{hyp.design}</p>
                         </div>
-                        <div className="bg-white/60 rounded-xl p-2.5">
+                        <div className="bg-background rounded-xl p-2.5 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Correlation r</p>
-                          <p className="text-sm font-bold text-primary">{hyp.statistical.correlation}</p>
-                          <div className="mt-1.5 h-1.5 bg-white rounded-full overflow-hidden">
-                            <div className="h-full rounded-full bg-primary" style={{ width: `${hyp.statistical.correlation * 100}%` }} />
+                          <p className="text-sm font-bold text-violet-500">{hyp.statistical.correlation}</p>
+                          <div className="mt-1.5 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-violet-500" style={{ width: `${hyp.statistical.correlation * 100}%` }} />
                           </div>
                         </div>
-                        <div className="bg-white/60 rounded-xl p-2.5">
+                        <div className="bg-background rounded-xl p-2.5 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">p-value</p>
                           <p className="text-sm font-bold text-foreground font-mono">{hyp.statistical.pValue}</p>
                           <div className="flex items-center gap-0.5 mt-1.5">
                             {[1,2,3,4,5].map(s => (
-                              <div key={s} className={`w-3 h-1.5 rounded ${(hyp.statistical.pValue === "<0.0001" && s <= 5) || (hyp.statistical.pValue === "<0.001" && s <= 4) || (hyp.statistical.pValue === "<0.01" && s <= 3) ? "bg-emerald-500" : "bg-white"}`} />
+                              <div key={s} className={`w-3 h-1.5 rounded ${(hyp.statistical.pValue === "<0.0001" && s <= 5) || (hyp.statistical.pValue === "<0.001" && s <= 4) || (hyp.statistical.pValue === "<0.01" && s <= 3) ? "bg-emerald-500" : "bg-secondary"}`} />
                             ))}
                           </div>
                         </div>
-                        <div className="bg-white/60 rounded-xl p-2.5">
+                        <div className="bg-background rounded-xl p-2.5 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Confidence</p>
-                          <p className="text-sm font-bold text-emerald-600">{hyp.statistical.confidence}%</p>
-                          <div className="mt-1.5 h-1.5 bg-white rounded-full overflow-hidden">
+                          <p className="text-sm font-bold text-emerald-500">{hyp.statistical.confidence}%</p>
+                          <div className="mt-1.5 h-1.5 bg-secondary rounded-full overflow-hidden">
                             <div className="h-full rounded-full bg-emerald-500" style={{ width: `${hyp.statistical.confidence}%` }} />
                           </div>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white/60 rounded-xl p-3">
+                        <div className="bg-background rounded-xl p-3 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
                             <Lightbulb className="w-3 h-3 text-amber-500" /> Action Recommendation
                           </p>
                           <p className="text-xs text-foreground">{hyp.actionRecommendation}</p>
                         </div>
-                        <div className="bg-white/60 rounded-xl p-3">
+                        <div className="bg-background rounded-xl p-3 border border-border">
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <Target className="w-3 h-3 text-primary" /> Proposed Study
+                            <Target className="w-3 h-3 text-violet-500" /> Proposed Study
                           </p>
                           <p className="text-xs font-semibold text-foreground">{hyp.design}</p>
                           <div className="flex items-center gap-3 mt-1">
                             <span className="text-[10px] text-muted-foreground">{hyp.timeline}</span>
-                            <span className="text-[10px] font-bold text-primary">{hyp.funding}</span>
+                            <span className="text-[10px] font-bold text-violet-500">{hyp.funding}</span>
                           </div>
                         </div>
                       </div>

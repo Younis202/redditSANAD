@@ -145,18 +145,51 @@ export default function InsurancePortal() {
             </button>
           </div>
 
-          {/* KPI Strip */}
-          <div className="grid grid-cols-4 gap-3 mb-5">
+          {/* 5 KPI Glow Cards */}
+          <div className="grid grid-cols-5 gap-3 mb-5">
             {[
-              { label: "Active Policies", value: dashboard?.totalPolicies?.toLocaleString() ?? "—", sub: "National coverage", accent: "#0ea5e9" },
-              { label: "Total Claims", value: dashboard?.totalClaims?.toLocaleString() ?? "—", sub: `${dashboard?.pendingClaims ?? "—"} awaiting review`, accent: "#38bdf8" },
-              { label: "Total Payout", value: dashboard ? `SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K` : "—", sub: `Avg SAR ${dashboard?.avgClaimValue?.toLocaleString() ?? "—"}/claim`, accent: "#34d399" },
-              { label: "Fraud Flagged", value: dashboard?.fraudSuspected ?? "—", sub: `${dashboard?.fraudRate ?? "—"}% fraud rate`, accent: dashboard?.fraudSuspected > 0 ? "#f87171" : "#34d399" },
+              {
+                label: "Active Policies",
+                value: dashboard?.totalPolicies?.toLocaleString() ?? "—",
+                sub: "National coverage",
+                accent: "#0ea5e9",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(14,165,233,0.20) 0%, transparent 70%)",
+              },
+              {
+                label: "Total Claims",
+                value: dashboard?.totalClaims?.toLocaleString() ?? "—",
+                sub: `${dashboard?.pendingClaims ?? "—"} awaiting review`,
+                accent: "#38bdf8",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(56,189,248,0.15) 0%, transparent 70%)",
+              },
+              {
+                label: "Approved Claims",
+                value: dashboard?.approvedClaims?.toLocaleString() ?? "—",
+                sub: `${dashboard?.approvalRate ?? "—"}% approval rate`,
+                accent: "#34d399",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(52,211,153,0.15) 0%, transparent 70%)",
+              },
+              {
+                label: "Total Payout",
+                value: dashboard ? `SAR ${(dashboard.totalPayout / 1000).toFixed(0)}K` : "—",
+                sub: `Avg SAR ${dashboard?.avgClaimValue?.toLocaleString() ?? "—"}/claim`,
+                accent: "#a78bfa",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(167,139,250,0.15) 0%, transparent 70%)",
+              },
+              {
+                label: "Fraud Flagged",
+                value: String(dashboard?.fraudSuspected ?? "—"),
+                sub: `${dashboard?.fraudRate ?? "—"}% fraud rate`,
+                accent: dashboard?.fraudSuspected > 0 ? "#f87171" : "#34d399",
+                glow: `radial-gradient(ellipse at 20% 50%, ${dashboard?.fraudSuspected > 0 ? "rgba(248,113,113,0.18)" : "rgba(52,211,153,0.12)"} 0%, transparent 70%)`,
+              },
             ].map((kpi, i) => (
-              <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5">{kpi.label}</p>
-                <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
-                <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
+              <div key={i} className="relative overflow-hidden rounded-2xl px-4 py-3"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: kpi.glow }} />
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5 relative">{kpi.label}</p>
+                <p className="text-2xl font-black tabular-nums relative" style={{ color: kpi.accent }}>{kpi.value}</p>
+                <p className="text-[10px] text-white/35 mt-0.5 relative">{kpi.sub}</p>
               </div>
             ))}
           </div>
@@ -181,42 +214,48 @@ export default function InsurancePortal() {
         </div>
       </div>
 
-      {/* SSE Fraud Alert Panel */}
+      {/* SSE Fraud Alert Panel — Dark cinematic sky */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-secondary/60 rounded-t-[2rem]">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-foreground animate-pulse" />
-              <span className="font-bold text-sm text-foreground">Live Risk & Fraud Alerts</span>
-              <Badge variant="info" className="text-[10px]">{sseUnread} new</Badge>
+        <div className="mb-5 rounded-3xl overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #020c16 0%, #051a2e 100%)", border: "1px solid rgba(2,132,199,0.18)" }}>
+          <div className="flex items-center justify-between px-5 py-3"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(2,132,199,0.06)" }}>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              <span className="font-black text-sm text-white">Live Risk & Fraud Alerts</span>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.25)" }}>
+                {sseUnread} new
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-3">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} style={{ color: "rgba(255,255,255,0.35)" }} className="hover:text-white transition-colors"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-56 overflow-y-auto">
-            {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-50" : ""}`}>
-                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
+          <div className="max-h-56 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+            {sseAlerts.map((alert, idx) => (
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}
+                style={{ borderBottom: idx < sseAlerts.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-400" : "text-amber-400"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName} · ID: {alert.nationalId}</p>
-                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="font-bold text-sm text-white">{alert.title}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Patient: {alert.patientName} · ID: {alert.nationalId}
+                  </p>
+                  {alert.recommendation && <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{alert.recommendation}</p>}
+                  <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <button
-                    onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); setActiveTab("patient"); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors"
-                  >
-                    View Policy
-                  </button>
-                </div>
+                <button
+                  onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); setActiveTab("patient"); markSseRead(alert.id); }}
+                  className="text-[10px] font-black px-3 py-1.5 rounded-xl shrink-0 transition-all hover:opacity-90"
+                  style={{ background: "rgba(2,132,199,0.20)", color: "#7dd3fc", border: "1px solid rgba(2,132,199,0.30)" }}>
+                  View Policy
+                </button>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* ─── DASHBOARD TAB ─── */}
@@ -243,8 +282,8 @@ export default function InsurancePortal() {
                         <AreaChart data={dashboard.trendData} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
                           <defs>
                             <linearGradient id="gClaims" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#007AFF" stopOpacity={0.15} />
-                              <stop offset="95%" stopColor="#007AFF" stopOpacity={0} />
+                              <stop offset="5%" stopColor="#0284c7" stopOpacity={0.18} />
+                              <stop offset="95%" stopColor="#0284c7" stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="gFraud" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#ef4444" stopOpacity={0.15} />
@@ -256,7 +295,7 @@ export default function InsurancePortal() {
                           <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
                           <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
                           <Legend wrapperStyle={{ fontSize: 11 }} />
-                          <Area type="monotone" dataKey="claims" name="Claims" stroke="#007AFF" fill="url(#gClaims)" strokeWidth={2} dot={false} />
+                          <Area type="monotone" dataKey="claims" name="Claims" stroke="#0284c7" fill="url(#gClaims)" strokeWidth={2} dot={false} />
                           <Area type="monotone" dataKey="fraud" name="Fraud" stroke="#ef4444" fill="url(#gFraud)" strokeWidth={2} dot={false} />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -380,7 +419,7 @@ export default function InsurancePortal() {
       {/* ─── PATIENT LOOKUP TAB ─── */}
       {activeTab === "patient" && (
         <div className="space-y-5">
-          <div className="flex items-center justify-between gap-4 p-5 rounded-[2rem] mb-4" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center justify-between gap-4 p-5 rounded-[2rem] mb-4 bg-secondary" style={{ border: "1px solid rgba(2,132,199,0.14)" }}>
             <div className="flex items-center gap-4">
               <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)" }}>
                 <Search className="w-5 h-5 text-white" />
@@ -487,7 +526,7 @@ export default function InsurancePortal() {
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary ${factor.flag ? "text-red-700" : "text-muted-foreground"}`}>+{factor.weight}pts</span>
                         </div>
                         <p className={`text-[11px] ${factor.flag ? "text-red-600" : "text-muted-foreground"}`}>{factor.value}</p>
-                        <div className="mt-1.5 h-1 bg-white/60 rounded-full overflow-hidden">
+                        <div className="mt-1.5 h-1 bg-secondary rounded-full overflow-hidden border border-border">
                           <div className={`h-full rounded-full transition-all ${factor.flag ? "bg-red-500" : "bg-emerald-400"}`} style={{ width: `${Math.min(100, factor.weight * 4)}%` }} />
                         </div>
                       </div>
@@ -632,7 +671,7 @@ export default function InsurancePortal() {
       {/* ─── AI PRE-AUTHORIZATION ENGINE ─── */}
       {activeTab === "preauth" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-5 p-5 rounded-[2rem]" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center gap-5 p-5 rounded-[2rem] bg-secondary" style={{ border: "1px solid rgba(2,132,199,0.14)" }}>
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)" }}>
               <FileCheck className="w-6 h-6 text-white" />
             </div>
@@ -804,11 +843,11 @@ export default function InsurancePortal() {
                             <p className="text-[10px] text-muted-foreground">Requested by: {req.requestedBy}</p>
                           </div>
                           <div className="grid grid-cols-2 gap-2 shrink-0">
-                            <div className="text-center bg-white/70 rounded-xl px-3 py-2">
+                            <div className="text-center bg-secondary rounded-xl px-3 py-2 border border-border">
                               <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Necessity</p>
                               <p className={`text-xl font-bold ${necessityColor}`}>{req.necessityScore}</p>
                             </div>
-                            <div className="text-center bg-white/70 rounded-xl px-3 py-2">
+                            <div className="text-center bg-secondary rounded-xl px-3 py-2 border border-border">
                               <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Fraud Risk</p>
                               <p className={`text-xl font-bold ${fraudColor}`}>{req.fraudScore}</p>
                             </div>
@@ -870,12 +909,12 @@ export default function InsurancePortal() {
 
       {activeTab === "portfolio" && (
         <div className="space-y-5">
-          <div className="flex items-center gap-4 p-5 rounded-[2rem]" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center gap-4 p-5 rounded-[2rem] bg-secondary" style={{ border: "1px solid rgba(2,132,199,0.14)" }}>
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)" }}>
               <Activity className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Portfolio Risk Intelligence</h2>
+              <h2 className="text-xl font-black text-foreground">Portfolio Risk Intelligence</h2>
               <p className="text-sm text-muted-foreground">National portfolio risk distribution · Pricing bands · Actuarial overview</p>
             </div>
           </div>
@@ -888,11 +927,11 @@ export default function InsurancePortal() {
                   { label: "High Risk", value: dashboard.portfolioRisk?.high, color: "text-orange-600", barColor: "bg-orange-500" },
                   { label: "Critical Risk", value: dashboard.portfolioRisk?.critical, color: "text-red-600", barColor: "bg-red-500" },
                 ].map((band, i) => (
-                  <div key={i} className="p-5 rounded-3xl" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}>
+                  <div key={i} className="p-5 rounded-3xl bg-secondary">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{band.label}</p>
                     <p className={`text-4xl font-bold ${band.color}`}>{band.value}</p>
                     <p className="text-xs text-muted-foreground mt-1">policyholders</p>
-                    <div className="mt-3 h-1.5 bg-black/8 rounded-full overflow-hidden">
+                    <div className="mt-3 h-1.5 bg-background rounded-full overflow-hidden border border-border">
                       <div className={`h-full rounded-full ${band.barColor}`} style={{ width: `${Math.round((band.value / dashboard.totalPolicies) * 100)}%` }} />
                     </div>
                     <p className="text-[10px] font-semibold text-muted-foreground mt-1">{Math.round((band.value / dashboard.totalPolicies) * 100)}% of portfolio</p>

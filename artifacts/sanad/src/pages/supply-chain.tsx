@@ -82,9 +82,12 @@ export default function SupplyChainPortal() {
   if (isLoading) {
     return (
       <Layout role="supply-chain">
-        <div className="flex items-center justify-center gap-3 py-20 text-muted-foreground">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-lime-600" />
-          <span className="text-sm font-medium">Loading inventory data...</span>
+        <div className="flex flex-col items-center justify-center gap-4 py-32">
+          <div className="w-16 h-16 rounded-3xl flex items-center justify-center"
+            style={{ background: "rgba(234,88,12,0.10)", border: "1px solid rgba(234,88,12,0.20)" }}>
+            <Truck className="w-7 h-7 text-orange-400 animate-pulse" />
+          </div>
+          <p className="text-sm font-bold text-muted-foreground">Loading national inventory data...</p>
         </div>
       </Layout>
     );
@@ -102,54 +105,84 @@ export default function SupplyChainPortal() {
 
   return (
     <Layout role="supply-chain">
-      {/* Priority Strip */}
-      {criticals > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-red-600 text-white rounded-2xl mb-5">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <p className="text-xs font-bold uppercase tracking-widest">
-            {criticals} CRITICAL SHORTAGE{criticals > 1 ? "S" : ""} —{" "}
-            {data?.criticalAlerts?.map((a: any) => a.drug).join(" · ")}
-          </p>
-          <button onClick={() => setActiveTab("reorder")} className="ml-auto text-[11px] font-bold bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors">
-            Issue Purchase Orders →
-          </button>
-        </div>
-      )}
 
-      {/* ══════════════════════════════════════════════════
-          SUPPLY CHAIN INTELLIGENCE HEADER
-      ══════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════════════
+          SUPPLY CHAIN INTELLIGENCE COMMAND CENTER HEADER
+      ══════════════════════════════════════════════════════════════════ */}
       <div className="rounded-3xl overflow-hidden mb-6"
-        style={{ background: "linear-gradient(135deg, #0a0600 0%, #180f00 50%, #0d0800 100%)", boxShadow: "0 0 60px rgba(234,88,12,0.10)" }}>
-        <div className="h-1" style={{ background: "linear-gradient(90deg, #7c2d12, #ea580c, #f59e0b, #ea580c, #7c2d12)" }} />
+        style={{
+          background: "linear-gradient(135deg, #080400 0%, #140a00 45%, #0a0600 100%)",
+          boxShadow: "0 0 0 1px rgba(234,88,12,0.12), 0 8px 40px rgba(0,0,0,0.55), 0 0 80px rgba(234,88,12,0.06)"
+        }}>
+
+        {/* Top accent strip */}
+        <div className="h-[3px]" style={{ background: "linear-gradient(90deg, transparent, #7c2d12 10%, #ea580c 30%, #f59e0b 50%, #ea580c 70%, #7c2d12 90%, transparent)" }} />
+
+        {/* Critical shortage banner */}
+        {criticals > 0 && (
+          <div className="flex items-center gap-3 px-6 py-2.5"
+            style={{ background: "linear-gradient(90deg, rgba(220,38,38,0.22) 0%, rgba(220,38,38,0.10) 100%)", borderBottom: "1px solid rgba(220,38,38,0.22)" }}>
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+            <p className="text-[11px] font-black text-red-300 uppercase tracking-wider">
+              ⚠ {criticals} CRITICAL SHORTAGE{criticals > 1 ? "S" : ""} —{" "}
+              <span className="normal-case font-semibold text-red-200/80">{data?.criticalAlerts?.map((a: any) => a.drug).join(" · ")}</span>
+            </p>
+            <button onClick={() => setActiveTab("reorder")}
+              className="ml-auto text-[10px] font-black px-3 py-1 rounded-full transition-all hover:opacity-80"
+              style={{ background: "rgba(220,38,38,0.30)", color: "#fca5a5", border: "1px solid rgba(220,38,38,0.40)" }}>
+              Issue Emergency Orders →
+            </button>
+          </div>
+        )}
 
         <div className="px-6 py-5">
-          {/* Identity + Status */}
-          <div className="flex items-start justify-between mb-5">
+          {/* Identity row */}
+          <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: "rgba(234,88,12,0.22)", border: "1px solid rgba(234,88,12,0.35)" }}>
-                <Truck className="w-6 h-6 text-orange-400" />
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{ background: "linear-gradient(135deg, rgba(234,88,12,0.28) 0%, rgba(217,119,6,0.14) 100%)", border: "1px solid rgba(234,88,12,0.40)" }}>
+                  <Truck className="w-7 h-7 text-orange-400" />
+                </div>
+                {criticals > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 border-2 flex items-center justify-center text-[9px] font-black text-white"
+                    style={{ borderColor: "#080400" }}>
+                    {criticals}
+                  </span>
+                )}
               </div>
               <div>
-                <h1 className="text-xl font-black text-white leading-tight">National Drug Supply Chain</h1>
-                <p className="text-[11px] text-white/40 mt-0.5">Real-time inventory · AI shortage prediction · Regional distribution · Procurement management</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white leading-none">National Drug Supply Chain</h1>
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    style={{ background: "rgba(234,88,12,0.18)", color: "#fb923c", border: "1px solid rgba(234,88,12,0.30)" }}>
+                    MOH Logistics
+                  </span>
+                </div>
+                <p className="text-[11px] text-white/35 leading-relaxed">
+                  Real-time inventory · AI shortage prediction · Regional distribution · Procurement management
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 shrink-0">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
-                style={{ background: criticals > 0 ? "rgba(220,38,38,0.18)" : "rgba(34,197,94,0.10)", border: criticals > 0 ? "1px solid rgba(220,38,38,0.30)" : "1px solid rgba(34,197,94,0.20)" }}>
+                style={criticals > 0
+                  ? { background: "rgba(220,38,38,0.10)", border: "1px solid rgba(220,38,38,0.20)" }
+                  : { background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)" }}>
                 <span className={`w-1.5 h-1.5 rounded-full ${criticals > 0 ? "bg-red-400 animate-pulse" : "bg-emerald-400"}`} />
                 <span className="text-[10px] font-black" style={{ color: criticals > 0 ? "#fca5a5" : "#86efac" }}>
-                  {criticals > 0 ? `${criticals} Critical Shortages` : "No Critical Shortages"}
+                  {criticals > 0 ? `${criticals} Critical` : "All Stable"}
                 </span>
               </div>
               <button onClick={() => setShowSsePanel(p => !p)}
-                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
-                <Bell className="w-3.5 h-3.5 text-white/50" />
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.40)" }}>
+                <Bell className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-bold">Alerts</span>
                 {sseUnread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center border border-[#0a0600]">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center"
+                    style={{ border: "2px solid #080400" }}>
                     {sseUnread > 9 ? "9+" : sseUnread}
                   </span>
                 )}
@@ -157,23 +190,66 @@ export default function SupplyChainPortal() {
             </div>
           </div>
 
-          {/* KPI Strip */}
-          <div className="grid grid-cols-4 gap-3 mb-5">
+          {/* KPI strip — 5 cards */}
+          <div className="grid grid-cols-5 gap-3 mb-5">
             {[
-              { label: "Drug Lines Tracked", value: data?.summary?.totalDrugs ?? "—", sub: "National formulary", icon: Package, accent: "#f97316" },
-              { label: "Critical Shortages", value: data?.summary?.criticalShortages ?? "—", sub: `${data?.summary?.reorderAlerts ?? 0} reorder alerts`, icon: AlertTriangle, accent: criticals > 0 ? "#ef4444" : "#22c55e" },
-              { label: "Adequate Stock", value: data?.summary?.adequate ?? "—", sub: "Lines fully stocked", icon: CheckCircle2, accent: "#22c55e" },
-              { label: "Inventory Value", value: `SAR ${(data?.summary?.totalInventoryValue ?? 0).toLocaleString()}`, sub: "Current stock value", icon: BarChart2, accent: "#f59e0b" },
+              {
+                label: "Drug Lines Tracked",
+                value: data?.summary?.totalDrugs ?? "—",
+                sub: "National formulary",
+                icon: Package,
+                accent: "#f97316",
+                glow: "rgba(249,115,22,0.10)",
+              },
+              {
+                label: "Critical Shortages",
+                value: data?.summary?.criticalShortages ?? "—",
+                sub: criticals > 0 ? "Immediate action needed" : "All clear",
+                icon: AlertTriangle,
+                accent: criticals > 0 ? "#ef4444" : "#22c55e",
+                glow: criticals > 0 ? "rgba(239,68,68,0.10)" : "rgba(34,197,94,0.06)",
+              },
+              {
+                label: "Low Stock Alerts",
+                value: data?.summary?.reorderAlerts ?? "—",
+                sub: "Reorder threshold breached",
+                icon: AlertCircle,
+                accent: "#f59e0b",
+                glow: "rgba(245,158,11,0.08)",
+              },
+              {
+                label: "Adequate Stock",
+                value: data?.summary?.adequate ?? "—",
+                sub: "Lines fully stocked",
+                icon: CheckCircle2,
+                accent: "#22c55e",
+                glow: "rgba(34,197,94,0.07)",
+              },
+              {
+                label: "Inventory Value",
+                value: `SAR ${((data?.summary?.totalInventoryValue ?? 0) / 1e6).toFixed(1)}M`,
+                sub: "Current national stock value",
+                icon: BarChart2,
+                accent: "#f59e0b",
+                glow: "rgba(245,158,11,0.08)",
+              },
             ].map((kpi, i) => {
               const Icon = kpi.icon;
               return (
-                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: kpi.accent }} />
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{kpi.label}</p>
+                <div key={i} className="rounded-2xl p-4 relative overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="absolute inset-0" style={{ background: kpi.glow }} />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: `${kpi.accent}18`, border: `1px solid ${kpi.accent}28` }}>
+                        <Icon className="w-3.5 h-3.5" style={{ color: kpi.accent }} />
+                      </div>
+                      <p className="text-[9px] font-black text-white/35 uppercase tracking-widest leading-tight">{kpi.label}</p>
+                    </div>
+                    <p className="text-[22px] font-black text-white tabular-nums leading-none mb-1">{kpi.value}</p>
+                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.28)" }}>{kpi.sub}</p>
                   </div>
-                  <p className="text-2xl font-black text-white tabular-nums">{kpi.value}</p>
-                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
                 </div>
               );
             })}
@@ -185,20 +261,23 @@ export default function SupplyChainPortal() {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               const isAlert = tab.id === "reorder" && criticals > 0;
+              const activeAccent = isAlert ? "#ef4444" : "#ea580c";
               return (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
+                  className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap shrink-0"
                   style={{
-                    background: isActive ? (isAlert ? "rgba(220,38,38,0.35)" : "rgba(234,88,12,0.30)") : "rgba(255,255,255,0.04)",
-                    border:     isActive ? (isAlert ? "1px solid rgba(220,38,38,0.50)" : "1px solid rgba(234,88,12,0.50)") : "1px solid rgba(255,255,255,0.07)",
-                    color:      isActive ? "white" : "rgba(255,255,255,0.35)",
+                    background: isActive
+                      ? `linear-gradient(135deg, ${activeAccent}2e, ${activeAccent}18)`
+                      : "rgba(255,255,255,0.04)",
+                    border: isActive
+                      ? `1px solid ${activeAccent}50`
+                      : "1px solid rgba(255,255,255,0.07)",
+                    color: isActive ? "white" : "rgba(255,255,255,0.30)",
                   }}>
-                  <Icon className="w-3 h-3" />
+                  <Icon className="w-3.5 h-3.5" />
                   {tab.label}
                   {isAlert && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center border border-[#0a0600]">
-                      {criticals}
-                    </span>
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                   )}
                 </button>
               );
@@ -207,40 +286,43 @@ export default function SupplyChainPortal() {
         </div>
       </div>
 
-      {/* SSE Supply Alert Panel */}
+      {/* ── Live SSE Alert Telemetry Feed ── */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="font-bold text-sm text-foreground">Live Supply Chain Alerts</span>
-              <Badge variant="success" className="text-[10px]">{sseUnread} new</Badge>
+        <div className="mb-5 rounded-2xl overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #0e0700 0%, #1a0d00 100%)", border: "1px solid rgba(234,88,12,0.18)" }}>
+          <div className="flex items-center justify-between px-5 py-3"
+            style={{ borderBottom: "1px solid rgba(234,88,12,0.12)" }}>
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-sm font-black text-white">Live Supply Chain Telemetry</span>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(234,88,12,0.20)", color: "#fb923c", border: "1px solid rgba(234,88,12,0.30)" }}>
+                {sseUnread} NEW
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-3">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold text-white/35 hover:text-white/60 transition-colors">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-white/30 hover:text-white/60 transition-colors"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-56 overflow-y-auto">
+          <div className="divide-y max-h-56 overflow-y-auto" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
             {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}>
+                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-400" : "text-amber-400"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName}</p>
-                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-sm font-bold text-white">{alert.title}</p>
+                  {alert.recommendation && <p className="text-[11px] text-white/45 mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-white/25 mt-1 font-mono">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
-                <button
-                  onClick={() => markSseRead(alert.id)}
-                  className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors shrink-0"
-                >
+                <button onClick={() => markSseRead(alert.id)}
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors shrink-0"
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.10)" }}>
                   Mark Read
                 </button>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
 
@@ -249,7 +331,7 @@ export default function SupplyChainPortal() {
         <div className="space-y-4">
           <div className="grid grid-cols-12 gap-5">
             <Card className="col-span-8">
-              <CardHeader><Package className="w-4 h-4 text-lime-700" /><CardTitle>Drug Inventory — All Lines</CardTitle></CardHeader>
+              <CardHeader><Package className="w-4 h-4 text-orange-500" /><CardTitle>Drug Inventory — All Lines</CardTitle></CardHeader>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -330,7 +412,7 @@ export default function SupplyChainPortal() {
 
               {/* Consumption Trend */}
               <Card>
-                <CardHeader><TrendingUp className="w-4 h-4 text-lime-700" /><CardTitle>6-Month Consumption</CardTitle></CardHeader>
+                <CardHeader><TrendingUp className="w-4 h-4 text-orange-500" /><CardTitle>6-Month Consumption</CardTitle></CardHeader>
                 <CardBody>
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">

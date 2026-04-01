@@ -151,13 +151,13 @@ export default function DoctorDashboard() {
     setShowDropdown(false);
   };
 
-  const activeMeds = patient?.medications?.filter(m => m.isActive) ?? [];
+  const activeMeds = patient?.medications?.filter((m: any) => m.isActive) ?? [];
   const labResults = patient?.labResults ?? [];
-  const criticalLabs = labResults.filter(l => l.status === "critical").length;
-  const abnormalLabs = labResults.filter(l => l.status === "abnormal").length;
+  const criticalLabs = labResults.filter((l: any) => l.status === "critical").length;
+  const abnormalLabs = labResults.filter((l: any) => l.status === "abnormal").length;
 
   const alerts = alertsData?.alerts ?? [];
-  const unreadAlerts = alerts.filter(a => !a.isRead).length;
+  const unreadAlerts = alerts.filter((a: any) => !a.isRead).length;
 
   const predictions: PredictionWarning[] = (predictionsData as any)?.predictions ?? [];
   const criticalPredictions = predictions.filter(p => p.severity === "critical" || p.severity === "high").length;
@@ -168,7 +168,7 @@ export default function DoctorDashboard() {
   };
 
   const timeline: TimelineEvent[] = [
-    ...(patient?.visits?.map(v => ({
+    ...(patient?.visits?.map((v: any) => ({
       id: v.id,
       type: "visit" as const,
       date: safeDate(v.visitDate),
@@ -177,7 +177,7 @@ export default function DoctorDashboard() {
       badge: v.visitType,
       badgeVariant: v.visitType === "emergency" ? "destructive" : v.visitType === "inpatient" ? "warning" : "outline",
     })) ?? []),
-    ...(patient?.labResults?.map(l => ({
+    ...(patient?.labResults?.map((l: any) => ({
       id: l.id,
       type: "lab" as const,
       date: safeDate(l.testDate),
@@ -187,7 +187,7 @@ export default function DoctorDashboard() {
       badge: l.status,
       badgeVariant: l.status === "normal" ? "success" : l.status === "abnormal" ? "warning" : "destructive",
     })) ?? []),
-    ...(patient?.medications?.map(m => ({
+    ...(patient?.medications?.map((m: any) => ({
       id: m.id,
       type: "medication" as const,
       date: safeDate(m.startDate ?? new Date().toISOString()),
@@ -218,7 +218,7 @@ export default function DoctorDashboard() {
 
   const getTrend = (labGroup: typeof labResults) => {
     if (labGroup.length < 2) return "stable";
-    const vals = labGroup.slice(0, 3).map(l => parseFloat(l.result)).filter(v => !isNaN(v));
+    const vals = labGroup.slice(0, 3).map((l: any) => parseFloat(l.result)).filter((v: number) => !isNaN(v));
     if (vals.length < 2) return "stable";
     const diff = vals[0]! - vals[vals.length - 1]!;
     const pct = Math.abs(diff / (vals[vals.length - 1]! || 1)) * 100;
@@ -245,7 +245,7 @@ export default function DoctorDashboard() {
     if (topBehavior && topBehavior.severity === "high") {
       items.push({ color: "bg-violet-600", label: "BEHAVIOR", text: topBehavior.description });
     }
-    const critLab = labResults.find(l => l.status === "critical");
+    const critLab = labResults.find((l: any) => l.status === "critical");
     if (critLab && !items.some(i => i.label === "IMMEDIATE")) {
       items.push({ color: "bg-red-500", label: "CRITICAL LAB", text: `${critLab.testName}: ${critLab.result} ${critLab.unit ?? ""}`, pulse: true });
     }
@@ -281,56 +281,63 @@ export default function DoctorDashboard() {
         </AlertBanner>
       )}
 
-      {/* ── SSE Real-time Alerts Panel ── */}
+      {/* ── SSE Real-time Alerts Panel — Dark cinematic blue ── */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <Card className="mb-4 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-secondary/60 rounded-t-[2rem]">
-            <div className="flex items-center gap-2">
+        <div className="mb-4 rounded-3xl overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #020a18 0%, #041224 100%)", border: "1px solid rgba(0,122,255,0.18)" }}>
+          <div className="flex items-center justify-between px-5 py-3"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(0,122,255,0.06)" }}>
+            <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-bold text-sm text-foreground">Live Clinical Alerts</span>
-              <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
+              <span className="font-black text-sm text-white">Live Clinical Alerts</span>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.25)" }}>
+                {sseUnread} new
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground">
+            <div className="flex items-center gap-3">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} style={{ color: "rgba(255,255,255,0.35)" }} className="hover:text-white transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-64 overflow-y-auto">
-            {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-50" : ""}`}>
-                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-orange-500" : "bg-amber-500"}`} />
+          <div className="max-h-64 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+            {sseAlerts.map((alert, idx) => (
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}
+                style={{ borderBottom: idx < sseAlerts.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-400" : alert.severity === "high" ? "bg-orange-400" : "bg-amber-400"}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase bg-secondary text-muted-foreground">
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase"
+                      style={{ background: "rgba(0,122,255,0.12)", color: "#93c5fd" }}>
                       {alert.type === "drug_interaction_alert" ? "Drug Interaction" : alert.type === "risk_escalation" ? "Risk Escalation" : "Lab Alert"}
                     </span>
                   </div>
-                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="font-bold text-sm text-white">{alert.title}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
                     {alert.patientName}
                     {alert.result ? ` · ${alert.result}` : ""}
                     {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{alert.action ?? alert.recommendation}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{alert.action ?? alert.recommendation}</p>
+                  <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <button
                     onClick={() => { handleSelectPatient(alert.nationalId, alert.patientName); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-xl px-2 py-1 transition-colors"
-                  >
+                    className="text-[10px] font-black px-3 py-1.5 rounded-xl transition-all hover:opacity-90"
+                    style={{ background: "rgba(0,122,255,0.20)", color: "#93c5fd", border: "1px solid rgba(0,122,255,0.30)" }}>
                     View Patient
                   </button>
                   {!alert.read && (
-                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-muted-foreground hover:text-foreground">Dismiss</button>
+                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.30)" }}>Dismiss</button>
                   )}
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* ══════════════════════════════════════════════════
@@ -577,7 +584,7 @@ export default function DoctorDashboard() {
                     {unreadAlerts > 0 && <Badge variant="destructive" className="text-[9px]">{unreadAlerts} unread</Badge>}
                   </div>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {alerts.slice(0, 5).map(alert => (
+                    {alerts.slice(0, 5).map((alert: any) => (
                       <div key={alert.id} className={`flex items-start gap-2.5 p-2.5 rounded-xl transition-colors ${alert.isRead ? "opacity-60" : "bg-secondary"}`}>
                         <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${(alert as any).severity === "critical" ? "bg-red-500" : (alert as any).severity === "high" ? "bg-amber-500" : "bg-sky-400"}`} />
                         <div className="flex-1 min-w-0">
@@ -718,21 +725,21 @@ export default function DoctorDashboard() {
                                 )}
                               </div>
                               <p className="font-bold text-foreground text-sm">{aiDecision.primaryAction}</p>
-                              {aiDecision.reasoning && <p className="text-[11px] text-muted-foreground mt-0.5">{aiDecision.reasoning}</p>}
+                              {(aiDecision as any).reasoning && <p className="text-[11px] text-muted-foreground mt-0.5">{(aiDecision as any).reasoning}</p>}
                             </div>
                           </div>
                         )}
 
                         {/* Decision path (cascade chain) */}
-                        {aiDecision.decisionPath?.length > 0 && (
+                        {(aiDecision as any).decisionPath?.length > 0 && (
                           <div>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Decision Path</p>
                             <div className="relative pl-5">
                               <div className="absolute left-[9px] top-3 bottom-3 w-px bg-border" />
                               <div className="space-y-3">
-                                {aiDecision.decisionPath.map((step: any, i: number) => (
+                                {((aiDecision as any).decisionPath as any[]).map((step: any, i: number) => (
                                   <div key={i} className="relative flex items-start gap-3">
-                                    <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 -ml-5 mt-0.5 ${step.outcome === "triggered" ? "bg-red-100 border-2 border-red-400" : step.outcome === "completed" ? "bg-emerald-100 border-2 border-emerald-400" : "bg-secondary border-2 border-border"}`}>
+                                    <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 -ml-5 mt-0.5 ${step.outcome === "triggered" ? "bg-red-500/20 border-2 border-red-500/50" : step.outcome === "completed" ? "bg-emerald-500/20 border-2 border-emerald-500/50" : "bg-secondary border-2 border-border"}`}>
                                       <div className={`w-1.5 h-1.5 rounded-full ${step.outcome === "triggered" ? "bg-red-500" : step.outcome === "completed" ? "bg-emerald-500" : "bg-muted-foreground"}`} />
                                     </div>
                                     <div className="flex-1 min-w-0 pb-1">
@@ -774,16 +781,16 @@ export default function DoctorDashboard() {
                               const fb = recFeedback[i];
                               return (
                                 <div key={i} className="flex items-start gap-3 p-3.5 rounded-2xl bg-secondary" style={fb === "accepted" ? { borderLeft: "3px solid #22c55e" } : fb === "rejected" ? { borderLeft: "3px solid #ef4444" } : {}}>
-                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-black ${fb === "accepted" ? "bg-emerald-100 text-emerald-700" : fb === "rejected" ? "bg-red-100 text-red-700" : "bg-white text-foreground"}`}>
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-black ${fb === "accepted" ? "bg-emerald-500/20 text-emerald-500" : fb === "rejected" ? "bg-red-500/20 text-red-500" : "bg-secondary border border-border text-foreground"}`}>
                                     {fb === "accepted" ? "✓" : fb === "rejected" ? "✕" : i + 1}
                                   </div>
                                   <p className="text-sm text-foreground flex-1 min-w-0 leading-relaxed">{text}</p>
                                   {!fb && (
                                     <div className="flex gap-1.5 shrink-0">
-                                      <button onClick={() => setRecFeedback(p => ({ ...p, [i]: "accepted" }))} className="w-7 h-7 rounded-xl bg-white hover:bg-emerald-50 flex items-center justify-center transition-colors text-muted-foreground hover:text-emerald-600">
+                                      <button onClick={() => setRecFeedback(p => ({ ...p, [i]: "accepted" }))} className="w-7 h-7 rounded-xl bg-secondary border border-border hover:border-emerald-500/40 hover:text-emerald-500 flex items-center justify-center transition-colors text-muted-foreground">
                                         <CheckCircle2 className="w-3.5 h-3.5" />
                                       </button>
-                                      <button onClick={() => setRecFeedback(p => ({ ...p, [i]: "rejected" }))} className="w-7 h-7 rounded-xl bg-white hover:bg-red-50 flex items-center justify-center transition-colors text-muted-foreground hover:text-red-600">
+                                      <button onClick={() => setRecFeedback(p => ({ ...p, [i]: "rejected" }))} className="w-7 h-7 rounded-xl bg-secondary border border-border hover:border-red-500/40 hover:text-red-500 flex items-center justify-center transition-colors text-muted-foreground">
                                         <X className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
@@ -872,7 +879,7 @@ export default function DoctorDashboard() {
                       type DDx = { condition: string; icd: string; pct: number; evidence: string[]; priority: "primary" | "secondary" | "rule-out"; source: string };
                       const dd: DDx[] = [];
                       const addIf = (keyword: string, entry: DDx) => {
-                        if (conds.some(c => c.includes(keyword)) && !dd.find(d => d.icd === entry.icd)) dd.push(entry);
+                        if (conds.some((c: any) => c.includes(keyword)) && !dd.find(d => d.icd === entry.icd)) dd.push(entry);
                       };
                       addIf("diabetes", { condition: "Type 2 Diabetes Mellitus", icd: "E11.9", pct: 94, evidence: ["HbA1c trend", "Chronic history"], priority: "primary", source: "ADA 2024" });
                       addIf("hypertension", { condition: "Essential Hypertension", icd: "I10", pct: 91, evidence: ["BP readings", "Medication history"], priority: "primary", source: "ESC 2023" });
@@ -885,10 +892,10 @@ export default function DoctorDashboard() {
                       addIf("depression", { condition: "Major Depressive Disorder", icd: "F32.1", pct: 76, evidence: ["PHQ-9 score"], priority: "secondary", source: "DSM-5 / NICE 2022" });
                       addIf("cancer", { condition: "Malignant Neoplasm — Active Monitoring", icd: "C80.1", pct: 92, evidence: ["Oncology history"], priority: "primary", source: "NCCN 2024" });
                       addIf("anemia", { condition: "Anemia of Chronic Disease", icd: "D63.1", pct: 71, evidence: ["Hgb trend"], priority: "secondary", source: "NCCN 2023" });
-                      const hasElevCr = labs.some(l => l.testName.toLowerCase().includes("creatinine") && (l.status === "abnormal" || l.status === "critical"));
-                      const hasElevGluc = labs.some(l => (l.testName.toLowerCase().includes("glucose") || l.testName.toLowerCase().includes("hba1c")) && l.status !== "normal");
-                      const hasLowHgb = labs.some(l => l.testName.toLowerCase().includes("hemoglobin") && l.status !== "normal");
-                      const hasElevWbc = labs.some(l => l.testName.toLowerCase().includes("wbc") && (l.status === "abnormal" || l.status === "critical"));
+                      const hasElevCr = labs.some((l: any) => l.testName.toLowerCase().includes("creatinine") && (l.status === "abnormal" || l.status === "critical"));
+                      const hasElevGluc = labs.some((l: any) => (l.testName.toLowerCase().includes("glucose") || l.testName.toLowerCase().includes("hba1c")) && l.status !== "normal");
+                      const hasLowHgb = labs.some((l: any) => l.testName.toLowerCase().includes("hemoglobin") && l.status !== "normal");
+                      const hasElevWbc = labs.some((l: any) => l.testName.toLowerCase().includes("wbc") && (l.status === "abnormal" || l.status === "critical"));
                       if (hasElevCr && !dd.find(d => d.icd === "N18.3")) dd.push({ condition: "Acute Kidney Injury", icd: "N17.9", pct: 67, evidence: ["↑ Creatinine"], priority: "secondary", source: "KDIGO 2012" });
                       if (hasElevGluc && !dd.find(d => d.icd.startsWith("E11"))) dd.push({ condition: "Hyperglycemia / Pre-diabetes", icd: "R73.09", pct: 58, evidence: ["Elevated glucose labs"], priority: "secondary", source: "ADA 2024" });
                       if (hasLowHgb && !dd.find(d => d.icd.startsWith("D"))) dd.push({ condition: "Iron Deficiency Anemia", icd: "D50.9", pct: 54, evidence: ["↓ Hemoglobin"], priority: "rule-out", source: "WHO 2020" });
@@ -943,8 +950,8 @@ export default function DoctorDashboard() {
                       const labs = labResults;
                       type Correlation = { title: string; risk: string; badge: "destructive" | "warning"; labs: string[]; action: string };
                       const corrs: Correlation[] = [];
-                      const isAbn = (kw: string) => labs.some(l => l.testName.toLowerCase().includes(kw) && (l.status === "abnormal" || l.status === "critical"));
-                      const hasName = (kw: string) => labs.some(l => l.testName.toLowerCase().includes(kw));
+                      const isAbn = (kw: string) => labs.some((l: any) => l.testName.toLowerCase().includes(kw) && (l.status === "abnormal" || l.status === "critical"));
+                      const hasName = (kw: string) => labs.some((l: any) => l.testName.toLowerCase().includes(kw));
                       if (isAbn("glucose") && isAbn("creatinine")) corrs.push({ title: "Diabetic Nephropathy Risk Pattern", risk: "Concurrent hyperglycemia + impaired renal function — high CKD progression risk", badge: "destructive", labs: ["Glucose ↑", "Creatinine ↑"], action: "SGLT2i + nephrology consult + ACE inhibitor titration" });
                       if (isAbn("hba1c") && isAbn("cholesterol")) corrs.push({ title: "Cardiometabolic Syndrome", risk: "Dysglycemia + dyslipidemia — 3× increased cardiovascular event risk", badge: "destructive", labs: ["HbA1c ↑", "Cholesterol ↑"], action: "Statin therapy + intensive glucose control + lifestyle intervention" });
                       if (isAbn("creatinine") && hasName("potassium") && isAbn("potassium")) corrs.push({ title: "Renal-Electrolyte Imbalance", risk: "Renal impairment with hyperkalemia — arrhythmia and AKI risk", badge: "destructive", labs: ["Creatinine ↑", "K+ ↑"], action: "Hold K-sparing agents, cardiology review, dietary restriction" });
@@ -994,13 +1001,13 @@ export default function DoctorDashboard() {
                       const conds = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());
                       type Ref = { org: string; title: string; year: string; relevance: string; leftColor: string };
                       const refs: Ref[] = [];
-                      if (conds.some(c => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", leftColor: "#3b82f6" });
-                      if (conds.some(c => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", leftColor: "#7c3aed" });
-                      if (conds.some(c => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", leftColor: "#ef4444" });
-                      if (conds.some(c => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", leftColor: "#0d9488" });
-                      if (conds.some(c => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", leftColor: "#f97316" });
-                      if (conds.some(c => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", leftColor: "#f59e0b" });
-                      if (conds.some(c => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", leftColor: "#ec4899" });
+                      if (conds.some((c: any) => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", leftColor: "#3b82f6" });
+                      if (conds.some((c: any) => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", leftColor: "#7c3aed" });
+                      if (conds.some((c: any) => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", leftColor: "#ef4444" });
+                      if (conds.some((c: any) => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", leftColor: "#0d9488" });
+                      if (conds.some((c: any) => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", leftColor: "#f97316" });
+                      if (conds.some((c: any) => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", leftColor: "#f59e0b" });
+                      if (conds.some((c: any) => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", leftColor: "#ec4899" });
                       if (refs.length === 0) return null;
                       return (
                         <Card>
@@ -1155,7 +1162,7 @@ export default function DoctorDashboard() {
                             <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
                             <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
                             <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val}% HbA1c</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
+                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-background rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val}% HbA1c</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
                             <ReferenceLine y={6.5} stroke="#ef4444" strokeDasharray="4 2" label={{ value: "6.5% DM", fontSize: 9, fill: "#ef4444", position: "insideTopLeft" }} />
                             <ReferenceLine y={5.7} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "5.7% Pre-DM", fontSize: 9, fill: "#f59e0b", position: "insideTopLeft" }} />
                             <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#hba1cGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
@@ -1208,7 +1215,7 @@ export default function DoctorDashboard() {
                             <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
                             <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
                             <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {glucGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
+                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-background rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {glucGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
                             <ReferenceLine y={126} stroke="#f97316" strokeDasharray="4 2" label={{ value: "126 DM", fontSize: 9, fill: "#f97316", position: "insideTopLeft" }} />
                             <ReferenceLine y={100} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "100 Pre-DM", fontSize: 9, fill: "#f59e0b", position: "insideTopLeft" }} />
                             <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#glucGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
@@ -1261,7 +1268,7 @@ export default function DoctorDashboard() {
                             <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
                             <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} />
                             <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-white rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {creatGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
+                            <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="bg-background rounded-xl px-3 py-2 shadow-lg border border-border text-xs"><p className="font-bold">{payload[0]?.payload?.val} {creatGroup[0]?.unit ?? "mg/dL"}</p><p className="text-muted-foreground">{payload[0]?.payload?.date}</p></div> : null} />
                             <ReferenceLine y={1.2} stroke="#ef4444" strokeDasharray="4 2" label={{ value: "1.2 upper limit", fontSize: 9, fill: "#ef4444", position: "insideTopLeft" }} />
                             <Area type="monotone" dataKey="val" stroke={areaColor} strokeWidth={2.5} fill="url(#creatGrad)" dot={{ r: 4, fill: areaColor, strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6 }} />
                           </AreaChart>
@@ -1382,7 +1389,7 @@ export default function DoctorDashboard() {
                           <thead>
                             <tr>
                               <th className="w-28 p-1" />
-                              {activeMeds.map(m => (
+                              {activeMeds.map((m: any) => (
                                 <th key={m.id} className="p-1 min-w-[80px]">
                                   <div className="text-[8px] font-bold text-muted-foreground text-center truncate max-w-[76px]" title={m.drugName}>{m.drugName.split(" ")[0]}</div>
                                 </th>
@@ -1390,12 +1397,12 @@ export default function DoctorDashboard() {
                             </tr>
                           </thead>
                           <tbody>
-                            {activeMeds.map(rowMed => (
+                            {activeMeds.map((rowMed: any) => (
                               <tr key={rowMed.id}>
                                 <td className="p-1 pr-2">
                                   <div className="text-[8px] font-bold text-muted-foreground text-right truncate max-w-[108px]" title={rowMed.drugName}>{rowMed.drugName.split(" ")[0]}</div>
                                 </td>
-                                {activeMeds.map(colMed => {
+                                {activeMeds.map((colMed: any) => {
                                   if (rowMed.id === colMed.id) return (
                                     <td key={colMed.id} className="p-0.5"><div className="w-full h-8 rounded bg-secondary/30 flex items-center justify-center"><div className="w-2 h-px bg-border" /></div></td>
                                   );
@@ -1433,7 +1440,7 @@ export default function DoctorDashboard() {
                       </div>
                     </div>
                     <div className="divide-y divide-border">
-                      {patient.medications?.map(med => {
+                      {patient.medications?.map((med: any) => {
                         const hasCritical = medMatrixData?.interactions?.some(ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "critical");
                         const hasHigh = medMatrixData?.interactions?.some(ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "high");
                         const alertColor = hasCritical ? "#ef4444" : hasHigh ? "#f59e0b" : null;
@@ -1947,7 +1954,7 @@ function PrescribeModal({ patientId, patientAge, creatinine }: { patientId: numb
 
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg overflow-hidden rounded-[2rem]" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(24px)", boxShadow: "0 24px 64px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.60)" }}>
+          <div className="w-full max-w-lg overflow-hidden rounded-[2rem]" style={{ background: "hsl(var(--background))", border: "1px solid rgba(0,122,255,0.18)", boxShadow: "0 24px 64px rgba(0,0,0,0.60), 0 0 0 1px rgba(0,122,255,0.12)" }}>
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div>
                 <h3 className="font-bold text-foreground text-base">Prescribe Medication</h3>

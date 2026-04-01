@@ -168,22 +168,54 @@ export default function FamilyPortal() {
             </div>
           </div>
 
-          {/* KPIs (only when data loaded) */}
-          {data && (
-            <div className="grid grid-cols-3 gap-3 mb-5">
-              {[
-                { label: "Family Members Mapped", value: data.members?.length ?? "—", sub: `${data.summary?.highRiskMembers ?? 0} high-risk`, accent: "#db2777" },
-                { label: "Shared Conditions", value: data.sharedConditions?.length ?? "—", sub: "Hereditary disease links", accent: "#f472b6" },
-                { label: "Family Risk Score", value: data.familyRiskScore ?? "—", sub: data.summary?.overallFamilyRisk ?? "Assessed", accent: data.summary?.overallFamilyRisk === "HIGH" ? "#ef4444" : data.summary?.overallFamilyRisk === "MODERATE" ? "#d97706" : "#22c55e" },
-              ].map((kpi, i) => (
-                <div key={i} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5">{kpi.label}</p>
-                  <p className="text-2xl font-black tabular-nums" style={{ color: kpi.accent }}>{kpi.value}</p>
-                  <p className="text-[10px] text-white/35 mt-0.5">{kpi.sub}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* 5 KPI Glow Cards */}
+          <div className="grid grid-cols-5 gap-3 mb-5">
+            {[
+              {
+                label: "Family Members",
+                value: data ? String(data.summary?.totalMembers ?? data.members?.length ?? "—") : "—",
+                sub: data ? `${data.summary?.highRiskMembers ?? 0} high-risk` : "Pending load",
+                accent: "#db2777",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(219,39,119,0.18) 0%, transparent 70%)",
+              },
+              {
+                label: "Shared Conditions",
+                value: data ? String(data.sharedConditions?.length ?? data.summary?.sharedConditionsCount ?? "—") : "—",
+                sub: data ? "Hereditary links" : "Pending load",
+                accent: "#f472b6",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(244,114,182,0.15) 0%, transparent 70%)",
+              },
+              {
+                label: "Family Risk Score",
+                value: data ? String(data.familyRiskScore ?? "—") : "—",
+                sub: data ? (data.summary?.overallFamilyRisk ?? "Assessed") : "Pending load",
+                accent: data?.summary?.overallFamilyRisk === "HIGH" ? "#ef4444" : data?.summary?.overallFamilyRisk === "MODERATE" ? "#f59e0b" : "#22c55e",
+                glow: `radial-gradient(ellipse at 20% 50%, ${data?.summary?.overallFamilyRisk === "HIGH" ? "rgba(239,68,68,0.18)" : "rgba(219,39,119,0.15)"} 0%, transparent 70%)`,
+              },
+              {
+                label: "Genetic Risk Factors",
+                value: data ? String(data.geneticRisks?.length ?? "—") : "—",
+                sub: data ? `${data.geneticRisks?.filter((r: any) => r.riskLevel === "high").length ?? 0} high-penetrance` : "Pending load",
+                accent: "#a855f7",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(168,85,247,0.15) 0%, transparent 70%)",
+              },
+              {
+                label: "Heritability Score",
+                value: data ? String(data.heritabilityScore ?? "—") : "—",
+                sub: data ? "/100" : "Pending load",
+                accent: data?.heritabilityScore >= 70 ? "#ef4444" : data?.heritabilityScore >= 40 ? "#f59e0b" : "#22c55e",
+                glow: "radial-gradient(ellipse at 20% 50%, rgba(219,39,119,0.12) 0%, transparent 70%)",
+              },
+            ].map((kpi, i) => (
+              <div key={i} className="relative overflow-hidden rounded-2xl px-4 py-3"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: kpi.glow }} />
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5 relative">{kpi.label}</p>
+                <p className="text-2xl font-black tabular-nums relative" style={{ color: kpi.accent }}>{kpi.value}</p>
+                <p className="text-[10px] text-white/35 mt-0.5 relative">{kpi.sub}</p>
+              </div>
+            ))}
+          </div>
 
           {/* Demo IDs */}
           {!data && !nationalId && (
@@ -222,42 +254,48 @@ export default function FamilyPortal() {
         </div>
       </div>
 
-      {/* SSE Family Alert Panel */}
+      {/* SSE Family Alert Panel — Dark cinematic pink */}
       {showSsePanel && sseAlerts.length > 0 && (
-        <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-bold text-sm text-foreground">Live Family Health Alerts</span>
-              <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
+        <div className="mb-5 rounded-3xl overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #0a0108 0%, #1a0814 100%)", border: "1px solid rgba(219,39,119,0.18)" }}>
+          <div className="flex items-center justify-between px-5 py-3"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(219,39,119,0.06)" }}>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+              <span className="font-black text-sm text-white">Live Family Health Alerts</span>
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.25)" }}>
+                {sseUnread} new
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-3">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} style={{ color: "rgba(255,255,255,0.35)" }} className="hover:text-white transition-colors"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-border max-h-56 overflow-y-auto">
-            {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <Heart className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-primary"}`} />
+          <div className="max-h-56 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+            {sseAlerts.map((alert, idx) => (
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}
+                style={{ borderBottom: idx < sseAlerts.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                <Heart className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-400" : "text-pink-400"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName} · ID: {alert.nationalId}</p>
-                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="font-bold text-sm text-white">{alert.title}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    Patient: {alert.patientName} · ID: {alert.nationalId}
+                  </p>
+                  {alert.recommendation && <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{alert.recommendation}</p>}
+                  <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <button
-                    onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors"
-                  >
-                    Load Family
-                  </button>
-                </div>
+                <button
+                  onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); markSseRead(alert.id); }}
+                  className="text-[10px] font-black px-3 py-1.5 rounded-xl shrink-0 transition-all hover:opacity-90"
+                  style={{ background: "rgba(219,39,119,0.20)", color: "#f9a8d4", border: "1px solid rgba(219,39,119,0.30)" }}>
+                  Load Family
+                </button>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {!nationalId && (
@@ -284,40 +322,22 @@ export default function FamilyPortal() {
 
       {data && (
         <div className="space-y-5">
-          {/* Alert Banner */}
+          {/* Alert banner strip */}
           {data.familyRiskAlert && (
-            <div className="flex items-start gap-3 p-4 rounded-3xl bg-secondary"
-              style={{ borderLeft: `3px solid ${data.summary.overallFamilyRisk === "HIGH" ? "#ef4444" : "#f59e0b"}` }}>
-              <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-600" : "text-amber-600"}`} />
-              <div>
-                <p className={`text-sm font-bold ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-800" : "text-amber-800"}`}>{data.familyRiskAlert}</p>
-                <div className="flex items-center gap-3 mt-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground">{data.summary.totalMembers} family members mapped</span>
-                  <span className="text-[10px] font-semibold text-red-600">{data.summary.highRiskMembers} high-risk</span>
-                  <span className="text-[10px] font-semibold text-muted-foreground">{data.summary.sharedConditionsCount} shared conditions</span>
-                </div>
-              </div>
-              <div className="ml-auto shrink-0 text-right">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Family Risk</p>
-                <p className={`text-2xl font-bold ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-600" : data.summary.overallFamilyRisk === "MODERATE" ? "text-amber-600" : "text-emerald-600"}`}>{data.summary.overallFamilyRisk}</p>
+            <div className="flex items-center gap-4 px-5 py-3 rounded-2xl"
+              style={{
+                background: data.summary.overallFamilyRisk === "HIGH" ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)",
+                border: `1px solid ${data.summary.overallFamilyRisk === "HIGH" ? "rgba(239,68,68,0.20)" : "rgba(245,158,11,0.20)"}`,
+              }}>
+              <AlertTriangle className={`w-4 h-4 shrink-0 ${data.summary.overallFamilyRisk === "HIGH" ? "text-red-500" : "text-amber-500"}`} />
+              <p className="text-sm font-bold text-foreground flex-1">{data.familyRiskAlert}</p>
+              <div className="flex items-center gap-4 shrink-0 text-[10px]">
+                <span className="text-muted-foreground">{data.summary.totalMembers} members mapped</span>
+                <span className="font-bold text-red-500">{data.summary.highRiskMembers} high-risk</span>
+                <span className="text-muted-foreground">{data.summary.sharedConditionsCount} shared conditions</span>
               </div>
             </div>
           )}
-
-          {/* Summary KPIs */}
-          <div className="grid grid-cols-4 gap-4">
-            {[
-              { label: "Heritability Score", value: data.heritabilityScore, suffix: "/100", color: data.heritabilityScore >= 70 ? "text-red-600" : data.heritabilityScore >= 40 ? "text-amber-600" : "text-emerald-600", bg: "bg-secondary" },
-              { label: "Genetic Risk Factors", value: data.geneticRisks?.length, suffix: " identified", color: "text-primary", bg: "bg-secondary" },
-              { label: "Family Members Linked", value: data.summary?.totalMembers, suffix: " members", color: "text-primary", bg: "bg-secondary" },
-              { label: "Patient Risk Score", value: data.patient?.riskScore, suffix: "/100", color: data.patient?.riskScore >= 70 ? "text-red-600" : "text-amber-600", bg: "bg-secondary" },
-            ].map((kpi, i) => (
-              <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
-                <p className={`text-4xl font-bold ${kpi.color}`}>{kpi.value}<span className="text-sm font-semibold text-muted-foreground">{kpi.suffix}</span></p>
-              </div>
-            ))}
-          </div>
 
           {/* ─── FAMILY TREE TAB ─── */}
           {activeTab === "tree" && (
@@ -505,7 +525,7 @@ export default function FamilyPortal() {
                             <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
                             <Legend wrapperStyle={{ fontSize: 11 }} />
                             <Line type="monotone" dataKey="familyRisk" name="Family Risk" stroke="#ef4444" strokeWidth={2} dot={{ r: 4, fill: "#ef4444" }} />
-                            <Line type="monotone" dataKey="patientRisk" name="Patient Risk" stroke="#007AFF" strokeWidth={2} dot={{ r: 4, fill: "#007AFF" }} />
+                            <Line type="monotone" dataKey="patientRisk" name="Patient Risk" stroke="#db2777" strokeWidth={2} dot={{ r: 4, fill: "#db2777" }} />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -537,7 +557,7 @@ export default function FamilyPortal() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className={`text-sm font-bold ${cfg.color}`}>{risk.condition}</p>
-                            {risk.icdCode && <span className="font-mono text-[10px] bg-white/60 border border-current/20 px-1.5 py-0.5 rounded-lg text-muted-foreground">{risk.icdCode}</span>}
+                            {risk.icdCode && <span className="font-mono text-[10px] bg-secondary px-1.5 py-0.5 rounded-lg text-muted-foreground border border-border">{risk.icdCode}</span>}
                             <Badge variant={cfg.badge} className="text-[10px] ml-auto shrink-0">{risk.riskLevel} penetrance</Badge>
                           </div>
                           {risk.gene && <p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-semibold text-foreground">Genes:</span> {risk.gene}</p>}
@@ -547,7 +567,8 @@ export default function FamilyPortal() {
                           </div>
                         </div>
                         <button onClick={() => setExpandedRisk(isExpanded ? null : i)}
-                          className="text-[10px] font-bold text-primary bg-white/60 px-2.5 py-1 rounded-xl hover:bg-white transition-colors shrink-0">
+                          className="text-[10px] font-black px-2.5 py-1 rounded-xl shrink-0 transition-all hover:opacity-90"
+                          style={{ background: "rgba(219,39,119,0.12)", color: "#f9a8d4", border: "1px solid rgba(219,39,119,0.20)" }}>
                           {isExpanded ? "Less" : "Details"}
                         </button>
                       </div>
@@ -568,11 +589,11 @@ export default function FamilyPortal() {
                         <div className="bg-secondary rounded-2xl p-3">
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Transmission Probability</p>
                           <div className="flex items-center gap-3">
-                            <div className="flex-1 h-3 bg-white rounded-full overflow-hidden">
+                            <div className="flex-1 h-3 bg-secondary rounded-full overflow-hidden border border-border">
                               <div className={`h-full rounded-full ${risk.riskLevel === "high" ? "bg-red-500" : risk.riskLevel === "medium" ? "bg-amber-500" : "bg-emerald-500"}`}
                                 style={{ width: `${risk.transmissionProb * 100}%` }} />
                             </div>
-                            <span className={`text-sm font-bold shrink-0 ${risk.riskLevel === "high" ? "text-red-600" : risk.riskLevel === "medium" ? "text-amber-600" : "text-emerald-600"}`}>
+                            <span className={`text-sm font-bold shrink-0 ${risk.riskLevel === "high" ? "text-red-500" : risk.riskLevel === "medium" ? "text-amber-500" : "text-emerald-500"}`}>
                               {Math.round(risk.transmissionProb * 100)}%
                             </span>
                           </div>
@@ -587,7 +608,7 @@ export default function FamilyPortal() {
                             </div>
                           </div>
                         )}
-                        <div className={`flex items-start gap-2.5 p-3 rounded-2xl border ${cfg.bg} ${cfg.border}`}>
+                        <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-secondary border border-border">
                           <ChevronRight className={`w-4 h-4 shrink-0 mt-0.5 ${cfg.color}`} />
                           <div>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Clinical Recommendation</p>
@@ -677,7 +698,7 @@ export default function FamilyPortal() {
                           <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
                           <Legend wrapperStyle={{ fontSize: 11 }} />
                           <Line type="monotone" dataKey="familyRisk" name="Family Aggregate Risk" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 5, fill: "#ef4444" }} />
-                          <Line type="monotone" dataKey="patientRisk" name="Patient Risk" stroke="#007AFF" strokeWidth={2.5} dot={{ r: 5, fill: "#007AFF" }} />
+                          <Line type="monotone" dataKey="patientRisk" name="Patient Risk" stroke="#db2777" strokeWidth={2.5} dot={{ r: 5, fill: "#db2777" }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -717,14 +738,14 @@ export default function FamilyPortal() {
                       <div className="flex items-center gap-2 mb-3">
                         <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-[11px] text-muted-foreground">{rec.frequency}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-white/60 rounded-full text-muted-foreground ml-auto">Due: {rec.dueIn}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-secondary rounded-full text-muted-foreground ml-auto border border-border">Due: {rec.dueIn}</span>
                       </div>
                       {rec.members?.length > 0 && (
                         <div>
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Applies to</p>
                           <div className="flex flex-wrap gap-1">
                             {rec.members.slice(0, 3).map((m: string, mi: number) => (
-                              <div key={mi} className="flex items-center gap-1 bg-white/60 px-2 py-0.5 rounded-xl">
+                              <div key={mi} className="flex items-center gap-1 bg-secondary border border-border px-2 py-0.5 rounded-xl">
                                 <User className="w-2.5 h-2.5 text-muted-foreground" />
                                 <span className="text-[10px] font-medium text-foreground">{m.split(" ")[0]}</span>
                               </div>

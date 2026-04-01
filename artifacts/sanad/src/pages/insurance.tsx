@@ -124,13 +124,11 @@ export default function InsurancePortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-violet-50 hover:bg-violet-100" : "bg-secondary hover:bg-border"
-              }`}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-secondary hover:bg-border"
             >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-violet-600" : "text-muted-foreground"}`} />
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-foreground" : "text-muted-foreground"}`} />
               {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-foreground text-background text-[9px] font-bold flex items-center justify-center">
                   {sseUnread > 9 ? "9+" : sseUnread}
                 </span>
               )}
@@ -150,31 +148,31 @@ export default function InsurancePortal() {
       {/* SSE Fraud Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-violet-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-secondary/60 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-violet-600 animate-pulse" />
-              <span className="font-bold text-sm text-violet-900">Live Risk & Fraud Alerts</span>
+              <div className="w-2 h-2 rounded-full bg-foreground animate-pulse" />
+              <span className="font-bold text-sm text-foreground">Live Risk & Fraud Alerts</span>
               <Badge variant="info" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-violet-600 hover:text-violet-900 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-violet-400 hover:text-violet-700"><X className="w-4 h-4" /></button>
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-violet-200 max-h-56 overflow-y-auto">
+          <div className="divide-y divide-border max-h-56 overflow-y-auto">
             {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-violet-500"}`} />
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-50" : ""}`}>
+                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-violet-900">{alert.title}</p>
-                  <p className="text-xs text-violet-700 mt-0.5">Patient: {alert.patientName} · ID: {alert.nationalId}</p>
-                  {alert.recommendation && <p className="text-xs text-violet-600 mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-violet-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName} · ID: {alert.nationalId}</p>
+                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <button
                     onClick={() => { setSearchId(alert.nationalId ?? ""); setNationalId(alert.nationalId ?? ""); setActiveTab("patient"); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-violet-700 bg-violet-100 hover:bg-violet-200 rounded-lg px-2 py-1 transition-colors"
+                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors"
                   >
                     View Policy
                   </button>
@@ -364,15 +362,20 @@ export default function InsurancePortal() {
       {/* ─── PATIENT LOOKUP TAB ─── */}
       {activeTab === "patient" && (
         <div className="space-y-5">
-          <div className="flex items-start justify-between mb-2">
-            <div className="mb-4">
-              <h2 className="text-2xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Policy Lookup & Fraud Analysis</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">AI-powered per-patient fraud scoring, anomaly detection, and claim review workflow.</p>
+          <div className="flex items-center justify-between gap-4 p-5 rounded-[2rem] mb-4" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)" }}>
+                <Search className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Policy Lookup & Fraud Analysis</h2>
+                <p className="text-sm text-muted-foreground">AI fraud scoring · Anomaly detection · Claim review workflow</p>
+              </div>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) setNationalId(searchId.trim()); }} className="flex items-center gap-2 shrink-0 ml-6">
+            <form onSubmit={(e) => { e.preventDefault(); if (searchId.trim()) setNationalId(searchId.trim()); }} className="flex items-center gap-2 shrink-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input placeholder="National ID..." className="pl-9 w-52" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+                <Input placeholder="National ID..." className="pl-9 w-56" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
               </div>
               <Button type="submit" size="md">Lookup Policy</Button>
             </form>
@@ -410,40 +413,39 @@ export default function InsurancePortal() {
             <div className="space-y-4">
               {/* Policy Header */}
               <Card>
-                <CardBody className="p-0">
-                  <div className="flex items-stretch divide-x divide-border">
-                    <div className="flex-1 p-5">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Policy Holder</p>
+                <CardBody className="p-5">
+                  <div className="flex items-start gap-5">
+                    <div className="flex-1">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Policy Holder</p>
                       <h2 className="text-xl font-bold text-foreground mb-1">{patient.patient?.fullName}</h2>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mb-2">
                         <span className="font-mono text-xs bg-secondary px-2.5 py-1 rounded-xl">{patient.patient?.nationalId}</span>
                         <span className="text-xs text-muted-foreground">Age {patient.patient?.age} · {patient.patient?.gender}</span>
                         <span className="text-xs font-bold text-red-600">{patient.patient?.bloodType}</span>
                       </div>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2">
                         <Badge variant="success">Active Policy</Badge>
                         <span className="text-xs font-semibold text-muted-foreground">{patient.insurancePlan}</span>
                       </div>
                     </div>
-                    <div className="px-4 py-3 flex items-center justify-center">
+                    <div className="shrink-0">
                       <AnomalyGauge score={patient.anomalyScore ?? 0} />
                     </div>
-                    <div className={`px-6 py-4 flex flex-col items-center justify-center min-w-[130px] ${patient.fraudRisk === "high" ? "bg-red-50" : patient.fraudRisk === "medium" ? "bg-amber-50" : "bg-emerald-50/50"}`}>
-                      <DataLabel label="Fraud Risk">
+                    <div className="grid grid-cols-3 gap-3 shrink-0">
+                      <div className="text-center p-4 rounded-2xl bg-secondary min-w-[110px]">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Fraud Risk</p>
                         <p className={`text-2xl font-bold ${patient.fraudRisk === "high" ? "text-red-600" : patient.fraudRisk === "medium" ? "text-amber-600" : "text-emerald-600"}`}>{patient.fraudRisk?.toUpperCase()}</p>
-                      </DataLabel>
-                    </div>
-                    <div className="px-6 py-4 flex flex-col items-center justify-center min-w-[150px] bg-violet-50">
-                      <DataLabel label="Monthly Premium">
-                        <p className="text-2xl font-bold text-violet-700">SAR {patient.monthlyPremium?.toLocaleString()}</p>
-                      </DataLabel>
-                      <p className="text-xs text-muted-foreground mt-1">{patient.riskMultiplier}× risk factor</p>
-                    </div>
-                    <div className="px-6 py-4 flex flex-col items-center justify-center min-w-[120px]">
-                      <DataLabel label="Total Claims">
+                      </div>
+                      <div className="text-center p-4 rounded-2xl bg-secondary min-w-[130px]">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Monthly Premium</p>
+                        <p className="text-xl font-bold text-foreground">SAR {patient.monthlyPremium?.toLocaleString()}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{patient.riskMultiplier}× risk factor</p>
+                      </div>
+                      <div className="text-center p-4 rounded-2xl bg-secondary min-w-[110px]">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Total Claims</p>
                         <p className="text-2xl font-bold text-foreground">{patient.totalClaims}</p>
-                      </DataLabel>
-                      <p className="text-xs text-muted-foreground mt-1">SAR {patient.totalClaimValue?.toLocaleString()}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">SAR {patient.totalClaimValue?.toLocaleString()}</p>
+                      </div>
                     </div>
                   </div>
                 </CardBody>
@@ -522,19 +524,23 @@ export default function InsurancePortal() {
 
               {/* Fraud Flags */}
               {patient.fraudFlags?.length > 0 && (
-                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-3xl">
-                  <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-bold text-amber-800 mb-2">AI Fraud Detection Flags ({patient.fraudFlags.length})</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {patient.fraudFlags.map((flag: string, i: number) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-amber-700">
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />{flag}
-                        </div>
-                      ))}
+                <Card>
+                  <CardBody className="flex items-start gap-4 p-5">
+                    <div className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center shrink-0">
+                      <ShieldAlert className="w-5 h-5 text-amber-600" />
                     </div>
-                  </div>
-                </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-foreground mb-3">AI Fraud Detection Flags — {patient.fraudFlags.length} detected</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {patient.fraudFlags.map((flag: string, i: number) => (
+                          <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary rounded-xl px-3 py-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />{flag}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
               )}
 
               {/* Claims Table with Review Workflow */}
@@ -553,7 +559,7 @@ export default function InsurancePortal() {
                       const canReview = effectiveStatus === "pending" || effectiveStatus === "under_review";
 
                       return (
-                        <div key={claim.claimId} className={`transition-colors ${isReviewing ? "bg-violet-50/50" : "hover:bg-secondary/20"}`}>
+                        <div key={claim.claimId} className={`transition-colors ${isReviewing ? "bg-secondary/50" : "hover:bg-secondary/30"}`}>
                           <div className="flex items-center gap-4 px-5 py-3.5">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 mb-0.5">
@@ -609,7 +615,7 @@ export default function InsurancePortal() {
                                 </div>
                               )}
                               {reviewResult && (
-                                <div className="p-3 bg-emerald-50 rounded-xl">
+                                <div className="p-3 bg-secondary rounded-xl">
                                   <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1">Review Complete</p>
                                   <p className="text-xs text-foreground">{reviewResult.aiReason}</p>
                                   <p className="text-[10px] text-muted-foreground mt-1">By {reviewResult.reviewedBy} · {new Date(reviewResult.reviewedAt).toLocaleString()}</p>
@@ -656,39 +662,31 @@ export default function InsurancePortal() {
       {/* ─── AI PRE-AUTHORIZATION ENGINE ─── */}
       {activeTab === "preauth" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-violet-50 to-blue-50 rounded-3xl">
-            <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center shrink-0">
-              <FileCheck className="w-6 h-6 text-violet-700" />
+          <div className="flex items-center gap-5 p-5 rounded-[2rem]" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)" }}>
+              <FileCheck className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-bold text-violet-900 text-sm">SANAD AI Pre-Authorization Engine v2.1</p>
-                <Badge variant="purple" className="text-[10px]">Clinical Necessity AI Active</Badge>
+                <p className="font-bold text-foreground text-sm">SANAD AI Pre-Authorization Engine v2.1</p>
+                <Badge variant="info" className="text-[10px]">Clinical Necessity AI · Live</Badge>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
-              <p className="text-xs text-violet-700">AI-powered real-time clinical necessity scoring for prior authorization requests. Evaluates medical necessity, treatment guideline alignment, fraud risk, and cost-effectiveness in under 3 seconds per request. Expected SAR 4.2B savings annually through automated adjudication.</p>
-              <div className="flex items-center gap-4 mt-2">
-                <span className="text-[10px] font-bold text-violet-600 bg-violet-100 px-2.5 py-1 rounded-full">12 Pending Requests</span>
-                <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">8 Auto-Approved</span>
-                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">3 Flagged for Review</span>
-                <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">1 AI-Denied</span>
+              <p className="text-xs text-muted-foreground mb-2.5">AI-powered real-time clinical necessity scoring. Evaluates medical necessity, guideline alignment, fraud risk, and cost-effectiveness in under 3 seconds. Expected SAR 4.2B savings annually through automated adjudication.</p>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="text-[10px] font-bold text-foreground bg-secondary px-2.5 py-1 rounded-full">12 Pending</span>
+                <span className="text-[10px] font-semibold text-emerald-600 bg-secondary px-2.5 py-1 rounded-full flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />8 Auto-Approved</span>
+                <span className="text-[10px] font-semibold text-amber-600 bg-secondary px-2.5 py-1 rounded-full flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />3 Flagged</span>
+                <span className="text-[10px] font-semibold text-red-600 bg-secondary px-2.5 py-1 rounded-full flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />1 AI-Denied</span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-            {[
-              { label: "Requests Today", value: "247", sub: "89% auto-adjudicated", color: "text-violet-600", bg: "bg-violet-50" },
-              { label: "Avg Decision Time", value: "2.8s", sub: "vs 3-day manual process", color: "text-primary", bg: "bg-primary/5" },
-              { label: "Auto-Approval Rate", value: "72%", sub: "Meeting NCCHI guidelines", color: "text-emerald-600", bg: "bg-emerald-50" },
-              { label: "AI SAR Savings YTD", value: "SAR 1.1B", sub: "Fraud + unnecessary procedures", color: "text-amber-600", bg: "bg-amber-50" },
-            ].map((kpi, i) => (
-              <div key={i} className={`p-5 rounded-3xl ${kpi.bg}`}>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{kpi.label}</p>
-                <p className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{kpi.sub}</p>
-              </div>
-            ))}
+            <KpiCard title="Requests Today" value="247" sub="89% auto-adjudicated" icon={FileCheck} iconBg="bg-secondary" iconColor="text-foreground" />
+            <KpiCard title="Avg Decision Time" value="2.8s" sub="vs 3-day manual process" icon={Zap} iconBg="bg-secondary" iconColor="text-foreground" />
+            <KpiCard title="Auto-Approval Rate" value="72%" sub="Meeting NCCHI guidelines" icon={CheckCircle2} iconBg="bg-secondary" iconColor="text-emerald-600" />
+            <KpiCard title="AI SAR Savings YTD" value="SAR 1.1B" sub="Fraud + unnecessary procedures" icon={DollarSign} iconBg="bg-secondary" iconColor="text-foreground" />
           </div>
 
           <Card>
@@ -816,10 +814,11 @@ export default function InsurancePortal() {
                   : { bg: "bg-sky-50", border: "border-sky-200", badgeV: "info" as const, label: "PENDING INFO", icon: <Clock className="w-4 h-4 text-sky-600" /> };
                 const necessityColor = req.necessityScore >= 80 ? "text-emerald-600" : req.necessityScore >= 50 ? "text-amber-600" : "text-red-600";
                 const fraudColor = req.fraudScore >= 70 ? "text-red-600" : req.fraudScore >= 30 ? "text-amber-600" : "text-emerald-600";
+                const borderColor = req.aiDecision === "AUTO_APPROVED" ? "#22c55e" : req.aiDecision === "AI_DENIED" ? "#ef4444" : req.aiDecision === "FLAGGED_REVIEW" ? "#f59e0b" : "#0ea5e9";
                 return (
-                  <div key={req.id} className={`p-5 ${decisionCfg.bg} border-l-4 ${decisionCfg.border}`}>
+                  <div key={req.id} className="p-5" style={{ borderLeft: `4px solid ${borderColor}` }}>
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-white/70 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center shrink-0 mt-0.5">
                         {decisionCfg.icon}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -846,7 +845,7 @@ export default function InsurancePortal() {
                           </div>
                         </div>
 
-                        <div className="p-3 bg-white/60 rounded-2xl mb-3">
+                        <div className="p-3 bg-secondary/70 rounded-2xl mb-3">
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5"><Brain className="w-3 h-3 text-violet-600" /> AI Clinical Reasoning</p>
                           <p className="text-xs text-foreground leading-relaxed">{req.reasoning}</p>
                         </div>
@@ -869,11 +868,11 @@ export default function InsurancePortal() {
                         </div>
 
                         {req.alternatives.length > 0 && (
-                          <div className="p-3 bg-sky-50/60 rounded-2xl mb-2">
-                            <p className="text-[10px] font-bold text-sky-700 mb-1.5 uppercase tracking-widest">AI-Recommended Alternatives</p>
+                          <div className="p-3 bg-secondary/60 rounded-2xl mb-2">
+                            <p className="text-[10px] font-bold text-muted-foreground mb-1.5 uppercase tracking-widest">AI-Recommended Alternatives</p>
                             <div className="space-y-1">
                               {req.alternatives.map((alt, ai) => (
-                                <p key={ai} className="text-xs text-sky-700 flex items-center gap-1.5"><ChevronRight className="w-3 h-3 shrink-0" />{alt}</p>
+                                <p key={ai} className="text-xs text-foreground flex items-center gap-1.5"><ChevronRight className="w-3 h-3 shrink-0 text-muted-foreground" />{alt}</p>
                               ))}
                             </div>
                           </div>
@@ -881,10 +880,10 @@ export default function InsurancePortal() {
 
                         {(req.aiDecision === "FLAGGED_REVIEW" || req.aiDecision === "AI_DENIED") && (
                           <div className="flex items-center gap-2 mt-2">
-                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-violet-700 bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-full transition-colors">
+                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                               <Eye className="w-3 h-3" /> Manual Review
                             </button>
-                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-full transition-colors">
+                            <button className="flex items-center gap-1.5 text-[11px] font-bold text-red-700 bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors">
                               <MessageSquare className="w-3 h-3" /> Request Peer Review
                             </button>
                           </div>
@@ -901,25 +900,30 @@ export default function InsurancePortal() {
 
       {activeTab === "portfolio" && (
         <div className="space-y-5">
-          <div className="mb-4">
-            <h2 className="text-2xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Portfolio Risk Intelligence</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">National insurance portfolio risk distribution, pricing bands, and actuarial overview.</p>
+          <div className="flex items-center gap-4 p-5 rounded-[2rem]" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.04)" }}>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%)" }}>
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-foreground" style={{ fontFamily: "'Manrope', sans-serif" }}>Portfolio Risk Intelligence</h2>
+              <p className="text-sm text-muted-foreground">National portfolio risk distribution · Pricing bands · Actuarial overview</p>
+            </div>
           </div>
           {dashboard && (
             <>
               <div className="grid grid-cols-4 gap-4">
                 {[
-                  { label: "Low Risk", value: dashboard.portfolioRisk?.low, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
-                  { label: "Medium Risk", value: dashboard.portfolioRisk?.medium, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
-                  { label: "High Risk", value: dashboard.portfolioRisk?.high, color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" },
-                  { label: "Critical Risk", value: dashboard.portfolioRisk?.critical, color: "text-red-600", bg: "bg-red-50", border: "border-red-200" },
+                  { label: "Low Risk", value: dashboard.portfolioRisk?.low, color: "text-emerald-600", barColor: "bg-emerald-500" },
+                  { label: "Medium Risk", value: dashboard.portfolioRisk?.medium, color: "text-amber-600", barColor: "bg-amber-500" },
+                  { label: "High Risk", value: dashboard.portfolioRisk?.high, color: "text-orange-600", barColor: "bg-orange-500" },
+                  { label: "Critical Risk", value: dashboard.portfolioRisk?.critical, color: "text-red-600", barColor: "bg-red-500" },
                 ].map((band, i) => (
-                  <div key={i} className={`p-5 rounded-3xl ${band.bg}`}>
+                  <div key={i} className="p-5 rounded-3xl" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{band.label}</p>
                     <p className={`text-4xl font-bold ${band.color}`}>{band.value}</p>
                     <p className="text-xs text-muted-foreground mt-1">policyholders</p>
-                    <div className="mt-3 h-1.5 bg-white/60 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${band.bg.replace("50", "500")}`} style={{ width: `${Math.round((band.value / dashboard.totalPolicies) * 100)}%` }} />
+                    <div className="mt-3 h-1.5 bg-black/8 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${band.barColor}`} style={{ width: `${Math.round((band.value / dashboard.totalPolicies) * 100)}%` }} />
                     </div>
                     <p className="text-[10px] font-semibold text-muted-foreground mt-1">{Math.round((band.value / dashboard.totalPolicies) * 100)}% of portfolio</p>
                   </div>

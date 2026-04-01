@@ -24,6 +24,13 @@ export interface BehavioralFlag {
   recommendation: string;
 }
 
+export interface GuidelineRecommendation {
+  text: string;
+  guideline: string;
+  guidelineOrg: string;
+  urgencyLevel: "immediate" | "urgent" | "soon" | "routine";
+}
+
 export interface AiDecisionResult {
   riskScore: number;
   riskLevel: RiskLevel;
@@ -33,7 +40,7 @@ export interface AiDecisionResult {
   whyFactors: WhyFactor[];
   confidence: number;
   source: string;
-  recommendations: string[];
+  recommendations: GuidelineRecommendation[];
   digitalTwin: DigitalTwinProjection;
   behavioralFlags: BehavioralFlag[];
   slaDeadline: string;
@@ -221,14 +228,67 @@ export function runDecisionEngine(input: DecisionInput): AiDecisionResult {
     slaDeadline = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
   }
 
-  const recommendations: string[] = [];
-  if (criticalLabs.length > 0) recommendations.push(`Urgent review of ${criticalLabs.map(l => l.testName).join(", ")} — initiate treatment protocol`);
-  if (activeMeds.length >= 5) recommendations.push("Medication reconciliation — consider deprescribing under specialist review");
-  if (conditions.some(c => c.includes("diabetes"))) recommendations.push("Glycemic optimization — target HbA1c < 7%. Consider endocrinology referral if > 8%");
-  if (conditions.some(c => c.includes("kidney") || c.includes("ckd"))) recommendations.push("Nephrology referral — avoid nephrotoxins, strict BP control (target < 130/80)");
-  if (conditions.some(c => c.includes("heart failure"))) recommendations.push("Daily weight monitoring, fluid restriction < 1.5L/day, cardiology follow-up within 2 weeks");
-  if (recentEmergencies.length >= 2) recommendations.push("Care coordination review — transitional care program to prevent further emergency admissions");
-  if (recommendations.length === 0) recommendations.push("Continue routine monitoring and preventive care schedule");
+  const recommendations: GuidelineRecommendation[] = [];
+  if (criticalLabs.length > 0) recommendations.push({
+    text: `Urgent review of ${criticalLabs.map(l => l.testName).join(", ")} — initiate treatment protocol immediately`,
+    guideline: "MOH Critical Lab Response Protocol 2024 · §4.2",
+    guidelineOrg: "MOH",
+    urgencyLevel: "immediate",
+  });
+  if (activeMeds.length >= 5) recommendations.push({
+    text: `Medication reconciliation — ${activeMeds.length} concurrent medications require deprescribing review by clinical pharmacist`,
+    guideline: "Beers Criteria 2023 · STOPP/START v3 · KDIGO 2022 §5",
+    guidelineOrg: "AGS / STOPP",
+    urgencyLevel: "urgent",
+  });
+  if (conditions.some(c => c.includes("diabetes"))) recommendations.push({
+    text: "Glycemic optimization — target HbA1c < 7.0%. Intensify therapy if > 8%; consider GLP-1 RA or SGLT2i with established CVD or CKD",
+    guideline: "ADA Standards of Medical Care in Diabetes 2024 · §9.1–9.5",
+    guidelineOrg: "ADA 2024",
+    urgencyLevel: "urgent",
+  });
+  if (conditions.some(c => c.includes("kidney") || c.includes("ckd"))) recommendations.push({
+    text: "Nephrology referral — avoid nephrotoxins (NSAIDs, IV contrast). Strict BP control target < 130/80 mmHg. SGLT2i to slow CKD progression",
+    guideline: "KDIGO CKD Evaluation and Management 2022 · §2.1 & §4.2",
+    guidelineOrg: "KDIGO 2022",
+    urgencyLevel: "urgent",
+  });
+  if (conditions.some(c => c.includes("heart failure"))) recommendations.push({
+    text: "Daily weight monitoring, fluid restriction < 1.5 L/day, cardiology follow-up within 2 weeks. Optimize GDMT: ACEi/ARNi + beta-blocker + MRA + SGLT2i",
+    guideline: "ACC/AHA/HFSA Heart Failure Management Guideline 2022 · §7.4",
+    guidelineOrg: "ACC/AHA 2022",
+    urgencyLevel: "urgent",
+  });
+  if (conditions.some(c => c.includes("atrial fibrillation"))) recommendations.push({
+    text: "Calculate CHA₂DS₂-VASc score — initiate anticoagulation if score ≥ 2 (male) or ≥ 3 (female). Rate control target HR < 80 bpm at rest",
+    guideline: "ACC/AHA Atrial Fibrillation Guideline 2023 · §4.1 & §6.2",
+    guidelineOrg: "ACC/AHA 2023",
+    urgencyLevel: "urgent",
+  });
+  if (conditions.some(c => c.includes("hypertension"))) recommendations.push({
+    text: "BP target < 130/80 mmHg. Consider combination antihypertensive therapy (RAS + CCB or thiazide) for stage 2 or high-CV-risk patients",
+    guideline: "ESC/ESH Arterial Hypertension Guidelines 2023 · §7.3",
+    guidelineOrg: "ESC/ESH 2023",
+    urgencyLevel: "soon",
+  });
+  if (conditions.some(c => c.includes("copd"))) recommendations.push({
+    text: "Spirometry review every 6 months. Optimize inhaler regimen: LAMA ± LABA for persistent dyspnea. Avoid non-selective beta-blockers",
+    guideline: "GOLD COPD Management Report 2024 · §3 Pharmacological Treatment",
+    guidelineOrg: "GOLD 2024",
+    urgencyLevel: "soon",
+  });
+  if (recentEmergencies.length >= 2) recommendations.push({
+    text: "Care coordination review — enroll in MOH transitional care program. Assign community health worker; 48-hour post-discharge call protocol",
+    guideline: "MOH Transitional Care & Readmission Prevention Protocol 2024",
+    guidelineOrg: "MOH",
+    urgencyLevel: "urgent",
+  });
+  if (recommendations.length === 0) recommendations.push({
+    text: "Continue routine monitoring and preventive care schedule. Annual comprehensive health review recommended",
+    guideline: "MOH Preventive Care & Health Screening Guidelines 2024",
+    guidelineOrg: "MOH",
+    urgencyLevel: "routine",
+  });
 
   const digitalTwin = buildDigitalTwin(patient, conditions, labsByName, finalScore, riskLevel, activeMeds.length);
   const behavioralFlags = detectBehavioralFlags(visits, activeMeds, patient, recentEmergencies);

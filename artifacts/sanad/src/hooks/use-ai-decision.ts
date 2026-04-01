@@ -23,6 +23,13 @@ export interface BehavioralFlag {
   recommendation: string;
 }
 
+export interface GuidelineRecommendation {
+  text: string;
+  guideline: string;
+  guidelineOrg: string;
+  urgencyLevel: "immediate" | "urgent" | "soon" | "routine";
+}
+
 export interface AiDecisionResult {
   patientId: number;
   decisionId?: number;
@@ -34,7 +41,7 @@ export interface AiDecisionResult {
   whyFactors: WhyFactor[];
   confidence: number;
   source: string;
-  recommendations: string[];
+  recommendations: GuidelineRecommendation[];
   digitalTwin: DigitalTwinProjection;
   behavioralFlags: BehavioralFlag[];
   slaDeadline: string;

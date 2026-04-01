@@ -123,6 +123,7 @@ export default function LoginPage() {
   const [authPhase, setAuthPhase] = useState("");
   const [error, setError] = useState("");
   const [tick, setTick] = useState(0);
+  const [nafathOpen, setNafathOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 1000);
@@ -278,7 +279,7 @@ export default function LoginPage() {
                   <CheckCircle2 className="w-3.5 h-3.5" /> MOH Certified
                 </div>
                 <button
-                  onClick={() => {}}
+                  onClick={() => setNafathOpen(true)}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-[13px] bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold transition-colors"
                 >
                   <Fingerprint className="w-4 h-4" />
@@ -484,6 +485,54 @@ export default function LoginPage() {
         <span>© 2025 Ministry of Health — Kingdom of Saudi Arabia · SANAD v3.0</span>
         <span>Funded at SAR 100M · All Rights Reserved · PDPL Certified</span>
       </div>
+
+      {/* Nafath SSO Modal */}
+      {nafathOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4" onClick={() => setNafathOpen(false)}>
+          <div
+            className="w-full max-w-md rounded-[2rem] overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(24px)", boxShadow: "0 24px 64px rgba(0,0,0,0.14)" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-7 pt-7 pb-5">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-14 h-14 rounded-[16px] bg-emerald-600 flex items-center justify-center shrink-0">
+                  <Fingerprint className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] font-bold text-foreground">Nafath National SSO</h3>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">National Identity Verification · Ministry of Interior</p>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 mb-5">
+                <p className="text-sm font-bold text-emerald-800 mb-1">Integration in Test Phase</p>
+                <p className="text-xs text-emerald-700 leading-relaxed">
+                  The Nafath SSO integration has been implemented and is awaiting production certification from the National Centre for Digital Transformation (NCDT). During this phase, the SANAD demo environment uses direct role-based login.
+                </p>
+              </div>
+              <div className="space-y-2.5 mb-5">
+                {[
+                  { label: "Integration Type", value: "OAuth 2.0 + PKCE · OpenID Connect" },
+                  { label: "Authority", value: "MOI Nafath · NCDT Saudi Arabia" },
+                  { label: "Certification Status", value: "MOH Certified · Awaiting NCDT production approval" },
+                  { label: "Expected Live Date", value: "Q3 2026 production rollout" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
+                    <span className="text-[11px] font-bold text-foreground text-right max-w-[230px]">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setNafathOpen(false)}
+                className="w-full py-3 rounded-[14px] bg-foreground text-white text-[13px] font-bold hover:opacity-90 transition-opacity"
+              >
+                Continue with Role Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

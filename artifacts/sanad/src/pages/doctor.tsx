@@ -4,7 +4,7 @@ import {
   User as UserIcon, Pill, FlaskConical, Building2, X, Stethoscope, CalendarDays,
   TrendingUp, TrendingDown, Minus, Brain, Bell, BellOff, CheckCheck,
   TriangleAlert, Zap, ArrowUpRight, ArrowDownRight, ChevronRight, Lightbulb,
-  Wifi, WifiOff, Network, Users, CheckCircle2
+  Wifi, WifiOff, Network, Users, CheckCircle2, BookOpen, GitBranch, CircleDot
 } from "lucide-react";
 import {
   LineChart, Line, ResponsiveContainer, Tooltip as RechartsTooltip,
@@ -1464,6 +1464,80 @@ export default function DoctorDashboard() {
                       </div>
                     </div>
 
+                    {/* Clinical Decision Path */}
+                    <div className="p-5 rounded-2xl bg-secondary/40">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-1.5">
+                        <GitBranch className="w-3.5 h-3.5 text-foreground" /> Clinical Decision Pathway — SANAD AI Engine
+                      </p>
+                      <div className="flex items-start gap-0">
+                        {[
+                          {
+                            step: "01",
+                            label: "ASSESS",
+                            icon: CircleDot,
+                            color: "#6366f1",
+                            items: [
+                              `Risk Score: ${aiDecision.riskScore}/100`,
+                              `${aiDecision.whyFactors.length} clinical drivers identified`,
+                              `Confidence: ${Math.round(aiDecision.confidence * 100)}%`,
+                            ],
+                          },
+                          {
+                            step: "02",
+                            label: "DIAGNOSE",
+                            icon: Brain,
+                            color: aiDecision.urgency === "immediate" ? "#dc2626" : aiDecision.urgency === "urgent" ? "#d97706" : aiDecision.urgency === "soon" ? "#0284c7" : "#059669",
+                            items: [
+                              `Urgency: ${aiDecision.urgency.toUpperCase()}`,
+                              aiDecision.riskLevel.toUpperCase() + " risk tier",
+                              aiDecision.timeWindow,
+                            ],
+                          },
+                          {
+                            step: "03",
+                            label: "ACT",
+                            icon: Lightbulb,
+                            color: "#0d9488",
+                            items: [
+                              `${aiDecision.recommendations.length} guideline-bound action${aiDecision.recommendations.length !== 1 ? "s" : ""}`,
+                              aiDecision.recommendations[0] ? aiDecision.recommendations[0].guidelineOrg + " · " + aiDecision.recommendations[0].urgencyLevel.toUpperCase() : "Routine care",
+                              `SLA: ${aiDecision.timeWindow}`,
+                            ],
+                          },
+                        ].map((phase, idx) => {
+                          const Icon = phase.icon;
+                          return (
+                            <React.Fragment key={idx}>
+                              <div className="flex-1 bg-white/70 rounded-2xl p-4 min-w-0">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0" style={{ background: phase.color }}>
+                                    <Icon className="w-3.5 h-3.5 text-white" />
+                                  </div>
+                                  <div>
+                                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{phase.step}</p>
+                                    <p className="text-sm font-bold text-foreground leading-none" style={{ color: phase.color }}>{phase.label}</p>
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  {phase.items.map((item, j) => (
+                                    <p key={j} className="text-[10px] font-semibold text-foreground flex items-start gap-1.5 leading-snug">
+                                      <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full" style={{ background: phase.color }} />
+                                      {item}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                              {idx < 2 && (
+                                <div className="flex items-center px-2 shrink-0 self-center">
+                                  <ChevronRight className="w-5 h-5 text-muted-foreground/40" />
+                                </div>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* WHY Factors + Recommendations */}
                     <div className="grid grid-cols-2 gap-5">
                       <div>
@@ -1499,12 +1573,24 @@ export default function DoctorDashboard() {
                             <p className="text-sm font-bold text-foreground">Recommended Actions</p>
                           </div>
                           <div className="space-y-2">
-                            {aiDecision.recommendations.map((rec, i) => (
-                              <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-secondary/60">
-                                <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                <p className="text-xs text-foreground leading-snug">{rec}</p>
-                              </div>
-                            ))}
+                            {aiDecision.recommendations.map((rec, i) => {
+                              const urgencyBorder = rec.urgencyLevel === "immediate" ? "#ef4444" : rec.urgencyLevel === "urgent" ? "#f59e0b" : rec.urgencyLevel === "soon" ? "#3b82f6" : "#94a3b8";
+                              const orgColor = rec.guidelineOrg?.startsWith("ADA") ? "#3b82f6" : rec.guidelineOrg?.startsWith("KDIGO") ? "#0d9488" : rec.guidelineOrg?.startsWith("ACC") ? "#dc2626" : rec.guidelineOrg?.startsWith("ESC") ? "#7c3aed" : rec.guidelineOrg?.startsWith("GOLD") ? "#f59e0b" : rec.guidelineOrg?.startsWith("MOH") ? "#059669" : "#6366f1";
+                              return (
+                                <div key={i} className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-secondary/60" style={{ borderLeft: `3px solid ${urgencyBorder}` }}>
+                                  <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-foreground leading-snug">{rec.text}</p>
+                                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                      <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${orgColor}12`, color: orgColor }}>
+                                        <BookOpen className="w-2.5 h-2.5 shrink-0" /> {rec.guidelineOrg}
+                                      </span>
+                                      <span className="text-[9px] text-muted-foreground truncate">{rec.guideline}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 

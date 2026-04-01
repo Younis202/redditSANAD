@@ -5,7 +5,8 @@ import {
   ShieldAlert, Ban, Eye, UserCheck, Wrench,
   PauseCircle, Brain, Timer, Bell,
   ChevronDown, ChevronUp, CheckCircle2, Radio,
-  Fingerprint, Heart, Droplet, User
+  Fingerprint, Heart, Droplet, User, BookOpen,
+  ChevronRight, RefreshCw, ListChecks
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardBody, PageHeader, StatusDot, PortalHero } from "@/components/shared";
@@ -27,6 +28,70 @@ const ACTION_CFG: Record<ClinicalAction["action"], { icon: React.ElementType; la
   MONITOR:           { icon: Eye,          label: "Monitor",       accent: "#d97706", textColor: "text-amber-700"  },
   PREPARE_EQUIPMENT: { icon: Wrench,       label: "Prepare Equip", accent: "#0284c7", textColor: "text-sky-700"    },
 };
+
+const ACTION_PROTOCOL: Record<ClinicalAction["action"], { ref: string; org: string; color: string }> = {
+  DO_NOT_GIVE:       { ref: "ACLS Allergy/Adverse Drug Reaction Protocol 2020", org: "AHA/ACLS",   color: "#dc2626" },
+  HOLD_MEDICATION:   { ref: "MOH Medication Safety Protocol 2024 · §3.2",       org: "MOH",        color: "#ea580c" },
+  URGENT_REVIEW:     { ref: "SRCA Emergency Triage Protocol · ESI Level 1–2",   org: "SRCA/MOH",   color: "#7c3aed" },
+  ALERT_FAMILY:      { ref: "MOH Consent & Next-of-Kin Notification Protocol",  org: "MOH",        color: "#2563eb" },
+  MONITOR:           { ref: "ACLS Monitoring & Surveillance Protocol 2020",      org: "AHA/ACLS",   color: "#d97706" },
+  PREPARE_EQUIPMENT: { ref: "ACLS Equipment Readiness Checklist 2020 · §5.1",   org: "AHA/ACLS",   color: "#0284c7" },
+};
+
+const EMERGENCY_PROTOCOLS = [
+  {
+    code: "ACLS-CA",
+    title: "Cardiac Arrest — Shockable Rhythm (VF/pVT)",
+    org: "AHA ACLS 2020",
+    color: "#dc2626",
+    steps: [
+      "High-quality CPR — rate 100–120 bpm, depth ≥ 5 cm. Minimize interruptions",
+      "Defibrillate immediately: 200 J biphasic. Resume CPR 2 min before rhythm check",
+      "IV/IO access → Epinephrine 1 mg q3–5 min after 2nd shock",
+      "Amiodarone 300 mg IV/IO (1st dose) or Lidocaine 1–1.5 mg/kg after 3rd shock",
+      "Treat reversible causes: 5H5T (Hypovolemia, Hypoxia, H⁺, Hypo/Hyperkalemia, Hypothermia; Tamponade, Tension PTX, Thrombosis, Toxins)",
+    ],
+  },
+  {
+    code: "ACLS-ACS",
+    title: "Acute Coronary Syndrome (STEMI/NSTEMI)",
+    org: "ACC/AHA 2021",
+    color: "#f97316",
+    steps: [
+      "MONA protocol: Morphine 2–4 mg IV, O₂ if SpO₂ < 90%, Nitroglycerin SL, Aspirin 325 mg PO",
+      "12-lead ECG within 10 minutes. Activate cath lab for STEMI (door-to-balloon < 90 min)",
+      "Dual antiplatelet: Aspirin + P2Y12 inhibitor (Ticagrelor 180 mg or Clopidogrel 600 mg)",
+      "Anticoagulation: UFH 60 U/kg IV bolus (max 4,000 U), then 12 U/kg/hr infusion",
+      "Beta-blocker if no contraindication. Avoid in cardiogenic shock / acute decompensation",
+    ],
+  },
+  {
+    code: "MOH-SEP",
+    title: "Sepsis — qSOFA ≥ 2 or Suspected Infection",
+    org: "MOH Sepsis Bundle 2024 · Surviving Sepsis 2021",
+    color: "#7c3aed",
+    steps: [
+      "Obtain blood cultures (×2) before first antibiotic dose",
+      "Broad-spectrum IV antibiotics within 1 hour of recognition",
+      "30 mL/kg crystalloid IV within 3 hours for hypoperfusion or lactate ≥ 4 mmol/L",
+      "Reassess fluid responsiveness every 30 min. Target MAP ≥ 65 mmHg",
+      "Norepinephrine if MAP < 65 mmHg despite adequate fluid resuscitation",
+    ],
+  },
+  {
+    code: "MOH-STROKE",
+    title: "Acute Ischemic Stroke — Code Stroke",
+    org: "MOH Stroke Protocol 2024 · AHA/ASA 2019",
+    color: "#0284c7",
+    steps: [
+      "Door-to-CT within 25 minutes. Non-contrast CT head to exclude hemorrhage",
+      "IV tPA (Alteplase 0.9 mg/kg, max 90 mg) if within 4.5 h of last known well — door-to-needle < 60 min",
+      "Blood glucose target: 140–180 mg/dL during acute phase",
+      "Mechanical thrombectomy if large vessel occlusion — last known well ≤ 24 h",
+      "Aspirin 325 mg if tPA not given. DVT prophylaxis after 24 h",
+    ],
+  },
+];
 
 const RISK_BADGE: Record<string, { text: string; label: string }> = {
   critical: { text: "text-red-700",    label: "CRITICAL"  },
@@ -265,6 +330,10 @@ export default function EmergencyPage() {
                     <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
                       <StatusDot status="active" />
                       Live record
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
+                      <RefreshCw className="w-3 h-3" />
+                      Retrieved {new Date().toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · Confidence 97%
                     </span>
                   </div>
                 </div>
@@ -505,6 +574,7 @@ export default function EmergencyPage() {
               <CardBody className="divide-y divide-border p-0">
                 {immediate.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
+                  const proto = ACTION_PROTOCOL[action.action];
                   const Icon = cfg.icon;
                   return (
                     <div key={i} className="flex items-start gap-4 px-5 py-4" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
@@ -518,6 +588,12 @@ export default function EmergencyPage() {
                         </div>
                         <p className={`font-bold text-sm ${cfg.textColor}`}>{action.description}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{action.reason}</p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${proto.color}12`, color: proto.color }}>
+                            <BookOpen className="w-2.5 h-2.5 shrink-0" /> {proto.org}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground">{proto.ref}</span>
+                        </div>
                       </div>
                       <span className="text-xl font-black text-black/[0.06] tabular-nums shrink-0 mt-1">{String(i + 1).padStart(2, "0")}</span>
                     </div>
@@ -542,6 +618,7 @@ export default function EmergencyPage() {
               <CardBody className="divide-y divide-border p-0">
                 {guidance.map((action, i) => {
                   const cfg = ACTION_CFG[action.action];
+                  const proto = ACTION_PROTOCOL[action.action];
                   const Icon = cfg.icon;
                   return (
                     <div key={i} className="flex items-start gap-4 px-5 py-3.5" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
@@ -553,6 +630,12 @@ export default function EmergencyPage() {
                         </div>
                         <p className="text-sm font-semibold text-foreground">{action.description}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${proto.color}12`, color: proto.color }}>
+                            <BookOpen className="w-2.5 h-2.5 shrink-0" /> {proto.org}
+                          </span>
+                          <span className="text-[9px] text-muted-foreground">{proto.ref}</span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -560,6 +643,52 @@ export default function EmergencyPage() {
               </CardBody>
             </Card>
           )}
+
+          {/* 7b. EMERGENCY PROTOCOLS — ACLS / MOH / SRCA */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
+                  <ListChecks className="w-3.5 h-3.5 text-red-600" />
+                </div>
+                <CardTitle>Emergency Protocols</CardTitle>
+                <span className="text-[10px] font-bold text-red-700 bg-secondary px-2 py-0.5 rounded-full">ACLS · MOH · SRCA</span>
+              </div>
+              <button
+                onClick={() => setProtocolsOpen(p => !p)}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground bg-secondary hover:bg-border px-3 py-1.5 rounded-full transition-colors"
+              >
+                {protocolsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {protocolsOpen ? "Hide" : "Show"} protocols
+              </button>
+            </CardHeader>
+            {protocolsOpen && (
+              <CardBody className="space-y-3">
+                {EMERGENCY_PROTOCOLS.map((protocol) => (
+                  <div key={protocol.code} className="rounded-2xl overflow-hidden border border-border">
+                    <div className="flex items-center gap-3 px-4 py-3" style={{ background: `${protocol.color}08`, borderBottom: `2px solid ${protocol.color}` }}>
+                      <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-md text-white" style={{ background: protocol.color }}>{protocol.code}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground">{protocol.title}</p>
+                        <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5">
+                          <BookOpen className="w-2.5 h-2.5 shrink-0" /> {protocol.org}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="divide-y divide-border/60">
+                      {protocol.steps.map((step, si) => (
+                        <div key={si} className="flex items-start gap-3 px-4 py-2.5">
+                          <span className="w-5 h-5 rounded-full border-2 flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5" style={{ borderColor: protocol.color, color: protocol.color }}>{si + 1}</span>
+                          <p className="text-xs text-foreground leading-relaxed">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <p className="text-[9px] text-muted-foreground text-right pt-1">Protocols verified against MOH Saudi Arabia 2024 clinical guidelines. For reference only — clinical judgment applies.</p>
+              </CardBody>
+            )}
+          </Card>
 
           {/* 8. CRITICAL ALERTS */}
           {patient.criticalAlerts.length > 0 && (

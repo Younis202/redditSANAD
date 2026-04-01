@@ -151,18 +151,32 @@ function generateRecommendations(patient: {
     });
   }
 
+  const allLabs = patient.labResults || [];
+  const hba1cLab = allLabs.find(l => l.testName.toLowerCase().includes("hba1c") || l.testName.toLowerCase().includes("glycated"));
+  const glucoseLab = allLabs.find(l => l.testName.toLowerCase().includes("glucose") && !l.testName.toLowerCase().includes("hba1c"));
+  const creatinineLab = allLabs.find(l => l.testName.toLowerCase().includes("creatinine"));
+  const hemoglobinLab = allLabs.find(l => l.testName.toLowerCase().includes("hemoglobin") || l.testName.toLowerCase().includes("hgb"));
+
   if (conditions.some(c => c.includes("diabetes") || c.includes("type 1") || c.includes("type 2"))) {
+    const hba1cValue = hba1cLab ? parseFloat(hba1cLab.result) : null;
+    const glucoseValue = glucoseLab ? parseFloat(glucoseLab.result) : null;
+    const hba1cStatus = hba1cValue !== null
+      ? hba1cValue > 9 ? `Your HbA1c is ${hba1cValue}% — significantly above target. Urgent review needed.`
+      : hba1cValue > 8 ? `Your HbA1c is ${hba1cValue}% — above 8%. Your doctor may need to adjust your medications.`
+      : hba1cValue > 7 ? `Your HbA1c is ${hba1cValue}% — slightly above the 7% target. Reduce refined carbohydrates and increase activity.`
+      : `Your HbA1c is ${hba1cValue}% — within target. Keep up the excellent work.`
+      : "Check your fasting blood glucose every morning and after meals. Target HbA1c below 7%.";
     recs.push({
       icon: Activity,
-      title: "Monitor Blood Sugar Daily",
-      description: "Check your fasting blood glucose every morning and after meals. Target HbA1c below 7%. Avoid sugary foods and refined carbohydrates.",
-      priority: "high",
+      title: hba1cValue !== null && hba1cValue > 8 ? "HbA1c Above Target — Action Required" : "Monitor Blood Sugar Daily",
+      description: `${hba1cStatus}${glucoseValue !== null ? ` Latest glucose: ${glucoseValue} ${glucoseLab?.unit ?? "mmol/L"}.` : ""} Avoid sugary foods and refined carbohydrates.`,
+      priority: hba1cValue !== null && hba1cValue > 8 ? "high" : "medium",
       category: "Diabetes Management",
     });
     recs.push({
       icon: Stethoscope,
       title: "Annual Diabetic Screening",
-      description: "Get annual eye exam, kidney function tests (creatinine, microalbumin), and foot examination to detect complications early.",
+      description: `Get annual eye exam (diabetic retinopathy), kidney function tests (creatinine${creatinineLab ? ` — current: ${creatinineLab.result} ${creatinineLab.unit ?? ""}` : ""}), and foot examination to detect complications early.`,
       priority: "medium",
       category: "Preventive Care",
     });
@@ -172,7 +186,7 @@ function generateRecommendations(patient: {
     recs.push({
       icon: Heart,
       title: "Monitor Blood Pressure Regularly",
-      description: "Check your blood pressure at least twice a week. Target: below 130/80 mmHg. Reduce salt intake and avoid stress.",
+      description: "Check your blood pressure at least twice a week. Target: below 130/80 mmHg (ESC/ESH 2023). Reduce salt to < 5 g/day, increase potassium-rich foods, and manage stress.",
       priority: "high",
       category: "Cardiovascular",
     });
@@ -182,17 +196,20 @@ function generateRecommendations(patient: {
     recs.push({
       icon: Heart,
       title: "Cardiac Monitoring",
-      description: "Avoid strenuous activity without medical clearance. Know the warning signs: chest pain, shortness of breath, or sudden dizziness require emergency care.",
+      description: "Avoid strenuous activity without medical clearance. Know the warning signs: chest pain, shortness of breath, or sudden dizziness — call 911 immediately. Take all cardiac medications as prescribed.",
       priority: "high",
       category: "Cardiovascular",
     });
   }
 
   if (conditions.some(c => c.includes("ckd") || c.includes("kidney") || c.includes("renal"))) {
+    const creatinineNote = creatinineLab
+      ? ` Your latest creatinine: ${creatinineLab.result} ${creatinineLab.unit ?? "µmol/L"} (${creatinineLab.status === "normal" ? "within range" : "above normal — monitor closely"}).`
+      : "";
     recs.push({
       icon: FlaskConical,
       title: "Protect Your Kidneys",
-      description: "Stay well hydrated. Avoid NSAIDs (ibuprofen, naproxen). Limit protein and potassium intake as advised. Check creatinine & eGFR every 3 months.",
+      description: `Stay well hydrated (1.5–2 L/day). Avoid NSAIDs (ibuprofen, naproxen).${creatinineNote} Limit protein intake as advised. eGFR check every 3 months (KDIGO 2022).`,
       priority: "high",
       category: "Kidney Health",
     });
@@ -202,9 +219,19 @@ function generateRecommendations(patient: {
     recs.push({
       icon: Activity,
       title: "Respiratory Health",
-      description: "Always carry your rescue inhaler. Avoid smoke, dust, and strong odors. Get annual flu vaccine. Track your peak flow readings.",
+      description: "Always carry your rescue inhaler. Avoid smoke, dust, and strong odors. Get annual flu vaccine and pneumococcal vaccine. Track your peak flow readings (GOLD 2024).",
       priority: "medium",
       category: "Respiratory",
+    });
+  }
+
+  if (hemoglobinLab && hemoglobinLab.status !== "normal") {
+    recs.push({
+      icon: FlaskConical,
+      title: "Low Hemoglobin — Anemia Monitoring",
+      description: `Your hemoglobin is ${hemoglobinLab.result} ${hemoglobinLab.unit ?? "g/dL"} — below normal range. Increase iron-rich foods (red meat, lentils, spinach). Your doctor may prescribe iron supplements.`,
+      priority: hemoglobinLab.status === "critical" ? "high" : "medium",
+      category: "Blood Health",
     });
   }
 

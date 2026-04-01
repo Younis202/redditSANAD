@@ -48,10 +48,10 @@ const REGIONS = [
 ];
 
 const RISK_CFG = {
-  critical: { bg: "bg-secondary", borderColor: "#ef4444", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL" },
-  high:     { bg: "bg-secondary", borderColor: "#f97316", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH" },
-  moderate: { bg: "bg-secondary", borderColor: "#f59e0b", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE" },
-  low:      { bg: "bg-secondary", borderColor: "#22c55e", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL" },
+  critical: { bg: "bg-red-50", borderColor: "#ef4444", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL", heat: "rgba(239,68,68,0.12)", textColor: "text-red-800" },
+  high:     { bg: "bg-orange-50", borderColor: "#f97316", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH", heat: "rgba(249,115,22,0.10)", textColor: "text-orange-800" },
+  moderate: { bg: "bg-amber-50", borderColor: "#f59e0b", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE", heat: "rgba(245,158,11,0.08)", textColor: "text-amber-800" },
+  low:      { bg: "bg-emerald-50", borderColor: "#22c55e", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL", heat: "rgba(34,197,94,0.07)", textColor: "text-emerald-800" },
 };
 
 const IMPACT_TREND = [
@@ -316,14 +316,34 @@ export default function AdminDashboard() {
               <Badge variant="outline" className="ml-auto">13 Regions · Live</Badge>
             </CardHeader>
             <CardBody>
+              {/* Heatmap Legend */}
+              <div className="flex items-center gap-5 mb-3 px-1">
+                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide">Risk Level:</span>
+                {(["critical","high","moderate","low"] as const).map(r => (
+                  <div key={r} className="flex items-center gap-1.5">
+                    <span className={`w-2.5 h-2.5 rounded-full ${RISK_CFG[r].dot}`} />
+                    <span className="text-[10px] font-bold" style={{ color: RISK_CFG[r].borderColor }}>{RISK_CFG[r].label}</span>
+                  </div>
+                ))}
+                <span className="ml-auto text-[10px] text-muted-foreground">Cell intensity = patient load · Bar = network coverage</span>
+              </div>
               <div className="grid grid-cols-7 gap-2.5 mb-4">
                 {REGIONS.map((region, i) => {
                   const cfg = RISK_CFG[region.risk as keyof typeof RISK_CFG];
+                  const highRiskPct = Math.round((region.highRisk / region.patients) * 1000) / 10;
                   return (
-                    <div key={i} className={`p-3.5 rounded-2xl ${cfg.bg} flex flex-col gap-2`}>
+                    <div
+                      key={i}
+                      className="p-3.5 rounded-2xl flex flex-col gap-2 transition-all hover:scale-[1.02]"
+                      style={{
+                        background: cfg.heat,
+                        border: `1.5px solid ${cfg.borderColor}40`,
+                        boxShadow: `0 2px 12px ${cfg.borderColor}18`,
+                      }}
+                    >
                       <div className="flex items-start justify-between gap-1">
                         <div>
-                          <p className="text-[11px] font-bold text-foreground leading-tight">{region.name}</p>
+                          <p className={`text-[11px] font-bold leading-tight ${cfg.textColor}`}>{region.name}</p>
                           <p className="text-[10px] text-muted-foreground">{region.sub}</p>
                         </div>
                         <Badge variant={cfg.badge} className="text-[8px] shrink-0">{cfg.label}</Badge>
@@ -331,23 +351,23 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-2 text-[10px]">
                         <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
                         <span className="font-mono font-bold text-foreground">{region.patients.toLocaleString()}</span>
-                        <span className="text-muted-foreground">patients</span>
+                        <span className="text-muted-foreground">pts</span>
                       </div>
                       <div className="grid grid-cols-2 gap-1 text-[9px]">
                         <div>
                           <p className="text-muted-foreground">High Risk</p>
-                          <p className={`font-bold tabular-nums ${region.highRisk > 10 ? "text-red-600" : "text-foreground"}`}>{region.highRisk}</p>
+                          <p className={`font-bold tabular-nums ${region.highRisk > 10 ? "text-red-600" : "text-foreground"}`}>{region.highRisk}% <span className="font-normal text-muted-foreground">({highRiskPct}%)</span></p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Coverage</p>
-                          <p className="font-bold tabular-nums">{region.coverage}%</p>
+                          <p className={`font-bold tabular-nums ${region.coverage < 80 ? "text-red-600" : "text-foreground"}`}>{region.coverage}%</p>
                         </div>
                       </div>
-                      <div className="w-full bg-white/60 rounded-full h-1">
+                      <div className="w-full bg-white/70 rounded-full h-1.5">
                         <div className="h-full rounded-full" style={{ width: `${region.coverage}%`, background: cfg.bar }} />
                       </div>
                       {region.flag && (
-                        <p className="text-[9px] font-bold text-red-700 bg-secondary px-2 py-0.5 rounded-lg">{region.flag}</p>
+                        <p className="text-[9px] font-bold px-2 py-0.5 rounded-lg" style={{ color: cfg.borderColor, background: `${cfg.borderColor}15` }}>⚠ {region.flag}</p>
                       )}
                     </div>
                   );

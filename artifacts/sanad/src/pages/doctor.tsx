@@ -40,9 +40,9 @@ type PredictionWarning = {
 };
 
 const predictionSeverityStyle: Record<string, { bg: string; border: string; icon: string; badge: string }> = {
-  critical: { bg: "bg-red-50", border: "border-red-200", icon: "text-red-600", badge: "destructive" },
-  high: { bg: "bg-amber-50", border: "border-amber-200", icon: "text-amber-600", badge: "warning" },
-  moderate: { bg: "bg-sky-50", border: "border-sky-200", icon: "text-sky-600", badge: "info" },
+  critical: { bg: "bg-secondary", border: "border-border", icon: "text-red-600", badge: "destructive" },
+  high: { bg: "bg-secondary", border: "border-border", icon: "text-amber-600", badge: "warning" },
+  moderate: { bg: "bg-secondary", border: "border-border", icon: "text-sky-600", badge: "info" },
   low: { bg: "bg-secondary", border: "border-border", icon: "text-muted-foreground", badge: "outline" },
 };
 
@@ -198,10 +198,10 @@ export default function DoctorDashboard() {
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const timelineIconMap = {
-    visit: { icon: Building2, bg: "bg-sky-100", color: "text-sky-600" },
-    lab: { icon: FlaskConical, bg: "bg-violet-100", color: "text-violet-600" },
-    medication: { icon: Pill, bg: "bg-emerald-100", color: "text-emerald-600" },
-    alert: { icon: AlertCircle, bg: "bg-red-100", color: "text-red-600" },
+    visit: { icon: Building2, bg: "bg-secondary", color: "text-foreground" },
+    lab: { icon: FlaskConical, bg: "bg-secondary", color: "text-foreground" },
+    medication: { icon: Pill, bg: "bg-secondary", color: "text-foreground" },
+    alert: { icon: AlertCircle, bg: "bg-secondary", color: "text-red-600" },
   };
 
   const labsByName: Record<string, typeof labResults> = {};
@@ -271,49 +271,47 @@ export default function DoctorDashboard() {
       {/* SSE Real-time Alerts Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-4 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-red-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-secondary/60 rounded-t-[2rem]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-bold text-sm text-red-800">Live Clinical Alerts</span>
+              <span className="font-bold text-sm text-foreground">Live Clinical Alerts</span>
               <Badge variant="destructive" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-red-600 hover:text-red-800 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-red-400 hover:text-red-700">
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+          <div className="divide-y divide-border max-h-64 overflow-y-auto">
             {sseAlerts.map(alert => (
-              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
+              <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-50" : ""}`}>
                 <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-orange-500" : "bg-amber-500"}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase ${
-                      alert.type === "drug_interaction_alert" ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"
-                    }`}>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase bg-secondary text-muted-foreground">
                       {alert.type === "drug_interaction_alert" ? "Drug Interaction" : alert.type === "risk_escalation" ? "Risk Escalation" : "Lab Alert"}
                     </span>
                   </div>
-                  <p className="font-bold text-sm text-red-900">{alert.title}</p>
-                  <p className="text-xs text-red-700 mt-0.5">
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {alert.patientName}
                     {alert.result ? ` · ${alert.result}` : ""}
                     {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
                   </p>
-                  <p className="text-xs text-red-600 mt-0.5">{alert.action ?? alert.recommendation}</p>
-                  <p className="text-[10px] text-red-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{alert.action ?? alert.recommendation}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <button
                     onClick={() => { handleSelectPatient(alert.nationalId, alert.patientName); markSseRead(alert.id); }}
-                    className="text-[10px] font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-xl px-2 py-1 transition-colors"
+                    className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-xl px-2 py-1 transition-colors"
                   >
                     View Patient
                   </button>
                   {!alert.read && (
-                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-red-400 hover:text-red-700">Dismiss</button>
+                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] text-muted-foreground hover:text-foreground">Dismiss</button>
                   )}
                 </div>
               </div>
@@ -340,16 +338,10 @@ export default function DoctorDashboard() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-red-50 hover:bg-red-100" : "bg-secondary hover:bg-border"
-              }`}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full transition-colors bg-secondary hover:bg-border"
               title={sseConnected ? "Live alerts connected" : "Connecting to live alerts..."}
             >
-              {sseUnread > 0 ? (
-                <Bell className="w-4.5 h-4.5 text-red-600" />
-              ) : (
-                <Bell className="w-4.5 h-4.5 text-muted-foreground" />
-              )}
+              <Bell className={`w-4.5 h-4.5 ${sseUnread > 0 ? "text-foreground" : "text-muted-foreground"}`} />
               {sseUnread > 0 && (
                 <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
                   {sseUnread > 9 ? "9+" : sseUnread}
@@ -389,8 +381,8 @@ export default function DoctorDashboard() {
                       <p className="text-[13px] font-semibold text-foreground truncate">{p.fullName}</p>
                       <p className="text-[10px] text-muted-foreground font-mono">{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
                     </div>
-                    {p.riskLevel === "critical" && <span className="text-[9px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full shrink-0">Critical</span>}
-                    {p.riskLevel === "high" && <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full shrink-0">High Risk</span>}
+                    {p.riskLevel === "critical" && <span className="text-[9px] font-bold bg-secondary text-red-600 px-1.5 py-0.5 rounded-full shrink-0">Critical</span>}
+                    {p.riskLevel === "high" && <span className="text-[9px] font-bold bg-secondary text-amber-600 px-1.5 py-0.5 rounded-full shrink-0">High Risk</span>}
                   </button>
                 ))}
               </div>
@@ -458,18 +450,14 @@ export default function DoctorDashboard() {
                   {/* Data Pills Row */}
                   <div className="mt-3 flex items-center gap-2 flex-wrap">
                     {/* Blood Type */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-xl">
-                      <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wide">Blood</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-xl">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Blood</span>
                       <span className="text-sm font-bold text-red-600">{patient.bloodType}</span>
                     </div>
 
                     {/* AI Risk Score */}
                     {riskScore && (
-                      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
-                        riskScore.riskLevel === "critical" ? "bg-red-50" :
-                        riskScore.riskLevel === "high" ? "bg-amber-50" :
-                        "bg-primary/5"
-                      }`}>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary">
                         <Brain className={`w-3.5 h-3.5 ${
                           riskScore.riskLevel === "critical" ? "text-red-500" :
                           riskScore.riskLevel === "high" ? "text-amber-500" : "text-primary"
@@ -555,31 +543,31 @@ export default function DoctorDashboard() {
               value={labResults.length}
               sub={`${criticalLabs} critical · ${abnormalLabs} abnormal`}
               icon={FlaskConical}
-              iconBg={criticalLabs > 0 ? "bg-red-100" : "bg-sky-100"}
-              iconColor={criticalLabs > 0 ? "text-red-600" : "text-sky-600"}
+              iconBg="bg-secondary"
+              iconColor={criticalLabs > 0 ? "text-red-600" : "text-foreground"}
             />
             <KpiCard
               title="Visit History"
               value={patient.visits?.length ?? 0}
               sub="Total hospital visits"
               icon={Building2}
-              iconBg="bg-emerald-100"
-              iconColor="text-emerald-600"
+              iconBg="bg-secondary"
+              iconColor="text-foreground"
             />
             <KpiCard
               title="AI Predictions"
               value={predictions.length}
               sub={`${criticalPredictions} high priority`}
               icon={Brain}
-              iconBg={criticalPredictions > 0 ? "bg-amber-100" : "bg-violet-100"}
-              iconColor={criticalPredictions > 0 ? "text-amber-600" : "text-violet-600"}
+              iconBg="bg-secondary"
+              iconColor={criticalPredictions > 0 ? "text-amber-600" : "text-foreground"}
             />
             <KpiCard
               title="Active Alerts"
               value={unreadAlerts}
               sub={`${alerts.length} total alerts`}
               icon={Bell}
-              iconBg={unreadAlerts > 0 ? "bg-red-100" : "bg-secondary"}
+              iconBg="bg-secondary"
               iconColor={unreadAlerts > 0 ? "text-red-600" : "text-muted-foreground"}
             />
           </div>
@@ -607,20 +595,18 @@ export default function DoctorDashboard() {
               <div className="divide-y divide-border">
                 {/* Clinical Decision Panel */}
                 {riskScore && (
-                  <div className={`p-5 ${
-                    riskScore.riskLevel === "critical" ? "bg-red-50" :
-                    riskScore.riskLevel === "high" ? "bg-amber-50" : "bg-secondary/30"
-                  }`}>
+                  <div className="p-5 bg-secondary/30">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                       <Brain className="w-3.5 h-3.5 text-violet-600" /> Clinical Intelligence — Decision Summary
                     </p>
                     <div className="flex items-stretch gap-4">
                       {/* Score Block */}
-                      <div className={`rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[130px] shrink-0 ${
-                        riskScore.riskLevel === "critical" ? "bg-red-600 text-white" :
-                        riskScore.riskLevel === "high" ? "bg-amber-500 text-white" :
-                        riskScore.riskLevel === "medium" ? "bg-sky-500 text-white" : "bg-emerald-500 text-white"
-                      }`}>
+                      <div className="rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[130px] shrink-0 text-white" style={{
+                        background: riskScore.riskLevel === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                          riskScore.riskLevel === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                          riskScore.riskLevel === "medium" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
+                          "linear-gradient(135deg, #059669, #064e3b)"
+                      }}>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">Risk Score</p>
                         <p className="text-5xl font-bold tabular-nums leading-none">{riskScore.riskScore}</p>
                         <p className="text-white/60 text-xs mt-1">/ 100</p>
@@ -665,9 +651,9 @@ export default function DoctorDashboard() {
                           ))}
                         </div>
                         {topPredictions.length > 0 && (
-                          <div className="mt-2 px-3 py-2 bg-amber-100/60 rounded-xl">
-                            <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">AI Alert</p>
-                            <p className="text-xs text-amber-800 font-medium">{topPredictions[0]?.title}</p>
+                          <div className="mt-2 px-3 py-2 bg-secondary rounded-xl" style={{ borderLeft: "2px solid #f59e0b" }}>
+                            <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI Alert</p>
+                            <p className="text-xs text-foreground font-medium">{topPredictions[0]?.title}</p>
                           </div>
                         )}
                       </div>
@@ -699,9 +685,9 @@ export default function DoctorDashboard() {
                     {patient.allergies?.length > 0 ? (
                       <div className="space-y-2">
                         {patient.allergies.map((a, i) => (
-                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-red-50 rounded-2xl">
+                          <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 bg-secondary rounded-2xl">
                             <StatusDot status="critical" />
-                            <span className="text-sm font-bold text-red-700">{a}</span>
+                            <span className="text-sm font-bold text-red-600">{a}</span>
                           </div>
                         ))}
                       </div>
@@ -752,7 +738,7 @@ export default function DoctorDashboard() {
                       return (
                         <div key={`${event.type}-${event.id}-${idx}`} className={`flex gap-4 relative pl-14 ${trendBg}`}>
                           <div className={`absolute left-2 top-1.5 w-6 h-6 rounded-full ${
-                            isCriticalLab ? "bg-red-100" : isVisitEmergency ? "bg-red-100" : cfg.bg
+                            isCriticalLab ? "bg-secondary" : isVisitEmergency ? "bg-secondary" : cfg.bg
                           } flex items-center justify-center border-2 border-background z-10 ${
                             isCriticalLab || isVisitEmergency ? "ring-2 ring-red-300 ring-offset-1" : ""
                           }`}>
@@ -810,20 +796,15 @@ export default function DoctorDashboard() {
 
                 {/* AI Interaction Matrix */}
                 {(medMatrixData?.interactions?.length ?? 0) > 0 && (
-                  <div className="p-4 border-b border-black/[0.05] bg-amber-50/50 space-y-2.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-800 flex items-center gap-2 mb-3">
+                  <div className="p-4 border-b border-black/[0.05] bg-secondary/30 space-y-2.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-3">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> AI Drug Interaction Analysis — {medMatrixData!.interactions.length} conflict{medMatrixData!.interactions.length > 1 ? "s" : ""} found
                     </p>
                     {medMatrixData!.interactions.map((ix, i) => (
-                      <div key={i} className={`rounded-2xl p-4 ${
-                        ix.severity === "critical" ? "bg-red-50" :
-                        ix.severity === "high" ? "bg-amber-50" :
-                        "bg-sky-50"
-                      }`}>
+                      <div key={i} className="rounded-2xl p-4 bg-secondary"
+                        style={{ borderLeft: `3px solid ${ix.severity === "critical" ? "#ef4444" : ix.severity === "high" ? "#f59e0b" : "#38bdf8"}` }}>
                         <div className="flex items-start gap-3">
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                            ix.severity === "critical" ? "bg-red-100" : ix.severity === "high" ? "bg-amber-100" : "bg-sky-100"
-                          }`}>
+                          <div className="w-9 h-9 rounded-xl bg-white/60 flex items-center justify-center shrink-0">
                             <AlertCircle className={`w-4 h-4 ${
                               ix.severity === "critical" ? "text-red-600" : ix.severity === "high" ? "text-amber-600" : "text-sky-600"
                             }`} />
@@ -838,10 +819,7 @@ export default function DoctorDashboard() {
                               </Badge>
                             </div>
                             <p className="text-xs text-foreground/80 mb-2">{ix.description}</p>
-                            <div className={`flex items-start gap-2 px-3 py-2 rounded-xl ${
-                              ix.severity === "critical" ? "bg-red-100/80" :
-                              ix.severity === "high" ? "bg-amber-100/80" : "bg-sky-100/80"
-                            }`}>
+                            <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-white/50">
                               <Lightbulb className="w-3 h-3 text-foreground shrink-0 mt-0.5" />
                               <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
                             </div>
@@ -866,12 +844,12 @@ export default function DoctorDashboard() {
                         ix => (ix.drug1.toLowerCase() === med.drugName.toLowerCase() || ix.drug2.toLowerCase() === med.drugName.toLowerCase()) && ix.severity === "high"
                       );
                       return (
-                        <tr key={med.id} className={hasCritical ? "bg-red-50/50" : hasHigh ? "bg-amber-50/30" : ""}>
+                        <tr key={med.id}>
                           <td className="font-bold text-foreground">
                             <div className="flex items-center gap-2">
                               {med.drugName}
                               {(hasCritical || hasHigh) && (
-                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${hasCritical ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-secondary ${hasCritical ? "text-red-600" : "text-amber-600"}`}>
                                   {hasCritical ? "CRITICAL" : "HIGH"}
                                 </span>
                               )}
@@ -922,13 +900,14 @@ export default function DoctorDashboard() {
                   const trend = isWorsening ? "↑ WORSENING" : isImproving ? "↓ IMPROVING" : "→ STABLE";
 
                   return (
-                    <div className={`mx-5 my-4 rounded-2xl p-4 ${isWorsening ? "bg-red-50" : isImproving ? "bg-emerald-50" : "bg-violet-50/40"}`}>
+                    <div className="mx-5 my-4 rounded-2xl p-4 bg-secondary/40"
+                      style={{ borderLeft: `3px solid ${areaColor}` }}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-red-500" : isImproving ? "text-emerald-500" : "text-violet-500"}`} />
+                            <FlaskConical className="w-4 h-4 text-foreground" style={{ color: areaColor }} />
                             <span className="font-bold text-sm">HbA1c Glycemic Trajectory</span>
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-red-100 text-red-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-violet-100 text-violet-700"}`}>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/70 text-foreground">
                               {trend}
                             </span>
                           </div>
@@ -995,13 +974,14 @@ export default function DoctorDashboard() {
                   const areaColor = isWorsening ? "#f97316" : isImproving ? "#22c55e" : "#6366f1";
                   const trend = isWorsening ? "↑ RISING" : isImproving ? "↓ FALLING" : "→ STABLE";
                   return (
-                    <div className={`mx-5 my-3 rounded-2xl p-4 ${isWorsening ? "bg-orange-50" : isImproving ? "bg-emerald-50" : "bg-violet-50/40"}`}>
+                    <div className="mx-5 my-3 rounded-2xl p-4 bg-secondary/40"
+                      style={{ borderLeft: `3px solid ${areaColor}` }}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-orange-500" : isImproving ? "text-emerald-500" : "text-violet-500"}`} />
+                            <FlaskConical className="w-4 h-4" style={{ color: areaColor }} />
                             <span className="font-bold text-sm">Blood Glucose Trajectory</span>
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-orange-100 text-orange-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-violet-100 text-violet-700"}`}>{trend}</span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/70 text-foreground">{trend}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">{glucData.length} readings · {first.date} → {latest.date} · Δ {delta > 0 ? "+" : ""}{delta.toFixed(0)} {glucGroup[0]?.unit ?? "mg/dL"}</p>
                         </div>
@@ -1046,13 +1026,14 @@ export default function DoctorDashboard() {
                   const areaColor = isWorsening ? "#ef4444" : isImproving ? "#22c55e" : "#38bdf8";
                   const trend = isWorsening ? "↑ WORSENING — Renal Stress" : isImproving ? "↓ IMPROVING" : "→ STABLE";
                   return (
-                    <div className={`mx-5 my-3 rounded-2xl p-4 ${isWorsening ? "bg-red-50" : isImproving ? "bg-emerald-50" : "bg-sky-50/40"}`}>
+                    <div className="mx-5 my-3 rounded-2xl p-4 bg-secondary/40"
+                      style={{ borderLeft: `3px solid ${areaColor}` }}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <FlaskConical className={`w-4 h-4 ${isWorsening ? "text-red-500" : isImproving ? "text-emerald-500" : "text-sky-500"}`} />
+                            <FlaskConical className="w-4 h-4" style={{ color: areaColor }} />
                             <span className="font-bold text-sm">Creatinine — Renal Function Trend</span>
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isWorsening ? "bg-red-100 text-red-700" : isImproving ? "bg-emerald-100 text-emerald-700" : "bg-sky-100 text-sky-700"}`}>{trend}</span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/70 text-foreground">{trend}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">{creatData.length} readings · {first.date} → {latest.date} · Δ {delta > 0 ? "+" : ""}{delta.toFixed(2)} {creatGroup[0]?.unit ?? "mg/dL"}</p>
                         </div>
@@ -1098,10 +1079,8 @@ export default function DoctorDashboard() {
                         : "#94a3b8";
 
                     return (
-                      <div key={latest.id} className={`px-5 py-3.5 flex items-center gap-4 hover:bg-secondary/20 transition-colors ${
-                        latest.status === "critical" ? "border-l-2 border-red-500 bg-red-50/30" :
-                        latest.status === "abnormal" ? "border-l-2 border-amber-400 bg-amber-50/20" : ""
-                      }`}>
+                      <div key={latest.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-secondary/20 transition-colors"
+                        style={latest.status === "critical" ? { borderLeft: "2px solid #ef4444" } : latest.status === "abnormal" ? { borderLeft: "2px solid #f59e0b" } : {}}>
                         {/* Lab Name + Status */}
                         <div className="w-44 shrink-0">
                           <p className="font-bold text-sm text-foreground truncate">{testName}</p>
@@ -1292,7 +1271,7 @@ export default function DoctorDashboard() {
                 ) : (
                   <div className="divide-y divide-border">
                     {alerts.map(alert => (
-                      <div key={alert.id} className={`flex items-start gap-4 px-5 py-4 transition-colors ${alert.isRead ? "opacity-60" : "bg-amber-50/30"}`}>
+                      <div key={alert.id} className={`flex items-start gap-4 px-5 py-4 transition-colors ${alert.isRead ? "opacity-60" : ""}`}>
                         <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
                           alert.severity === "critical" ? "bg-red-600" :
                           alert.severity === "high" ? "bg-amber-500" :
@@ -1347,12 +1326,12 @@ export default function DoctorDashboard() {
                 {!decisionLoading && aiDecision && (
                   <div className="space-y-5">
                     {/* Urgency Header Strip */}
-                    <div className={`rounded-2xl p-5 ${
-                      aiDecision.urgency === "immediate" ? "bg-red-600 text-white" :
-                      aiDecision.urgency === "urgent" ? "bg-amber-500 text-white" :
-                      aiDecision.urgency === "soon" ? "bg-sky-500 text-white" :
-                      "bg-emerald-500 text-white"
-                    }`}>
+                    <div className="rounded-2xl p-5 text-white" style={{
+                      background: aiDecision.urgency === "immediate" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                        aiDecision.urgency === "urgent" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                        aiDecision.urgency === "soon" ? "linear-gradient(135deg, #0284c7, #0c4a6e)" :
+                        "linear-gradient(135deg, #059669, #064e3b)"
+                    }}>
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2 mb-2">
@@ -1393,12 +1372,8 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-2">
                           {aiDecision.whyFactors.map((f, i) => (
-                            <div key={i} className={`flex items-start gap-3 px-3.5 py-3 rounded-2xl ${
-                              f.impact === "critical" ? "bg-red-50" :
-                              f.impact === "high" ? "bg-amber-50" :
-                              f.impact === "moderate" ? "bg-sky-50" :
-                              "bg-secondary"
-                            }`}>
+                            <div key={i} className="flex items-start gap-3 px-3.5 py-3 rounded-2xl bg-secondary"
+                              style={{ borderLeft: `3px solid ${f.impact === "critical" ? "#ef4444" : f.impact === "high" ? "#f59e0b" : f.impact === "moderate" ? "#38bdf8" : "#e2e8f0"}` }}>
                               <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
                                 f.impact === "critical" ? "bg-red-600" :
                                 f.impact === "high" ? "bg-amber-500" :
@@ -1452,12 +1427,8 @@ export default function DoctorDashboard() {
 
                     {/* Digital Twin */}
                     {aiDecision.digitalTwin && (
-                      <div className={`p-5 rounded-2xl ${
-                        aiDecision.digitalTwin.riskTrajectory === "rapidly_worsening" ? "bg-red-50" :
-                        aiDecision.digitalTwin.riskTrajectory === "worsening" ? "bg-amber-50" :
-                        aiDecision.digitalTwin.riskTrajectory === "improving" ? "bg-emerald-50" :
-                        "bg-secondary"
-                      }`}>
+                      <div className="p-5 rounded-2xl bg-secondary/40"
+                        style={{ borderLeft: `3px solid ${aiDecision.digitalTwin.riskTrajectory === "rapidly_worsening" ? "#ef4444" : aiDecision.digitalTwin.riskTrajectory === "worsening" ? "#f59e0b" : aiDecision.digitalTwin.riskTrajectory === "improving" ? "#22c55e" : "#94a3b8"}` }}>
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-2">
@@ -1513,7 +1484,6 @@ export default function DoctorDashboard() {
                                 r6: Math.min(99, aiDecision.digitalTwin.projectedRiskScore + 5),
                                 r12: Math.min(99, aiDecision.digitalTwin.projectedRiskScore + 11),
                                 outcome: "Continued deterioration",
-                                rowCls: "bg-red-50/60",
                                 scoreCls: "text-red-600",
                               },
                               {
@@ -1522,7 +1492,6 @@ export default function DoctorDashboard() {
                                 r6: Math.max(10, aiDecision.digitalTwin.projectedRiskScore - 16),
                                 r12: Math.max(10, aiDecision.digitalTwin.projectedRiskScore - 21),
                                 outcome: "Moderate improvement",
-                                rowCls: "bg-amber-50/60",
                                 scoreCls: "text-amber-600",
                               },
                               {
@@ -1531,11 +1500,10 @@ export default function DoctorDashboard() {
                                 r6: Math.max(8, aiDecision.digitalTwin.projectedRiskScore - 26),
                                 r12: Math.max(8, aiDecision.digitalTwin.projectedRiskScore - 33),
                                 outcome: "Best outcome — Recommended",
-                                rowCls: "bg-emerald-50/60",
                                 scoreCls: "text-emerald-600",
                               },
                             ].map((s, idx) => (
-                              <div key={idx} className={`flex items-center gap-3 px-3 py-2.5 border-b border-border last:border-0 text-[10px] ${s.rowCls}`}>
+                              <div key={idx} className="flex items-center gap-3 px-3 py-2.5 border-b border-border last:border-0 text-[10px]">
                                 <span className="flex-1 font-semibold text-foreground">{s.scenario}</span>
                                 <span className={`w-14 text-center font-black tabular-nums ${s.scoreCls}`}>{s.r3}/100</span>
                                 <span className={`w-14 text-center font-black tabular-nums ${s.scoreCls}`}>{s.r6}/100</span>
@@ -1557,11 +1525,7 @@ export default function DoctorDashboard() {
                         </p>
                         <div className="space-y-2">
                           {aiDecision.behavioralFlags.map((flag, i) => (
-                            <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl ${
-                              flag.severity === "high" ? "bg-amber-50" :
-                              flag.severity === "moderate" ? "bg-sky-50" :
-                              "bg-secondary"
-                            }`}>
+                            <div key={i} className="flex items-start gap-3 p-4 rounded-2xl bg-secondary">
                               <Bell className={`w-4 h-4 shrink-0 mt-0.5 ${
                                 flag.severity === "high" ? "text-amber-600" :
                                 flag.severity === "moderate" ? "text-sky-600" : "text-muted-foreground"
@@ -1623,12 +1587,13 @@ export default function DoctorDashboard() {
                           <div className="space-y-2">
                             {sorted.slice(0, 6).map((dx, i) => {
                               const priorityCfg = {
-                                primary: { bg: "bg-violet-50", border: "border-violet-200", dot: "bg-violet-600", text: "text-violet-700", badge: "text-[8px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-bold" },
-                                secondary: { bg: "bg-sky-50", border: "border-sky-200", dot: "bg-sky-500", text: "text-sky-700", badge: "text-[8px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full font-bold" },
-                                "rule-out": { bg: "bg-secondary", border: "border-border", dot: "bg-muted-foreground", text: "text-muted-foreground", badge: "text-[8px] bg-secondary text-muted-foreground px-1.5 py-0.5 rounded-full font-bold border" },
+                                primary: { dot: "bg-violet-600", text: "text-violet-700", badge: "text-[8px] bg-secondary text-violet-700 px-1.5 py-0.5 rounded-full font-bold", leftColor: "#7c3aed" },
+                                secondary: { dot: "bg-sky-500", text: "text-sky-700", badge: "text-[8px] bg-secondary text-sky-700 px-1.5 py-0.5 rounded-full font-bold", leftColor: "#0284c7" },
+                                "rule-out": { dot: "bg-muted-foreground", text: "text-muted-foreground", badge: "text-[8px] bg-secondary text-muted-foreground px-1.5 py-0.5 rounded-full font-bold", leftColor: "#94a3b8" },
                               }[dx.priority];
                               return (
-                                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${priorityCfg.bg}`}>
+                                <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary"
+                                  style={{ borderLeft: `3px solid ${priorityCfg.leftColor}` }}>
                                   <div className="w-7 h-7 rounded-full bg-white border border-current/10 flex items-center justify-center shrink-0">
                                     <span className="text-[11px] font-bold text-foreground">{i + 1}</span>
                                   </div>
@@ -1700,15 +1665,15 @@ export default function DoctorDashboard() {
                     {/* ─── Clinical Evidence References (WHO / NICE / ACC / ADA) ─── */}
                     {(() => {
                       const conds = (patient.chronicConditions ?? []).map((c: string) => c.toLowerCase());
-                      type Ref = { org: string; title: string; year: string; relevance: string; color: string };
+                      type Ref = { org: string; title: string; year: string; relevance: string; leftColor: string };
                       const refs: Ref[] = [];
-                      if (conds.some(c => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", color: "bg-blue-50" });
-                      if (conds.some(c => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", color: "bg-violet-50" });
-                      if (conds.some(c => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", color: "bg-red-50" });
-                      if (conds.some(c => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", color: "bg-teal-50" });
-                      if (conds.some(c => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", color: "bg-orange-50" });
-                      if (conds.some(c => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", color: "bg-amber-50" });
-                      if (conds.some(c => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", color: "bg-pink-50" });
+                      if (conds.some(c => c.includes("diabetes"))) refs.push({ org: "ADA", title: "Standards of Medical Care in Diabetes", year: "2024", relevance: "HbA1c <7% target, GLP-1 RA preferred with CKD/CVD", leftColor: "#3b82f6" });
+                      if (conds.some(c => c.includes("hypertension"))) refs.push({ org: "ESC/ESH", title: "Guidelines on Arterial Hypertension", year: "2023", relevance: "BP target <130/80 mmHg in high-risk patients", leftColor: "#7c3aed" });
+                      if (conds.some(c => c.includes("heart failure"))) refs.push({ org: "ACC/AHA", title: "Heart Failure Management Guidelines", year: "2022", relevance: "ACEi/ARB + beta-blocker + MRA in HFrEF", leftColor: "#ef4444" });
+                      if (conds.some(c => c.includes("chronic kidney") || c.includes("ckd"))) refs.push({ org: "KDIGO", title: "CKD Evaluation and Management", year: "2022", relevance: "SGLT2i reduces CKD progression; eGFR monitoring q3m", leftColor: "#0d9488" });
+                      if (conds.some(c => c.includes("atrial"))) refs.push({ org: "ACC/AHA", title: "Atrial Fibrillation Guidelines", year: "2023", relevance: "CHA₂DS₂-VASc ≥2: anticoagulation mandatory", leftColor: "#f97316" });
+                      if (conds.some(c => c.includes("copd"))) refs.push({ org: "GOLD", title: "COPD Management Report", year: "2024", relevance: "LAMA + LABA for persistent dyspnea; avoid beta-blockers", leftColor: "#f59e0b" });
+                      if (conds.some(c => c.includes("depression"))) refs.push({ org: "NICE", title: "Depression in Adults", year: "2022", relevance: "SSRI first-line; consider CBT alongside pharmacotherapy", leftColor: "#ec4899" });
                       if (refs.length === 0) return null;
                       return (
                         <div>
@@ -1717,7 +1682,7 @@ export default function DoctorDashboard() {
                           </p>
                           <div className="grid grid-cols-2 gap-2">
                             {refs.map((r, i) => (
-                              <div key={i} className={`p-3.5 rounded-2xl ${r.color}`}>
+                              <div key={i} className="p-3.5 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${(r as any).leftColor}` }}>
                                 <div className="flex items-start gap-2.5">
                                   <div className="shrink-0 font-black text-[10px] bg-white border border-current/10 px-2 py-1 rounded-lg text-foreground min-w-fit">{r.org}</div>
                                   <div className="flex-1 min-w-0">
@@ -1753,10 +1718,11 @@ export default function DoctorDashboard() {
                           </p>
                           <div className="space-y-2">
                             {correlations.map((c, i) => (
-                              <div key={i} className={`p-4 rounded-2xl ${c.badge === "destructive" ? "bg-red-50" : "bg-amber-50"}`}>
+                              <div key={i} className="p-4 rounded-2xl bg-secondary"
+                                style={{ borderLeft: `3px solid ${c.badge === "destructive" ? "#ef4444" : "#f59e0b"}` }}>
                                 <div className="flex items-start gap-3">
                                   <div className="shrink-0 flex gap-1 mt-0.5">
-                                    {c.labs.map((l, j) => <span key={j} className={`text-[9px] font-black px-1.5 py-0.5 rounded font-mono ${c.badge === "destructive" ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"}`}>{l}</span>)}
+                                    {c.labs.map((l, j) => <span key={j} className="text-[9px] font-black px-1.5 py-0.5 rounded font-mono bg-white/70 text-foreground">{l}</span>)}
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
@@ -1764,7 +1730,7 @@ export default function DoctorDashboard() {
                                       <Badge variant={c.badge} className="text-[9px]">{c.badge === "destructive" ? "CRITICAL" : "HIGH"}</Badge>
                                     </div>
                                     <p className="text-[11px] text-foreground/80 mb-2">{c.risk}</p>
-                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${c.badge === "destructive" ? "bg-red-100" : "bg-amber-100"}`}>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/60">
                                       <ChevronRight className="w-3 h-3 shrink-0 text-foreground" />
                                       <span className="text-[10px] font-semibold text-foreground">{c.action}</span>
                                     </div>
@@ -1822,11 +1788,11 @@ export default function DoctorDashboard() {
             {activeTab === "ai" && riskScore && (
               <div className="p-5">
                 <div className="flex items-start gap-6">
-                  <div className={`rounded-2xl p-6 min-w-[200px] text-center ${
-                    riskScore.riskLevel === "critical" ? "bg-red-600 text-white" :
-                    riskScore.riskLevel === "high" ? "bg-amber-500 text-white" :
-                    "bg-primary text-white"
-                  }`}>
+                  <div className="rounded-2xl p-6 min-w-[200px] text-center text-white" style={{
+                    background: riskScore.riskLevel === "critical" ? "linear-gradient(135deg, #dc2626, #991b1b)" :
+                      riskScore.riskLevel === "high" ? "linear-gradient(135deg, #d97706, #92400e)" :
+                      "linear-gradient(135deg, #007AFF, #004b9d)"
+                  }}>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-3">AI Risk Score</p>
                     <p className="text-6xl font-bold tabular-nums leading-none">{riskScore.riskScore}</p>
                     <p className="text-white/60 text-sm mt-1">/ 100 risk score</p>
@@ -1886,8 +1852,8 @@ export default function DoctorDashboard() {
             <Card className="mt-5">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-amber-700" />
+                  <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-amber-600" />
                   </div>
                   <CardTitle>30-Day Readmission Risk Engine</CardTitle>
                   <Badge variant="warning" className="text-[10px]">LACE+ Score</Badge>
@@ -1906,10 +1872,10 @@ export default function DoctorDashboard() {
                       const lace = l + a + c + e;
                       const pct = Math.min(82, lace * 4 + 18);
                       const riskLabel = lace >= 14 ? "HIGH" : lace >= 10 ? "MODERATE" : "LOW";
-                      const riskBg = lace >= 14 ? "bg-red-600" : lace >= 10 ? "bg-amber-500" : "bg-emerald-500";
+                        const riskColor = lace >= 14 ? "#dc2626" : lace >= 10 ? "#d97706" : "#059669";
                       return (
                         <>
-                          <div className={`${riskBg} rounded-3xl p-5 text-white text-center`}>
+                          <div className="rounded-3xl p-5 text-white text-center" style={{ background: `linear-gradient(135deg, ${riskColor}, ${riskColor}cc)` }}>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">30-Day Readmission Risk</p>
                             <p className="text-5xl font-bold">{pct}%</p>
                             <p className="text-white/70 text-xs mt-1">LACE+ Score: {lace}/19</p>
@@ -1940,8 +1906,8 @@ export default function DoctorDashboard() {
                   </div>
 
                   <div className="col-span-8 space-y-3">
-                    <div className="p-4 bg-amber-50 rounded-2xl">
-                      <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3 text-amber-700" /> AI Readmission Prevention Protocol</p>
+                    <div className="p-4 bg-secondary/40 rounded-2xl">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5"><Brain className="w-3 h-3 text-foreground" /> AI Readmission Prevention Protocol</p>
                       <div className="grid grid-cols-2 gap-2">
                         {[
                           { action: "Discharge Medication Reconciliation", priority: "CRITICAL", desc: "Full review of all meds with pharmacist before discharge — reduces readmission by 29%", done: false },
@@ -1951,14 +1917,15 @@ export default function DoctorDashboard() {
                           { action: "Outpatient Appointment ≤7 days", priority: "CRITICAL", desc: "Book follow-up before discharge — same-week appointment reduces readmission 34%", done: false },
                           { action: "Digital Twin Alert Threshold Set", priority: "MODERATE", desc: "Configure SANAD wearable alerts for pre-readmission risk signals", done: true },
                         ].map((item, i) => (
-                          <div key={i} className={`p-3 rounded-xl ${item.done ? "bg-emerald-50" : item.priority === "CRITICAL" ? "bg-red-50" : item.priority === "HIGH" ? "bg-amber-50" : "bg-secondary"}`}>
+                          <div key={i} className="p-3 rounded-xl bg-secondary"
+                            style={{ borderLeft: item.done ? "2px solid #22c55e" : item.priority === "CRITICAL" ? "2px solid #ef4444" : item.priority === "HIGH" ? "2px solid #f59e0b" : undefined }}>
                             <div className="flex items-center gap-2 mb-1">
                               {item.done
                                 ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                 : <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.priority === "CRITICAL" ? "bg-red-500 animate-pulse" : "bg-amber-500"}`} />
                               }
                               <p className="text-[10px] font-bold text-foreground">{item.action}</p>
-                              <span className={`ml-auto text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${item.priority === "CRITICAL" ? "bg-red-100 text-red-700" : item.priority === "HIGH" ? "bg-amber-100 text-amber-700" : "bg-secondary text-muted-foreground"}`}>{item.priority}</span>
+                              <span className={`ml-auto text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 bg-secondary ${item.priority === "CRITICAL" ? "text-red-600" : item.priority === "HIGH" ? "text-amber-600" : "text-muted-foreground"}`}>{item.priority}</span>
                             </div>
                             <p className="text-[10px] text-muted-foreground pl-3.5">{item.desc}</p>
                           </div>
@@ -1984,8 +1951,8 @@ export default function DoctorDashboard() {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 bg-violet-50 rounded-2xl">
-                        <p className="text-[10px] font-bold text-violet-700 uppercase tracking-widest mb-2">National Benchmark</p>
+                      <div className="p-4 bg-secondary rounded-2xl">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">National Benchmark</p>
                         {[
                           { label: "SANAD Average Readmission", value: "8.2%", sub: "30-day all-cause" },
                           { label: "Saudi National Rate", value: "14.7%", sub: "MOH 2025 report" },
@@ -2013,8 +1980,8 @@ export default function DoctorDashboard() {
             <Card className="mt-5">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center">
-                    <Network className="w-4 h-4 text-purple-700" />
+                  <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+                    <Network className="w-4 h-4 text-foreground" />
                   </div>
                   <CardTitle>Cross-Portal Intelligence</CardTitle>
                   <Badge variant="purple" className="text-[10px]">SANAD Neural Fabric</Badge>
@@ -2024,9 +1991,9 @@ export default function DoctorDashboard() {
                 <div className="grid grid-cols-2 gap-4">
 
                   {/* Insurance Coverage */}
-                  <div className="rounded-[2rem] bg-emerald-50 p-4">
-                    <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                      <Shield className="w-3 h-3" /> Insurance Portal — Live Coverage
+                  <div className="rounded-[2rem] bg-secondary/50 p-4">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Shield className="w-3 h-3 text-emerald-600" /> Insurance Portal — Live Coverage
                     </p>
                     <div className="space-y-2">
                       {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => (
@@ -2041,21 +2008,21 @@ export default function DoctorDashboard() {
                           </div>
                         </div>
                       ))}
-                      <div className="flex items-center justify-between px-3 py-2 bg-emerald-100 rounded-xl">
-                        <p className="text-[10px] font-semibold text-emerald-800">Annual deductible</p>
-                        <p className="text-[10px] font-bold text-emerald-700">SAR 2,400 / SAR 8,000</p>
+                      <div className="flex items-center justify-between px-3 py-2 bg-white/60 rounded-xl">
+                        <p className="text-[10px] font-semibold text-muted-foreground">Annual deductible</p>
+                        <p className="text-[10px] font-bold text-emerald-600">SAR 2,400 / SAR 8,000</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Supply Chain */}
-                  <div className="rounded-[2rem] bg-amber-50 p-4">
-                    <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                      <Pill className="w-3 h-3" /> Supply Chain — Drug Availability
+                  <div className="rounded-[2rem] bg-secondary/50 p-4">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Pill className="w-3 h-3 text-amber-600" /> Supply Chain — Drug Availability
                     </p>
                     <div className="space-y-2">
                       {(patient.medications?.slice(0, 3) ?? []).map((med: any, i: number) => {
-                        const stock = i === 0 ? { label: "LOW", color: "text-red-600", bg: "bg-red-50 border-red-100", units: "2,100" } : i === 1 ? { label: "CRITICAL", color: "text-red-700", bg: "bg-red-50 border-red-200", units: "480" } : { label: "SUFFICIENT", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-100", units: "18,400" };
+                        const stock = i === 0 ? { label: "LOW", color: "text-red-600", units: "2,100" } : i === 1 ? { label: "CRITICAL", color: "text-red-600", units: "480" } : { label: "SUFFICIENT", color: "text-emerald-600", units: "18,400" };
                         return (
                           <div key={i} className="flex items-center justify-between bg-white/70 rounded-xl px-3 py-2">
                             <div>
@@ -2069,17 +2036,17 @@ export default function DoctorDashboard() {
                           </div>
                         );
                       })}
-                      <div className="flex items-center justify-between px-3 py-2 bg-amber-100 rounded-xl">
-                        <p className="text-[10px] font-semibold text-amber-800">Next delivery ETA</p>
-                        <p className="text-[10px] font-bold text-amber-700">3 days · PO raised</p>
+                      <div className="flex items-center justify-between px-3 py-2 bg-white/60 rounded-xl">
+                        <p className="text-[10px] font-semibold text-muted-foreground">Next delivery ETA</p>
+                        <p className="text-[10px] font-bold text-amber-600">3 days · PO raised</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Research Eligibility */}
-                  <div className="rounded-[2rem] bg-violet-50 p-4">
-                    <p className="text-[10px] font-bold text-violet-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                      <FlaskConical className="w-3 h-3" /> Research Portal — Trial Eligibility
+                  <div className="rounded-[2rem] bg-secondary/50 p-4">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <FlaskConical className="w-3 h-3 text-violet-600" /> Research Portal — Trial Eligibility
                     </p>
                     <div className="space-y-2">
                       {[
@@ -2099,9 +2066,9 @@ export default function DoctorDashboard() {
                   </div>
 
                   {/* Family Risk */}
-                  <div className="rounded-[2rem] bg-sky-50 p-4">
-                    <p className="text-[10px] font-bold text-sky-800 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                      <Users className="w-3 h-3" /> Family Portal — Genetic Risk Cascade
+                  <div className="rounded-[2rem] bg-secondary/50 p-4">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Users className="w-3 h-3 text-sky-600" /> Family Portal — Genetic Risk Cascade
                     </p>
                     <div className="space-y-2">
                       {[
@@ -2110,7 +2077,7 @@ export default function DoctorDashboard() {
                         { relation: "Spouse", age: 51, condition: "HTN genetic marker", risk: 41, status: "Annual BP monitoring" },
                       ].map((f, i) => (
                         <div key={i} className="flex items-center gap-3 bg-white/70 rounded-xl px-3 py-2">
-                          <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center shrink-0">
                             <Users className="w-3.5 h-3.5 text-sky-600" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -2123,8 +2090,8 @@ export default function DoctorDashboard() {
                           </div>
                         </div>
                       ))}
-                      <div className="flex items-center justify-between px-3 py-2 bg-sky-100 rounded-xl">
-                        <p className="text-[10px] font-semibold text-sky-800">Family screening letters</p>
+                      <div className="flex items-center justify-between px-3 py-2 bg-white/60 rounded-xl">
+                        <p className="text-[10px] font-semibold text-muted-foreground">Family screening letters</p>
                         <Badge variant="info" className="text-[9px]">SENT — 3 members</Badge>
                       </div>
                     </div>
@@ -2232,22 +2199,22 @@ function PrescribeModal({ patientId }: { patientId: number }) {
               {checkMutation.data && (
                 <div className="space-y-3 border-t border-border pt-4">
                   {checkMutation.data.safe ? (
-                    <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-3 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
+                      <div className="w-9 h-9 rounded-xl bg-white/60 flex items-center justify-center shrink-0">
                         <Shield className="w-4.5 h-4.5 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="font-bold text-emerald-700 text-sm">No Interactions Detected</p>
+                        <p className="font-bold text-emerald-600 text-sm">No Interactions Detected</p>
                         <p className="text-xs text-muted-foreground">Safe to prescribe based on current medication profile.</p>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-2.5">
                       {checkMutation.data.warnings.map((w: any, i: number) => (
-                        <div key={i} className="p-4 bg-red-50 rounded-2xl">
+                        <div key={i} className="p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #ef4444" }}>
                           <div className="flex items-center gap-2 mb-2">
                             <AlertCircle className="w-4 h-4 text-red-600" />
-                            <span className="text-sm font-bold text-red-700">Interaction: {w.conflictingDrug}</span>
+                            <span className="text-sm font-bold text-red-600">Interaction: {w.conflictingDrug}</span>
                             <Badge variant={w.severity === "critical" ? "destructive" : "warning"} className="ml-auto text-[10px]">{w.severity}</Badge>
                           </div>
                           <p className="text-xs text-foreground/80 mb-2 ml-6">{w.description}</p>

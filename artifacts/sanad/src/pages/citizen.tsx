@@ -883,7 +883,7 @@ export default function CitizenPortal() {
                       {aiDecision.recommendations.map((rec, i) => (
                         <div key={i} className="flex items-start gap-2.5 px-4 py-3 bg-primary/5 rounded-xl">
                           <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                          <p className="text-xs text-foreground">{rec}</p>
+                          <p className="text-xs text-foreground">{typeof rec === "string" ? rec : (rec as any).text}</p>
                         </div>
                       ))}
                     </div>

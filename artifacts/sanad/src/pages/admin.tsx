@@ -48,10 +48,10 @@ const REGIONS = [
 ];
 
 const RISK_CFG = {
-  critical: { bg: "bg-red-50", borderColor: "#ef4444", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL", heat: "rgba(239,68,68,0.12)", textColor: "text-red-800" },
-  high:     { bg: "bg-orange-50", borderColor: "#f97316", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH", heat: "rgba(249,115,22,0.10)", textColor: "text-orange-800" },
-  moderate: { bg: "bg-amber-50", borderColor: "#f59e0b", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE", heat: "rgba(245,158,11,0.08)", textColor: "text-amber-800" },
-  low:      { bg: "bg-emerald-50", borderColor: "#22c55e", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL", heat: "rgba(34,197,94,0.07)", textColor: "text-emerald-800" },
+  critical: { bg: "bg-secondary", borderColor: "#ef4444", dot: "bg-red-500", bar: "#ef4444", badge: "destructive" as const, label: "CRITICAL", heat: "rgba(239,68,68,0.08)", textColor: "text-red-700" },
+  high:     { bg: "bg-secondary", borderColor: "#f97316", dot: "bg-orange-500", bar: "#f97316", badge: "warning" as const, label: "HIGH", heat: "rgba(249,115,22,0.07)", textColor: "text-orange-700" },
+  moderate: { bg: "bg-secondary", borderColor: "#f59e0b", dot: "bg-amber-400", bar: "#f59e0b", badge: "warning" as const, label: "MODERATE", heat: "rgba(245,158,11,0.06)", textColor: "text-amber-700" },
+  low:      { bg: "bg-secondary", borderColor: "#22c55e", dot: "bg-emerald-500", bar: "#22c55e", badge: "success" as const, label: "NORMAL", heat: "rgba(34,197,94,0.05)", textColor: "text-emerald-700" },
 };
 
 const IMPACT_TREND = [
@@ -1051,7 +1051,7 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Shield className="w-4 h-4 text-emerald-700" />
                 </div>
                 <CardTitle>PDPL & Regulatory Compliance</CardTitle>
@@ -1059,12 +1059,12 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardBody className="space-y-2.5">
               {[
-                { label: "PDPL Article 12 — Sensitive Health Data", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
-                { label: "NDMO Cloud Security Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
-                { label: "ISO 27001 Information Security", status: "CERTIFIED", color: "text-emerald-700", bg: "bg-emerald-100" },
-                { label: "HIPAA Data Handling Standards", status: "ALIGNED", color: "text-sky-700", bg: "bg-sky-100" },
-                { label: "MOH Patient Privacy Circular 2024", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
-                { label: "NCA Essential Cybersecurity Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-emerald-100" },
+                { label: "PDPL Article 12 — Sensitive Health Data", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-secondary" },
+                { label: "NDMO Cloud Security Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-secondary" },
+                { label: "ISO 27001 Information Security", status: "CERTIFIED", color: "text-emerald-700", bg: "bg-secondary" },
+                { label: "HIPAA Data Handling Standards", status: "ALIGNED", color: "text-sky-700", bg: "bg-secondary" },
+                { label: "MOH Patient Privacy Circular 2024", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-secondary" },
+                { label: "NCA Essential Cybersecurity Controls", status: "COMPLIANT", color: "text-emerald-700", bg: "bg-secondary" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between py-1">
                   <p className="text-[11px] text-foreground font-medium flex-1 pr-2">{item.label}</p>
@@ -1097,7 +1097,7 @@ export default function AdminDashboard() {
                       <p className="text-[11px] font-semibold text-foreground">{item.label}</p>
                       <p className="text-[9px] font-mono text-muted-foreground">{item.tech}</p>
                     </div>
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">{item.status}</span>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-secondary text-emerald-700">{item.status}</span>
                   </div>
                   <div className="h-1 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full rounded-full bg-emerald-500" style={{ width: `${item.pct}%` }} />
@@ -1110,8 +1110,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-slate-700" />
+                <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <CardTitle>Audit Log Statistics</CardTitle>
               </div>
@@ -1150,7 +1150,7 @@ export default function AdminDashboard() {
                 </div>
                 <CardTitle>FHIR R4 Resource Coverage</CardTitle>
               </div>
-              <span className="text-[11px] font-bold text-sky-700 bg-sky-100 px-2.5 py-1 rounded-full">HL7 FHIR R4.0.1</span>
+              <span className="text-[11px] font-bold text-sky-700 bg-secondary px-2.5 py-1 rounded-full">HL7 FHIR R4.0.1</span>
             </CardHeader>
             <CardBody className="space-y-2.5">
               {[
@@ -1182,8 +1182,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
-                  <GitBranch className="w-4 h-4 text-indigo-700" />
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <GitBranch className="w-4 h-4 text-primary" />
                 </div>
                 <CardTitle>Data Lineage & Provenance</CardTitle>
               </div>
@@ -1233,8 +1233,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center">
-                  <Radio className="w-3.5 h-3.5 text-emerald-700" />
+                <div className="w-7 h-7 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Radio className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <CardTitle>SSE Event Stream</CardTitle>
               </div>
@@ -1296,8 +1296,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-violet-100 flex items-center justify-center">
-                  <Brain className="w-3.5 h-3.5 text-violet-700" />
+                <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
+                  <Brain className="w-3.5 h-3.5 text-violet-600" />
                 </div>
                 <CardTitle>AI Inference Engine</CardTitle>
               </div>
@@ -1321,8 +1321,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <Settings className="w-3.5 h-3.5 text-amber-700" />
+                <div className="w-7 h-7 rounded-xl bg-secondary flex items-center justify-center">
+                  <Settings className="w-3.5 h-3.5 text-amber-600" />
                 </div>
                 <CardTitle>Microservices Health</CardTitle>
               </div>
@@ -1358,8 +1358,8 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-sky-700" />
+                <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-sky-600" />
                 </div>
                 <CardTitle>Cache & Response Performance</CardTitle>
               </div>

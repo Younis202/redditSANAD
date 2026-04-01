@@ -1983,15 +1983,16 @@ export default function DoctorDashboard() {
 
                       // Visit frequency anomaly
                       const now = new Date();
-                      const last6Months = visits.filter(v => (now.getTime() - new Date(v.visitDate).getTime()) < 6 * 30 * 24 * 3600 * 1000);
-                      const emergencyVisits = last6Months.filter(v => v.visitType === "emergency" || v.visitType === "inpatient");
+                      const patientVisits = patient?.visits ?? [];
+                      const last6Months = patientVisits.filter((v: any) => (now.getTime() - new Date(v.visitDate).getTime()) < 6 * 30 * 24 * 3600 * 1000);
+                      const emergencyVisits = last6Months.filter((v: any) => v.visitType === "emergency" || v.visitType === "inpatient");
                       if (emergencyVisits.length >= 2) {
                         insights.push({ type: "anomaly", icon: TriangleAlert, color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "#f59e0b",
                           title: `High Emergency Frequency — ${emergencyVisits.length} ED visits in 6 months`, detail: `Pattern: ${emergencyVisits.length} emergency/inpatient events in 6 months. This exceeds the safe threshold of 1/year and suggests disease instability or inadequate outpatient control.`, forecast: "Without care-coordination intervention, 73% likelihood of another acute episode within 3 months.", guideline: "MOH Transitional Care Protocol 2024 — Enrol in post-discharge care program + community health worker assignment." });
                       }
 
                       // Miss pattern
-                      const allVisitDates = [...visits].map(v => new Date(v.visitDate)).sort((a, b) => b.getTime() - a.getTime());
+                      const allVisitDates = [...patientVisits].map((v: any) => new Date(v.visitDate)).sort((a, b) => b.getTime() - a.getTime());
                       if (allVisitDates.length >= 2) {
                         const daysSinceLast = Math.floor((now.getTime() - (allVisitDates[0]?.getTime() ?? now.getTime())) / 86400000);
                         if (daysSinceLast > 180) {
@@ -2030,7 +2031,7 @@ export default function DoctorDashboard() {
                               <p className="text-sm font-bold text-foreground">AI Pattern Detection Engine</p>
                               <p className="text-[11px] text-muted-foreground">Longitudinal trend analysis + predictive forecast · SANAD v3.0</p>
                             </div>
-                            <span className="ml-auto text-[9px] font-bold px-2 py-1 rounded-full bg-violet-100 text-violet-700">{insights.length} pattern{insights.length !== 1 ? "s" : ""} detected</span>
+                            <span className="ml-auto text-[9px] font-bold px-2 py-1 rounded-full bg-secondary text-violet-700">{insights.length} pattern{insights.length !== 1 ? "s" : ""} detected</span>
                           </div>
                           <div className="space-y-3">
                             {insights.map((ins, i) => {
@@ -2044,7 +2045,7 @@ export default function DoctorDashboard() {
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-2 mb-1">
                                         <p className={`text-sm font-bold ${ins.color}`}>{ins.title}</p>
-                                        <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${ins.type === "improving" ? "bg-emerald-200 text-emerald-800" : ins.type === "forecast" ? "bg-violet-200 text-violet-800" : ins.type === "anomaly" ? "bg-amber-200 text-amber-800" : "bg-red-200 text-red-800"}`}>{ins.type.toUpperCase()}</span>
+                                        <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-secondary ${ins.type === "improving" ? "text-emerald-700" : ins.type === "forecast" ? "text-violet-700" : ins.type === "anomaly" ? "text-amber-700" : "text-red-700"}`}>{ins.type.toUpperCase()}</span>
                                       </div>
                                       <p className="text-[11px] text-foreground/80 leading-relaxed mb-1.5">{ins.detail}</p>
                                       {ins.forecast && (

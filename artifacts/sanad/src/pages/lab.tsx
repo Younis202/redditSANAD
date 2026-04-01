@@ -634,13 +634,15 @@ export default function LabPortal() {
       )}
 
       {!nationalId && !isLoading && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-teal-100 flex items-center justify-center mx-auto mb-5">
-            <FlaskConical className="w-8 h-8 text-teal-600" />
+        <Card>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-5">
+              <FlaskConical className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-xl font-bold text-foreground mb-2">Lab Results Portal</p>
+            <p className="text-sm text-muted-foreground max-w-sm">Enter a patient's National ID to retrieve their lab history and upload new results with AI interpretation.</p>
           </div>
-          <p className="text-xl font-bold text-foreground mb-2">Lab Results Portal</p>
-          <p className="text-sm text-muted-foreground max-w-sm">Enter a patient's National ID to retrieve their lab history and upload new results with AI interpretation.</p>
-        </div>
+        </Card>
       )}
     </Layout>
   );

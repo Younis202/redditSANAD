@@ -63,27 +63,6 @@ export default function HospitalPortal() {
 
   return (
     <Layout role="hospital">
-      <div className="flex items-center gap-2 mb-5">
-        <div className="flex items-center gap-2 bg-secondary text-foreground text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
-          <Building2 className="w-3 h-3" />
-          Hospital Operations Center
-        </div>
-        {icuCritical > 0 && (
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-secondary px-3 py-1.5 rounded-full ml-2 animate-pulse">
-            <AlertTriangle className="w-3 h-3" />
-            {icuCritical} ICU Critical Alert{icuCritical > 1 ? "s" : ""}
-          </div>
-        )}
-        <button
-          onClick={() => refetch()}
-          className="ml-auto flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-white border border-black/[0.08] px-3 py-1.5 rounded-full hover:text-foreground transition-colors"
-        >
-          <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`} />
-          Refresh
-        </button>
-        <span className="text-[11px] font-mono text-muted-foreground">Live · auto-refresh 60s</span>
-      </div>
-
       <PortalHero
         title={data?.hospitalName ?? "Hospital Portal"}
         subtitle="Bed management · ICU alerts · OR scheduling · AI readmission risk prediction"
@@ -95,6 +74,24 @@ export default function HospitalPortal() {
           { label: "Occupancy", value: data?.overallOccupancy ? `${data.overallOccupancy}%` : "—" },
           { label: "AI Alerts", value: data?.units?.filter((u: any) => u.status === "critical").length ?? "—" },
         ]}
+        action={
+          <div className="flex items-center gap-2">
+            {icuCritical > 0 && (
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-white animate-pulse px-3 py-1.5 rounded-full" style={{ background: "rgba(239,68,68,0.85)" }}>
+                <AlertTriangle className="w-3 h-3" />
+                {icuCritical} ICU Critical
+              </div>
+            )}
+            <button
+              onClick={() => refetch()}
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-3.5 py-2 rounded-full transition-all"
+              style={{ background: "rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.80)" }}
+            >
+              <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+          </div>
+        }
       />
 
       {/* KPI row */}

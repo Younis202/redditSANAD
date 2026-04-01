@@ -2,11 +2,11 @@ import React, { useState, useMemo } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card, CardHeader, CardTitle, CardBody,
-  Input, Button, Badge, PageHeader, DataLabel, PortalHero
+  Input, Button, Badge, PageHeader, DataLabel, PortalHero, Sheet
 } from "@/components/shared";
 import {
   Pill, Search, AlertTriangle, CheckCircle2, Shield, ShieldAlert,
-  Brain, CreditCard, Zap, Clock, X, BookOpen, ChevronDown, ChevronUp, FlaskConical, Bell,
+  Brain, CreditCard, Zap, Clock, X, BookOpen, FlaskConical, Bell,
   Package, AlertCircle
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -73,7 +73,7 @@ export default function PharmacyPortal() {
   const [nationalId, setNationalId] = useState("");
   const [dispensing, setDispensing] = useState<number | null>(null);
   const [dispensedResults, setDispensedResults] = useState<Record<number, any>>({});
-  const [expandedWarnings, setExpandedWarnings] = useState<Record<number, boolean>>({});
+  const [clinicalRefSheet, setClinicalRefSheet] = useState<{ presc: any; check: any } | null>(null);
   const [showSsePanel, setShowSsePanel] = useState(true);
   const { alerts: sseAlerts, connected: sseConnected, unreadCount: sseUnread, markRead: markSseRead, clearAll: clearSseAlerts } = useSseAlerts("pharmacy");
 
@@ -141,29 +141,29 @@ export default function PharmacyPortal() {
       {/* SSE Drug Interaction Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-              <span className="font-bold text-sm text-orange-800">Live Drug Safety Alerts</span>
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="font-bold text-sm text-foreground">Live Drug Safety Alerts</span>
               <Badge variant="warning" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-orange-600 hover:text-orange-800 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-orange-400 hover:text-orange-700"><X className="w-4 h-4" /></button>
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-orange-200 max-h-56 overflow-y-auto">
+          <div className="divide-y divide-border max-h-56 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-orange-500"}`} />
+                <ShieldAlert className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-orange-900">{alert.title}</p>
-                  <p className="text-xs text-orange-700 mt-0.5">
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Patient: {alert.patientName}
                     {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
                   </p>
-                  {alert.recommendation && <p className="text-xs text-orange-600 mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-orange-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <button
@@ -390,53 +390,16 @@ export default function PharmacyPortal() {
                           <p key={i} className="text-xs font-semibold text-foreground mb-1">{w}</p>
                         ))}
 
-                        {/* Detailed Clinical References */}
+                        {/* Detailed Clinical References → opens Sheet */}
                         {check.detailedWarnings && check.detailedWarnings.length > 0 && (
                           <div className="mt-2">
                             <button
-                              onClick={() => setExpandedWarnings(prev => ({ ...prev, [presc.id]: !prev[presc.id] }))}
-                              className="flex items-center gap-1.5 text-[10px] font-bold text-violet-700 hover:text-violet-900 transition-colors"
+                              onClick={() => setClinicalRefSheet({ presc, check })}
+                              className="flex items-center gap-1.5 text-[10px] font-bold text-primary hover:opacity-70 transition-opacity"
                             >
                               <BookOpen className="w-3 h-3" />
-                              {expandedWarnings[presc.id] ? "Hide" : "Show"} Clinical References ({check.detailedWarnings.length})
-                              {expandedWarnings[presc.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                              View {check.detailedWarnings.length} Clinical Reference{check.detailedWarnings.length !== 1 ? "s" : ""}
                             </button>
-
-                            {expandedWarnings[presc.id] && (
-                              <div className="mt-2 space-y-2">
-                                {check.detailedWarnings.map((dw: any, wi: number) => (
-                                  <div key={wi} className="rounded-xl bg-white/80 p-3">
-                                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                                      <div className="flex items-center gap-1.5">
-                                        <FlaskConical className="w-3 h-3 text-red-500 shrink-0" />
-                                        <p className="text-[11px] font-bold text-foreground">{dw.text}</p>
-                                      </div>
-                                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                                        dw.severity === "critical" ? "bg-red-600 text-white" :
-                                        dw.severity === "high" ? "bg-secondary text-red-600" :
-                                        dw.severity === "moderate" ? "bg-secondary text-amber-600" :
-                                        "bg-secondary text-foreground"
-                                      }`}>{dw.severity?.toUpperCase()}</span>
-                                    </div>
-                                    <p className="text-[11px] text-muted-foreground mb-1">
-                                      <span className="font-semibold text-foreground">Mechanism: </span>{dw.mechanism}
-                                    </p>
-                                    <p className="text-[11px] text-muted-foreground mb-1">
-                                      <span className="font-semibold text-foreground">Clinical basis: </span>{dw.clinicalBasis}
-                                    </p>
-                                    <div className="flex items-start gap-1.5 mb-1">
-                                      <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
-                                      <p className="text-[11px] font-semibold text-foreground">{dw.recommendation}</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1 mt-1.5">
-                                      {(dw.source ? dw.source.split(" · ") : dw.sources ?? []).map((src: string, si: number) => (
-                                        <span key={si} className="text-[9px] font-mono bg-secondary text-primary px-1.5 py-0.5 rounded-md">{src}</span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
                           </div>
                         )}
                       </div>
@@ -475,14 +438,64 @@ export default function PharmacyPortal() {
       )}
 
       {!nationalId && !isLoading && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-purple-100 flex items-center justify-center mx-auto mb-5">
-            <Pill className="w-8 h-8 text-purple-600" />
+        <Card>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-secondary flex items-center justify-center mx-auto mb-5">
+              <Pill className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-xl font-bold text-foreground mb-2">Pharmacy Portal</p>
+            <p className="text-sm text-muted-foreground max-w-sm">Enter a patient's National ID to view active prescriptions and dispense medications with AI safety verification.</p>
           </div>
-          <p className="text-xl font-bold text-foreground mb-2">Pharmacy Portal</p>
-          <p className="text-sm text-muted-foreground max-w-sm">Enter a patient's National ID to view active prescriptions and dispense medications with AI safety verification.</p>
-        </div>
+        </Card>
       )}
+
+      {/* Clinical References Sheet */}
+      <Sheet
+        open={!!clinicalRefSheet}
+        onClose={() => setClinicalRefSheet(null)}
+        title="Clinical Drug Safety References"
+        subtitle={clinicalRefSheet ? `${clinicalRefSheet.presc.drugName} · ${clinicalRefSheet.check.detailedWarnings.length} interaction${clinicalRefSheet.check.detailedWarnings.length !== 1 ? "s" : ""}` : ""}
+        width="max-w-2xl"
+      >
+        {clinicalRefSheet && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Brain className="w-4 h-4 text-primary" />
+              <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-widest">AI Safety Check</span>
+              <span className="text-[12px] font-mono text-muted-foreground ml-auto">Confidence: {Math.round(clinicalRefSheet.check.confidenceScore * 100)}%</span>
+            </div>
+            {clinicalRefSheet.check.detailedWarnings.map((dw: any, wi: number) => (
+              <div key={wi} className="rounded-[1.25rem] bg-secondary p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <FlaskConical className="w-4 h-4 text-red-500 shrink-0" />
+                    <p className="text-[13px] font-bold text-foreground">{dw.text}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                    dw.severity === "critical" ? "bg-red-600 text-white" :
+                    dw.severity === "high" ? "bg-secondary border border-border text-red-600" :
+                    dw.severity === "moderate" ? "bg-secondary border border-border text-amber-600" :
+                    "bg-secondary border border-border text-foreground"
+                  }`}>{dw.severity?.toUpperCase()}</span>
+                </div>
+                <div className="space-y-1.5 text-[12px] text-muted-foreground">
+                  <p><span className="font-semibold text-foreground">Mechanism: </span>{dw.mechanism}</p>
+                  <p><span className="font-semibold text-foreground">Clinical basis: </span>{dw.clinicalBasis}</p>
+                  <div className="flex items-start gap-1.5 mt-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="font-semibold text-foreground">{dw.recommendation}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {(dw.source ? dw.source.split(" · ") : dw.sources ?? []).map((src: string, si: number) => (
+                      <span key={si} className="text-[10px] font-mono bg-white text-primary border border-black/[0.06] px-2 py-0.5 rounded-lg">{src}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Sheet>
     </Layout>
   );
 }

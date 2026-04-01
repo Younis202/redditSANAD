@@ -129,13 +129,11 @@ export default function SupplyChainPortal() {
           <div className="relative">
             <button
               onClick={() => setShowSsePanel(p => !p)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                sseUnread > 0 ? "bg-lime-50 hover:bg-lime-100" : "bg-secondary hover:bg-border"
-              }`}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-secondary hover:bg-border transition-colors"
             >
-              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-lime-700" : "text-muted-foreground"}`} />
+              <Bell className={`w-4 h-4 ${sseUnread > 0 ? "text-primary" : "text-muted-foreground"}`} />
               {sseUnread > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-lime-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
                   {sseUnread > 9 ? "9+" : sseUnread}
                 </span>
               )}
@@ -150,30 +148,30 @@ export default function SupplyChainPortal() {
       {/* SSE Supply Alert Panel */}
       {showSsePanel && sseAlerts.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 bg-lime-50/80 rounded-t-[2rem]">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary rounded-t-[2rem]" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-lime-600 animate-pulse" />
-              <span className="font-bold text-sm text-lime-900">Live National Health Alerts</span>
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="font-bold text-sm text-foreground">Live Supply Chain Alerts</span>
               <Badge variant="success" className="text-[10px]">{sseUnread} new</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-lime-700 hover:text-lime-900 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-lime-400 hover:text-lime-700"><X className="w-4 h-4" /></button>
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-lime-200 max-h-56 overflow-y-auto">
+          <div className="divide-y divide-border max-h-56 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
                 <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : "text-amber-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-lime-900">{alert.title}</p>
-                  <p className="text-xs text-lime-700 mt-0.5">Patient: {alert.patientName}</p>
-                  {alert.recommendation && <p className="text-xs text-lime-600 mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-lime-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName}</p>
+                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <button
                   onClick={() => markSseRead(alert.id)}
-                  className="text-[10px] font-semibold text-lime-700 bg-lime-100 hover:bg-lime-200 rounded-lg px-2 py-1 transition-colors shrink-0"
+                  className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors shrink-0"
                 >
                   Mark Read
                 </button>
@@ -827,7 +825,7 @@ export default function SupplyChainPortal() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
-                    <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <ReferenceLine x="Mar" stroke="#22c55e" strokeDasharray="4 2" label={{ value: "🌙 Ramadan", position: "top", fontSize: 10, fill: "#22c55e" }} />
                     <ReferenceLine x="Jun" stroke="#f59e0b" strokeDasharray="4 2" label={{ value: "🕋 Hajj", position: "top", fontSize: 10, fill: "#f59e0b" }} />

@@ -227,23 +227,23 @@ export default function ResearchPortal() {
               <Badge variant="info" className="text-[10px]">{sseUnread} new events</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={clearSseAlerts} className="text-[11px] text-teal-600 hover:text-teal-900 font-medium">Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} className="text-teal-400 hover:text-teal-700"><X className="w-4 h-4" /></button>
+              <button onClick={clearSseAlerts} className="text-[11px] text-muted-foreground hover:text-foreground font-medium">Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
             </div>
           </div>
-          <div className="divide-y divide-teal-200 max-h-56 overflow-y-auto">
+          <div className="divide-y divide-border max-h-56 overflow-y-auto">
             {sseAlerts.map(alert => (
               <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-60" : ""}`}>
-                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : alert.severity === "high" ? "text-amber-500" : "text-teal-500"}`} />
+                <AlertTriangle className={`mt-0.5 w-4 h-4 shrink-0 ${alert.severity === "critical" ? "text-red-500" : alert.severity === "high" ? "text-amber-500" : "text-primary"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-teal-900">{alert.title}</p>
-                  <p className="text-xs text-teal-700 mt-0.5">Patient: {alert.patientName} · {alert.type === "lab_alert" ? `Lab: ${alert.testName}` : alert.type === "drug_interaction_alert" ? `Drug: ${alert.drugName} ↔ ${alert.conflictingDrug}` : "Risk escalation"}</p>
-                  {alert.recommendation && <p className="text-xs text-teal-600 mt-0.5">{alert.recommendation}</p>}
-                  <p className="text-[10px] text-teal-400 mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="font-bold text-sm text-foreground">{alert.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Patient: {alert.patientName} · {alert.type === "lab_alert" ? `Lab: ${alert.testName}` : alert.type === "drug_interaction_alert" ? `Drug: ${alert.drugName} ↔ ${alert.conflictingDrug}` : "Risk escalation"}</p>
+                  {alert.recommendation && <p className="text-xs text-muted-foreground mt-0.5">{alert.recommendation}</p>}
+                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <button
                   onClick={() => markSseRead(alert.id)}
-                  className="text-[10px] font-semibold text-teal-700 bg-teal-100 hover:bg-teal-200 rounded-lg px-2 py-1 transition-colors shrink-0"
+                  className="text-[10px] font-semibold text-foreground bg-secondary hover:bg-border rounded-lg px-2 py-1 transition-colors shrink-0"
                 >
                   Logged
                 </button>
@@ -795,7 +795,7 @@ export default function ResearchPortal() {
                       <p className="text-xs text-muted-foreground mb-3">{item.desc}</p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">{item.format}</span>
+                          <span className="text-[10px] font-bold bg-secondary text-primary px-2 py-0.5 rounded-full">{item.format}</span>
                           <span className="text-[10px] text-muted-foreground">{item.size}</span>
                         </div>
                         <button

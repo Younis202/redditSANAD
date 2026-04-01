@@ -449,6 +449,112 @@ export function EmptyState({
   );
 }
 
+/* ─── Sheet (Slide-over Drawer) ─────────────────────────── */
+export function Sheet({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+  width = "max-w-xl",
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  width?: string;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      {/* Drawer */}
+      <div
+        className={cn(
+          "relative ml-auto h-full w-full flex flex-col",
+          "bg-[rgba(255,255,255,0.96)] backdrop-blur-2xl",
+          "shadow-[−24px_0_80px_rgba(0,0,0,0.15)]",
+          width
+        )}
+        style={{ borderLeft: "1px solid rgba(0,0,0,0.07)" }}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 py-5 border-b border-black/[0.06]">
+          <div>
+            <h2 className="text-[17px] font-bold text-foreground leading-tight">{title}</h2>
+            {subtitle && <p className="text-[12px] text-muted-foreground mt-0.5">{subtitle}</p>}
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all ml-4 mt-0.5 shrink-0"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+              <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Modal ─────────────────────────────────────────────── */
+export function Modal({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+  size = "md",
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  size?: "sm" | "md" | "lg";
+}) {
+  if (!open) return null;
+  const widths = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" };
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
+      <div
+        className={cn(
+          "relative w-full rounded-[2rem] overflow-hidden",
+          "bg-white shadow-[0_32px_80px_rgba(0,0,0,0.18)]",
+          widths[size]
+        )}
+      >
+        <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-black/[0.06]">
+          <div>
+            <h2 className="text-[17px] font-bold text-foreground leading-tight">{title}</h2>
+            {subtitle && <p className="text-[12px] text-muted-foreground mt-0.5">{subtitle}</p>}
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all ml-4 mt-0.5 shrink-0"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+              <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── StatRow ───────────────────────────────────────────── */
 export function StatRow({ items }: {
   items: { label: string; value: string | number; color?: string }[];

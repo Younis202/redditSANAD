@@ -7,10 +7,10 @@ import {
   ChevronDown, ChevronUp, CheckCircle2, Radio,
   Fingerprint, Heart, Droplet, User, BookOpen,
   ChevronRight, RefreshCw, ListChecks, Wifi, WifiOff, Database,
-  Siren, AlertOctagon, Target
+  Siren, AlertOctagon, Target, Building, Users, Star, TrendingUp, Globe
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import { Card, CardHeader, CardTitle, CardBody, StatusDot } from "@/components/shared";
+import { Card, CardHeader, CardTitle, CardBody, StatusDot, KpiCard, Badge } from "@/components/shared";
 import { useEmergencyLookup } from "@workspace/api-client-react";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
@@ -405,48 +405,134 @@ export default function EmergencyPage() {
           EMPTY STATE — system ready
       ══════════════════════════════════════════════════ */}
       {!submittedId && !isLoading && (
-        <div className="space-y-6">
-          {/* System readiness grid */}
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: "AI Response", value: "< 1s", sub: "Average lookup", icon: Timer, color: "#22c55e" },
-              { label: "AI Confidence", value: "97%", sub: "Clinical accuracy", icon: Brain, color: "#38bdf8" },
-              { label: "AI Engines", value: "9 Live", sub: "All systems nominal", icon: Activity, color: "#a78bfa" },
-              { label: "Hospitals", value: "450+", sub: "Connected facilities", icon: Target, color: "#fb923c" },
-            ].map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <div key={i} className="rounded-2xl p-5 text-center" style={darkPanel}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3" style={{ background: `${s.color}15`, border: `1px solid ${s.color}25` }}>
-                    <Icon className="w-5 h-5" style={{ color: s.color }} />
-                  </div>
-                  <p className="text-2xl font-black text-foreground">{s.value}</p>
-                  <p className="text-[11px] font-bold text-muted-foreground mt-0.5">{s.label}</p>
-                  <p className="text-[9px] text-muted-foreground/60 mt-0.5">{s.sub}</p>
-                </div>
-              );
-            })}
+        <div className="space-y-5">
+          {/* System Readiness KPI Strip */}
+          <div className="grid grid-cols-4 gap-4">
+            <KpiCard title="AI Decision Speed" value="< 1s" sub="Average patient lookup time" icon={Timer} iconBg="bg-emerald-50" iconColor="text-emerald-700" trend="All engines nominal" />
+            <KpiCard title="AI Clinical Confidence" value="97%" sub="Cross-validated accuracy" icon={Brain} iconBg="bg-violet-50" iconColor="text-violet-600" />
+            <KpiCard title="AI Engines Active" value="9 Live" sub="Real-time inference ready" icon={Activity} iconBg="bg-primary/10" iconColor="text-primary" />
+            <KpiCard title="Connected Facilities" value="450+" sub="Hospitals in SANAD network" icon={Building} iconBg="bg-amber-50" iconColor="text-amber-600" />
           </div>
 
-          {/* Available protocols */}
-          <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-              <ListChecks className="w-3.5 h-3.5 text-red-500" /> Emergency Protocols On Standby
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {EMERGENCY_PROTOCOLS.map((p) => (
-                <div key={p.code} className="flex items-center gap-3 p-4 rounded-2xl" style={darkPanel}>
-                  <div className="w-2 h-10 rounded-full shrink-0" style={{ background: p.color }} />
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[10px] font-black text-white/30 font-mono">{p.code}</span>
+          {/* Emergency Protocols Grid */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-red-600" />
+                <CardTitle>Emergency Protocols — On Standby</CardTitle>
+              </div>
+              <Badge variant="destructive" className="ml-auto text-[8px]">SRCA · MOH · AHA/ACLS</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-2 gap-3">
+                {EMERGENCY_PROTOCOLS.map((p) => (
+                  <div key={p.code} className="flex items-center gap-4 p-4 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors cursor-default" style={{ borderLeft: `3px solid ${p.color}` }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${p.color}15` }}>
+                      <span className="text-[10px] font-black font-mono" style={{ color: p.color }}>{p.code.split("-")[0]}</span>
                     </div>
-                    <p className="text-sm font-bold text-foreground">{p.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{p.org}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-foreground leading-snug">{p.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-mono font-bold" style={{ color: p.color }}>{p.code}</span>
+                        <span className="text-muted-foreground text-[9px]">·</span>
+                        <span className="text-[10px] text-muted-foreground">{p.org}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-emerald-700">Ready</span>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* National Emergency Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Siren className="w-4 h-4 text-red-600" />
+                  <CardTitle>Active Emergencies</CardTitle>
                 </div>
-              ))}
-            </div>
+                <Badge variant="destructive" className="ml-auto text-[8px]">LIVE</Badge>
+              </CardHeader>
+              <CardBody className="space-y-2">
+                {[
+                  { label: "Cardiac Events", count: 3, region: "Riyadh, Makkah", severity: "destructive" as const },
+                  { label: "Trauma / RTA", count: 7, region: "Eastern Province", severity: "warning" as const },
+                  { label: "Stroke Code", count: 2, region: "Madinah", severity: "destructive" as const },
+                  { label: "Sepsis Alert", count: 4, region: "Jizan, Asir", severity: "info" as const },
+                ].map((e, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                    <div>
+                      <p className="text-[12px] font-bold text-foreground">{e.label}</p>
+                      <p className="text-[10px] text-muted-foreground">{e.region}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[14px] font-black tabular-nums text-foreground">{e.count}</span>
+                      <Badge variant={e.severity} className="text-[8px]">Active</Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-primary" />
+                  <CardTitle>System Performance</CardTitle>
+                </div>
+              </CardHeader>
+              <CardBody className="space-y-3">
+                {[
+                  { label: "Patient Lookups Today", value: "48,204", color: "text-primary" },
+                  { label: "AI Decisions Generated", value: "192K", color: "text-primary" },
+                  { label: "Avg Response Time", value: "0.8s", color: "text-emerald-700" },
+                  { label: "Critical Alerts Sent", value: "143", color: "text-red-600" },
+                  { label: "Offline Cache Hits", value: "2,841", color: "text-foreground" },
+                  { label: "SSE Connections", value: "4,204 live", color: "text-foreground" },
+                ].map((m, i) => (
+                  <div key={i} className="flex items-center justify-between py-1 border-b border-border last:border-0">
+                    <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                    <p className={`text-[12px] font-bold tabular-nums ${m.color}`}>{m.value}</p>
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <CardTitle>Regional Coverage</CardTitle>
+                </div>
+              </CardHeader>
+              <CardBody className="space-y-2">
+                {[
+                  { region: "Riyadh", hospitals: 84, coverage: 96, color: "#22c55e" },
+                  { region: "Makkah", hospitals: 71, coverage: 89, color: "#22c55e" },
+                  { region: "Eastern Province", hospitals: 62, coverage: 92, color: "#22c55e" },
+                  { region: "Madinah", hospitals: 48, coverage: 81, color: "#f59e0b" },
+                  { region: "Asir", hospitals: 39, coverage: 74, color: "#ef4444" },
+                ].map((r, i) => (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-semibold text-foreground">{r.region}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground">{r.hospitals} hosp.</span>
+                        <span className="text-[11px] font-bold" style={{ color: r.color }}>{r.coverage}%</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${r.coverage}%`, background: r.color }} />
+                    </div>
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
           </div>
         </div>
       )}
@@ -546,154 +632,164 @@ export default function EmergencyPage() {
             <div className="col-span-5 space-y-4">
 
               {/* Patient Identity */}
-              <div className="rounded-2xl p-5" style={darkPanel}>
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 font-black text-xl text-white" style={{ background: "linear-gradient(135deg, rgba(220,38,38,0.30), rgba(127,29,29,0.30))", border: "1px solid rgba(220,38,38,0.20)" }}>
-                    {(patient.fullName as string).split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-black text-foreground leading-tight">{patient.fullName}</h2>
-                    <p className="text-[10px] font-mono text-muted-foreground mt-0.5">NID · {patient.nationalId}</p>
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <span className="flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full text-white" style={{ background: riskCfg.bg }}>{riskCfg.label}</span>
-                      <StatusDot status="active" />
-                      <span className="text-[10px] text-emerald-600 font-semibold">Live record</span>
+              <Card>
+                <CardBody className="pt-5">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 font-black text-xl text-white" style={{ background: "linear-gradient(135deg, #dc2626, #7f1d1d)" }}>
+                      {(patient.fullName as string).split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl font-black text-foreground leading-tight">{patient.fullName}</h2>
+                      <p className="text-[10px] font-mono text-muted-foreground mt-0.5">NID · {patient.nationalId}</p>
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <Badge variant={riskLevel === "critical" ? "destructive" : riskLevel === "high" ? "warning" : "success"} className="text-[9px]">{riskCfg.label}</Badge>
+                        <StatusDot status="active" />
+                        <span className="text-[10px] text-emerald-600 font-semibold">Live record</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "Blood Type", value: patient.bloodType, style: { background: "linear-gradient(135deg, #dc2626, #7f1d1d)" }, textClass: "text-white" },
-                    { label: "Age", value: String(patient.age ?? "—"), style: { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }, textClass: "text-foreground" },
-                    { label: "Gender", value: patient.gender, style: { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }, textClass: "text-foreground" },
-                  ].map((item, i) => (
-                    <div key={i} className="rounded-xl p-3 text-center" style={item.style}>
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: i === 0 ? "rgba(255,255,255,0.60)" : "rgba(0,0,0,0.40)" }}>{item.label}</p>
-                      <p className={`text-xl font-black ${item.textClass}`}>{item.value}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-xl p-3 text-center" style={{ background: "linear-gradient(135deg, #dc2626, #7f1d1d)" }}>
+                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-white/60">Blood Type</p>
+                      <p className="text-xl font-black text-white">{patient.bloodType}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="rounded-xl p-3 text-center bg-secondary">
+                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Age</p>
+                      <p className="text-xl font-black text-foreground">{patient.age ?? "—"}</p>
+                    </div>
+                    <div className="rounded-xl p-3 text-center bg-secondary">
+                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Gender</p>
+                      <p className="text-xl font-black text-foreground">{patient.gender}</p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
 
               {/* Emergency Contact */}
-              <div className="rounded-2xl p-4" style={darkPanel}>
-                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                  <PhoneCall className="w-3 h-3 text-blue-500" /> Emergency Contact
-                </p>
-                {patient.emergencyContact ? (
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-bold text-foreground">{patient.emergencyContact}</p>
-                      <p className="text-lg font-black text-blue-400 font-mono tracking-tight">{patient.emergencyPhone}</p>
-                    </div>
-                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white shrink-0 transition-all hover:opacity-90"
-                      style={{ background: "linear-gradient(135deg, #1d4ed8, #1e40af)" }}>
-                      <PhoneCall className="w-3.5 h-3.5" />
-                      Call Now
-                    </button>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 text-blue-600" />
+                    <CardTitle>Emergency Contact</CardTitle>
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Not on record</p>
-                )}
-              </div>
+                </CardHeader>
+                <CardBody>
+                  {patient.emergencyContact ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[13px] font-bold text-foreground">{patient.emergencyContact}</p>
+                        <p className="text-lg font-black text-blue-600 font-mono tracking-tight">{patient.emergencyPhone}</p>
+                      </div>
+                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white shrink-0 transition-all hover:opacity-90"
+                        style={{ background: "linear-gradient(135deg, #1d4ed8, #1e40af)" }}>
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        Call Now
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Not on record</p>
+                  )}
+                </CardBody>
+              </Card>
 
               {/* Active Medications */}
-              <div className="rounded-2xl overflow-hidden" style={darkPanel}>
-                <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <Card>
+                <CardHeader>
                   <div className="flex items-center gap-2">
                     <Droplet className="w-4 h-4 text-amber-500" />
-                    <p className="text-sm font-black text-foreground">Active Medications</p>
+                    <CardTitle>Active Medications</CardTitle>
                   </div>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full text-white/60" style={{ background: "rgba(255,255,255,0.06)" }}>
-                    {patient.currentMedications.length}
-                  </span>
-                </div>
-                <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                  <Badge variant="outline" className="ml-auto">{patient.currentMedications.length}</Badge>
+                </CardHeader>
+                <CardBody className="p-0">
                   {patient.currentMedications.length > 0
                     ? patient.currentMedications.map((med: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors">
-                        <span className="text-[10px] font-black text-white/20 tabular-nums w-4 shrink-0">{i + 1}</span>
-                        <span className="text-sm font-semibold text-foreground">{med}</span>
+                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                        <span className="text-[10px] font-black text-muted-foreground tabular-nums w-5 shrink-0">{i + 1}</span>
+                        <span className="text-[13px] font-semibold text-foreground">{med}</span>
                       </div>
                     ))
                     : <div className="px-4 py-4 text-sm text-muted-foreground">No active medications on record</div>
                   }
-                </div>
-              </div>
+                </CardBody>
+              </Card>
 
               {/* Chronic Conditions */}
-              <div className="rounded-2xl overflow-hidden" style={darkPanel}>
-                <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <Card>
+                <CardHeader>
                   <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-red-500" />
-                    <p className="text-sm font-black text-foreground">Chronic Conditions</p>
+                    <CardTitle>Chronic Conditions</CardTitle>
                   </div>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full text-white/60" style={{ background: "rgba(255,255,255,0.06)" }}>
-                    {chronicConds.length}
-                  </span>
-                </div>
-                <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                  <Badge variant="outline" className="ml-auto">{chronicConds.length}</Badge>
+                </CardHeader>
+                <CardBody className="p-0">
                   {chronicConds.length > 0
                     ? chronicConds.map((c: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors">
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "rgba(220,38,38,0.60)" }} />
-                        <span className="text-sm font-semibold text-foreground">{c}</span>
+                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0">
+                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                        <span className="text-[13px] font-semibold text-foreground">{c}</span>
                       </div>
                     ))
                     : <div className="px-4 py-4 text-sm text-muted-foreground">No chronic conditions on record</div>
                   }
-                </div>
-              </div>
+                </CardBody>
+              </Card>
 
               {/* System Alerts */}
               {patient.criticalAlerts.length > 0 && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.20)" }}>
-                  <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "1px solid rgba(220,38,38,0.15)" }}>
-                    <AlertTriangle className="w-4 h-4 text-red-500" />
-                    <p className="text-sm font-black text-red-700">System Alerts</p>
-                    <span className="ml-auto text-[10px] font-black text-red-500">{patient.criticalAlerts.length}</span>
-                  </div>
-                  {patient.criticalAlerts.map((alert: string, i: number) => (
-                    <div key={i} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: "1px solid rgba(220,38,38,0.08)" }}>
-                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                      <p className="text-sm font-semibold text-red-700">{alert}</p>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <CardTitle>System Alerts</CardTitle>
                     </div>
-                  ))}
-                </div>
+                    <Badge variant="destructive" className="ml-auto">{patient.criticalAlerts.length}</Badge>
+                  </CardHeader>
+                  <CardBody className="p-0">
+                    {patient.criticalAlerts.map((alert: string, i: number) => (
+                      <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0" style={{ borderLeft: "3px solid #dc2626" }}>
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                        <p className="text-[13px] font-semibold text-red-700">{alert}</p>
+                      </div>
+                    ))}
+                  </CardBody>
+                </Card>
               )}
             </div>
 
             {/* ── RIGHT COLUMN: Actions + AI Intelligence ── */}
             <div className="col-span-7 space-y-4">
 
-              {/* IMMEDIATE ACTIONS — red urgency box */}
+              {/* IMMEDIATE ACTIONS */}
               {immediate.length > 0 && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(220,38,38,0.08)", border: "1.5px solid rgba(220,38,38,0.30)" }}>
-                  <div className="flex items-center gap-3 px-5 py-3" style={{ background: "rgba(220,38,38,0.20)", borderBottom: "1px solid rgba(220,38,38,0.20)" }}>
-                    <ShieldAlert className="w-4 h-4 text-red-400" />
-                    <p className="text-sm font-black text-red-300 uppercase tracking-wide">Immediate Actions Required</p>
-                    <span className="ml-auto flex items-center gap-1.5 text-[10px] font-black text-red-300 px-2.5 py-1 rounded-full" style={{ background: "rgba(220,38,38,0.30)" }}>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-red-600" />
+                      <CardTitle>Immediate Actions Required</CardTitle>
+                    </div>
+                    <Badge variant="destructive" className="ml-auto flex items-center gap-1.5">
                       <Clock className="w-3 h-3" /> Act within 3 min
-                    </span>
-                  </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(220,38,38,0.10)" }}>
+                    </Badge>
+                  </CardHeader>
+                  <CardBody className="p-0">
                     {immediate.map((action, i) => {
                       const cfg = ACTION_CFG[action.action];
                       const proto = ACTION_PROTOCOL[action.action];
                       const Icon = cfg.icon;
                       return (
-                        <div key={i} className="flex items-start gap-4 px-5 py-4" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
+                        <div key={i} className="flex items-start gap-4 px-5 py-4 border-b border-border last:border-0" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
                           <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: cfg.bg }}>
                             <Icon className="w-4 h-4" style={{ color: cfg.accent }} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: cfg.accent }}>{cfg.label}</span>
-                              <span className="text-[9px] font-black text-white px-2 py-0.5 rounded-md" style={{ background: "rgba(220,38,38,0.40)" }}>IMMEDIATE</span>
+                              <Badge variant="destructive" className="text-[8px]">IMMEDIATE</Badge>
                             </div>
-                            <p className="font-bold text-sm text-foreground">{action.description}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
+                            <p className="font-bold text-[13px] text-foreground">{action.description}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{action.reason}</p>
                             <div className="flex items-center gap-1.5 mt-1.5">
                               <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${proto.color}15`, color: proto.color }}>
                                 <BookOpen className="w-2.5 h-2.5 shrink-0" /> {proto.org}
@@ -701,106 +797,108 @@ export default function EmergencyPage() {
                               <span className="text-[9px] text-muted-foreground">{proto.ref}</span>
                             </div>
                           </div>
-                          <span className="text-2xl font-black text-white/[0.06] tabular-nums shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                          <span className="text-3xl font-black text-secondary tabular-nums shrink-0">{String(i + 1).padStart(2, "0")}</span>
                         </div>
                       );
                     })}
-                  </div>
-                </div>
+                  </CardBody>
+                </Card>
               )}
 
               {/* AI TRIAGE INTELLIGENCE */}
               {(riskFactors.length > 0 || aiRecommendations.length > 0) && (
-                <div className="rounded-2xl overflow-hidden" style={darkPanel}>
-                  <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                    <Brain className="w-4 h-4 text-violet-400" />
-                    <p className="text-sm font-black text-foreground">AI Triage Intelligence</p>
-                    <span className="ml-auto text-[10px] font-bold text-violet-400 px-2.5 py-1 rounded-full" style={{ background: "rgba(124,58,237,0.12)" }}>
-                      {riskFactors.length} factor{riskFactors.length !== 1 ? "s" : ""} analysed
-                    </span>
-                  </div>
-
-                  {riskFactors.length > 0 && (
-                    <div className="px-5 py-4">
-                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-3">Why this risk score?</p>
-                      <div className="space-y-2">
-                        {riskFactors.map((f, i) => {
-                          const impactColor = f.impact === "high" ? "#ef4444" : f.impact === "moderate" ? "#f59e0b" : "#007AFF";
-                          const barW = f.impact === "high" ? "100%" : f.impact === "moderate" ? "66%" : "33%";
-                          return (
-                            <div key={i} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-foreground">{f.factor}</span>
-                                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md" style={{ background: `${impactColor}18`, color: impactColor }}>{f.impact}</span>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4 text-violet-600" />
+                      <CardTitle>AI Triage Intelligence</CardTitle>
+                    </div>
+                    <Badge variant="purple" className="ml-auto text-[8px]">{riskFactors.length} factors analysed</Badge>
+                  </CardHeader>
+                  <CardBody className="space-y-4">
+                    {riskFactors.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Why this risk score?</p>
+                        <div className="space-y-2">
+                          {riskFactors.map((f, i) => {
+                            const impactColor = f.impact === "high" ? "#ef4444" : f.impact === "moderate" ? "#f59e0b" : "#007AFF";
+                            const barW = f.impact === "high" ? "100%" : f.impact === "moderate" ? "66%" : "33%";
+                            return (
+                              <div key={i} className="p-3.5 rounded-2xl bg-secondary" style={{ borderLeft: `2.5px solid ${impactColor}` }}>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="text-[12px] font-bold text-foreground">{f.factor}</span>
+                                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md" style={{ background: `${impactColor}18`, color: impactColor }}>{f.impact}</span>
+                                </div>
+                                <p className="text-[11px] text-muted-foreground leading-relaxed">{f.description}</p>
+                                <div className="mt-2 h-1.5 rounded-full overflow-hidden bg-border">
+                                  <div className="h-full rounded-full transition-all" style={{ width: barW, background: impactColor }} />
+                                </div>
                               </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">{f.description}</p>
-                              <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-                                <div className="h-full rounded-full transition-all" style={{ width: barW, background: impactColor }} />
-                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {aiRecommendations.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">AI Recommendations</p>
+                        <div className="space-y-2">
+                          {aiRecommendations.map((rec, i) => (
+                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-secondary" style={{ borderLeft: "2.5px solid #8b5cf6" }}>
+                              <span className="text-[10px] font-black text-violet-600 tabular-nums shrink-0 mt-0.5 font-mono w-5">{i + 1}.</span>
+                              <p className="text-[12px] font-semibold text-foreground leading-relaxed">{rec}</p>
                             </div>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {aiRecommendations.length > 0 && (
-                    <div className="px-5 pb-4">
-                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-3">AI Recommendations</p>
-                      <div className="space-y-1.5">
-                        {aiRecommendations.map((rec, i) => (
-                          <div key={i} className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.03)" }}>
-                            <span className="text-[10px] font-black text-violet-400 tabular-nums shrink-0 mt-0.5 font-mono">{String(i + 1).padStart(2, "0")}</span>
-                            <p className="text-xs font-semibold text-foreground leading-relaxed">{rec}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </CardBody>
+                </Card>
               )}
 
               {/* DRUG INTERACTIONS */}
               {drugInteractions.length > 0 && (
-                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(217,119,6,0.06)", border: "1px solid rgba(217,119,6,0.20)" }}>
-                  <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(217,119,6,0.12)" }}>
-                    <AlertTriangle className="w-4 h-4 text-amber-500" />
-                    <p className="text-sm font-black text-foreground">AI Drug Interaction Warning</p>
-                    <span className="ml-auto text-[10px] font-bold text-amber-600 px-2.5 py-1 rounded-full" style={{ background: "rgba(217,119,6,0.12)" }}>
-                      {drugInteractions.length} detected
-                    </span>
-                  </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(217,119,6,0.08)" }}>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <CardTitle>AI Drug Interaction Warning</CardTitle>
+                    </div>
+                    <Badge variant="warning" className="ml-auto">{drugInteractions.length} detected</Badge>
+                  </CardHeader>
+                  <CardBody className="p-0">
                     {drugInteractions.map((ix, i) => {
                       const sev = ix.severity;
                       const sevColor = sev === "critical" ? "#dc2626" : sev === "high" ? "#ea580c" : "#f59e0b";
                       return (
-                        <div key={i} className="px-5 py-4" style={{ borderLeft: `3px solid ${sevColor}` }}>
+                        <div key={i} className="px-5 py-4 border-b border-border last:border-0" style={{ borderLeft: `3px solid ${sevColor}` }}>
                           <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ background: `${sevColor}18`, color: sevColor }}>{sev}</span>
-                            <span className="text-sm font-bold text-foreground">{ix.conflictingDrug}</span>
+                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ background: `${sevColor}15`, color: sevColor }}>{sev}</span>
+                            <span className="text-[13px] font-bold text-foreground">{ix.conflictingDrug}</span>
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{ix.description}</p>
-                          <div className="flex items-start gap-2 mt-2 p-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.04)" }}>
+                          <p className="text-[12px] text-muted-foreground leading-relaxed">{ix.description}</p>
+                          <div className="flex items-start gap-2 mt-2 p-2.5 rounded-xl bg-secondary">
                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wide shrink-0 mt-0.5">Rec</span>
-                            <p className="text-xs font-semibold text-foreground">{ix.recommendation}</p>
+                            <p className="text-[11px] font-semibold text-foreground">{ix.recommendation}</p>
                           </div>
                         </div>
                       );
                     })}
-                  </div>
-                </div>
+                  </CardBody>
+                </Card>
               )}
 
               {/* CLINICAL GUIDANCE */}
               {guidance.length > 0 && (
-                <div className="rounded-2xl overflow-hidden" style={darkPanel}>
-                  <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                    <UserCheck className="w-4 h-4 text-amber-500" />
-                    <p className="text-sm font-black text-foreground">Clinical Guidance</p>
-                    <span className="ml-auto text-[10px] font-bold text-muted-foreground px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>{guidance.length} notes</span>
-                  </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="w-4 h-4 text-amber-600" />
+                      <CardTitle>Clinical Guidance</CardTitle>
+                    </div>
+                    <Badge variant="outline" className="ml-auto">{guidance.length} notes</Badge>
+                  </CardHeader>
+                  <CardBody className="p-0">
                     {guidance.map((action, i) => {
                       const cfg = ACTION_CFG[action.action];
                       const proto = ACTION_PROTOCOL[action.action];
@@ -825,30 +923,31 @@ export default function EmergencyPage() {
                         </div>
                       );
                     })}
-                  </div>
-                </div>
+                  </CardBody>
+                </Card>
               )}
             </div>
           </div>
 
           {/* ── EMERGENCY PROTOCOLS — full width ── */}
-          <div className="rounded-2xl overflow-hidden" style={darkPanel}>
-            <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <ListChecks className="w-4 h-4 text-red-500" />
-              <p className="text-sm font-black text-foreground">Emergency Protocols</p>
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: "rgba(220,38,38,0.15)", color: "#fca5a5" }}>ACLS · MOH · SRCA</span>
-              {activeProtocolCode && (
-                <span className="text-[10px] font-black text-white px-2.5 py-0.5 rounded-full animate-pulse flex items-center gap-1" style={{ background: "rgba(220,38,38,0.50)" }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" /> ACTIVE
-                </span>
-              )}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-red-600" />
+                <CardTitle>Emergency Protocols</CardTitle>
+                <Badge variant="destructive" className="text-[8px]">ACLS · MOH · SRCA</Badge>
+                {activeProtocolCode && (
+                  <Badge variant="destructive" className="animate-pulse flex items-center gap-1.5 text-[8px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" /> ACTIVE
+                  </Badge>
+                )}
+              </div>
               <button onClick={() => setProtocolsOpen(p => !p)}
-                className="ml-auto flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full transition-colors"
-                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.50)" }}>
+                className="ml-auto flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 text-muted-foreground transition-colors">
                 {protocolsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 {protocolsOpen ? "Hide" : "Show"} protocols
               </button>
-            </div>
+            </CardHeader>
 
             {/* Active Protocol Banner */}
             {activeProtocolCode && (() => {
@@ -956,7 +1055,7 @@ export default function EmergencyPage() {
                 <p className="text-[9px] text-muted-foreground/50 text-right">Protocols verified against MOH Saudi Arabia 2024 clinical guidelines. For reference only — clinical judgment applies.</p>
               </div>
             )}
-          </div>
+          </Card>
 
         </div>
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import {
   Brain, ShieldAlert, HeartPulse, User, Building2, FlaskConical, Pill,
   BedDouble, Shield, Users, Package, Globe, Lock, Activity,
@@ -117,6 +117,7 @@ function LiveDot() {
 export default function LoginPage() {
   const { login } = useAuth();
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const [selected, setSelected] = useState<UserRole | null>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [employeeId, setEmployeeId] = useState("");
@@ -133,6 +134,20 @@ export default function LoginPage() {
     const id = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const roleParam = params.get("role");
+    if (roleParam && !selected) {
+      const match = ROLES.find(r => r.role === roleParam);
+      if (match) {
+        setSelected(match.role);
+        setEmployeeId(match.employeeId);
+        setPassword(match.demoPassword);
+        setStep(2);
+      }
+    }
+  }, [search]);
 
   const { data: liveStats } = useQuery({
     queryKey: ["login-stats"],

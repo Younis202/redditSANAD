@@ -111,7 +111,7 @@ export default function DoctorDashboard() {
     { query: { enabled: !!patient?.id } }
   );
 
-  const { data: aiDecision, isLoading: decisionLoading } = useAiDecision(
+  const { data: aiDecision, isLoading: decisionLoading, refetch: refetchAiDecision } = useAiDecision(
     patient?.id || 0,
     { enabled: !!patient?.id }
   );
@@ -676,7 +676,7 @@ export default function DoctorDashboard() {
                       </div>
                       <p className="font-bold text-foreground mb-1">AI Decision Engine</p>
                       <p className="text-sm text-muted-foreground mb-5">Run a full clinical intelligence analysis for this patient.</p>
-                      <Button variant="primary" onClick={() => {}}>
+                      <Button variant="primary" onClick={() => refetchAiDecision()}>
                         <Brain className="w-4 h-4" /> Run AI Analysis
                       </Button>
                     </CardBody>

@@ -35,18 +35,18 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 
 /* ─── Portal definitions ─── */
 const PORTALS = [
-  { icon: ShieldAlert,  label: "Emergency",      sub: "First Responders",        accent: "#ef4444", href: "/login" },
-  { icon: HeartPulse,   label: "Physician",       sub: "Clinical Decisions",      accent: "#007AFF", href: "/login" },
-  { icon: User,         label: "Citizen",         sub: "Personal Health",         accent: "#f59e0b", href: "/login" },
-  { icon: Building2,    label: "Ministry",        sub: "National Intelligence",   accent: "#6366f1", href: "/login" },
-  { icon: FlaskConical, label: "Laboratory",      sub: "AI Diagnostics",          accent: "#10b981", href: "/login" },
-  { icon: Pill,         label: "Pharmacy",        sub: "Drug Safety AI",          accent: "#06b6d4", href: "/login" },
-  { icon: BedDouble,    label: "Hospital Ops",    sub: "Capacity & Beds",         accent: "#0ea5e9", href: "/login" },
-  { icon: Shield,       label: "Insurance",       sub: "Fraud & Claims",          accent: "#8b5cf6", href: "/login" },
-  { icon: Users,        label: "Family Health",   sub: "Genetic Risk",            accent: "#ec4899", href: "/login" },
-  { icon: Package,      label: "Supply Chain",    sub: "Drug Logistics",          accent: "#f97316", href: "/login" },
-  { icon: FileSearch,   label: "Research",        sub: "Population AI",           accent: "#14b8a6", href: "/login" },
-  { icon: Radio,        label: "AI Control",      sub: "Engine Command",          accent: "#a855f7", href: "/login" },
+  { icon: ShieldAlert,  label: "Emergency",      sub: "First Responders",        accent: "#ef4444", href: "/login?role=emergency" },
+  { icon: HeartPulse,   label: "Physician",       sub: "Clinical Decisions",      accent: "#007AFF", href: "/login?role=doctor" },
+  { icon: User,         label: "Citizen",         sub: "Personal Health",         accent: "#f59e0b", href: "/login?role=citizen" },
+  { icon: Building2,    label: "Ministry",        sub: "National Intelligence",   accent: "#6366f1", href: "/login?role=admin" },
+  { icon: FlaskConical, label: "Laboratory",      sub: "AI Diagnostics",          accent: "#10b981", href: "/login?role=lab" },
+  { icon: Pill,         label: "Pharmacy",        sub: "Drug Safety AI",          accent: "#06b6d4", href: "/login?role=pharmacy" },
+  { icon: BedDouble,    label: "Hospital Ops",    sub: "Capacity & Beds",         accent: "#0ea5e9", href: "/login?role=hospital" },
+  { icon: Shield,       label: "Insurance",       sub: "Fraud & Claims",          accent: "#8b5cf6", href: "/login?role=insurance" },
+  { icon: Users,        label: "Family Health",   sub: "Genetic Risk",            accent: "#ec4899", href: "/login?role=family" },
+  { icon: Package,      label: "Supply Chain",    sub: "Drug Logistics",          accent: "#f97316", href: "/login?role=supply-chain" },
+  { icon: FileSearch,   label: "Research",        sub: "Population AI",           accent: "#14b8a6", href: "/login?role=research" },
+  { icon: Radio,        label: "AI Control",      sub: "Engine Command",          accent: "#a855f7", href: "/login?role=ai-control" },
 ];
 
 const ENGINES = [

@@ -14,6 +14,41 @@ import { Card, CardHeader, CardTitle, CardBody, StatusDot, KpiCard, Badge } from
 import { useEmergencyLookup } from "@workspace/api-client-react";
 import { useSseAlerts } from "@/hooks/use-sse-alerts";
 
+/* ── Design tokens ─────────────────────────────────── */
+const T = {
+  surface:     "#f9f9fe",
+  surfaceLow:  "#f3f3f8",
+  surfaceCard: "#ffffff",
+  primary:     "#00418f",
+  primaryCont: "#0058bc",
+  secondary:   "#b6171e",
+  onSurface:   "#1a1c1f",
+  onSurfaceV:  "#424753",
+  outline:     "rgba(194,198,213,0.18)",
+  glow: (hex: string, a = 0.12) => `${hex}${Math.round(a * 255).toString(16).padStart(2, "0")}`,
+};
+
+/* ── Milky glass helpers ───────────────────────────── */
+const glass = (opacity = 0.82, blur = 20) =>
+  `rgba(255,255,255,${opacity})`;
+const glassStyle = (opacity = 0.82, blur = 20): React.CSSProperties => ({
+  background: `rgba(255,255,255,${opacity})`,
+  backdropFilter: `blur(${blur}px)`,
+  WebkitBackdropFilter: `blur(${blur}px)`,
+});
+const ambientShadow: React.CSSProperties = {
+  boxShadow: "0 10px 40px rgba(26,28,31,0.04)",
+};
+const cardStyle: React.CSSProperties = {
+  ...glassStyle(0.90),
+  ...ambientShadow,
+  borderRadius: 28,
+  border: `1.5px solid rgba(194,198,213,0.18)`,
+};
+const primaryGradient = "linear-gradient(135deg, #0058bc 0%, #0070eb 100%)";
+const emergencyGradient = "linear-gradient(135deg, #b6171e 0%, #dc2626 100%)";
+
+/* ── Types ─────────────────────────────────────────── */
 type ClinicalAction = {
   action: "DO_NOT_GIVE" | "MONITOR" | "URGENT_REVIEW" | "ALERT_FAMILY" | "PREPARE_EQUIPMENT" | "HOLD_MEDICATION";
   priority: "immediate" | "urgent" | "standard";
@@ -22,21 +57,21 @@ type ClinicalAction = {
 };
 
 const ACTION_CFG: Record<ClinicalAction["action"], { icon: React.ElementType; label: string; accent: string; bg: string }> = {
-  DO_NOT_GIVE:       { icon: Ban,         label: "Do Not Give",    accent: "#dc2626", bg: "rgba(220,38,38,0.12)"   },
-  HOLD_MEDICATION:   { icon: PauseCircle, label: "Hold Med",       accent: "#ea580c", bg: "rgba(234,88,12,0.12)"   },
-  URGENT_REVIEW:     { icon: Brain,       label: "Urgent Review",  accent: "#7c3aed", bg: "rgba(124,58,237,0.12)"  },
-  ALERT_FAMILY:      { icon: PhoneCall,   label: "Alert Family",   accent: "#2563eb", bg: "rgba(37,99,235,0.12)"   },
-  MONITOR:           { icon: Eye,         label: "Monitor",        accent: "#d97706", bg: "rgba(217,119,6,0.12)"   },
-  PREPARE_EQUIPMENT: { icon: Wrench,      label: "Prepare Equip",  accent: "#0284c7", bg: "rgba(2,132,199,0.12)"   },
+  DO_NOT_GIVE:       { icon: Ban,         label: "Do Not Give",    accent: "#b6171e", bg: "rgba(182,23,30,0.08)"   },
+  HOLD_MEDICATION:   { icon: PauseCircle, label: "Hold Med",       accent: "#c2410c", bg: "rgba(194,65,12,0.08)"   },
+  URGENT_REVIEW:     { icon: Brain,       label: "Urgent Review",  accent: "#6d28d9", bg: "rgba(109,40,217,0.08)"  },
+  ALERT_FAMILY:      { icon: PhoneCall,   label: "Alert Family",   accent: "#0058bc", bg: "rgba(0,88,188,0.08)"    },
+  MONITOR:           { icon: Eye,         label: "Monitor",        accent: "#b45309", bg: "rgba(180,83,9,0.08)"    },
+  PREPARE_EQUIPMENT: { icon: Wrench,      label: "Prepare Equip",  accent: "#0369a1", bg: "rgba(3,105,161,0.08)"   },
 };
 
 const ACTION_PROTOCOL: Record<ClinicalAction["action"], { ref: string; org: string; color: string }> = {
-  DO_NOT_GIVE:       { ref: "ACLS Allergy/Adverse Drug Reaction Protocol 2020", org: "AHA/ACLS",   color: "#dc2626" },
-  HOLD_MEDICATION:   { ref: "MOH Medication Safety Protocol 2024 · §3.2",       org: "MOH",        color: "#ea580c" },
-  URGENT_REVIEW:     { ref: "SRCA Emergency Triage Protocol · ESI Level 1–2",   org: "SRCA/MOH",   color: "#7c3aed" },
-  ALERT_FAMILY:      { ref: "MOH Consent & Next-of-Kin Notification Protocol",  org: "MOH",        color: "#2563eb" },
-  MONITOR:           { ref: "ACLS Monitoring & Surveillance Protocol 2020",      org: "AHA/ACLS",   color: "#d97706" },
-  PREPARE_EQUIPMENT: { ref: "ACLS Equipment Readiness Checklist 2020 · §5.1",   org: "AHA/ACLS",   color: "#0284c7" },
+  DO_NOT_GIVE:       { ref: "ACLS Allergy/Adverse Drug Reaction Protocol 2020", org: "AHA/ACLS",   color: "#b6171e" },
+  HOLD_MEDICATION:   { ref: "MOH Medication Safety Protocol 2024 · §3.2",       org: "MOH",        color: "#c2410c" },
+  URGENT_REVIEW:     { ref: "SRCA Emergency Triage Protocol · ESI Level 1–2",   org: "SRCA/MOH",   color: "#6d28d9" },
+  ALERT_FAMILY:      { ref: "MOH Consent & Next-of-Kin Notification Protocol",  org: "MOH",        color: "#0058bc" },
+  MONITOR:           { ref: "ACLS Monitoring & Surveillance Protocol 2020",      org: "AHA/ACLS",   color: "#b45309" },
+  PREPARE_EQUIPMENT: { ref: "ACLS Equipment Readiness Checklist 2020 · §5.1",   org: "AHA/ACLS",   color: "#0369a1" },
 };
 
 const EMERGENCY_PROTOCOLS = [
@@ -44,7 +79,7 @@ const EMERGENCY_PROTOCOLS = [
     code: "ACLS-CA",
     title: "Cardiac Arrest — Shockable Rhythm (VF/pVT)",
     org: "AHA ACLS 2020",
-    color: "#dc2626",
+    color: "#b6171e",
     steps: [
       "High-quality CPR — rate 100–120 bpm, depth ≥ 5 cm. Minimize interruptions",
       "Defibrillate immediately: 200 J biphasic. Resume CPR 2 min before rhythm check",
@@ -57,7 +92,7 @@ const EMERGENCY_PROTOCOLS = [
     code: "ACLS-ACS",
     title: "Acute Coronary Syndrome (STEMI/NSTEMI)",
     org: "ACC/AHA 2021",
-    color: "#f97316",
+    color: "#c2410c",
     steps: [
       "MONA protocol: Morphine 2–4 mg IV, O₂ if SpO₂ < 90%, Nitroglycerin SL, Aspirin 325 mg PO",
       "12-lead ECG within 10 minutes. Activate cath lab for STEMI (door-to-balloon < 90 min)",
@@ -70,7 +105,7 @@ const EMERGENCY_PROTOCOLS = [
     code: "MOH-SEP",
     title: "Sepsis — qSOFA ≥ 2 or Suspected Infection",
     org: "MOH Sepsis Bundle 2024 · Surviving Sepsis 2021",
-    color: "#7c3aed",
+    color: "#6d28d9",
     steps: [
       "Obtain blood cultures (×2) before first antibiotic dose",
       "Broad-spectrum IV antibiotics within 1 hour of recognition",
@@ -83,7 +118,7 @@ const EMERGENCY_PROTOCOLS = [
     code: "MOH-STROKE",
     title: "Acute Ischemic Stroke — Code Stroke",
     org: "MOH Stroke Protocol 2024 · AHA/ASA 2019",
-    color: "#0284c7",
+    color: "#0369a1",
     steps: [
       "Door-to-CT within 25 minutes. Non-contrast CT head to exclude hemorrhage",
       "IV tPA (Alteplase 0.9 mg/kg, max 90 mg) if within 4.5 h of last known well — door-to-needle < 60 min",
@@ -94,14 +129,31 @@ const EMERGENCY_PROTOCOLS = [
   },
 ];
 
-const RISK_CFG: Record<string, { label: string; color: string; bg: string; glow: string; sla: string }> = {
-  critical: { label: "CRITICAL",   color: "#fca5a5", bg: "rgba(220,38,38,0.90)",  glow: "rgba(220,38,38,0.40)", sla: "≤ 3 min"  },
-  high:     { label: "HIGH RISK",  color: "#fed7aa", bg: "rgba(234,88,12,0.80)",  glow: "rgba(234,88,12,0.35)", sla: "≤ 30 min" },
-  moderate: { label: "MODERATE",   color: "#fde68a", bg: "rgba(202,138,4,0.70)",  glow: "rgba(202,138,4,0.30)", sla: "≤ 2 hrs"  },
-  low:      { label: "LOW RISK",   color: "#6ee7b7", bg: "rgba(5,150,105,0.70)",  glow: "rgba(5,150,105,0.25)", sla: "≤ 4 hrs"  },
+const RISK_CFG: Record<string, { label: string; textColor: string; bgGradient: string; pillBg: string; sla: string }> = {
+  critical: { label: "CRITICAL",  textColor: "#b6171e", bgGradient: "linear-gradient(135deg,rgba(182,23,30,0.12),rgba(220,38,38,0.07))", pillBg: "rgba(182,23,30,0.10)", sla: "≤ 3 min"  },
+  high:     { label: "HIGH",      textColor: "#c2410c", bgGradient: "linear-gradient(135deg,rgba(194,65,12,0.10),rgba(234,88,12,0.06))", pillBg: "rgba(194,65,12,0.10)", sla: "≤ 30 min" },
+  moderate: { label: "MODERATE",  textColor: "#b45309", bgGradient: "linear-gradient(135deg,rgba(180,83,9,0.09),rgba(202,138,4,0.05))",  pillBg: "rgba(180,83,9,0.10)",  sla: "≤ 2 hrs"  },
+  low:      { label: "LOW",       textColor: "#047857", bgGradient: "linear-gradient(135deg,rgba(4,120,87,0.09),rgba(5,150,105,0.05))",   pillBg: "rgba(4,120,87,0.10)",  sla: "≤ 4 hrs"  },
 };
 
-/* ────────────────────────────────────────── */
+/* ── Sub-components ────────────────────────────────── */
+function SLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: T.onSurfaceV, marginBottom: 6 }}>
+      {children}
+    </p>
+  );
+}
+
+function GlassChip({ children, color = T.onSurfaceV, bg = "rgba(26,28,31,0.06)" }: { children: React.ReactNode; color?: string; bg?: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700, color, background: bg, borderRadius: 999, padding: "3px 10px", letterSpacing: "0.04em" }}>
+      {children}
+    </span>
+  );
+}
+
+/* ── Main Component ────────────────────────────────── */
 export default function EmergencyPage() {
   const [nationalId, setNationalId]       = useState("");
   const [submittedId, setSubmittedId]     = useState<string | null>(null);
@@ -188,133 +240,178 @@ export default function EmergencyPage() {
   const aiRecommendations = (patient as any)?.aiRecommendations as string[] ?? [];
   const drugInteractions  = (patient as any)?.drugInteractions as { severity: string; conflictingDrug: string; description: string; recommendation: string }[] ?? [];
 
-  /* ── shared dark-panel style ── */
-  const darkPanel = {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    backdropFilter: "blur(12px)",
-  };
-
   return (
     <Layout role="emergency">
 
-      {/* ══════════════════════════════════════════════════
+      {/* ════════════════════════════════════════
+          VITALITY BLUR — atmospheric background blobs
+      ════════════════════════════════════════ */}
+      <div aria-hidden style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -80, right: -60, width: 480, height: 480, borderRadius: "50%", background: `rgba(0,88,188,0.07)`, filter: "blur(100px)" }} />
+        <div style={{ position: "absolute", bottom: -100, left: -80, width: 400, height: 400, borderRadius: "50%", background: `rgba(182,23,30,0.06)`, filter: "blur(100px)" }} />
+        <div style={{ position: "absolute", top: "40%", left: "35%", width: 300, height: 300, borderRadius: "50%", background: `rgba(0,65,143,0.04)`, filter: "blur(80px)" }} />
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+
+      {/* ════════════════════════════════════════
           OFFLINE BANNER
-      ══════════════════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       {!isOnline && !offlineDismissed && (
-        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center gap-3 px-5 py-3"
-          style={{ background: "linear-gradient(90deg, #7f1d1d, #dc2626)" }}>
-          <WifiOff className="w-4 h-4 text-white shrink-0 animate-pulse" />
-          <div className="flex-1">
-            <p className="text-sm font-black text-white">OFFLINE MODE — Emergency Data Cached</p>
-            <p className="text-[11px] text-white/80">Last sync: {now.toLocaleTimeString("en-SA")} · Patient records loaded from local cache · Critical protocols available offline</p>
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 60,
+          display: "flex", alignItems: "center", gap: 12, padding: "10px 20px",
+          background: "rgba(255,255,255,0.88)", backdropFilter: "blur(20px)",
+          borderBottom: `1.5px solid rgba(182,23,30,0.18)`,
+          boxShadow: "0 4px 20px rgba(182,23,30,0.08)",
+        }}>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(182,23,30,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <WifiOff style={{ width: 14, height: 14, color: "#b6171e" }} />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl" style={{ background: "rgba(255,255,255,0.12)" }}>
-              <Database className="w-3 h-3 text-white/80" />
-              <span className="text-[10px] font-bold text-white">Cache: OK</span>
-            </div>
-            <button onClick={() => setOfflineDismissed(true)} className="text-white/60 hover:text-white font-bold px-2">✕</button>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 12, fontWeight: 800, color: "#b6171e", margin: 0 }}>Offline Mode — Emergency Data Cached</p>
+            <p style={{ fontSize: 10, color: T.onSurfaceV, margin: 0 }}>Last sync: {now.toLocaleTimeString("en-SA")} · Patient records loaded from local cache</p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <GlassChip color={T.onSurfaceV}><Database style={{ width: 10, height: 10 }} /> Cache: OK</GlassChip>
+            <button onClick={() => setOfflineDismissed(true)} style={{ background: "none", border: "none", color: T.onSurfaceV, fontSize: 18, cursor: "pointer", lineHeight: 1, padding: "0 4px" }}>×</button>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          COMMAND HEADER — dark war room
-      ══════════════════════════════════════════════════ */}
-      <div className="rounded-3xl overflow-hidden mb-6" style={{ background: "linear-gradient(135deg, #0a0a0f 0%, #1a0505 50%, #0a0a0f 100%)", boxShadow: "0 0 60px rgba(220,38,38,0.12)" }}>
-        {/* Top crimson accent */}
-        <div className="h-1" style={{ background: "linear-gradient(90deg, #7f1d1d, #dc2626, #ef4444, #dc2626, #7f1d1d)" }} />
+      {/* ════════════════════════════════════════
+          COMMAND HEADER — iOS milky glass
+      ════════════════════════════════════════ */}
+      <div style={{ ...cardStyle, marginBottom: 20, overflow: "hidden", background: "rgba(255,255,255,0.88)" }}>
 
-        <div className="px-6 py-5">
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "rgba(220,38,38,0.20)", border: "1px solid rgba(220,38,38,0.30)" }}>
-                <ShieldAlert className="w-6 h-6 text-red-400" />
+        {/* Top accent stripe */}
+        <div style={{ height: 3, background: "linear-gradient(90deg, #00418f 0%, #0058bc 40%, #b6171e 100%)", opacity: 0.85 }} />
+
+        <div style={{ padding: "22px 28px 24px" }}>
+
+          {/* Brand row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 16, flexShrink: 0,
+                background: "linear-gradient(135deg, rgba(182,23,30,0.12), rgba(182,23,30,0.06))",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <ShieldAlert style={{ width: 22, height: 22, color: "#b6171e" }} />
               </div>
               <div>
-                <h1 className="text-xl font-black text-white leading-tight tracking-tight">National Emergency Response System</h1>
-                <p className="text-[11px] text-white/40 mt-0.5">SANAD · SRCA · MOH · AI-Powered Clinical Intelligence</p>
+                <h1 style={{ fontSize: 17, fontWeight: 800, color: T.onSurface, margin: 0, lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+                  National Emergency Response System
+                </h1>
+                <p style={{ fontSize: 10, color: T.onSurfaceV, margin: "3px 0 0", letterSpacing: "0.05em" }}>
+                  SANAD · SRCA · MOH · AI-Powered Clinical Intelligence
+                </p>
               </div>
             </div>
 
-            {/* Status row right */}
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
               {/* Live clock */}
-              <div className="px-3 py-1.5 rounded-xl font-mono text-sm font-black text-white/60" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{
+                padding: "6px 14px", borderRadius: 999, fontFamily: "monospace",
+                fontSize: 13, fontWeight: 700, color: T.onSurface,
+                background: T.surfaceLow, letterSpacing: "0.06em",
+              }}>
                 {now.toLocaleTimeString("en-SA", { hour12: false })}
               </div>
-              {/* Online indicator */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl" style={{ background: isOnline ? "rgba(34,197,94,0.10)" : "rgba(220,38,38,0.10)", border: `1px solid ${isOnline ? "rgba(34,197,94,0.20)" : "rgba(220,38,38,0.20)"}` }}>
-                {isOnline ? <Wifi className="w-3 h-3 text-emerald-400" /> : <WifiOff className="w-3 h-3 text-red-400" />}
-                <span className="text-[10px] font-black text-white/60">{isOnline ? "Online" : "Offline"}</span>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: isOnline ? "#22c55e" : "#dc2626", animation: !isOnline ? "pulse 1s infinite" : "none" }} />
+              {/* Online badge */}
+              <div style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999,
+                background: isOnline ? "rgba(4,120,87,0.08)" : "rgba(182,23,30,0.08)",
+              }}>
+                {isOnline
+                  ? <Wifi style={{ width: 12, height: 12, color: "#047857" }} />
+                  : <WifiOff style={{ width: 12, height: 12, color: "#b6171e" }} />}
+                <span style={{ fontSize: 11, fontWeight: 700, color: isOnline ? "#047857" : "#b6171e" }}>
+                  {isOnline ? "Online" : "Offline"}
+                </span>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#059669" : "#b6171e", flexShrink: 0 }} />
               </div>
             </div>
           </div>
 
-          {/* Status strip */}
-          <div className="flex items-center gap-2 mb-5">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white" style={{ background: "rgba(220,38,38,0.30)", border: "1px solid rgba(220,38,38,0.40)" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          {/* Status chips */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 999,
+              background: "rgba(182,23,30,0.09)", fontSize: 10, fontWeight: 800, color: "#b6171e",
+              letterSpacing: "0.08em", textTransform: "uppercase",
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#b6171e", animation: "pulse 1.5s infinite" }} />
               Emergency Mode Active
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: sseConnected ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.06)", border: sseConnected ? "1px solid rgba(34,197,94,0.20)" : "1px solid rgba(255,255,255,0.08)", color: sseConnected ? "#86efac" : "rgba(255,255,255,0.35)" }}>
-              <Radio className="w-3 h-3" />
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 999,
+              background: sseConnected ? "rgba(4,120,87,0.08)" : T.surfaceLow,
+              fontSize: 10, fontWeight: 700, color: sseConnected ? "#047857" : T.onSurfaceV,
+            }}>
+              <Radio style={{ width: 11, height: 11 }} />
               {sseConnected ? "9 AI Engines · Live" : "Connecting..."}
             </div>
             {sseUnread > 0 && (
-              <button onClick={() => setAlertsOpen(p => !p)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black text-red-300 animate-pulse"
-                style={{ background: "rgba(220,38,38,0.20)", border: "1px solid rgba(220,38,38,0.35)" }}>
-                <Bell className="w-3 h-3" />
-                {sseUnread} alert{sseUnread > 1 ? "s" : ""} unread
+              <button onClick={() => setAlertsOpen(p => !p)} style={{
+                display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 999,
+                background: "rgba(182,23,30,0.09)", fontSize: 10, fontWeight: 800, color: "#b6171e",
+                border: "none", cursor: "pointer",
+              }}>
+                <Bell style={{ width: 11, height: 11 }} />
+                {sseUnread} unread alert{sseUnread > 1 ? "s" : ""}
               </button>
             )}
             {patient && (
-              <span className="ml-auto text-[10px] font-mono text-white/30 flex items-center gap-1">
-                <RefreshCw className="w-2.5 h-2.5" />
-                Retrieved {now.toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · Confidence 97%
+              <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: T.onSurfaceV, fontFamily: "monospace" }}>
+                <RefreshCw style={{ width: 10, height: 10 }} />
+                Retrieved {now.toLocaleTimeString("en-SA", { hour: "2-digit", minute: "2-digit" })} · Confidence 97%
               </span>
             )}
           </div>
 
-          {/* SEARCH COMMAND INPUT */}
+          {/* Search bar */}
           <form onSubmit={handleSearch}>
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
-                <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" style={{ color: "rgba(220,38,38,0.60)" }} />
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ flex: 1, position: "relative" }}>
+                <Fingerprint style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", width: 20, height: 20, color: "rgba(182,23,30,0.55)", pointerEvents: "none" }} />
                 <input
                   autoFocus
                   value={nationalId}
                   onChange={e => setNationalId(e.target.value)}
                   placeholder="Enter National ID — instant AI patient record retrieval..."
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl text-sm font-mono text-white placeholder:text-white/20 focus:outline-none transition-all"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: nationalId ? "1.5px solid rgba(220,38,38,0.60)" : "1px solid rgba(255,255,255,0.10)",
-                    boxShadow: nationalId ? "0 0 20px rgba(220,38,38,0.15)" : "none",
+                    width: "100%", height: 52, paddingLeft: 48, paddingRight: 16,
+                    borderRadius: 18, border: "none", outline: "none",
+                    background: T.surfaceLow, fontSize: 13, fontFamily: "monospace",
+                    color: T.onSurface, boxSizing: "border-box",
+                    boxShadow: nationalId ? `0 0 0 2px rgba(0,88,188,0.25)` : "none",
+                    transition: "box-shadow 0.2s",
                   }}
                 />
               </div>
-              <button
-                type="submit"
-                className="h-14 px-8 rounded-2xl flex items-center gap-2.5 font-black text-sm text-white transition-all hover:opacity-90"
-                style={{ background: "linear-gradient(135deg, #dc2626, #991b1b)", boxShadow: "0 4px 20px rgba(220,38,38,0.35)" }}
-              >
-                <Search className="w-4 h-4" />
+              <button type="submit" style={{
+                height: 52, padding: "0 28px", borderRadius: 18, border: "none",
+                background: primaryGradient, color: "#fff", fontWeight: 800,
+                fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                flexShrink: 0, letterSpacing: "-0.01em",
+              }}>
+                <Search style={{ width: 15, height: 15 }} />
                 Lookup
               </button>
             </div>
 
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">Quick Demo:</span>
-              {["1000000001","1000000003","1000000005"].map(id => (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: T.onSurfaceV, textTransform: "uppercase", letterSpacing: "0.1em" }}>Quick Demo:</span>
+              {["1000000001", "1000000003", "1000000005"].map(id => (
                 <button key={id} type="button"
                   onClick={() => { setNationalId(id); setSubmittedId(id); }}
-                  className="font-mono text-[11px] font-bold px-3 py-1 rounded-lg transition-all hover:text-red-300"
-                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.40)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  style={{
+                    fontFamily: "monospace", fontSize: 11, fontWeight: 700,
+                    padding: "4px 12px", borderRadius: 999, background: T.surfaceLow,
+                    color: T.onSurfaceV, border: "none", cursor: "pointer",
+                    transition: "background 0.15s",
+                  }}>
                   {id}
                 </button>
               ))}
@@ -323,46 +420,55 @@ export default function EmergencyPage() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════
+      {/* ════════════════════════════════════════
           FLOATING LIVE ALERTS
-      ══════════════════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       {sseAlerts.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 w-[360px] rounded-3xl overflow-hidden"
-          style={{ background: "rgba(10,10,15,0.92)", backdropFilter: "blur(24px)", boxShadow: "0 20px 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(220,38,38,0.20)" }}>
-          <button onClick={() => setAlertsOpen(p => !p)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left"
-            style={{ background: "rgba(220,38,38,0.25)", borderBottom: "1px solid rgba(220,38,38,0.20)" }}>
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400" />
+        <div style={{
+          position: "fixed", bottom: 24, right: 24, zIndex: 50, width: 360,
+          borderRadius: 24, overflow: "hidden",
+          ...glassStyle(0.92),
+          boxShadow: "0 20px 60px rgba(26,28,31,0.14), 0 0 0 1.5px rgba(194,198,213,0.22)",
+        }}>
+          <button onClick={() => setAlertsOpen(p => !p)} style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 10,
+            padding: "12px 16px", background: "rgba(182,23,30,0.08)",
+            borderBottom: "1.5px solid rgba(182,23,30,0.12)", border: "none", cursor: "pointer", textAlign: "left",
+          }}>
+            <span style={{ position: "relative", display: "flex", width: 8, height: 8, flexShrink: 0 }}>
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#b6171e", opacity: 0.5, animation: "ping 1.5s infinite" }} />
+              <span style={{ position: "relative", width: 8, height: 8, borderRadius: "50%", background: "#b6171e" }} />
             </span>
-            <span className="font-black text-sm text-white flex-1">Live Alerts</span>
+            <span style={{ fontWeight: 800, fontSize: 13, color: T.onSurface, flex: 1 }}>Live Alerts</span>
             {sseUnread > 0 && (
-              <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{sseUnread}</span>
+              <span style={{ background: "#b6171e", color: "#fff", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 999 }}>{sseUnread}</span>
             )}
             <button onClick={e => { e.stopPropagation(); clearSseAlerts(); }}
-              className="text-[11px] font-bold px-2 py-0.5 rounded-lg transition-all"
-              style={{ color: "rgba(255,255,255,0.40)", background: "rgba(255,255,255,0.06)" }}>
+              style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, background: T.surfaceLow, color: T.onSurfaceV, border: "none", cursor: "pointer" }}>
               Clear
             </button>
-            {alertsOpen ? <ChevronDown className="w-3.5 h-3.5 text-white/50" /> : <ChevronUp className="w-3.5 h-3.5 text-white/50" />}
+            {alertsOpen ? <ChevronDown style={{ width: 14, height: 14, color: T.onSurfaceV }} /> : <ChevronUp style={{ width: 14, height: 14, color: T.onSurfaceV }} />}
           </button>
           {alertsOpen && (
-            <div className="divide-y max-h-[280px] overflow-y-auto" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-              {sseAlerts.map(alert => (
-                <div key={alert.id} className={`px-4 py-3 flex items-start gap-3 ${alert.read ? "opacity-30" : ""}`}>
-                  <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
-                    alert.severity === "critical" ? "bg-red-400 animate-pulse" :
-                    alert.severity === "high" ? "bg-amber-400" : "bg-sky-400"}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white leading-snug">{alert.title}</p>
-                    <p className="text-xs text-white/40 mt-0.5">{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
+            <div style={{ maxHeight: 280, overflowY: "auto" }}>
+              {sseAlerts.map((alert, idx) => (
+                <div key={alert.id} style={{
+                  display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px",
+                  borderBottom: idx < sseAlerts.length - 1 ? `1.5px solid rgba(194,198,213,0.12)` : "none",
+                  opacity: alert.read ? 0.35 : 1,
+                }}>
+                  <span style={{
+                    marginTop: 6, width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+                    background: alert.severity === "critical" ? "#b6171e" : alert.severity === "high" ? "#f59e0b" : "#0369a1",
+                  }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: T.onSurface, margin: 0, lineHeight: 1.3 }}>{alert.title}</p>
+                    <p style={{ fontSize: 11, color: T.onSurfaceV, margin: "2px 0 0" }}>{alert.patientName}{alert.result ? ` · ${alert.result}` : ""}</p>
                   </div>
                   {!alert.read && (
                     <button
                       onClick={() => { if (alert.nationalId) { setNationalId(alert.nationalId); setSubmittedId(alert.nationalId); } markSseRead(alert.id); }}
-                      className="text-[10px] font-black text-white px-3 py-1 rounded-xl shrink-0 transition-all"
-                      style={{ background: "rgba(220,38,38,0.40)", border: "1px solid rgba(220,38,38,0.30)" }}>
+                      style={{ fontSize: 10, fontWeight: 800, color: "#fff", padding: "4px 10px", borderRadius: 10, background: "#b6171e", border: "none", cursor: "pointer", flexShrink: 0 }}>
                       Load
                     </button>
                   )}
@@ -373,243 +479,275 @@ export default function EmergencyPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          LOADING
-      ══════════════════════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          LOADING STATE
+      ════════════════════════════════════════ */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center py-24 gap-5">
-          <div className="w-14 h-14 rounded-3xl flex items-center justify-center" style={{ background: "rgba(220,38,38,0.15)", border: "1px solid rgba(220,38,38,0.25)" }}>
-            <div className="w-6 h-6 rounded-full border-2 border-white/10 border-t-red-500 animate-spin" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 20 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 20, background: "rgba(182,23,30,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 24, height: 24, borderRadius: "50%", border: "2.5px solid rgba(182,23,30,0.15)", borderTopColor: "#b6171e", animation: "spin 0.8s linear infinite" }} />
           </div>
-          <div className="text-center">
-            <p className="font-black text-foreground mb-1">Retrieving patient record...</p>
-            <p className="text-sm text-muted-foreground">Querying 9 AI engines across 450+ hospitals</p>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontWeight: 800, color: T.onSurface, margin: "0 0 4px", fontSize: 15 }}>Retrieving patient record...</p>
+            <p style={{ fontSize: 13, color: T.onSurfaceV, margin: 0 }}>Querying 9 AI engines across 450+ hospitals</p>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          ERROR
-      ══════════════════════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          ERROR STATE
+      ════════════════════════════════════════ */}
       {isError && !isLoading && (
-        <div className="flex items-center gap-4 p-5 rounded-2xl" style={{ background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.20)" }}>
-          <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
+        <div style={{
+          display: "flex", alignItems: "center", gap: 16, padding: 20, borderRadius: 20,
+          background: "rgba(182,23,30,0.06)", border: "1.5px solid rgba(182,23,30,0.14)",
+        }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(182,23,30,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <AlertTriangle style={{ width: 20, height: 20, color: "#b6171e" }} />
+          </div>
           <div>
-            <p className="font-black text-red-700">Patient Not Found</p>
-            <p className="text-sm text-muted-foreground mt-0.5">No record for <span className="font-mono font-bold">{submittedId}</span>. Verify the ID and retry.</p>
+            <p style={{ fontWeight: 800, color: "#b6171e", margin: "0 0 3px", fontSize: 14 }}>Patient Not Found</p>
+            <p style={{ fontSize: 12, color: T.onSurfaceV, margin: 0 }}>No record for <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{submittedId}</span>. Verify the ID and retry.</p>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          EMPTY STATE — system ready
-      ══════════════════════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          EMPTY STATE — System Ready
+      ════════════════════════════════════════ */}
       {!submittedId && !isLoading && (
-        <div className="space-y-5">
-          {/* System Readiness KPI Strip */}
-          <div className="grid grid-cols-4 gap-4">
-            <KpiCard title="AI Decision Speed" value="< 1s" sub="Average patient lookup time" icon={Timer} iconBg="bg-emerald-50" iconColor="text-emerald-700" trend="All engines nominal" />
-            <KpiCard title="AI Clinical Confidence" value="97%" sub="Cross-validated accuracy" icon={Brain} iconBg="bg-violet-50" iconColor="text-violet-600" />
-            <KpiCard title="AI Engines Active" value="9 Live" sub="Real-time inference ready" icon={Activity} iconBg="bg-primary/10" iconColor="text-primary" />
-            <KpiCard title="Connected Facilities" value="450+" sub="Hospitals in SANAD network" icon={Building} iconBg="bg-amber-50" iconColor="text-amber-600" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+          {/* KPI Strip */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
+            {[
+              { title: "AI Decision Speed",    value: "< 1s",   sub: "Average patient lookup time",  icon: Timer,    color: "#047857", bg: "rgba(4,120,87,0.08)" },
+              { title: "Clinical Confidence",  value: "97%",    sub: "Cross-validated AI accuracy",  icon: Brain,    color: "#6d28d9", bg: "rgba(109,40,217,0.08)" },
+              { title: "AI Engines Active",    value: "9 Live", sub: "Real-time inference ready",    icon: Activity, color: "#0058bc", bg: "rgba(0,88,188,0.08)" },
+              { title: "Connected Facilities", value: "450+",   sub: "Hospitals in SANAD network",   icon: Building, color: "#b45309", bg: "rgba(180,83,9,0.08)" },
+            ].map((k) => {
+              const Icon = k.icon;
+              return (
+                <div key={k.title} style={{ ...cardStyle, padding: 22 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 13, background: k.bg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                    <Icon style={{ width: 18, height: 18, color: k.color }} />
+                  </div>
+                  <p style={{ fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: T.onSurfaceV, margin: "0 0 6px" }}>{k.title}</p>
+                  <p style={{ fontSize: 36, fontWeight: 900, color: T.onSurface, margin: "0 0 4px", lineHeight: 1, letterSpacing: "-0.03em" }}>{k.value}</p>
+                  <p style={{ fontSize: 11, color: T.onSurfaceV, margin: 0 }}>{k.sub}</p>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Emergency Protocols Grid */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-red-600" />
-                <CardTitle>Emergency Protocols — On Standby</CardTitle>
+          {/* Emergency Protocols — On Standby */}
+          <div style={{ ...cardStyle, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: `1.5px solid rgba(194,198,213,0.14)` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <ListChecks style={{ width: 16, height: 16, color: "#b6171e" }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: T.onSurface }}>Emergency Protocols — On Standby</span>
               </div>
-              <Badge variant="destructive" className="ml-auto text-[8px]">SRCA · MOH · AHA/ACLS</Badge>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-2 gap-3">
-                {EMERGENCY_PROTOCOLS.map((p) => (
-                  <div key={p.code} className="flex items-center gap-4 p-4 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors cursor-default" style={{ borderLeft: `3px solid ${p.color}` }}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${p.color}15` }}>
-                      <span className="text-[10px] font-black font-mono" style={{ color: p.color }}>{p.code.split("-")[0]}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-foreground leading-snug">{p.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-mono font-bold" style={{ color: p.color }}>{p.code}</span>
-                        <span className="text-muted-foreground text-[9px]">·</span>
-                        <span className="text-[10px] text-muted-foreground">{p.org}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[9px] font-bold text-emerald-700">Ready</span>
+              <GlassChip color="#b6171e" bg="rgba(182,23,30,0.08)">SRCA · MOH · AHA/ACLS</GlassChip>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 0 }}>
+              {EMERGENCY_PROTOCOLS.map((p, i) => (
+                <div key={p.code} style={{
+                  display: "flex", alignItems: "center", gap: 16, padding: "18px 24px",
+                  borderBottom: i < 2 ? `1.5px solid rgba(194,198,213,0.10)` : "none",
+                  borderRight: i % 2 === 0 ? `1.5px solid rgba(194,198,213,0.10)` : "none",
+                  background: "transparent", transition: "background 0.15s",
+                }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: `${p.color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontSize: 9, fontWeight: 900, fontFamily: "monospace", color: p.color }}>{p.code.split("-")[0]}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: T.onSurface, margin: "0 0 3px", lineHeight: 1.3 }}>{p.title}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: 700, color: p.color }}>{p.code}</span>
+                      <span style={{ width: 3, height: 3, borderRadius: "50%", background: T.onSurfaceV, opacity: 0.3 }} />
+                      <span style={{ fontSize: 10, color: T.onSurfaceV }}>{p.org}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* National Emergency Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Siren className="w-4 h-4 text-red-600" />
-                  <CardTitle>Active Emergencies</CardTitle>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#059669" }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#047857" }}>Ready</span>
+                  </div>
                 </div>
-                <Badge variant="destructive" className="ml-auto text-[8px]">LIVE</Badge>
-              </CardHeader>
-              <CardBody className="space-y-2">
+              ))}
+            </div>
+          </div>
+
+          {/* National Stats Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+
+            {/* Active Emergencies */}
+            <div style={{ ...cardStyle, overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <Siren style={{ width: 15, height: 15, color: "#b6171e" }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>Active Emergencies</span>
+                </div>
+                <GlassChip color="#b6171e" bg="rgba(182,23,30,0.08)"><span style={{ width: 5, height: 5, borderRadius: "50%", background: "#b6171e", display: "inline-block" }} /> LIVE</GlassChip>
+              </div>
+              <div style={{ padding: "8px 0" }}>
                 {[
-                  { label: "Cardiac Events", count: 3, region: "Riyadh, Makkah", severity: "destructive" as const },
-                  { label: "Trauma / RTA", count: 7, region: "Eastern Province", severity: "warning" as const },
-                  { label: "Stroke Code", count: 2, region: "Madinah", severity: "destructive" as const },
-                  { label: "Sepsis Alert", count: 4, region: "Jizan, Asir", severity: "info" as const },
+                  { label: "Cardiac Events", count: 3,  region: "Riyadh, Makkah",    color: "#b6171e" },
+                  { label: "Trauma / RTA",   count: 7,  region: "Eastern Province",  color: "#c2410c" },
+                  { label: "Stroke Code",    count: 2,  region: "Madinah",           color: "#b6171e" },
+                  { label: "Sepsis Alert",   count: 4,  region: "Jizan, Asir",       color: "#0369a1" },
                 ].map((e, i) => (
-                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px" }}>
                     <div>
-                      <p className="text-[12px] font-bold text-foreground">{e.label}</p>
-                      <p className="text-[10px] text-muted-foreground">{e.region}</p>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: T.onSurface, margin: 0 }}>{e.label}</p>
+                      <p style={{ fontSize: 10, color: T.onSurfaceV, margin: 0 }}>{e.region}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[14px] font-black tabular-nums text-foreground">{e.count}</span>
-                      <Badge variant={e.severity} className="text-[8px]">Active</Badge>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: e.color, lineHeight: 1 }}>{e.count}</span>
+                      <GlassChip color={e.color} bg={`${e.color}10`}>Active</GlassChip>
                     </div>
                   </div>
                 ))}
-              </CardBody>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-primary" />
-                  <CardTitle>System Performance</CardTitle>
-                </div>
-              </CardHeader>
-              <CardBody className="space-y-3">
+            {/* System Performance */}
+            <div style={{ ...cardStyle, overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "16px 20px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                <Activity style={{ width: 15, height: 15, color: "#0058bc" }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>System Performance</span>
+              </div>
+              <div style={{ padding: "8px 0" }}>
                 {[
-                  { label: "Patient Lookups Today", value: "48,204", color: "text-primary" },
-                  { label: "AI Decisions Generated", value: "192K", color: "text-primary" },
-                  { label: "Avg Response Time", value: "0.8s", color: "text-emerald-700" },
-                  { label: "Critical Alerts Sent", value: "143", color: "text-red-600" },
-                  { label: "Offline Cache Hits", value: "2,841", color: "text-foreground" },
-                  { label: "SSE Connections", value: "4,204 live", color: "text-foreground" },
+                  { label: "Patient Lookups Today",  value: "48,204",    color: "#0058bc" },
+                  { label: "AI Decisions Generated", value: "192K",      color: "#0058bc" },
+                  { label: "Avg Response Time",       value: "0.8s",      color: "#047857" },
+                  { label: "Critical Alerts Sent",   value: "143",       color: "#b6171e" },
+                  { label: "Offline Cache Hits",      value: "2,841",     color: T.onSurface },
+                  { label: "SSE Connections",         value: "4,204 live",color: T.onSurface },
                 ].map((m, i) => (
-                  <div key={i} className="flex items-center justify-between py-1 border-b border-border last:border-0">
-                    <p className="text-[11px] text-muted-foreground">{m.label}</p>
-                    <p className={`text-[12px] font-bold tabular-nums ${m.color}`}>{m.value}</p>
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 20px" }}>
+                    <p style={{ fontSize: 11, color: T.onSurfaceV, margin: 0 }}>{m.label}</p>
+                    <p style={{ fontSize: 12, fontWeight: 800, color: m.color, margin: 0 }}>{m.value}</p>
                   </div>
                 ))}
-              </CardBody>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <CardTitle>Regional Coverage</CardTitle>
-                </div>
-              </CardHeader>
-              <CardBody className="space-y-2">
+            {/* Regional Coverage */}
+            <div style={{ ...cardStyle, overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "16px 20px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                <Globe style={{ width: 15, height: 15, color: "#0058bc" }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>Regional Coverage</span>
+              </div>
+              <div style={{ padding: "12px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
                 {[
-                  { region: "Riyadh", hospitals: 84, coverage: 96, color: "#22c55e" },
-                  { region: "Makkah", hospitals: 71, coverage: 89, color: "#22c55e" },
-                  { region: "Eastern Province", hospitals: 62, coverage: 92, color: "#22c55e" },
-                  { region: "Madinah", hospitals: 48, coverage: 81, color: "#f59e0b" },
-                  { region: "Asir", hospitals: 39, coverage: 74, color: "#ef4444" },
+                  { region: "Riyadh",           hospitals: 84, coverage: 96, color: "#059669" },
+                  { region: "Makkah",           hospitals: 71, coverage: 89, color: "#059669" },
+                  { region: "Eastern Province", hospitals: 62, coverage: 92, color: "#059669" },
+                  { region: "Madinah",          hospitals: 48, coverage: 81, color: "#d97706" },
+                  { region: "Asir",             hospitals: 39, coverage: 74, color: "#b6171e" },
                 ].map((r, i) => (
                   <div key={i}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] font-semibold text-foreground">{r.region}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground">{r.hospitals} hosp.</span>
-                        <span className="text-[11px] font-bold" style={{ color: r.color }}>{r.coverage}%</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: T.onSurface }}>{r.region}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 10, color: T.onSurfaceV }}>{r.hospitals} hosp.</span>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: r.color }}>{r.coverage}%</span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${r.coverage}%`, background: r.color }} />
+                    <div style={{ height: 5, background: T.surfaceLow, borderRadius: 999, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${r.coverage}%`, background: r.color, borderRadius: 999, transition: "width 0.8s ease" }} />
                     </div>
                   </div>
                 ))}
-              </CardBody>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════
-          PATIENT RECORD — 2-COLUMN COMMAND CENTER
-      ══════════════════════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          PATIENT RECORD — Command Center
+      ════════════════════════════════════════ */}
       {patient && !isLoading && (
-        <div className="space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
-          {/* ── LIFE-CRITICAL 2-SECOND BANNER ── */}
-          <div className="rounded-3xl overflow-hidden" style={{
-            background: riskLevel === "critical" || riskLevel === "high"
-              ? `linear-gradient(135deg, ${riskCfg.bg} 0%, rgba(10,10,15,0.95) 100%)`
-              : "linear-gradient(135deg, rgba(5,150,105,0.20) 0%, rgba(10,10,15,0.95) 100%)",
-            boxShadow: `0 8px 40px ${riskCfg.glow}`,
-            border: `1px solid ${riskLevel === "critical" ? "rgba(220,38,38,0.40)" : riskLevel === "high" ? "rgba(234,88,12,0.35)" : "rgba(255,255,255,0.08)"}`,
+          {/* ── LIFE-CRITICAL TRIAGE BANNER ── */}
+          <div style={{
+            borderRadius: 28, overflow: "hidden",
+            background: riskCfg.bgGradient,
+            border: `1.5px solid rgba(194,198,213,0.18)`,
+            boxShadow: "0 10px 40px rgba(26,28,31,0.06)",
           }}>
-            <div className="flex items-stretch divide-x" style={{ borderColor: "rgba(255,255,255,0.10)" }}>
-              {/* Blood type — always largest, always first */}
-              <div className="flex flex-col items-center justify-center px-7 py-5 shrink-0 text-center">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Blood Type</p>
-                <p className="font-black leading-none text-white" style={{ fontSize: "52px", lineHeight: 1, textShadow: "0 0 30px rgba(255,255,255,0.20)" }}>{patient.bloodType}</p>
+            <div style={{ display: "flex", alignItems: "stretch" }}>
+
+              {/* Blood Type */}
+              <div style={{
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                padding: "24px 32px", borderRight: `1.5px solid rgba(194,198,213,0.16)`, flexShrink: 0,
+              }}>
+                <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: T.onSurfaceV, margin: "0 0 6px" }}>Blood Type</p>
+                <p style={{ fontSize: 56, fontWeight: 900, color: "#b6171e", lineHeight: 1, margin: 0, letterSpacing: "-0.04em" }}>{patient.bloodType}</p>
               </div>
 
-              {/* Allergies */}
-              <div className="flex flex-col justify-center px-6 py-5 shrink-0">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Known Allergies</p>
+              {/* Known Allergies */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "24px 24px", borderRight: `1.5px solid rgba(194,198,213,0.16)`, flexShrink: 0, minWidth: 180 }}>
+                <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: T.onSurfaceV, margin: "0 0 10px" }}>Known Allergies</p>
                 {allergies.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {allergies.map((a, i) => (
-                      <span key={i} className="text-xs font-black text-white px-2.5 py-1 rounded-xl"
-                        style={{ background: "rgba(220,38,38,0.35)", border: "1px solid rgba(220,38,38,0.40)" }}>{a}</span>
+                      <span key={i} style={{
+                        fontSize: 11, fontWeight: 800, color: "#fff", padding: "4px 12px", borderRadius: 999,
+                        background: "#b6171e",
+                      }}>{a}</span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-sm font-bold" style={{ color: "#86efac" }}>None on record</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#047857" }}>None on record</span>
                 )}
               </div>
 
-              {/* Priority action — take most space */}
-              <div className="flex flex-col justify-center px-6 py-5 flex-1 min-w-0">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Priority Action</p>
-                <p className="text-sm font-black text-white leading-snug">
-                  {immediate.length > 0
-                    ? immediate[0].description
-                    : actions?.[0]?.description ?? "Standard monitoring protocol active"}
+              {/* Priority Action */}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "24px 24px", flex: 1, minWidth: 0, borderRight: `1.5px solid rgba(194,198,213,0.16)` }}>
+                <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: T.onSurfaceV, margin: "0 0 8px" }}>Priority Action</p>
+                <p style={{ fontSize: 14, fontWeight: 800, color: T.onSurface, margin: "0 0 5px", lineHeight: 1.4 }}>
+                  {immediate.length > 0 ? immediate[0].description : actions?.[0]?.description ?? "Standard monitoring protocol active"}
                 </p>
                 {immediate.length > 0 && (
-                  <p className="text-[10px] text-red-300 mt-1 font-semibold">{immediate[0].reason}</p>
+                  <p style={{ fontSize: 11, color: "#b6171e", margin: 0, fontWeight: 600 }}>{immediate[0].reason}</p>
                 )}
               </div>
 
-              {/* Risk + SLA */}
-              <div className="flex flex-col items-center justify-center px-6 py-5 shrink-0 text-center">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5">Risk Level</p>
-                <p className="text-2xl font-black uppercase tracking-wide" style={{ color: riskCfg.color }}>{riskLevel}</p>
-                <div className="mt-1.5 px-2.5 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
-                  <p className="text-[10px] font-black font-mono text-white/60">{riskCfg.sla}</p>
+              {/* Risk Level + SLA */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 28px", flexShrink: 0, textAlign: "center" }}>
+                <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: T.onSurfaceV, margin: "0 0 6px" }}>Risk Level</p>
+                <p style={{ fontSize: 26, fontWeight: 900, color: riskCfg.textColor, margin: "0 0 8px", letterSpacing: "0.04em" }}>{riskCfg.label}</p>
+                <div style={{ padding: "4px 14px", borderRadius: 999, background: riskCfg.pillBg }}>
+                  <p style={{ fontSize: 11, fontWeight: 800, color: riskCfg.textColor, margin: 0, fontFamily: "monospace" }}>{riskCfg.sla}</p>
                 </div>
                 {(patient as any).riskScore !== undefined && (
-                  <p className="text-[10px] text-white/40 mt-1">AI Score: <span className="font-black text-white/60">{(patient as any).riskScore}/100</span></p>
+                  <p style={{ fontSize: 10, color: T.onSurfaceV, margin: "6px 0 0" }}>AI Score: <span style={{ fontWeight: 800, color: T.onSurface }}>{(patient as any).riskScore}/100</span></p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ── ALLERGY FULL ALERT (if allergies exist) ── */}
+          {/* ── ALLERGY ALERT BANNER ── */}
           {allergies.length > 0 && (
-            <div className="flex items-start gap-4 p-5 rounded-3xl" style={{ background: "linear-gradient(135deg, rgba(185,28,28,0.90), rgba(127,29,29,0.85))", boxShadow: "0 4px 24px rgba(185,28,28,0.30)" }}>
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.15)" }}>
-                <AlertTriangle className="w-5 h-5 text-white" />
+            <div style={{
+              display: "flex", alignItems: "flex-start", gap: 16, padding: "18px 22px", borderRadius: 22,
+              background: "linear-gradient(135deg, rgba(182,23,30,0.11), rgba(182,23,30,0.06))",
+              border: "1.5px solid rgba(182,23,30,0.18)",
+            }}>
+              <div style={{ width: 40, height: 40, borderRadius: 13, background: "rgba(182,23,30,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <AlertTriangle style={{ width: 18, height: 18, color: "#b6171e" }} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-1">Critical Medical Alert</p>
-                <p className="text-lg font-black text-white">{allergies.length === 1 ? `${allergies[0]} Allergy` : `${allergies.length} Known Allergies`}</p>
-                <p className="text-sm text-white/80 mt-1 leading-relaxed">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#b6171e", margin: "0 0 4px" }}>Critical Medical Alert</p>
+                <p style={{ fontSize: 16, fontWeight: 900, color: "#b6171e", margin: "0 0 5px" }}>
+                  {allergies.length === 1 ? `${allergies[0]} Allergy` : `${allergies.length} Known Allergies`}
+                </p>
+                <p style={{ fontSize: 12, color: T.onSurfaceV, margin: 0, lineHeight: 1.5 }}>
                   {allergies.length === 1
                     ? `Do NOT administer ${allergies[0]} or related compounds. Use alternative medications only.`
                     : `Do NOT administer: ${allergies.join(", ")}. Verify full allergy history before any medication.`}
@@ -619,446 +757,399 @@ export default function EmergencyPage() {
           )}
 
           {allergies.length === 0 && (
-            <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl" style={{ background: "rgba(5,150,105,0.10)", border: "1px solid rgba(5,150,105,0.20)" }}>
-              <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: "#22c55e" }} />
-              <p className="text-sm font-bold" style={{ color: "#86efac" }}>No Known Allergies — Safe to administer standard medications</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 20px", borderRadius: 16, background: "rgba(4,120,87,0.07)", border: "1.5px solid rgba(4,120,87,0.14)" }}>
+              <CheckCircle2 style={{ width: 18, height: 18, color: "#047857", flexShrink: 0 }} />
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#047857", margin: 0 }}>No Known Allergies — Safe to administer standard medications</p>
             </div>
           )}
 
           {/* ── 2-COLUMN COMMAND CENTER ── */}
-          <div className="grid grid-cols-12 gap-4">
+          <div style={{ display: "grid", gridTemplateColumns: "5fr 7fr", gap: 14 }}>
 
-            {/* ── LEFT COLUMN: Identity + Contact + Conditions ── */}
-            <div className="col-span-5 space-y-4">
+            {/* LEFT: Patient Identity + Contact + Medications + Conditions + Alerts */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
               {/* Patient Identity */}
-              <Card>
-                <CardBody className="pt-5">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 font-black text-xl text-white" style={{ background: "linear-gradient(135deg, #dc2626, #7f1d1d)" }}>
+              <div style={{ ...cardStyle }}>
+                <div style={{ padding: "20px 22px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: 17, flexShrink: 0, fontWeight: 900, fontSize: 18, color: "#fff",
+                      background: primaryGradient, display: "flex", alignItems: "center", justifyContent: "center", letterSpacing: "-0.02em",
+                    }}>
                       {(patient.fullName as string).split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-xl font-black text-foreground leading-tight">{patient.fullName}</h2>
-                      <p className="text-[10px] font-mono text-muted-foreground mt-0.5">NID · {patient.nationalId}</p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <Badge variant={riskLevel === "critical" ? "destructive" : riskLevel === "high" ? "warning" : "success"} className="text-[9px]">{riskCfg.label}</Badge>
-                        <StatusDot status="active" />
-                        <span className="text-[10px] text-emerald-600 font-semibold">Live record</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h2 style={{ fontSize: 18, fontWeight: 900, color: T.onSurface, margin: "0 0 2px", letterSpacing: "-0.02em" }}>{patient.fullName}</h2>
+                      <p style={{ fontSize: 10, fontFamily: "monospace", color: T.onSurfaceV, margin: "0 0 8px" }}>NID · {patient.nationalId}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                        <GlassChip color={riskCfg.textColor} bg={riskCfg.pillBg}>{riskCfg.label}</GlassChip>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#059669" }} />
+                        <span style={{ fontSize: 10, color: "#047857", fontWeight: 700 }}>Live record</span>
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-xl p-3 text-center" style={{ background: "linear-gradient(135deg, #dc2626, #7f1d1d)" }}>
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-white/60">Blood Type</p>
-                      <p className="text-xl font-black text-white">{patient.bloodType}</p>
-                    </div>
-                    <div className="rounded-xl p-3 text-center bg-secondary">
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Age</p>
-                      <p className="text-xl font-black text-foreground">{patient.age ?? "—"}</p>
-                    </div>
-                    <div className="rounded-xl p-3 text-center bg-secondary">
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Gender</p>
-                      <p className="text-xl font-black text-foreground">{patient.gender}</p>
-                    </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+                    {[
+                      { label: "Blood", value: patient.bloodType, bg: "rgba(182,23,30,0.09)", color: "#b6171e" },
+                      { label: "Age",   value: patient.age ?? "—",  bg: T.surfaceLow,           color: T.onSurface },
+                      { label: "Sex",   value: patient.gender,       bg: T.surfaceLow,           color: T.onSurface },
+                    ].map(s => (
+                      <div key={s.label} style={{ borderRadius: 14, padding: "12px 10px", textAlign: "center", background: s.bg }}>
+                        <p style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: T.onSurfaceV, margin: "0 0 4px" }}>{s.label}</p>
+                        <p style={{ fontSize: 20, fontWeight: 900, color: s.color, margin: 0, lineHeight: 1 }}>{s.value}</p>
+                      </div>
+                    ))}
                   </div>
-                </CardBody>
-              </Card>
+                </div>
+              </div>
 
               {/* Emergency Contact */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="w-4 h-4 text-blue-600" />
-                    <CardTitle>Emergency Contact</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  {patient.emergencyContact ? (
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[13px] font-bold text-foreground">{patient.emergencyContact}</p>
-                        <p className="text-lg font-black text-blue-600 font-mono tracking-tight">{patient.emergencyPhone}</p>
-                      </div>
-                      <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white shrink-0 transition-all hover:opacity-90"
-                        style={{ background: "linear-gradient(135deg, #1d4ed8, #1e40af)" }}>
-                        <PhoneCall className="w-3.5 h-3.5" />
-                        Call Now
-                      </button>
+              <div style={{ ...cardStyle, padding: "18px 22px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                  <PhoneCall style={{ width: 14, height: 14, color: "#0058bc" }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>Emergency Contact</span>
+                </div>
+                {patient.emergencyContact ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: T.onSurface, margin: "0 0 2px" }}>{patient.emergencyContact}</p>
+                      <p style={{ fontSize: 16, fontWeight: 900, color: "#0058bc", fontFamily: "monospace", margin: 0, letterSpacing: "-0.01em" }}>{patient.emergencyPhone}</p>
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Not on record</p>
-                  )}
-                </CardBody>
-              </Card>
+                    <button style={{
+                      display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 14,
+                      background: primaryGradient, color: "#fff", border: "none", cursor: "pointer",
+                      fontSize: 12, fontWeight: 800, flexShrink: 0,
+                    }}>
+                      <PhoneCall style={{ width: 13, height: 13 }} /> Call Now
+                    </button>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 13, color: T.onSurfaceV }}>Not on record</p>
+                )}
+              </div>
 
               {/* Active Medications */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Droplet className="w-4 h-4 text-amber-500" />
-                    <CardTitle>Active Medications</CardTitle>
+              <div style={{ ...cardStyle, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <Droplet style={{ width: 14, height: 14, color: "#b45309" }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>Active Medications</span>
                   </div>
-                  <Badge variant="outline" className="ml-auto">{patient.currentMedications.length}</Badge>
-                </CardHeader>
-                <CardBody className="p-0">
+                  <GlassChip>{patient.currentMedications.length}</GlassChip>
+                </div>
+                <div>
                   {patient.currentMedications.length > 0
                     ? patient.currentMedications.map((med: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
-                        <span className="text-[10px] font-black text-muted-foreground tabular-nums w-5 shrink-0">{i + 1}</span>
-                        <span className="text-[13px] font-semibold text-foreground">{med}</span>
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 22px", borderBottom: i < patient.currentMedications.length - 1 ? `1.5px solid rgba(194,198,213,0.08)` : "none" }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: T.onSurfaceV, fontFamily: "monospace", width: 18, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: T.onSurface }}>{med}</span>
                       </div>
                     ))
-                    : <div className="px-4 py-4 text-sm text-muted-foreground">No active medications on record</div>
+                    : <div style={{ padding: "16px 22px", fontSize: 13, color: T.onSurfaceV }}>No active medications on record</div>
                   }
-                </CardBody>
-              </Card>
+                </div>
+              </div>
 
               {/* Chronic Conditions */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-red-500" />
-                    <CardTitle>Chronic Conditions</CardTitle>
+              <div style={{ ...cardStyle, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <Heart style={{ width: 14, height: 14, color: "#b6171e" }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>Chronic Conditions</span>
                   </div>
-                  <Badge variant="outline" className="ml-auto">{chronicConds.length}</Badge>
-                </CardHeader>
-                <CardBody className="p-0">
+                  <GlassChip>{chronicConds.length}</GlassChip>
+                </div>
+                <div>
                   {chronicConds.length > 0
                     ? chronicConds.map((c: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0">
-                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                        <span className="text-[13px] font-semibold text-foreground">{c}</span>
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 22px", borderBottom: i < chronicConds.length - 1 ? `1.5px solid rgba(194,198,213,0.08)` : "none" }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#b6171e", flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: T.onSurface }}>{c}</span>
                       </div>
                     ))
-                    : <div className="px-4 py-4 text-sm text-muted-foreground">No chronic conditions on record</div>
+                    : <div style={{ padding: "16px 22px", fontSize: 13, color: T.onSurfaceV }}>No chronic conditions on record</div>
                   }
-                </CardBody>
-              </Card>
+                </div>
+              </div>
 
               {/* System Alerts */}
               {patient.criticalAlerts.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-600" />
-                      <CardTitle>System Alerts</CardTitle>
+                <div style={{ ...cardStyle, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: `1.5px solid rgba(182,23,30,0.14)`, background: "rgba(182,23,30,0.04)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      <AlertTriangle style={{ width: 14, height: 14, color: "#b6171e" }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>System Alerts</span>
                     </div>
-                    <Badge variant="destructive" className="ml-auto">{patient.criticalAlerts.length}</Badge>
-                  </CardHeader>
-                  <CardBody className="p-0">
+                    <GlassChip color="#b6171e" bg="rgba(182,23,30,0.09)">{patient.criticalAlerts.length}</GlassChip>
+                  </div>
+                  <div>
                     {patient.criticalAlerts.map((alert: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0" style={{ borderLeft: "3px solid #dc2626" }}>
-                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                        <p className="text-[13px] font-semibold text-red-700">{alert}</p>
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 22px", borderBottom: i < patient.criticalAlerts.length - 1 ? `1.5px solid rgba(194,198,213,0.08)` : "none", borderLeft: "3px solid #b6171e" }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#b6171e", flexShrink: 0, animation: "pulse 1.5s infinite" }} />
+                        <p style={{ fontSize: 13, fontWeight: 600, color: "#b6171e", margin: 0 }}>{alert}</p>
                       </div>
                     ))}
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* ── RIGHT COLUMN: Actions + AI Intelligence ── */}
-            <div className="col-span-7 space-y-4">
+            {/* RIGHT: Immediate Actions + AI Intelligence + Drug Interactions + Guidance */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
               {/* IMMEDIATE ACTIONS */}
               {immediate.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <ShieldAlert className="w-4 h-4 text-red-600" />
-                      <CardTitle>Immediate Actions Required</CardTitle>
+                <div style={{ ...cardStyle, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", background: "rgba(182,23,30,0.04)", borderBottom: `1.5px solid rgba(182,23,30,0.14)` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <ShieldAlert style={{ width: 15, height: 15, color: "#b6171e" }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: T.onSurface }}>Immediate Actions Required</span>
                     </div>
-                    <Badge variant="destructive" className="ml-auto flex items-center gap-1.5">
-                      <Clock className="w-3 h-3" /> Act within 3 min
-                    </Badge>
-                  </CardHeader>
-                  <CardBody className="p-0">
+                    <GlassChip color="#b6171e" bg="rgba(182,23,30,0.09)"><Clock style={{ width: 10, height: 10 }} /> Act within 3 min</GlassChip>
+                  </div>
+                  <div>
                     {immediate.map((action, i) => {
                       const cfg = ACTION_CFG[action.action];
                       const proto = ACTION_PROTOCOL[action.action];
                       const Icon = cfg.icon;
                       return (
-                        <div key={i} className="flex items-start gap-4 px-5 py-4 border-b border-border last:border-0" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: cfg.bg }}>
-                            <Icon className="w-4 h-4" style={{ color: cfg.accent }} />
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "16px 22px", borderBottom: i < immediate.length - 1 ? `1.5px solid rgba(194,198,213,0.10)` : "none", borderLeft: `3px solid ${cfg.accent}` }}>
+                          <div style={{ width: 38, height: 38, borderRadius: 13, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <Icon style={{ width: 16, height: 16, color: cfg.accent }} />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: cfg.accent }}>{cfg.label}</span>
-                              <Badge variant="destructive" className="text-[8px]">IMMEDIATE</Badge>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                              <span style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: cfg.accent }}>{cfg.label}</span>
+                              <GlassChip color={cfg.accent} bg={cfg.bg}>IMMEDIATE</GlassChip>
                             </div>
-                            <p className="font-bold text-[13px] text-foreground">{action.description}</p>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{action.reason}</p>
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${proto.color}15`, color: proto.color }}>
-                                <BookOpen className="w-2.5 h-2.5 shrink-0" /> {proto.org}
-                              </span>
-                              <span className="text-[9px] text-muted-foreground">{proto.ref}</span>
+                            <p style={{ fontSize: 13, fontWeight: 800, color: T.onSurface, margin: "0 0 3px" }}>{action.description}</p>
+                            <p style={{ fontSize: 11, color: T.onSurfaceV, margin: "0 0 7px" }}>{action.reason}</p>
+                            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              <GlassChip color={proto.color} bg={`${proto.color}10`}><BookOpen style={{ width: 9, height: 9 }} /> {proto.org}</GlassChip>
+                              <span style={{ fontSize: 9, color: T.onSurfaceV }}>{proto.ref}</span>
                             </div>
                           </div>
-                          <span className="text-3xl font-black text-secondary tabular-nums shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                          <span style={{ fontSize: 28, fontWeight: 900, color: `${cfg.accent}30`, lineHeight: 1, flexShrink: 0, fontFamily: "monospace" }}>{String(i + 1).padStart(2, "0")}</span>
                         </div>
                       );
                     })}
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* AI TRIAGE INTELLIGENCE */}
               {(riskFactors.length > 0 || aiRecommendations.length > 0) && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-4 h-4 text-violet-600" />
-                      <CardTitle>AI Triage Intelligence</CardTitle>
+                <div style={{ ...cardStyle, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Brain style={{ width: 15, height: 15, color: "#6d28d9" }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: T.onSurface }}>AI Triage Intelligence</span>
                     </div>
-                    <Badge variant="purple" className="ml-auto text-[8px]">{riskFactors.length} factors analysed</Badge>
-                  </CardHeader>
-                  <CardBody className="space-y-4">
+                    <GlassChip color="#6d28d9" bg="rgba(109,40,217,0.08)">{riskFactors.length} factors analysed</GlassChip>
+                  </div>
+                  <div style={{ padding: "16px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
                     {riskFactors.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Why this risk score?</p>
-                        <div className="space-y-2">
+                        <p style={{ fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: T.onSurfaceV, margin: "0 0 12px" }}>Why this risk score?</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                           {riskFactors.map((f, i) => {
-                            const impactColor = f.impact === "high" ? "#ef4444" : f.impact === "moderate" ? "#f59e0b" : "#007AFF";
+                            const impactColor = f.impact === "high" ? "#b6171e" : f.impact === "moderate" ? "#d97706" : "#0369a1";
                             const barW = f.impact === "high" ? "100%" : f.impact === "moderate" ? "66%" : "33%";
                             return (
-                              <div key={i} className="p-3.5 rounded-2xl bg-secondary" style={{ borderLeft: `2.5px solid ${impactColor}` }}>
-                                <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-[12px] font-bold text-foreground">{f.factor}</span>
-                                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md" style={{ background: `${impactColor}18`, color: impactColor }}>{f.impact}</span>
+                              <div key={i} style={{ background: T.surfaceLow, borderRadius: 16, padding: "12px 14px" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: T.onSurface }}>{f.factor}</span>
+                                  <GlassChip color={impactColor} bg={`${impactColor}10`}>{f.impact}</GlassChip>
                                 </div>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">{f.description}</p>
-                                <div className="mt-2 h-1.5 rounded-full overflow-hidden bg-border">
-                                  <div className="h-full rounded-full transition-all" style={{ width: barW, background: impactColor }} />
+                                <div style={{ height: 4, background: "rgba(194,198,213,0.3)", borderRadius: 999, overflow: "hidden", marginBottom: 5 }}>
+                                  <div style={{ height: "100%", width: barW, background: impactColor, borderRadius: 999 }} />
                                 </div>
+                                <p style={{ fontSize: 11, color: T.onSurfaceV, margin: 0, lineHeight: 1.4 }}>{f.description}</p>
                               </div>
                             );
                           })}
                         </div>
                       </div>
                     )}
+
                     {aiRecommendations.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">AI Recommendations</p>
-                        <div className="space-y-2">
+                        <p style={{ fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: T.onSurfaceV, margin: "0 0 12px" }}>AI Recommendations</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                           {aiRecommendations.map((rec, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-secondary" style={{ borderLeft: "2.5px solid #8b5cf6" }}>
-                              <span className="text-[10px] font-black text-violet-600 tabular-nums shrink-0 mt-0.5 font-mono w-5">{i + 1}.</span>
-                              <p className="text-[12px] font-semibold text-foreground leading-relaxed">{rec}</p>
+                            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "11px 14px", background: "rgba(109,40,217,0.05)", borderRadius: 14, borderLeft: "3px solid rgba(109,40,217,0.35)" }}>
+                              <Brain style={{ width: 13, height: 13, color: "#6d28d9", marginTop: 1, flexShrink: 0 }} />
+                              <p style={{ fontSize: 12, color: T.onSurface, margin: 0, lineHeight: 1.5 }}>{rec}</p>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* DRUG INTERACTIONS */}
               {drugInteractions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <CardTitle>AI Drug Interaction Warning</CardTitle>
+                <div style={{ ...cardStyle, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <AlertOctagon style={{ width: 15, height: 15, color: "#c2410c" }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: T.onSurface }}>Drug Interactions</span>
                     </div>
-                    <Badge variant="warning" className="ml-auto">{drugInteractions.length} detected</Badge>
-                  </CardHeader>
-                  <CardBody className="p-0">
-                    {drugInteractions.map((ix, i) => {
-                      const sev = ix.severity;
-                      const sevColor = sev === "critical" ? "#dc2626" : sev === "high" ? "#ea580c" : "#f59e0b";
+                    <GlassChip color="#c2410c" bg="rgba(194,65,12,0.08)">{drugInteractions.length} flagged</GlassChip>
+                  </div>
+                  <div>
+                    {drugInteractions.map((d, i) => {
+                      const sevColor = d.severity === "critical" ? "#b6171e" : d.severity === "major" ? "#c2410c" : "#d97706";
                       return (
-                        <div key={i} className="px-5 py-4 border-b border-border last:border-0" style={{ borderLeft: `3px solid ${sevColor}` }}>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ background: `${sevColor}15`, color: sevColor }}>{sev}</span>
-                            <span className="text-[13px] font-bold text-foreground">{ix.conflictingDrug}</span>
+                        <div key={i} style={{ padding: "14px 22px", borderBottom: i < drugInteractions.length - 1 ? `1.5px solid rgba(194,198,213,0.08)` : "none", borderLeft: `3px solid ${sevColor}` }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: T.onSurface }}>{d.conflictingDrug}</span>
+                            <GlassChip color={sevColor} bg={`${sevColor}10`}>{d.severity}</GlassChip>
                           </div>
-                          <p className="text-[12px] text-muted-foreground leading-relaxed">{ix.description}</p>
-                          <div className="flex items-start gap-2 mt-2 p-2.5 rounded-xl bg-secondary">
-                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wide shrink-0 mt-0.5">Rec</span>
-                            <p className="text-[11px] font-semibold text-foreground">{ix.recommendation}</p>
-                          </div>
+                          <p style={{ fontSize: 11, color: T.onSurfaceV, margin: "0 0 5px", lineHeight: 1.4 }}>{d.description}</p>
+                          <p style={{ fontSize: 11, fontWeight: 700, color: sevColor, margin: 0 }}>{d.recommendation}</p>
                         </div>
                       );
                     })}
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               )}
 
-              {/* CLINICAL GUIDANCE */}
+              {/* GUIDANCE ACTIONS */}
               {guidance.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <UserCheck className="w-4 h-4 text-amber-600" />
-                      <CardTitle>Clinical Guidance</CardTitle>
-                    </div>
-                    <Badge variant="outline" className="ml-auto">{guidance.length} notes</Badge>
-                  </CardHeader>
-                  <CardBody className="p-0">
+                <div style={{ ...cardStyle, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 22px", borderBottom: `1.5px solid rgba(194,198,213,0.12)` }}>
+                    <UserCheck style={{ width: 15, height: 15, color: "#0058bc" }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: T.onSurface }}>Clinical Guidance</span>
+                  </div>
+                  <div>
                     {guidance.map((action, i) => {
                       const cfg = ACTION_CFG[action.action];
                       const proto = ACTION_PROTOCOL[action.action];
                       const Icon = cfg.icon;
                       return (
-                        <div key={i} className="flex items-start gap-4 px-5 py-3.5" style={{ borderLeft: `3px solid ${cfg.accent}` }}>
-                          <Icon className="w-4 h-4 shrink-0 mt-0.5" style={{ color: cfg.accent }} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: cfg.accent }}>{cfg.label}</span>
-                              <span className="text-[10px] text-muted-foreground">· {action.priority}</span>
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "14px 22px", borderBottom: i < guidance.length - 1 ? `1.5px solid rgba(194,198,213,0.08)` : "none" }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 11, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <Icon style={{ width: 14, height: 14, color: cfg.accent }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                              <span style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.09em", color: cfg.accent }}>{cfg.label}</span>
                             </div>
-                            <p className="text-sm font-semibold text-foreground">{action.description}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{action.reason}</p>
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${proto.color}12`, color: proto.color }}>
-                                <BookOpen className="w-2.5 h-2.5" /> {proto.org}
-                              </span>
-                              <span className="text-[9px] text-muted-foreground">{proto.ref}</span>
-                            </div>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: T.onSurface, margin: "0 0 2px" }}>{action.description}</p>
+                            <p style={{ fontSize: 11, color: T.onSurfaceV, margin: 0 }}>{action.reason}</p>
                           </div>
                         </div>
                       );
                     })}
-                  </CardBody>
-                </Card>
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
-          {/* ── EMERGENCY PROTOCOLS — full width ── */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-red-600" />
-                <CardTitle>Emergency Protocols</CardTitle>
-                <Badge variant="destructive" className="text-[8px]">ACLS · MOH · SRCA</Badge>
-                {activeProtocolCode && (
-                  <Badge variant="destructive" className="animate-pulse flex items-center gap-1.5 text-[8px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" /> ACTIVE
-                  </Badge>
-                )}
-              </div>
-              <button onClick={() => setProtocolsOpen(p => !p)}
-                className="ml-auto flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 text-muted-foreground transition-colors">
-                {protocolsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                {protocolsOpen ? "Hide" : "Show"} protocols
-              </button>
-            </CardHeader>
-
-            {/* Active Protocol Banner */}
-            {activeProtocolCode && (() => {
-              const proto = EMERGENCY_PROTOCOLS.find(p => p.code === activeProtocolCode)!;
-              const doneCount = Array.from(completedSteps).filter(k => k.startsWith(activeProtocolCode + "-")).length;
-              const pct = Math.round((doneCount / proto.steps.length) * 100);
-              return (
-                <div className="mx-4 my-3 rounded-2xl overflow-hidden" style={{ border: `1.5px solid ${proto.color}50` }}>
-                  <div className="flex items-center gap-4 px-4 py-3" style={{ background: proto.color }}>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[9px] font-black text-white/70 uppercase tracking-widest">Active Protocol</p>
-                      <p className="text-sm font-black text-white">{proto.code} — {proto.title}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[9px] text-white/70 uppercase tracking-widest">Elapsed</p>
-                      <p className="text-2xl font-black tabular-nums text-white font-mono">{fmtElapsed(elapsedSeconds)}</p>
-                    </div>
-                    <button onClick={deactivateProtocol}
-                      className="shrink-0 flex items-center gap-1 text-[10px] font-black px-3 py-1.5 rounded-xl transition-all"
-                      style={{ background: "rgba(255,255,255,0.20)" }}>
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                      <span className="text-white">End</span>
-                    </button>
-                  </div>
-                  <div className="px-4 py-2.5" style={{ background: `${proto.color}0d` }}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-[10px] font-bold text-foreground">{doneCount} of {proto.steps.length} steps completed</p>
-                      <p className="text-[10px] font-black" style={{ color: proto.color }}>{pct}%</p>
-                    </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: proto.color }} />
-                    </div>
-                    {pct === 100 && (
-                      <p className="text-[10px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> All steps complete — document and deactivate when ready
-                      </p>
-                    )}
-                  </div>
+          {/* ── CLINICAL PROTOCOLS ── */}
+          <div style={{ ...cardStyle, overflow: "hidden" }}>
+            <button onClick={() => setProtocolsOpen(p => !p)} style={{
+              width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "18px 24px", background: "none", border: "none", cursor: "pointer",
+              borderBottom: protocolsOpen ? `1.5px solid rgba(194,198,213,0.12)` : "none",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: "rgba(182,23,30,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ListChecks style={{ width: 16, height: 16, color: "#b6171e" }} />
                 </div>
-              );
-            })()}
+                <div style={{ textAlign: "left" }}>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: T.onSurface, margin: 0 }}>Emergency Clinical Protocols</p>
+                  <p style={{ fontSize: 10, color: T.onSurfaceV, margin: 0 }}>ACLS · MOH · SRCA — Evidence-based clinical decision support</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {activeProtocolCode && (
+                  <GlassChip color="#b6171e" bg="rgba(182,23,30,0.09)">
+                    <Timer style={{ width: 10, height: 10 }} />
+                    {fmtElapsed(elapsedSeconds)} active
+                  </GlassChip>
+                )}
+                {protocolsOpen ? <ChevronUp style={{ width: 16, height: 16, color: T.onSurfaceV }} /> : <ChevronDown style={{ width: 16, height: 16, color: T.onSurfaceV }} />}
+              </div>
+            </button>
 
             {protocolsOpen && (
-              <div className="px-4 pb-4 space-y-3 mt-1">
-                <div className="grid grid-cols-2 gap-3">
-                  {EMERGENCY_PROTOCOLS.map((protocol) => {
-                    const isActive = activeProtocolCode === protocol.code;
-                    const doneCount = Array.from(completedSteps).filter(k => k.startsWith(protocol.code + "-")).length;
-                    const donePct = isActive ? Math.round((doneCount / protocol.steps.length) * 100) : 0;
-                    return (
-                      <div key={protocol.code} className="rounded-2xl overflow-hidden" style={{
-                        border: isActive ? `1.5px solid ${protocol.color}60` : "1px solid rgba(255,255,255,0.06)",
-                        boxShadow: isActive ? `0 0 20px ${protocol.color}20` : "none",
-                      }}>
-                        <div className="flex items-center gap-3 px-4 py-3" style={{ background: isActive ? `${protocol.color}18` : `${protocol.color}08`, borderBottom: `1.5px solid ${protocol.color}40` }}>
-                          <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded-lg text-white" style={{ background: protocol.color }}>{protocol.code}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-foreground leading-snug">{protocol.title}</p>
-                            <p className="text-[9px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                              <BookOpen className="w-2.5 h-2.5" /> {protocol.org}
-                            </p>
+              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+                {EMERGENCY_PROTOCOLS.map(protocol => {
+                  const isActive = activeProtocolCode === protocol.code;
+                  const donePct = protocol.steps.length > 0 ? Math.round(([...completedSteps].filter(k => k.startsWith(`${protocol.code}-`)).length / protocol.steps.length) * 100) : 0;
+                  return (
+                    <div key={protocol.code} style={{
+                      borderRadius: 20, overflow: "hidden",
+                      background: isActive ? `${protocol.color}07` : T.surfaceLow,
+                      border: isActive ? `1.5px solid ${protocol.color}35` : "1.5px solid rgba(194,198,213,0.14)",
+                      boxShadow: isActive ? `0 4px 20px ${protocol.color}12` : "none",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: `1.5px solid ${protocol.color}25`, background: `${protocol.color}08` }}>
+                        <span style={{ fontSize: 9, fontWeight: 900, fontFamily: "monospace", padding: "3px 9px", borderRadius: 8, color: "#fff", background: protocol.color }}>{protocol.code}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 12, fontWeight: 800, color: T.onSurface, margin: 0, lineHeight: 1.3 }}>{protocol.title}</p>
+                          <p style={{ fontSize: 10, color: T.onSurfaceV, margin: "2px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
+                            <BookOpen style={{ width: 10, height: 10 }} /> {protocol.org}
+                          </p>
+                        </div>
+                        {isActive ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                            <span style={{ fontSize: 13, fontWeight: 900, fontFamily: "monospace", color: protocol.color }}>{fmtElapsed(elapsedSeconds)}</span>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: protocol.color }}>{donePct}%</span>
+                            <button onClick={deactivateProtocol} style={{ fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 9, background: "rgba(26,28,31,0.07)", color: T.onSurfaceV, border: "none", cursor: "pointer" }}>End</button>
                           </div>
-                          {isActive ? (
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] font-black tabular-nums font-mono" style={{ color: protocol.color }}>{fmtElapsed(elapsedSeconds)}</span>
-                              <span className="text-[10px] font-bold" style={{ color: protocol.color }}>{donePct}%</span>
-                              <button onClick={deactivateProtocol} className="text-[10px] font-bold px-2 py-0.5 rounded-lg" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.50)" }}>End</button>
-                            </div>
-                          ) : (
-                            <button onClick={() => activateProtocol(protocol.code)} disabled={!!activeProtocolCode}
-                              className="shrink-0 flex items-center gap-1 text-[10px] font-black px-3 py-1.5 rounded-xl text-white disabled:opacity-30 transition-all"
-                              style={{ background: protocol.color }}>
-                              <Zap className="w-3 h-3" /> Activate
-                            </button>
-                          )}
-                        </div>
-                        <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
-                          {protocol.steps.map((step, si) => {
-                            const stepKey = `${protocol.code}-${si}`;
-                            const done = completedSteps.has(stepKey);
-                            return (
-                              <div key={si}
-                                className={`flex items-start gap-3 px-4 py-2.5 transition-colors ${isActive ? "cursor-pointer hover:bg-white/[0.02]" : ""} ${done ? "bg-white/[0.02]" : ""}`}
-                                onClick={isActive ? () => toggleStep(stepKey) : undefined}
-                              >
-                                {isActive ? (
-                                  <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all"
-                                    style={{ borderColor: done ? protocol.color : `${protocol.color}50`, background: done ? protocol.color : "transparent" }}>
-                                    {done && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                  </div>
-                                ) : (
-                                  <span className="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] font-black shrink-0 mt-0.5"
-                                    style={{ borderColor: `${protocol.color}50`, color: protocol.color }}>{si + 1}</span>
-                                )}
-                                <p className={`text-xs leading-relaxed ${done ? "line-through text-muted-foreground/40" : "text-foreground"}`}>{step}</p>
-                                {done && <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 ml-auto" style={{ color: "#22c55e" }} />}
-                              </div>
-                            );
-                          })}
-                        </div>
+                        ) : (
+                          <button onClick={() => activateProtocol(protocol.code)} disabled={!!activeProtocolCode}
+                            style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 800, padding: "7px 14px", borderRadius: 12, color: "#fff", background: protocol.color, border: "none", cursor: "pointer", flexShrink: 0, opacity: !!activeProtocolCode ? 0.35 : 1 }}>
+                            <Zap style={{ width: 12, height: 12 }} /> Activate
+                          </button>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
-                <p className="text-[9px] text-muted-foreground/50 text-right">Protocols verified against MOH Saudi Arabia 2024 clinical guidelines. For reference only — clinical judgment applies.</p>
+                      <div>
+                        {protocol.steps.map((step, si) => {
+                          const stepKey = `${protocol.code}-${si}`;
+                          const done = completedSteps.has(stepKey);
+                          return (
+                            <div key={si}
+                              onClick={isActive ? () => toggleStep(stepKey) : undefined}
+                              style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "11px 18px", cursor: isActive ? "pointer" : "default", borderBottom: si < protocol.steps.length - 1 ? "1.5px solid rgba(194,198,213,0.08)" : "none", background: done ? `${protocol.color}04` : "transparent", transition: "background 0.15s" }}>
+                              {isActive ? (
+                                <div style={{
+                                  width: 20, height: 20, borderRadius: "50%", border: `2px solid ${done ? protocol.color : `${protocol.color}40`}`,
+                                  background: done ? protocol.color : "transparent", flexShrink: 0, marginTop: 1,
+                                  display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s",
+                                }}>
+                                  {done && <CheckCircle2 style={{ width: 12, height: 12, color: "#fff" }} />}
+                                </div>
+                              ) : (
+                                <span style={{ width: 20, height: 20, borderRadius: "50%", border: `1.5px solid ${protocol.color}40`, color: protocol.color, fontSize: 9, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{si + 1}</span>
+                              )}
+                              <p style={{ fontSize: 12, lineHeight: 1.55, color: done ? T.onSurfaceV : T.onSurface, textDecoration: done ? "line-through" : "none", margin: 0, flex: 1 }}>{step}</p>
+                              {done && <CheckCircle2 style={{ width: 13, height: 13, color: "#059669", flexShrink: 0, marginTop: 2 }} />}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+                <p style={{ fontSize: 9, color: T.onSurfaceV, textAlign: "right", margin: 0, opacity: 0.5 }}>
+                  Protocols verified against MOH Saudi Arabia 2024 clinical guidelines. For reference only — clinical judgment applies.
+                </p>
               </div>
             )}
-          </Card>
+          </div>
 
         </div>
       )}
+
+      </div>
     </Layout>
   );
 }

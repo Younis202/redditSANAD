@@ -1,0 +1,88 @@
+# Design System Specification: The Clinical Ethereal
+
+## 1. Overview & Creative North Star
+The Creative North Star for this design system is **"The Digital Sanctuary."** In high-stakes medical environments, UI must behave like a calm, authoritative concierge—never shouting, always anticipating.
+
+We move beyond the "template" look by rejecting the rigid, boxed-in layouts of legacy healthcare software. Instead, we utilize **Organic Precision**: a philosophy that combines the rigorous logic of medical data with a "milky," tactile aesthetic. By using intentional asymmetry, generous white space (breathing room), and layered translucency, we create an interface that feels lightning-fast and premium, yet deeply human.
+
+---
+
+## 2. Colors & Surface Philosophy
+The palette is rooted in sterile purity, accented by high-saturation functional tones.
+
+### Surface Hierarchy & Nesting
+We do not use lines to define space. We use **Tonal Layering**.
+- **Base Layer:** `surface` (#f9f9fe) – The clinical floor.
+- **Sectioning:** `surface-container-low` (#f3f3f8) – Used for secondary grouping.
+- **Primary Interaction:** `surface-container-lowest` (#ffffff) – Reserved for the highest priority cards or active inputs.
+
+### The "No-Line" Rule
+**Explicit Instruction:** 1px solid borders are prohibited for sectioning. Boundaries must be defined solely through background color shifts or subtle tonal transitions. If two areas need separation, use a `surface-container` shift or a `1.4rem` (4) spacing gap.
+
+### The "Glass & Gradient" Rule
+To achieve the "Milky" texture:
+- **Floating Elements:** Use `surface` with 80% opacity and a `backdrop-filter: blur(20px)`. This allows the "medical blues" and "emergency reds" to bleed through softly, anchoring the user in their context.
+- **Signature Gradients:** Main CTAs should transition from `primary` (#0058bc) to `primary-container` (#0070eb) at a 135° angle. This adds "visual soul" and depth that flat colors cannot replicate.
+
+---
+
+## 3. Typography: Editorial Authority
+We utilize **Inter** (or SF Pro) as a typographic workhorse. The hierarchy is designed to feel like a high-end medical journal: bold, clear, and uncrowded.
+
+* **Display (The Overview):** `display-lg` (3.5rem) – Used for critical hero metrics (e.g., Heart Rate).
+* **Headline (The Subject):** `headline-md` (1.75rem) – For page titles. High contrast against the `on-surface` (#1a1c1f) color.
+* **Title (The Action):** `title-lg` (1.375rem) – For card headings.
+* **Body (The Detail):** `body-md` (0.875rem) – For patient notes and data labels.
+* **Label (The Metadata):** `label-sm` (0.6875rem) – Uppercase with slight letter spacing for status indicators.
+
+---
+
+## 4. Elevation & Depth
+Depth is achieved through **Luminous Stacking**, not heavy shadows.
+
+* **The Layering Principle:** Place a `surface-container-lowest` (#ffffff) card on a `surface-container-low` (#f3f3f8) background. This creates a "soft lift" that feels architectural.
+* **Ambient Shadows:** For floating modals or "Critical Alerts," use a shadow with a 40px blur and 4% opacity, tinted with `on-surface`.
+* *Formula:* `box-shadow: 0 10px 40px rgba(26, 28, 31, 0.04);`
+* **The "Ghost Border":** If accessibility requires a stroke, use `outline-variant` (#c1c6d7) at **15% opacity**. It should be felt, not seen.
+* **Radii:** All primary containers must use `lg` (2rem / 32px) or `xl` (3rem / 48px) corner radii to maintain the "Milky/Organic" feel.
+
+---
+
+## 5. Components
+
+### Cards & Data Modules
+* **Constraint:** Forbid all divider lines.
+* **Execution:** Separate content blocks within a card using `1rem` (3) of vertical white space or a slight tint shift to `surface-variant`.
+* **Radius:** Always `lg` (2rem).
+
+### Buttons (The "Pulse" Variants)
+* **Primary:** `primary` to `primary-container` gradient. White text. `xl` (full) rounding.
+* **Secondary:** `surface-container-highest` background with `on-surface` text. No border.
+* **Emergency (Action):** `secondary` (#b6171e). Used sparingly for high-consequence medical actions.
+
+### Status Indicators (Medical Urgency)
+* **Success:** `tertiary` (#006b27) pill with `on-tertiary-container` text.
+* **Warning/Emergency:** `secondary` (#b6171e) pulse. Use a soft `secondary_container` glow behind the icon.
+
+### Input Fields
+* **Texture:** `surface-container-low` background.
+* **Active State:** Transitions to `surface-container-lowest` (pure white) with a `primary` ghost border (20% opacity).
+* **Radius:** `md` (1.5rem).
+
+### Additional Signature Component: The "Vitality Blur" Background
+Large, semi-transparent blobs of `primary-fixed` and `secondary-fixed` colors placed behind the main content layer. These blobs should have a 100px+ blur, creating a dynamic, "living" background that moves subtly during scroll.
+
+---
+
+## 6. Do's and Don'ts
+
+### Do
+* **Do** use asymmetrical margins (e.g., a wider left-side gutter) to create an editorial, premium feel.
+* **Do** use `backdrop-filter` on all navigation bars to maintain a sense of "Lightning-Fast" transparency.
+* **Do** stack `surface` tiers to indicate hierarchy.
+
+### Don't
+* **Don't** use pure black (#000000). Use `on-surface` (#1a1c1f) for text to maintain the soft, clinical mood.
+* **Don't** use 90-degree corners. Even the smallest chip must have at least an `sm` (0.5rem) radius.
+* **Don't** use drop shadows on buttons. Let the color and "Ghost Border" provide the affordance.
+* **Don't** use divider lines to separate list items. Use a `0.7rem` (2) gap and a background hover state.

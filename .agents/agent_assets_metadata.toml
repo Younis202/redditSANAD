@@ -6,3 +6,9 @@ id = "I3DMWF_uYz-jiRFoTbpWt"
 uri = "file://sanad-project.tar.gz"
 type = "unspecified"
 title = "Sanad — Project Source Code"
+
+[[outputs]]
+id = "cZCB1r8V7x8t56NzncdH1"
+uri = "file://PRESENTATION_SCRIPT_MINISTER.md"
+type = "text"
+title = "سكريبت بريزنتيشن سناد — قدام معالي الوزير"

@@ -548,98 +548,110 @@ export default function AdminDashboard() {
       ════════════════════════════════════════════ */}
       {!loading && activeTab === "regions" && (
         <div className="space-y-5">
-          {/* Regional Command Center */}
+          {/* Top KPI strip */}
+          <div className="grid grid-cols-4 gap-4">
+            <KpiCard title="Critical Alert Regions" value="1" sub="Requiring immediate policy action" icon={AlertTriangle} iconBg="bg-red-50" iconColor="text-red-600" />
+            <KpiCard title="High-Risk Patients (KSA)" value="54.4K+" sub="Across all 13 regions" icon={Users} iconBg="bg-primary/10" iconColor="text-primary" trend="+8.2%" />
+            <KpiCard title="Average Network Coverage" value="83%" sub="Nationwide healthcare access" icon={Globe} iconBg="bg-primary/10" iconColor="text-primary" />
+            <KpiCard title="Active Disease Alerts" value="4" sub="AI-flagged epidemic signals" icon={Radio} iconBg="bg-amber-50" iconColor="text-amber-600" />
+          </div>
+
+          {/* Regional Command Grid */}
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-primary" />
                 <CardTitle>National Regional Command Center — Kingdom of Saudi Arabia</CardTitle>
               </div>
-              <Badge variant="outline" className="ml-auto">13 Regions · Live</Badge>
-            </CardHeader>
-            <CardBody>
-              {/* Legend */}
-              <div className="flex items-center gap-5 mb-4 px-1">
-                <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wide">Risk Level:</span>
+              <div className="ml-auto flex items-center gap-4">
                 {(["critical","high","moderate","low"] as const).map(r => (
                   <div key={r} className="flex items-center gap-1.5">
-                    <span className={`w-2.5 h-2.5 rounded-full ${RISK_CFG[r].dot}`} />
-                    <span className="text-[10px] font-bold" style={{ color: RISK_CFG[r].borderColor }}>{RISK_CFG[r].label}</span>
+                    <span className={`w-2 h-2 rounded-full ${RISK_CFG[r].dot}`} />
+                    <span className="text-[10px] font-semibold text-muted-foreground">{RISK_CFG[r].label}</span>
                   </div>
                 ))}
-                <span className="ml-auto text-[10px] text-muted-foreground">Cell intensity = patient load · Bar = network coverage</span>
+                <Badge variant="outline">13 Regions · Live</Badge>
               </div>
-
-              <div className="grid grid-cols-7 gap-2.5 mb-4">
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-4 gap-3 mb-5">
                 {REGIONS.map((region, i) => {
                   const cfg = RISK_CFG[region.risk as keyof typeof RISK_CFG];
-                  const highRiskPct = Math.round((region.highRisk / region.patients) * 1000) / 10;
                   return (
                     <div
                       key={i}
-                      className="p-3.5 rounded-2xl flex flex-col gap-2 transition-all hover:scale-[1.02] cursor-default"
-                      style={{ background: cfg.heat, border: `1.5px solid ${cfg.borderColor}40`, boxShadow: `0 2px 12px ${cfg.borderColor}18` }}
+                      className="p-4 rounded-2xl flex flex-col gap-3 transition-all hover:scale-[1.01] cursor-default"
+                      style={{ background: cfg.heat, border: `1.5px solid ${cfg.borderColor}35`, boxShadow: `0 2px 16px ${cfg.borderColor}12` }}
                     >
-                      <div className="flex items-start justify-between gap-1">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className={`text-[11px] font-bold leading-tight ${cfg.textColor}`}>{region.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{region.sub}</p>
+                          <p className={`text-[13px] font-bold leading-tight ${cfg.textColor}`}>{region.name}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{region.sub}</p>
                         </div>
                         <Badge variant={cfg.badge} className="text-[8px] shrink-0">{cfg.label}</Badge>
                       </div>
-                      <div className="flex items-center gap-2 text-[10px]">
-                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
-                        <span className="font-mono font-bold text-foreground">{region.patients.toLocaleString()}</span>
-                        <span className="text-muted-foreground">pts</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1 text-[9px]">
-                        <div>
-                          <p className="text-muted-foreground">High Risk</p>
-                          <p className={`font-bold tabular-nums ${region.highRisk > 10 ? "text-red-600" : "text-foreground"}`}>{region.highRisk}% <span className="font-normal text-muted-foreground">({highRiskPct}%)</span></p>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shrink-0`} />
+                          <span className="font-bold tabular-nums text-foreground">{region.patients.toLocaleString()}</span>
+                          <span className="text-muted-foreground">patients</span>
                         </div>
-                        <div>
-                          <p className="text-muted-foreground">Coverage</p>
-                          <p className={`font-bold tabular-nums ${region.coverage < 80 ? "text-red-600" : "text-foreground"}`}>{region.coverage}%</p>
+                        <span className="text-[10px] text-muted-foreground">{region.hospitals} hosp.</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-[10px]">
+                        <div className="bg-white/60 rounded-xl px-2.5 py-1.5">
+                          <p className="text-muted-foreground text-[9px] mb-0.5">High Risk</p>
+                          <p className={`font-bold tabular-nums ${region.highRisk > 10 ? "text-red-600" : "text-foreground"}`}>{region.highRisk}%</p>
+                        </div>
+                        <div className="bg-white/60 rounded-xl px-2.5 py-1.5">
+                          <p className="text-muted-foreground text-[9px] mb-0.5">Coverage</p>
+                          <p className={`font-bold tabular-nums ${region.coverage < 80 ? "text-red-600" : "text-emerald-700"}`}>{region.coverage}%</p>
                         </div>
                       </div>
-                      <div className="w-full bg-white/70 rounded-full h-1.5">
-                        <div className="h-full rounded-full" style={{ width: `${region.coverage}%`, background: cfg.bar }} />
+                      <div className="w-full bg-white/50 rounded-full h-1.5">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${region.coverage}%`, background: cfg.bar }} />
                       </div>
                       {region.flag && (
-                        <p className="text-[9px] font-bold px-2 py-0.5 rounded-lg" style={{ color: cfg.borderColor, background: `${cfg.borderColor}15` }}>⚠ {region.flag}</p>
+                        <p className="text-[9px] font-bold px-2.5 py-1 rounded-lg" style={{ color: cfg.borderColor, background: `${cfg.borderColor}15` }}>⚠ {region.flag}</p>
                       )}
                     </div>
                   );
                 })}
               </div>
 
-              <div className="flex items-center gap-6 px-5 py-3.5 bg-secondary rounded-2xl">
+              <div className="grid grid-cols-6 gap-3">
                 {[
-                  { label: "Critical Regions", value: "1", color: "text-red-600" },
-                  { label: "High-Risk Regions", value: "3", color: "text-orange-600" },
-                  { label: "Moderate Regions", value: "4", color: "text-amber-600" },
-                  { label: "Normal Regions", value: "5", color: "text-emerald-600" },
-                  { label: "Total Patients", value: "54.4K+", color: "text-primary" },
-                  { label: "Avg Coverage", value: "83%", color: "text-primary" },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="text-center flex-1">
-                    <p className={`text-base font-bold tabular-nums ${color}`}>{value}</p>
-                    <p className="text-[10px] text-muted-foreground">{label}</p>
+                  { label: "Critical Regions", value: "1", color: "text-red-600", bg: "bg-red-50" },
+                  { label: "High-Risk Regions", value: "3", color: "text-orange-600", bg: "bg-orange-50" },
+                  { label: "Moderate Regions", value: "4", color: "text-amber-700", bg: "bg-amber-50" },
+                  { label: "Low-Risk Regions", value: "5", color: "text-emerald-700", bg: "bg-emerald-50" },
+                  { label: "Total Patients", value: "54.4K+", color: "text-primary", bg: "bg-primary/5" },
+                  { label: "Avg Coverage", value: "83%", color: "text-primary", bg: "bg-primary/5" },
+                ].map(({ label, value, color, bg }) => (
+                  <div key={label} className={`text-center py-3 px-2 rounded-2xl ${bg}`}>
+                    <p className={`text-xl font-black tabular-nums ${color}`}>{value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">{label}</p>
                   </div>
                 ))}
               </div>
             </CardBody>
           </Card>
 
-          {/* KSA Regional Heatmap */}
+          {/* KSA Regional Health Intelligence Map */}
           {stats?.regionalStats && stats.regionalStats.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>KSA Regional Health Intelligence Map</CardTitle>
-                <Badge variant="outline" className="ml-1">{stats.regionalStats.length} regions</Badge>
-                <div className="ml-auto flex items-center gap-3 text-[9px] font-semibold text-muted-foreground">
-                  {[{ c: "#22c55e", l: ">90% Coverage" }, { c: "#f59e0b", l: "75-90%" }, { c: "#ef4444", l: "<75% / Alert" }].map(item => (
-                    <div key={item.l} className="flex items-center gap-1"><div className="w-3 h-3 rounded" style={{ background: item.c, opacity: 0.6 }} />{item.l}</div>
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <CardTitle>KSA Regional Health Intelligence Map</CardTitle>
+                  <Badge variant="outline" className="ml-1">{stats.regionalStats.length} regions</Badge>
+                </div>
+                <div className="ml-auto flex items-center gap-3">
+                  {[{ c: "#22c55e", l: ">90% Coverage" }, { c: "#f59e0b", l: "75–90%" }, { c: "#ef4444", l: "<75% Alert" }].map(item => (
+                    <div key={item.l} className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-md" style={{ background: item.c, opacity: 0.7 }} />
+                      <span className="text-[10px] text-muted-foreground font-medium">{item.l}</span>
+                    </div>
                   ))}
                 </div>
               </CardHeader>
@@ -650,17 +662,17 @@ export default function AdminDashboard() {
                     const color = cov >= 90 ? "#22c55e" : cov >= 75 ? "#f59e0b" : "#ef4444";
                     const textColor = cov >= 90 ? "text-emerald-700" : cov >= 75 ? "text-amber-700" : "text-red-700";
                     return (
-                      <div key={i} className="relative p-3 rounded-2xl overflow-hidden bg-secondary/50" style={{ borderLeft: `3px solid ${color}` }}>
-                        <div className="absolute top-0 right-0 w-16 h-16 rounded-full opacity-[0.06]" style={{ background: color, transform: "translate(30%, -30%)" }} />
-                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 truncate">{r.region}</p>
+                      <div key={i} className="relative p-4 rounded-2xl overflow-hidden bg-secondary" style={{ borderLeft: `3px solid ${color}` }}>
+                        <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-[0.07]" style={{ background: color, transform: "translate(30%, -30%)" }} />
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 truncate">{r.region}</p>
                         <div className="flex items-end justify-between mb-2">
-                          <p className={`text-xl font-bold ${textColor}`}>{r.coverage}</p>
+                          <p className={`text-2xl font-black tabular-nums ${textColor}`}>{r.coverage}</p>
                           <p className="text-[10px] font-bold text-muted-foreground">{r.hospitals} hosp.</p>
                         </div>
-                        <div className="h-1.5 rounded-full overflow-hidden bg-background mb-1.5">
+                        <div className="h-1.5 rounded-full overflow-hidden bg-border mb-2">
                           <div className="h-full rounded-full" style={{ width: r.coverage, background: color }} />
                         </div>
-                        <div className="flex justify-between text-[8px] text-muted-foreground">
+                        <div className="flex justify-between text-[9px] text-muted-foreground">
                           <span>{r.patients?.toLocaleString()} pts</span>
                           {r.highRisk > 5 && <span className="text-red-500 font-bold">{r.highRisk} high-risk</span>}
                         </div>
@@ -673,98 +685,115 @@ export default function AdminDashboard() {
           )}
 
           {/* National Disease Burden */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-primary" />
-                <CardTitle>National Disease Burden — Chronic Condition Prevalence by Region</CardTitle>
-              </div>
-              <Badge variant="outline" className="ml-auto">KSA 34M Citizens · 2025 Data</Badge>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">Top Chronic Conditions — National Prevalence</p>
+          <div className="grid grid-cols-12 gap-5">
+            <Card className="col-span-7">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-primary" />
+                  <CardTitle>National Disease Burden — Chronic Condition Prevalence</CardTitle>
+                </div>
+                <Badge variant="outline" className="ml-auto">KSA 34M Citizens · 2025</Badge>
+              </CardHeader>
+              <CardBody className="space-y-3">
+                {[
+                  { condition: "Hypertension", prevalence: 31.4, trend: "up", patients: "10.6M", color: "#ef4444" },
+                  { condition: "Type 2 Diabetes", prevalence: 27.6, trend: "up", patients: "9.4M", color: "#f97316" },
+                  { condition: "Obesity (BMI ≥30)", prevalence: 24.7, trend: "up", patients: "8.4M", color: "#f59e0b" },
+                  { condition: "Dyslipidemia", prevalence: 19.3, trend: "stable", patients: "6.6M", color: "#8b5cf6" },
+                  { condition: "Coronary Artery Disease", prevalence: 8.2, trend: "down", patients: "2.8M", color: "#ec4899" },
+                  { condition: "Chronic Kidney Disease", prevalence: 6.7, trend: "up", patients: "2.3M", color: "#3b82f6" },
+                  { condition: "COPD", prevalence: 4.1, trend: "stable", patients: "1.4M", color: "#0ea5e9" },
+                  { condition: "Depression / Mental Health", prevalence: 3.8, trend: "up", patients: "1.3M", color: "#6366f1" },
+                ].map((d, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-[12px] font-semibold text-foreground w-48 shrink-0 truncate">{d.condition}</span>
+                    <div className="flex-1 bg-secondary rounded-full h-2.5">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${(d.prevalence / 35) * 100}%`, background: d.color }} />
+                    </div>
+                    <span className="text-[12px] font-black tabular-nums text-foreground w-12 text-right">{d.prevalence}%</span>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 bg-secondary w-14 text-center ${d.trend === "up" ? "text-red-600" : d.trend === "down" ? "text-emerald-600" : "text-muted-foreground"}`}>
+                      {d.trend === "up" ? "Rising" : d.trend === "down" ? "Falling" : "Stable"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-mono w-12 shrink-0 text-right">{d.patients}</span>
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+
+            <div className="col-span-5 space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <CardTitle>High-Burden Regions — Policy Alert Zones</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardBody className="space-y-2.5">
                   {[
-                    { condition: "Hypertension", prevalence: 31.4, trend: "up", patients: "10.6M", color: "bg-red-500" },
-                    { condition: "Type 2 Diabetes", prevalence: 27.6, trend: "up", patients: "9.4M", color: "bg-amber-500" },
-                    { condition: "Obesity (BMI ≥30)", prevalence: 24.7, trend: "up", patients: "8.4M", color: "bg-orange-500" },
-                    { condition: "Dyslipidemia", prevalence: 19.3, trend: "stable", patients: "6.6M", color: "bg-violet-500" },
-                    { condition: "Coronary Artery Disease", prevalence: 8.2, trend: "down", patients: "2.8M", color: "bg-rose-500" },
-                    { condition: "Chronic Kidney Disease", prevalence: 6.7, trend: "up", patients: "2.3M", color: "bg-blue-500" },
-                    { condition: "COPD", prevalence: 4.1, trend: "stable", patients: "1.4M", color: "bg-sky-500" },
-                    { condition: "Depression / Mental Health", prevalence: 3.8, trend: "up", patients: "1.3M", color: "bg-indigo-500" },
-                  ].map((d, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <span className="text-[11px] font-semibold text-foreground w-44 shrink-0 truncate">{d.condition}</span>
-                      <div className="flex-1 bg-secondary rounded-full h-2">
-                        <div className={`h-full rounded-full ${d.color}`} style={{ width: `${(d.prevalence / 35) * 100}%` }} />
+                    { region: "Riyadh", topCondition: "Diabetes + Hypertension", risk: "CRITICAL", pct: 94, level: "destructive" as const, color: "#ef4444" },
+                    { region: "Makkah", topCondition: "Obesity + Cardiovascular", risk: "HIGH", pct: 81, level: "warning" as const, color: "#f97316" },
+                    { region: "Madinah", topCondition: "Hypertension + CKD", risk: "HIGH", pct: 76, level: "warning" as const, color: "#f59e0b" },
+                    { region: "Eastern Province", topCondition: "Dyslipidemia + CAD", risk: "MODERATE", pct: 62, level: "info" as const, color: "#0ea5e9" },
+                    { region: "Asir", topCondition: "COPD + Respiratory", risk: "MODERATE", pct: 57, level: "info" as const, color: "#0ea5e9" },
+                    { region: "Jizan", topCondition: "Infectious Disease", risk: "MODERATE", pct: 53, level: "success" as const, color: "#22c55e" },
+                  ].map((r, i) => (
+                    <div key={i}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={r.level} className="text-[8px] w-18">{r.risk}</Badge>
+                          <span className="text-[12px] font-bold text-foreground">{r.region}</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground truncate max-w-[110px]">{r.topCondition}</span>
+                        <span className="text-[12px] font-black tabular-nums text-foreground ml-2">{r.pct}%</span>
                       </div>
-                      <span className="text-[11px] font-bold tabular-nums text-foreground w-10 text-right">{d.prevalence}%</span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 bg-secondary ${d.trend === "up" ? "text-red-600" : d.trend === "down" ? "text-emerald-600" : "text-muted-foreground"}`}>
-                        {d.trend === "up" ? "Rising" : d.trend === "down" ? "Falling" : "Stable"}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground w-10 shrink-0 text-right">{d.patients}</span>
+                      <div className="w-full bg-secondary rounded-full h-1.5">
+                        <div className="h-full rounded-full" style={{ width: `${r.pct}%`, background: r.color }} />
+                      </div>
                     </div>
                   ))}
-                </div>
+                </CardBody>
+              </Card>
 
-                <div>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">High-Burden Regions — AI Policy Alert Zones</p>
-                  <div className="space-y-2.5">
-                    {[
-                      { region: "Riyadh", topCondition: "Diabetes + Hypertension", risk: "CRITICAL", pct: 94, level: "destructive" as const, bar: "bg-red-500" },
-                      { region: "Makkah", topCondition: "Obesity + Cardiovascular", risk: "HIGH", pct: 81, level: "warning" as const, bar: "bg-orange-400" },
-                      { region: "Madinah", topCondition: "Hypertension + CKD", risk: "HIGH", pct: 76, level: "warning" as const, bar: "bg-amber-400" },
-                      { region: "Eastern Province", topCondition: "Dyslipidemia + CAD", risk: "MODERATE", pct: 62, level: "info" as const, bar: "bg-sky-400" },
-                      { region: "Asir", topCondition: "COPD + Respiratory", risk: "MODERATE", pct: 57, level: "info" as const, bar: "bg-sky-400" },
-                      { region: "Jizan", topCondition: "Infectious Disease + Malaria", risk: "MODERATE", pct: 53, level: "success" as const, bar: "bg-emerald-400" },
-                    ].map((r, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <Badge variant={r.level} className="text-[9px] shrink-0 w-20 justify-center">{r.risk}</Badge>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[11px] font-bold text-foreground truncate">{r.region}</span>
-                            <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{r.topCondition}</span>
-                          </div>
-                          <div className="w-full bg-secondary rounded-full h-1.5">
-                            <div className={`h-full rounded-full ${r.bar}`} style={{ width: `${r.pct}%` }} />
-                          </div>
-                        </div>
-                        <span className="text-[11px] font-bold tabular-nums text-foreground shrink-0">{r.pct}%</span>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-violet-600" />
+                    <CardTitle>AI Policy Recommendations</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardBody className="space-y-2.5">
+                  {[
+                    { rec: "Deploy 3 mobile diabetes clinics to Riyadh Northern Districts", est: "45K undiagnosed", urgency: "HIGH" },
+                    { rec: "Expand CKD screening in Madinah — eGFR testing in all primary care centres", est: "12K at risk", urgency: "HIGH" },
+                    { rec: "COPD awareness campaign targeting Jizan and Asir highland zones", est: "8K undiagnosed", urgency: "MED" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 bg-secondary rounded-xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
+                      <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="text-[9px] font-black text-violet-700">{i + 1}</span>
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #8b5cf6" }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Settings className="w-3.5 h-3.5 text-violet-700" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-foreground">Policy Engine — AI Recommendations</p>
-                    </div>
-                    <div className="space-y-1.5">
-                      {[
-                        "Deploy 3 mobile diabetes clinics to Riyadh Northern Districts (est. 45K undiagnosed)",
-                        "Expand CKD screening in Madinah — eGFR testing in all primary care centres",
-                        "COPD awareness campaign targeting Jizan and Asir highland zones",
-                      ].map((r, i) => (
-                        <div key={i} className="flex items-start gap-2 text-[10px] text-violet-900">
-                          <span className="shrink-0 font-bold text-violet-500">{i + 1}.</span>
-                          <span>{r}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-semibold text-foreground leading-relaxed">{item.rec}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[9px] font-bold text-violet-600">{item.est}</span>
+                          <Badge variant={item.urgency === "HIGH" ? "destructive" : "warning"} className="text-[8px]">{item.urgency}</Badge>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+                  ))}
+                </CardBody>
+              </Card>
+            </div>
+          </div>
 
           {/* Regional Stats Table */}
           {stats?.regionalStats && stats.regionalStats.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Regional Health Detail</CardTitle>
-                <Badge variant="outline" className="ml-1">{stats.regionalStats.length} regions</Badge>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                  <CardTitle>Regional Health Detail</CardTitle>
+                  <Badge variant="outline" className="ml-1">{stats.regionalStats.length} regions</Badge>
+                </div>
               </CardHeader>
               <CardBody className="p-0">
                 <table className="w-full data-table">
@@ -809,7 +838,52 @@ export default function AdminDashboard() {
       ════════════════════════════════════════════ */}
       {!loading && activeTab === "hospitals" && (
         <div className="space-y-5">
-          {/* League Table */}
+          {/* Top KPI Strip */}
+          <div className="grid grid-cols-4 gap-4">
+            <KpiCard title="Hospitals Online" value="450+" sub="Connected to SANAD platform" icon={Building} iconBg="bg-primary/10" iconColor="text-primary" trend="+14 this month" />
+            <KpiCard title="Avg Composite Score" value="79.8" sub="National performance index" icon={Star} iconBg="bg-amber-50" iconColor="text-amber-600" />
+            <KpiCard title="National Bed Occupancy" value="82%" sub="Across all connected facilities" icon={Activity} iconBg="bg-primary/10" iconColor="text-primary" />
+            <KpiCard title="Avg AI Adoption" value="79%" sub="AI-assisted clinical decisions" icon={Brain} iconBg="bg-violet-50" iconColor="text-violet-600" />
+          </div>
+
+          {/* Top 3 Featured Hospitals */}
+          <div className="grid grid-cols-3 gap-4">
+            {HOSPITALS.slice(0, 3).map((h, i) => {
+              const medalColors = [
+                { bg: "linear-gradient(135deg, #b45309, #d97706)", badge: "#fbbf24", label: "🥇 #1 National" },
+                { bg: "linear-gradient(135deg, #475569, #64748b)", badge: "#94a3b8", label: "🥈 #2 National" },
+                { bg: "linear-gradient(135deg, #9a3412, #c2410c)", badge: "#fb923c", label: "🥉 #3 National" },
+              ];
+              const medal = medalColors[i]!;
+              return (
+                <div key={h.rank} className="rounded-[2rem] overflow-hidden relative" style={{ background: medal.bg }}>
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.25))" }} />
+                  <div className="relative p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white/70 px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }}>{medal.label}</span>
+                      <span className="text-2xl font-black text-white tabular-nums">{h.composite}</span>
+                    </div>
+                    <h3 className="text-[15px] font-black text-white leading-snug mb-1">{h.name}</h3>
+                    <p className="text-[11px] text-white/60 mb-4">{h.region}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: "Beds", value: h.beds.toLocaleString() },
+                        { label: "AI", value: `${h.ai}%` },
+                        { label: "Satisfaction", value: `${h.patient}/100` },
+                      ].map((stat) => (
+                        <div key={stat.label} className="text-center py-2 rounded-xl" style={{ background: "rgba(255,255,255,0.12)" }}>
+                          <p className="text-[13px] font-black text-white">{stat.value}</p>
+                          <p className="text-[9px] text-white/50 mt-0.5">{stat.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Full League Table */}
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -829,7 +903,7 @@ export default function AdminDashboard() {
                     <th>Occupancy</th>
                     <th>AI Adoption</th>
                     <th>Avg LOS</th>
-                    <th>Mortality Rate</th>
+                    <th>Mortality</th>
                     <th>Patient Score</th>
                     <th>Composite</th>
                     <th>Status</th>
@@ -837,34 +911,34 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {HOSPITALS.map((h) => {
-                    const compositeColor = h.composite >= 90 ? "text-emerald-700 bg-secondary" : h.composite >= 75 ? "text-amber-700 bg-secondary" : "text-red-700 bg-secondary";
+                    const compositeColor = h.composite >= 90 ? "text-emerald-700" : h.composite >= 75 ? "text-amber-700" : "text-red-700";
                     const aiColor = h.ai >= 90 ? "text-emerald-600" : h.ai >= 75 ? "text-amber-600" : "text-red-600";
                     const mortalityColor = h.mortality < 1.5 ? "text-emerald-600" : h.mortality < 2.5 ? "text-amber-600" : "text-red-600";
                     const rankColors = ["bg-amber-400 text-white", "bg-slate-400 text-white", "bg-orange-400 text-white"];
                     return (
-                      <tr key={h.rank} style={h.rank <= 3 ? { borderLeft: "2px solid #f59e0b" } : {}}>
-                        <td className="font-black text-center text-sm">
+                      <tr key={h.rank}>
+                        <td className="font-black text-center">
                           <span className={`inline-flex w-7 h-7 items-center justify-center rounded-lg text-[11px] font-black ${h.rank <= 3 ? rankColors[h.rank - 1] : "bg-secondary text-muted-foreground"}`}>
                             {h.rank}
                           </span>
                         </td>
-                        <td className="font-bold text-foreground">{h.name}</td>
+                        <td className="font-semibold text-foreground text-sm">{h.name}</td>
                         <td className="text-muted-foreground text-xs">{h.region}</td>
-                        <td className="font-mono tabular-nums text-right">{h.beds.toLocaleString()}</td>
+                        <td className="font-mono tabular-nums text-right text-sm">{h.beds.toLocaleString()}</td>
                         <td>
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-secondary rounded-full h-1.5 max-w-[60px]">
+                            <div className="flex-1 bg-secondary rounded-full h-1.5 max-w-[52px]">
                               <div className="h-full bg-primary rounded-full" style={{ width: `${h.occupancy}%` }} />
                             </div>
-                            <span className="text-xs font-mono">{h.occupancy}%</span>
+                            <span className="text-xs font-mono tabular-nums">{h.occupancy}%</span>
                           </div>
                         </td>
-                        <td className={`font-bold text-xs ${aiColor}`}>{h.ai}%</td>
+                        <td className={`font-bold text-sm ${aiColor}`}>{h.ai}%</td>
                         <td className="font-mono text-xs text-center">{h.los}d</td>
-                        <td className={`font-bold text-xs ${mortalityColor}`}>{h.mortality}%</td>
+                        <td className={`font-bold text-sm ${mortalityColor}`}>{h.mortality}%</td>
                         <td className="font-mono text-xs text-center">{h.patient}/100</td>
                         <td>
-                          <span className={`text-xs font-black px-2 py-0.5 rounded-full tabular-nums ${compositeColor}`}>{h.composite}</span>
+                          <span className={`text-sm font-black tabular-nums ${compositeColor}`}>{h.composite}</span>
                         </td>
                         <td>
                           <Badge variant={h.composite >= 85 ? "success" : h.composite >= 70 ? "warning" : "destructive"} className="text-[9px]">
@@ -884,48 +958,50 @@ export default function AdminDashboard() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                <CardTitle>National Benchmarking — Hospital vs. National Average & Top Quartile</CardTitle>
+                <CardTitle>National Benchmarking — vs. National Average & Top Quartile</CardTitle>
               </div>
               <Badge variant="info" className="ml-auto">Q1 2026 · MOH Performance Audit</Badge>
             </CardHeader>
             <CardBody>
               <div className="grid grid-cols-4 gap-4 mb-6">
                 {[
-                  { label: "AI Adoption Rate", national: 79, topQ: 95, unit: "%", icon: Brain, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.ai, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.ai },
-                  { label: "Avg Length of Stay", national: 5.6, topQ: 4.5, unit: "d", icon: Clock, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.los, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.los, lowerBetter: true },
-                  { label: "Mortality Rate", national: 2.0, topQ: 1.2, unit: "%", icon: Heart, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.mortality, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.mortality, lowerBetter: true },
-                  { label: "Patient Satisfaction", national: 83, topQ: 93, unit: "/100", icon: Star, top: HOSPITALS[0]!.name, topVal: HOSPITALS[0]!.patient, worst: HOSPITALS[HOSPITALS.length - 1]!.name, worstVal: HOSPITALS[HOSPITALS.length - 1]!.patient },
+                  { label: "AI Adoption Rate", national: 79, topQ: 95, unit: "%", icon: Brain, topVal: HOSPITALS[0]!.ai, worstVal: HOSPITALS[HOSPITALS.length - 1]!.ai },
+                  { label: "Avg Length of Stay", national: 5.6, topQ: 4.5, unit: "d", icon: Clock, topVal: HOSPITALS[0]!.los, worstVal: HOSPITALS[HOSPITALS.length - 1]!.los, lowerBetter: true },
+                  { label: "Mortality Rate", national: 2.0, topQ: 1.2, unit: "%", icon: Heart, topVal: HOSPITALS[0]!.mortality, worstVal: HOSPITALS[HOSPITALS.length - 1]!.mortality, lowerBetter: true },
+                  { label: "Patient Satisfaction", national: 83, topQ: 93, unit: "/100", icon: Star, topVal: HOSPITALS[0]!.patient, worstVal: HOSPITALS[HOSPITALS.length - 1]!.patient },
                 ].map((m, i) => {
                   const Icon = m.icon;
                   return (
                     <div key={i} className="bg-secondary rounded-2xl p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Icon className="w-3.5 h-3.5 text-primary" />
-                        <p className="text-[11px] font-bold text-foreground">{m.label}</p>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Icon className="w-4 h-4 text-primary" />
+                        </div>
+                        <p className="text-[12px] font-bold text-foreground">{m.label}</p>
                       </div>
-                      <div className="space-y-2.5">
+                      <div className="space-y-3">
                         {[
-                          { label: "Best (Q1)", value: m.topQ, color: "#22c55e" },
-                          { label: "National Avg", value: m.national, color: "#3b82f6" },
+                          { label: "Top Quartile", value: m.topQ, color: "#22c55e" },
+                          { label: "National Avg", value: m.national, color: "#007AFF" },
                         ].map((bar, j) => {
                           const pct = m.lowerBetter
-                            ? Math.max(10, 100 - (bar.value / (m.lowerBetter ? m.national * 1.5 : m.topQ)) * 100)
+                            ? Math.max(10, 100 - (bar.value / (m.national * 1.5)) * 100)
                             : Math.max(10, (bar.value / m.topQ) * 100);
                           return (
                             <div key={j}>
-                              <div className="flex justify-between text-[10px] mb-0.5">
-                                <span className="text-muted-foreground">{bar.label}</span>
-                                <span className="font-bold tabular-nums" style={{ color: bar.color }}>{bar.value}{m.unit}</span>
+                              <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-muted-foreground font-medium">{bar.label}</span>
+                                <span className="font-black tabular-nums" style={{ color: bar.color }}>{bar.value}{m.unit}</span>
                               </div>
-                              <div className="h-1.5 bg-background rounded-full">
+                              <div className="h-2 bg-border rounded-full overflow-hidden">
                                 <div className="h-full rounded-full" style={{ width: `${Math.min(100, pct)}%`, background: bar.color }} />
                               </div>
                             </div>
                           );
                         })}
-                        <div className="pt-1.5 border-t border-border">
-                          <p className="text-[9px] text-muted-foreground">Best: <span className="font-bold text-foreground">{m.topVal}{m.unit}</span></p>
-                          <p className="text-[9px] text-muted-foreground">Gap to close: <span className={`font-bold ${m.lowerBetter ? "text-red-600" : "text-amber-600"}`}>{Math.abs(Number((m.worstVal as number) - m.topQ)).toFixed(1)}{m.unit}</span></p>
+                        <div className="pt-2 border-t border-border flex items-center justify-between">
+                          <p className="text-[9px] text-muted-foreground">Best performing: <span className="font-bold text-foreground">{m.topVal}{m.unit}</span></p>
+                          <p className="text-[9px] font-bold text-amber-600">Gap: {Math.abs(Number((m.worstVal as number) - m.topQ)).toFixed(1)}{m.unit}</p>
                         </div>
                       </div>
                     </div>
@@ -942,14 +1018,14 @@ export default function AdminDashboard() {
                     { hospital: "Tabuk General Hospital", rank: 10, gap: "Composite Score (67 vs 96 top)", action: "AI adoption training, patient satisfaction programme, and clinical protocol review", urgency: "Medium", target: "Q3 2026" },
                   ].map((p, i) => (
                     <div key={i} className="p-4 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${i < 2 ? "#ef4444" : "#f59e0b"}` }}>
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2.5">
                         <span className="text-[10px] font-black bg-muted-foreground/10 px-2 py-0.5 rounded-full">Rank #{p.rank}</span>
                         <Badge variant={p.urgency === "High" ? "destructive" : "warning"} className="text-[8px]">{p.urgency} Priority</Badge>
                         <span className="ml-auto text-[9px] font-mono text-muted-foreground">{p.target}</span>
                       </div>
-                      <p className="text-[12px] font-bold text-foreground mb-1">{p.hospital}</p>
+                      <p className="text-[13px] font-bold text-foreground mb-1">{p.hospital}</p>
                       <p className="text-[10px] text-amber-700 font-semibold mb-2">Gap: {p.gap}</p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">{p.action}</p>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">{p.action}</p>
                     </div>
                   ))}
                 </div>
@@ -964,115 +1040,167 @@ export default function AdminDashboard() {
       ════════════════════════════════════════════ */}
       {!loading && activeTab === "ai" && (
         <div className="space-y-5">
+          {/* Top KPI Strip */}
+          <div className="grid grid-cols-4 gap-4">
+            <KpiCard title="Active AI Engines" value="9" sub="8 online · 1 standby" icon={Brain} iconBg="bg-violet-50" iconColor="text-violet-600" />
+            <KpiCard title="AI Decisions Today" value={(intelligence as any)?.aiDecisionsToday ?? "847K"} sub="Across all 12 portals" icon={Zap} iconBg="bg-primary/10" iconColor="text-primary" trend="+12.4%" />
+            <KpiCard title="Avg Model Confidence" value="87.4%" sub="All engines combined" icon={Target} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+            <KpiCard title="Avg Decision Latency" value="< 200ms" sub="Real-time clinical decisions" icon={Activity} iconBg="bg-primary/10" iconColor="text-primary" />
+          </div>
+
           {intelligence && (
             <>
-              {/* AI Engine Cluster */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-violet-600" />
-                    <CardTitle>National AI Intelligence Platform</CardTitle>
-                  </div>
-                  <Badge variant="outline" className="ml-auto">LIVE · v3.0</Badge>
-                </CardHeader>
-                <CardBody className="space-y-6">
-                  <div>
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <Zap className="w-3.5 h-3.5 text-amber-500" /> AI Engine Cluster — 9 Active Engines
-                    </p>
-                    <div className="grid grid-cols-3 gap-2.5">
+              {/* Engine Status + Metrics */}
+              <div className="grid grid-cols-12 gap-5">
+                <Card className="col-span-8">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4 text-violet-600" />
+                      <CardTitle>National AI Intelligence Platform — Engine Cluster</CardTitle>
+                    </div>
+                    <div className="ml-auto flex items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] font-semibold text-emerald-700">Online</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+                        <span className="text-[10px] font-semibold text-muted-foreground">Standby</span>
+                      </div>
+                      <Badge variant="outline">LIVE · v3.0</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                    <div className="grid grid-cols-3 gap-3">
                       {[
-                        { name: "Risk Scoring Engine", status: "online", version: "v4.2" },
-                        { name: "Decision Engine", status: "online", version: "v3.0" },
-                        { name: "Digital Twin Simulator", status: "online", version: "v2.1" },
-                        { name: "Behavioral AI", status: "online", version: "v1.8" },
-                        { name: "Recommendation Engine", status: "online", version: "v2.5" },
-                        { name: "Policy Intelligence", status: "online", version: "v1.3" },
-                        { name: "Multi-Agent Orchestrator", status: "online", version: "v1.0" },
-                        { name: "Explainability Layer", status: "online", version: "v2.0" },
-                        { name: "Unknown Pattern Detector", status: "standby", version: "v0.9" },
+                        { name: "Risk Scoring Engine", status: "online", version: "v4.2", load: 78, decisions: "284K/day" },
+                        { name: "Decision Engine", status: "online", version: "v3.0", load: 91, decisions: "192K/day" },
+                        { name: "Digital Twin Simulator", status: "online", version: "v2.1", load: 44, decisions: "48K/day" },
+                        { name: "Behavioral AI", status: "online", version: "v1.8", load: 62, decisions: "134K/day" },
+                        { name: "Recommendation Engine", status: "online", version: "v2.5", load: 55, decisions: "89K/day" },
+                        { name: "Policy Intelligence", status: "online", version: "v1.3", load: 31, decisions: "24K/day" },
+                        { name: "Multi-Agent Orchestrator", status: "online", version: "v1.0", load: 88, decisions: "847K/day" },
+                        { name: "Explainability Layer", status: "online", version: "v2.0", load: 72, decisions: "192K/day" },
+                        { name: "Unknown Pattern Detector", status: "standby", version: "v0.9", load: 0, decisions: "On-demand" },
                       ].map((engine, i) => (
-                        <div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-secondary"
-                          style={engine.status === "online" ? { borderLeft: "2px solid #22c55e" } : { borderLeft: "2px solid #94a3b8" }}>
-                          <div className={`w-2 h-2 rounded-full shrink-0 ${engine.status === "online" ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`} />
-                          <div>
-                            <p className="text-xs font-bold text-foreground">{engine.name}</p>
-                            <p className="text-[10px] text-muted-foreground">{engine.version} · {engine.status}</p>
+                        <div key={i} className="p-3.5 rounded-2xl bg-secondary flex flex-col gap-2.5"
+                          style={engine.status === "online" ? { borderLeft: "2.5px solid #22c55e" } : { borderLeft: "2.5px solid #94a3b8" }}>
+                          <div className="flex items-start justify-between gap-1">
+                            <div>
+                              <p className="text-[12px] font-bold text-foreground leading-tight">{engine.name}</p>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">{engine.version} · {engine.decisions}</p>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full shrink-0 mt-1 ${engine.status === "online" ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"}`} />
+                          </div>
+                          {engine.status === "online" && (
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[9px] text-muted-foreground">Load</span>
+                                <span className="text-[9px] font-bold text-foreground">{engine.load}%</span>
+                              </div>
+                              <div className="h-1 bg-border rounded-full overflow-hidden">
+                                <div className="h-full rounded-full" style={{ width: `${engine.load}%`, background: engine.load > 80 ? "#f59e0b" : "#22c55e" }} />
+                              </div>
+                            </div>
+                          )}
+                          {engine.status === "standby" && (
+                            <span className="text-[9px] font-semibold text-muted-foreground bg-border px-2 py-0.5 rounded-full self-start">STANDBY — Anomaly Detection</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <div className="col-span-4 space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-primary" />
+                        <CardTitle>AI Runtime Metrics</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardBody className="space-y-3">
+                      {[
+                        { label: "Decisions Today", value: (intelligence as any)?.aiDecisionsToday ?? "847K", color: "text-primary" },
+                        { label: "Event Bus Throughput", value: (intelligence as any)?.eventBusThroughput ?? "8,400/min", color: "text-foreground" },
+                        { label: "Audit Records", value: (intelligence as any)?.auditRecords ?? "4.28M", color: "text-foreground" },
+                        { label: "Avg Response", value: (intelligence as any)?.avgResponseMs ? `${(intelligence as any).avgResponseMs}ms` : "< 200ms", color: "text-emerald-700" },
+                        { label: "Active Connections", value: "48,204 SSE", color: "text-foreground" },
+                        { label: "Model Accuracy", value: "87.4%", color: "text-emerald-700" },
+                        { label: "Learning Loop Updates", value: "2,481 today", color: "text-primary" },
+                      ].map((m, i) => (
+                        <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                          <p className="text-[11px] text-muted-foreground">{m.label}</p>
+                          <p className={`text-[12px] font-bold tabular-nums ${m.color}`}>{m.value}</p>
+                        </div>
+                      ))}
+                    </CardBody>
+                  </Card>
+
+                  {/* Epidemic Radar */}
+                  {(intelligence as any)?.epidemicRadar && (intelligence as any).epidemicRadar.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center gap-2">
+                          <Radio className="w-4 h-4 text-red-500" />
+                          <CardTitle>Epidemic Radar</CardTitle>
+                        </div>
+                        <Badge variant="destructive" className="ml-auto text-[8px]">LIVE SURVEILLANCE</Badge>
+                      </CardHeader>
+                      <CardBody className="space-y-2">
+                        {(intelligence as any).epidemicRadar.map((item: any, i: number) => (
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-secondary"
+                            style={item.alert === "high" ? { borderLeft: "3px solid #ef4444" } : item.alert === "medium" ? { borderLeft: "3px solid #f59e0b" } : {}}>
+                            <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${item.alert === "high" ? "bg-red-500" : item.alert === "medium" ? "bg-amber-500" : "bg-muted-foreground"}`} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-[12px] font-bold text-foreground">{item.condition}</p>
+                                <Badge variant={item.alert === "high" ? "destructive" : item.alert === "medium" ? "warning" : "outline"} className="text-[8px] shrink-0">
+                                  {item.alert?.toUpperCase()}
+                                </Badge>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground">{item.region} · {item.cases} cases</p>
+                            </div>
+                          </div>
+                        ))}
+                      </CardBody>
+                    </Card>
+                  )}
+                </div>
+              </div>
+
+              {/* Policy Insights */}
+              {(intelligence as any)?.policyInsights && (intelligence as any).policyInsights.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-violet-600" />
+                      <CardTitle>AI Policy Intelligence Recommendations</CardTitle>
+                    </div>
+                    <Badge variant="purple" className="ml-auto">Auto-generated · {(intelligence as any).policyInsights.length} insights</Badge>
+                  </CardHeader>
+                  <CardBody>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(intelligence as any).policyInsights.map((insight: any, i: number) => (
+                        <div key={i} className="flex items-start gap-3 p-4 rounded-2xl bg-secondary"
+                          style={insight.priority === "high" ? { borderLeft: "3px solid #8b5cf6" } : { borderLeft: "3px solid #cbd5e1" }}>
+                          <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                            <Target className="w-4 h-4 text-violet-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <p className="text-[13px] font-bold text-foreground leading-snug">{insight.insight}</p>
+                              <Badge variant={insight.priority === "high" ? "info" : "outline"} className="text-[8px] shrink-0">{insight.priority}</Badge>
+                            </div>
+                            {insight.action && <p className="text-[11px] text-muted-foreground leading-relaxed">{insight.action}</p>}
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Epidemic Radar */}
-                  {(intelligence as any)?.epidemicRadar && (intelligence as any).epidemicRadar.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Radio className="w-3.5 h-3.5 text-red-500" /> Epidemic Radar — Disease Surveillance
-                      </p>
-                      <div className="grid grid-cols-2 gap-2.5">
-                        {(intelligence as any).epidemicRadar.map((item: any, i: number) => (
-                          <div key={i} className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-secondary"
-                            style={item.alert === "high" ? { borderLeft: "3px solid #ef4444" } : item.alert === "medium" ? { borderLeft: "3px solid #f59e0b" } : {}}>
-                            <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${item.alert === "high" ? "bg-red-500" : item.alert === "medium" ? "bg-amber-500" : "bg-muted-foreground"}`} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-bold text-foreground">{item.condition}</p>
-                                <Badge variant={item.alert === "high" ? "destructive" : item.alert === "medium" ? "warning" : "outline"} className="text-[9px]">
-                                  {item.alert?.toUpperCase()}
-                                </Badge>
-                              </div>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">{item.region} · {item.cases} cases</p>
-                              {item.trend && <p className="text-[10px] text-muted-foreground mt-1">{item.trend}</p>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Policy Insights */}
-                  {(intelligence as any)?.policyInsights && (intelligence as any).policyInsights.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Lightbulb className="w-3.5 h-3.5 text-violet-500" /> AI Policy Intelligence Recommendations
-                      </p>
-                      <div className="space-y-2">
-                        {(intelligence as any).policyInsights.map((insight: any, i: number) => (
-                          <div key={i} className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-secondary"
-                            style={insight.priority === "high" ? { borderLeft: "3px solid #8b5cf6" } : {}}>
-                            <Target className="w-4 h-4 shrink-0 mt-0.5 text-violet-600" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-bold text-foreground">{insight.insight}</p>
-                                <Badge variant={insight.priority === "high" ? "info" : "outline"} className="text-[9px] shrink-0">{insight.priority}</Badge>
-                              </div>
-                              {insight.action && <p className="text-[10px] text-muted-foreground mt-0.5">{insight.action}</p>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* AI Metrics Footer */}
-                  <div className="grid grid-cols-4 gap-3">
-                    {[
-                      { label: "AI Decisions Today", value: (intelligence as any)?.aiDecisionsToday ?? "0", icon: Brain },
-                      { label: "Event Bus Throughput", value: (intelligence as any)?.eventBusThroughput ?? "—", icon: Zap },
-                      { label: "Audit Records", value: (intelligence as any)?.auditRecords ?? "0", icon: Target },
-                      { label: "Avg Response Time", value: (intelligence as any)?.avgResponseMs ? `${(intelligence as any).avgResponseMs}ms` : "—", icon: Activity },
-                    ].map((m, i) => (
-                      <div key={i} className="px-4 py-3.5 bg-secondary rounded-2xl">
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                          <m.icon className="w-3 h-3" /> {m.label}
-                        </p>
-                        <p className="text-xl font-bold text-foreground tabular-nums">{m.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
+                  </CardBody>
+                </Card>
+              )}
             </>
           )}
 
@@ -1175,136 +1303,57 @@ export default function AdminDashboard() {
       ════════════════════════════════════════════ */}
       {!loading && activeTab === "systems" && (
         <div className="space-y-5">
-          {/* NCA Compliance */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-emerald-600" />
-                <CardTitle>National Cybersecurity Authority — Compliance & Data Governance</CardTitle>
-              </div>
-              <Badge variant="success" className="ml-auto">NCA Certified · April 2025</Badge>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-4 gap-4 mb-5">
-                {[
-                  { label: "NCA CSF Score", value: "94.2", sub: "Cyber Security Framework v2.0", color: "text-emerald-600", borderColor: "#10b981", dot: "bg-emerald-500" },
-                  { label: "PDPL Compliance", value: "97.8%", sub: "Personal Data Protection Law", color: "text-blue-600", borderColor: "#3b82f6", dot: "bg-blue-500" },
-                  { label: "Audit Trail Coverage", value: "99.97%", sub: "34M patient records audited", color: "text-violet-600", borderColor: "#8b5cf6", dot: "bg-violet-500" },
-                  { label: "Security Events (30d)", value: "3", sub: "0 Critical · 0 High · 3 Medium", color: "text-amber-600", borderColor: "#f59e0b", dot: "bg-amber-500" },
-                ].map((item, i) => (
-                  <div key={i} className="p-4 rounded-2xl bg-secondary" style={{ borderLeft: `3px solid ${item.borderColor}` }}>
-                    <div className="flex items-start justify-between mb-2">
-                      <span className={`w-2.5 h-2.5 rounded-full mt-1 ${item.dot}`} />
-                      <span className={`text-2xl font-black tabular-nums ${item.color}`}>{item.value}</span>
-                    </div>
-                    <p className="text-sm font-bold text-foreground">{item.label}</p>
-                    <p className="text-[10px] text-muted-foreground">{item.sub}</p>
-                  </div>
-                ))}
-              </div>
+          {/* Top KPI Strip */}
+          <div className="grid grid-cols-4 gap-4">
+            <KpiCard title="NCA CSF Score" value="94.2" sub="Cyber Security Framework v2.0" icon={Shield} iconBg="bg-emerald-50" iconColor="text-emerald-700" trend="Certified" />
+            <KpiCard title="PDPL Compliance" value="97.8%" sub="Personal Data Protection Law" icon={Lock} iconBg="bg-blue-50" iconColor="text-blue-600" />
+            <KpiCard title="Audit Trail Coverage" value="99.97%" sub="34M patient records audited" icon={CheckCircle2} iconBg="bg-violet-50" iconColor="text-violet-600" />
+            <KpiCard title="Security Events (30d)" value="3" sub="0 Critical · 0 High · 3 Medium" icon={ShieldAlert} iconBg="bg-amber-50" iconColor="text-amber-600" />
+          </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Data Encryption Status</p>
-                  {[
-                    { layer: "In-Transit Encryption", protocol: "TLS 1.3", ok: true },
-                    { layer: "At-Rest Encryption", protocol: "AES-256-GCM", ok: true },
-                    { layer: "Database Encryption", protocol: "TDE — PostgreSQL", ok: true },
-                    { layer: "Key Management", protocol: "HSM — FIPS 140-2 Level 3", ok: true },
-                    { layer: "Backup Encryption", protocol: "AES-256 + SHA-512", ok: true },
-                  ].map((e, i) => (
-                    <div key={i} className="flex items-center justify-between px-3 py-2 bg-secondary rounded-xl">
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">{e.layer}</p>
-                        <p className="text-[10px] text-muted-foreground font-mono">{e.protocol}</p>
-                      </div>
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary text-emerald-700">Active</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Compliance Certifications</p>
-                  {[
-                    { cert: "NCA Cyber Security Framework", status: "CERTIFIED", score: "94.2/100", dot: "bg-emerald-600" },
-                    { cert: "PDPL (Saudi Data Protection)", status: "COMPLIANT", score: "97.8%", dot: "bg-blue-600" },
-                    { cert: "ISO 27001 Information Security", status: "CERTIFIED", score: "Valid to Dec 2026", dot: "bg-emerald-600" },
-                    { cert: "HIPAA-Equivalent Standard", status: "ALIGNED", score: "92.4%", dot: "bg-violet-600" },
-                    { cert: "HL7 FHIR R4 Compliance", status: "CERTIFIED", score: "FHIR R4 Full", dot: "bg-sky-600" },
-                    { cert: "MOH Clinical Data Standards", status: "CERTIFIED", score: "Version 3.1", dot: "bg-indigo-600" },
-                  ].map((c, i) => (
-                    <div key={i} className="flex items-center gap-3 px-3 py-2.5 bg-secondary rounded-xl">
-                      <div className={`w-2 h-2 rounded-full ${c.dot} shrink-0`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-bold text-foreground truncate">{c.cert}</p>
-                        <p className="text-[9px] text-muted-foreground">{c.score}</p>
-                      </div>
-                      <span className={`text-[8px] font-black text-white px-1.5 py-0.5 rounded ${c.dot} shrink-0`}>{c.status}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Security Event Log — Last 30 Days</p>
-                  <div className="space-y-2 mb-4">
-                    {[
-                      { date: "Mar 28 2026", event: "Suspicious login pattern — 3 failed attempts", severity: "MEDIUM", resolved: true },
-                      { date: "Mar 15 2026", event: "API rate limit exceeded — Eastern Province node", severity: "MEDIUM", resolved: true },
-                      { date: "Mar 04 2026", event: "Certificate rotation — HSM key refresh", severity: "INFO", resolved: true },
-                    ].map((ev, i) => (
-                      <div key={i} className="px-3 py-2.5 rounded-xl text-xs bg-secondary"
-                        style={ev.severity === "MEDIUM" ? { borderLeft: "3px solid #f59e0b" } : {}}>
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${ev.severity === "MEDIUM" ? "bg-amber-500 text-white" : "bg-sky-500 text-white"}`}>{ev.severity}</span>
-                          <span className="text-[10px] text-muted-foreground">{ev.date}</span>
-                          {ev.resolved && <span className="text-[9px] font-bold text-emerald-600 ml-auto">Resolved</span>}
-                        </div>
-                        <p className="text-[11px] text-foreground font-medium">{ev.event}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-4 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Lock className="w-3.5 h-3.5 text-emerald-700" />
-                      <p className="text-[10px] font-black text-foreground uppercase tracking-widest">Security Posture</p>
-                    </div>
-                    <p className="text-sm font-bold text-foreground">Excellent — 0 Critical or High incidents in 90 days</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">Last penetration test: Feb 2026 · Zero critical vulnerabilities</p>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Compliance cards */}
-          <div className="grid grid-cols-3 gap-5">
-            <Card>
+          {/* Security Overview — Compliance + Encryption + Events */}
+          <div className="grid grid-cols-12 gap-5">
+            {/* Compliance Certifications */}
+            <Card className="col-span-4">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
                     <Shield className="w-4 h-4 text-emerald-700" />
                   </div>
-                  <CardTitle>PDPL & Regulatory Compliance</CardTitle>
+                  <CardTitle>Compliance Certifications</CardTitle>
                 </div>
+                <Badge variant="success" className="ml-auto text-[8px]">NCA Certified</Badge>
               </CardHeader>
-              <CardBody className="space-y-2.5">
+              <CardBody className="space-y-2">
                 {[
-                  { label: "PDPL Article 12 — Sensitive Health Data", status: "COMPLIANT", color: "text-emerald-700" },
-                  { label: "NDMO Cloud Security Controls", status: "COMPLIANT", color: "text-emerald-700" },
-                  { label: "ISO 27001 Information Security", status: "CERTIFIED", color: "text-emerald-700" },
-                  { label: "HIPAA Data Handling Standards", status: "ALIGNED", color: "text-sky-700" },
-                  { label: "MOH Patient Privacy Circular 2024", status: "COMPLIANT", color: "text-emerald-700" },
-                  { label: "NCA Essential Cybersecurity Controls", status: "COMPLIANT", color: "text-emerald-700" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-1">
-                    <p className="text-[11px] text-foreground font-medium flex-1 pr-2">{item.label}</p>
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 bg-secondary ${item.color}`}>{item.status}</span>
+                  { cert: "NCA Cyber Security Framework", status: "CERTIFIED", score: "94.2/100", dot: "bg-emerald-500" },
+                  { cert: "PDPL (Saudi Data Protection)", status: "COMPLIANT", score: "97.8%", dot: "bg-blue-500" },
+                  { cert: "ISO 27001 Information Security", status: "CERTIFIED", score: "Valid Dec 2026", dot: "bg-emerald-500" },
+                  { cert: "HIPAA-Equivalent Standard", status: "ALIGNED", score: "92.4%", dot: "bg-violet-500" },
+                  { cert: "HL7 FHIR R4 Compliance", status: "CERTIFIED", score: "FHIR R4 Full", dot: "bg-sky-500" },
+                  { cert: "MOH Clinical Data Standards", status: "CERTIFIED", score: "Version 3.1", dot: "bg-indigo-500" },
+                ].map((c, i) => (
+                  <div key={i} className="flex items-center gap-3 px-3 py-2.5 bg-secondary rounded-xl">
+                    <div className={`w-2 h-2 rounded-full ${c.dot} shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-foreground truncate">{c.cert}</p>
+                      <p className="text-[9px] text-muted-foreground">{c.score}</p>
+                    </div>
+                    <span className="text-[8px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">{c.status}</span>
                   </div>
                 ))}
+                <div className="mt-2 p-3 bg-secondary rounded-2xl" style={{ borderLeft: "3px solid #22c55e" }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Lock className="w-3.5 h-3.5 text-emerald-700" />
+                    <p className="text-[10px] font-black text-foreground">Security Posture: Excellent</p>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">0 Critical/High incidents in 90 days · Last pentest: Feb 2026</p>
+                </div>
               </CardBody>
             </Card>
 
-            <Card>
+            {/* Encryption */}
+            <Card className="col-span-4">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -1313,7 +1362,7 @@ export default function AdminDashboard() {
                   <CardTitle>Encryption & Data Protection</CardTitle>
                 </div>
               </CardHeader>
-              <CardBody className="space-y-3">
+              <CardBody className="space-y-4">
                 {[
                   { label: "Data at Rest", tech: "AES-256-GCM", pct: 100 },
                   { label: "Data in Transit", tech: "TLS 1.3 + mTLS", pct: 100 },
@@ -1322,50 +1371,120 @@ export default function AdminDashboard() {
                   { label: "Key Rotation", tech: "Auto every 90 days", pct: 100 },
                 ].map((item, i) => (
                   <div key={i}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <div>
-                        <p className="text-[11px] font-semibold text-foreground">{item.label}</p>
-                        <p className="text-[9px] font-mono text-muted-foreground">{item.tech}</p>
+                        <p className="text-[12px] font-semibold text-foreground">{item.label}</p>
+                        <p className="text-[10px] font-mono text-muted-foreground">{item.tech}</p>
                       </div>
-                      <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-secondary text-emerald-700">ACTIVE</span>
+                      <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">ACTIVE</span>
                     </div>
-                    <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-emerald-500" style={{ width: `${item.pct}%` }} />
                     </div>
                   </div>
                 ))}
+                <div className="mt-2 grid grid-cols-2 gap-2.5">
+                  {[
+                    { label: "Key Management", value: "HSM FIPS 140-2 L3" },
+                    { label: "Zero-Knowledge", value: "PHI masked at API" },
+                  ].map((m, i) => (
+                    <div key={i} className="p-2.5 bg-secondary rounded-xl">
+                      <p className="text-[9px] text-muted-foreground mb-0.5">{m.label}</p>
+                      <p className="text-[11px] font-bold text-foreground">{m.value}</p>
+                    </div>
+                  ))}
+                </div>
               </CardBody>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <CardTitle>Audit Log Statistics</CardTitle>
-                </div>
-              </CardHeader>
-              <CardBody className="space-y-2.5">
-                {[
-                  { label: "Total Audit Events (this month)", value: "4,281,940", trend: "+18% vs last month" },
-                  { label: "AI Decision Events Logged", value: "192,481", trend: "100% capture rate" },
-                  { label: "Override Events Documented", value: "4,820", trend: "With WHO/MOH reference" },
-                  { label: "Unauthorized Access Attempts", value: "0", trend: "Blocked by NCA controls" },
-                  { label: "Data Access Audit Coverage", value: "100%", trend: "All PHI access logged" },
-                  { label: "Tamper-Proof Log Integrity", value: "SHA-256 hash", trend: "Chain verified ✓" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
-                    <p className="text-[11px] text-muted-foreground pr-2">{item.label}</p>
-                    <div className="text-right shrink-0">
-                      <p className="text-[11px] font-bold text-foreground">{item.value}</p>
-                      <p className="text-[9px] text-emerald-600">{item.trend}</p>
+            {/* Audit Log + Security Events */}
+            <div className="col-span-4 space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-primary" />
                     </div>
+                    <CardTitle>Audit Log Statistics</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardBody className="space-y-2">
+                  {[
+                    { label: "Audit Events (this month)", value: "4.28M", trend: "+18%" },
+                    { label: "AI Decision Events Logged", value: "192,481", trend: "100% capture" },
+                    { label: "Override Events Documented", value: "4,820", trend: "MOH reference" },
+                    { label: "Unauthorized Access Attempts", value: "0", trend: "NCA blocked" },
+                    { label: "Audit Coverage (PHI)", value: "100%", trend: "All access logged" },
+                    { label: "Log Integrity", value: "SHA-256", trend: "Chain verified" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                      <p className="text-[11px] text-muted-foreground pr-2">{item.label}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-[11px] font-bold text-foreground">{item.value}</p>
+                        <p className="text-[9px] text-emerald-600 font-semibold">{item.trend}</p>
+                      </div>
+                    </div>
+                  ))}
+                </CardBody>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 text-amber-600" />
+                    <CardTitle>Security Event Log — Last 30 Days</CardTitle>
+                  </div>
+                  <Badge variant="success" className="ml-auto text-[8px]">0 Critical</Badge>
+                </CardHeader>
+                <CardBody className="space-y-2">
+                  {[
+                    { date: "Mar 28 2026", event: "Suspicious login — 3 failed attempts", severity: "MEDIUM", resolved: true },
+                    { date: "Mar 15 2026", event: "API rate limit exceeded — Eastern Province", severity: "MEDIUM", resolved: true },
+                    { date: "Mar 04 2026", event: "Certificate rotation — HSM key refresh", severity: "INFO", resolved: true },
+                  ].map((ev, i) => (
+                    <div key={i} className="px-3 py-2.5 rounded-xl bg-secondary"
+                      style={ev.severity === "MEDIUM" ? { borderLeft: "3px solid #f59e0b" } : { borderLeft: "3px solid #0ea5e9" }}>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <Badge variant={ev.severity === "MEDIUM" ? "warning" : "info"} className="text-[8px]">{ev.severity}</Badge>
+                        <span className="text-[10px] text-muted-foreground">{ev.date}</span>
+                        {ev.resolved && <span className="text-[9px] font-bold text-emerald-600 ml-auto">Resolved</span>}
+                      </div>
+                      <p className="text-[11px] text-foreground font-medium mt-0.5">{ev.event}</p>
+                    </div>
+                  ))}
+                </CardBody>
+              </Card>
+            </div>
+          </div>
+
+          {/* PDPL + Regulatory */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-700" />
+                <CardTitle>PDPL & Regulatory Compliance Detail</CardTitle>
+              </div>
+              <Badge variant="success" className="ml-auto">NCA Certified · April 2025</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: "PDPL Article 12 — Sensitive Health Data", status: "COMPLIANT", color: "text-emerald-700", dot: "bg-emerald-500" },
+                  { label: "NDMO Cloud Security Controls", status: "COMPLIANT", color: "text-emerald-700", dot: "bg-emerald-500" },
+                  { label: "ISO 27001 Information Security", status: "CERTIFIED", color: "text-emerald-700", dot: "bg-emerald-500" },
+                  { label: "HIPAA Data Handling Standards", status: "ALIGNED", color: "text-sky-700", dot: "bg-sky-500" },
+                  { label: "MOH Patient Privacy Circular 2024", status: "COMPLIANT", color: "text-emerald-700", dot: "bg-emerald-500" },
+                  { label: "NCA Essential Cybersecurity Controls", status: "COMPLIANT", color: "text-emerald-700", dot: "bg-emerald-500" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3.5 bg-secondary rounded-2xl">
+                    <div className={`w-2.5 h-2.5 rounded-full ${item.dot} shrink-0`} />
+                    <p className="text-[12px] text-foreground font-medium flex-1 pr-2">{item.label}</p>
+                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 bg-emerald-50 ${item.color}`}>{item.status}</span>
                   </div>
                 ))}
-              </CardBody>
-            </Card>
-          </div>
+              </div>
+            </CardBody>
+          </Card>
 
           {/* FHIR + Data Lineage */}
           <div className="grid grid-cols-2 gap-5">

@@ -281,57 +281,55 @@ export default function DoctorDashboard() {
         </AlertBanner>
       )}
 
-      {/* ── SSE Real-time Alerts Panel — Dark cinematic blue ── */}
+      {/* ── SSE Real-time Alerts Panel — Glass ── */}
       {showSsePanel && sseAlerts.length > 0 && (
         <div className="mb-4 rounded-3xl overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #020a18 0%, #041224 100%)", border: "1px solid rgba(0,122,255,0.18)" }}>
+          style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", boxShadow: "0 10px 40px rgba(26,28,31,0.06)", border: "1.5px solid rgba(194,198,213,0.18)" }}>
           <div className="flex items-center justify-between px-5 py-3"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(0,122,255,0.06)" }}>
+            style={{ borderBottom: "1.5px solid rgba(194,198,213,0.14)", background: "rgba(0,88,188,0.04)" }}>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-black text-sm text-white">Live Clinical Alerts</span>
-              <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.25)" }}>
+              <span className="font-black text-sm" style={{ color: "#1a1c1f" }}>Live Clinical Alerts</span>
+              <span className="text-[9px] font-black px-2.5 py-1 rounded-full" style={{ background: "rgba(182,23,30,0.09)", color: "#b6171e" }}>
                 {sseUnread} new
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={clearSseAlerts} className="text-[11px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>Clear all</button>
-              <button onClick={() => setShowSsePanel(false)} style={{ color: "rgba(255,255,255,0.35)" }} className="hover:text-white transition-colors">
+              <button onClick={clearSseAlerts} className="text-[11px] font-bold transition-colors" style={{ color: "#424753" }}>Clear all</button>
+              <button onClick={() => setShowSsePanel(false)} style={{ color: "#424753" }} className="transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="max-h-64 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+          <div className="max-h-64 overflow-y-auto">
             {sseAlerts.map((alert, idx) => (
-              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors ${alert.read ? "opacity-50" : ""}`}
-                style={{ borderBottom: idx < sseAlerts.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-400" : alert.severity === "high" ? "bg-orange-400" : "bg-amber-400"}`} />
+              <div key={alert.id} className={`px-5 py-3 flex items-start gap-3 transition-colors ${alert.read ? "opacity-40" : ""}`}
+                style={{ borderBottom: idx < sseAlerts.length - 1 ? "1.5px solid rgba(194,198,213,0.10)" : "none" }}>
+                <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === "critical" ? "bg-red-500" : alert.severity === "high" ? "bg-orange-500" : "bg-amber-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase"
-                      style={{ background: "rgba(0,122,255,0.12)", color: "#93c5fd" }}>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md uppercase" style={{ background: "rgba(0,88,188,0.08)", color: "#0058bc" }}>
                       {alert.type === "drug_interaction_alert" ? "Drug Interaction" : alert.type === "risk_escalation" ? "Risk Escalation" : "Lab Alert"}
                     </span>
                   </div>
-                  <p className="font-bold text-sm text-white">{alert.title}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="font-bold text-sm" style={{ color: "#1a1c1f" }}>{alert.title}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "#424753" }}>
                     {alert.patientName}
                     {alert.result ? ` · ${alert.result}` : ""}
                     {alert.drugName && alert.conflictingDrug ? ` · ${alert.drugName} ↔ ${alert.conflictingDrug}` : ""}
                   </p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{alert.action ?? alert.recommendation}</p>
-                  <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "#424753" }}>{alert.action ?? alert.recommendation}</p>
+                  <p className="text-[10px] mt-1" style={{ color: "#424753", opacity: 0.6 }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <button
                     onClick={() => { handleSelectPatient(alert.nationalId, alert.patientName); markSseRead(alert.id); }}
-                    className="text-[10px] font-black px-3 py-1.5 rounded-xl transition-all hover:opacity-90"
-                    style={{ background: "rgba(0,122,255,0.20)", color: "#93c5fd", border: "1px solid rgba(0,122,255,0.30)" }}>
+                    className="text-[10px] font-black px-3 py-1.5 rounded-xl transition-all hover:opacity-80"
+                    style={{ background: "linear-gradient(135deg, #0058bc, #0070eb)", color: "#fff" }}>
                     View Patient
                   </button>
                   {!alert.read && (
-                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] font-bold hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.30)" }}>Dismiss</button>
+                    <button onClick={() => markSseRead(alert.id)} className="text-[10px] font-bold transition-colors" style={{ color: "#424753" }}>Dismiss</button>
                   )}
                 </div>
               </div>
@@ -343,47 +341,57 @@ export default function DoctorDashboard() {
       {/* ══════════════════════════════════════════════════
           PHYSICIAN COMMAND CENTER HEADER
       ══════════════════════════════════════════════════ */}
-      <div className="rounded-3xl overflow-hidden mb-6"
-        style={{ background: "linear-gradient(135deg, #020a18 0%, #041224 50%, #020c1c 100%)", boxShadow: "0 0 60px rgba(0,122,255,0.10)" }}>
-        <div className="h-1" style={{ background: "linear-gradient(90deg, #004b9d, #007AFF, #60a5fa, #007AFF, #004b9d)" }} />
+
+      {/* ── Vitality atmosphere blobs ── */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -80, left: -60, width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,88,188,0.06) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", top: 220, right: -80, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,112,235,0.05) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", bottom: 100, left: "30%", width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,65,143,0.04) 0%, transparent 70%)", filter: "blur(90px)" }} />
+      </div>
+
+      <div className="rounded-3xl overflow-hidden mb-6" style={{ position: "relative", zIndex: 1, background: "rgba(255,255,255,0.93)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", boxShadow: "0 12px 48px rgba(26,28,31,0.06)", border: "1.5px solid rgba(194,198,213,0.18)" }}>
+        {/* Subtle blue accent top strip */}
+        <div style={{ height: 3, background: "linear-gradient(90deg, #00418f, #0058bc, #0070eb, #0058bc, #00418f)" }} />
 
         <div className="px-6 py-5">
           <div className="flex items-center justify-between gap-6">
             {/* Identity */}
             <div className="flex items-center gap-4 shrink-0">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: "rgba(0,122,255,0.22)", border: "1px solid rgba(0,122,255,0.35)" }}>
-                <Stethoscope className="w-6 h-6 text-blue-400" />
+                style={{ background: "linear-gradient(135deg, #0058bc, #0070eb)", boxShadow: "0 4px 16px rgba(0,88,188,0.25)" }}>
+                <Stethoscope className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-black text-white leading-tight">Physician Dashboard</h1>
-                <p className="text-[11px] text-white/40 mt-0.5">Clinical records · AI diagnostics · Prescribing · Predictive risk alerts · MOH</p>
+                <h1 className="text-xl font-black leading-tight" style={{ color: "#1a1c1f" }}>Physician Dashboard</h1>
+                <p className="text-[11px] mt-0.5 font-medium" style={{ color: "#424753" }}>Clinical records · AI diagnostics · Prescribing · Predictive risk alerts · MOH</p>
               </div>
             </div>
 
             {/* Search + Bell */}
             <div className="flex items-center gap-2 flex-1 justify-end">
               <button onClick={() => setShowSsePanel(p => !p)}
-                className="relative flex items-center justify-center w-8 h-8 rounded-xl transition-all hover:opacity-80 shrink-0"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+                className="relative flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:opacity-80 shrink-0"
+                style={{ background: "rgba(0,88,188,0.07)", border: "1.5px solid rgba(0,88,188,0.14)" }}
                 title={sseConnected ? "Live alerts connected" : "Connecting…"}>
-                <Bell className="w-3.5 h-3.5 text-white/50" />
+                <Bell className="w-4 h-4" style={{ color: "#0058bc" }} />
                 {sseUnread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center border border-[#020a18]">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">
                     {sseUnread > 9 ? "9+" : sseUnread}
                   </span>
                 )}
-                <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-[#020a18] ${sseConnected ? "bg-emerald-400" : "bg-gray-600"}`} />
+                <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${sseConnected ? "bg-emerald-400" : "bg-gray-300"}`} />
               </button>
               <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-sm">
                 <div className="relative flex-1" ref={searchRef}>
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: "rgba(0,122,255,0.50)" }} />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#424753", opacity: 0.5 }} />
                   <input
-                    placeholder="Patient name or National ID..."
-                    className="w-full h-10 pl-9 pr-4 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none font-medium"
+                    placeholder="Patient name or National ID…"
+                    className="w-full h-10 pl-10 pr-4 rounded-xl text-sm focus:outline-none font-medium transition-all"
                     style={{
-                      background: "rgba(255,255,255,0.06)",
-                      border: (searchQuery || searchId) ? "1.5px solid rgba(0,122,255,0.55)" : "1px solid rgba(255,255,255,0.10)",
+                      background: "#f3f3f8",
+                      border: (searchQuery || searchId) ? "1.5px solid rgba(0,88,188,0.45)" : "1.5px solid rgba(194,198,213,0.25)",
+                      color: "#1a1c1f",
+                      boxShadow: "inset 0 1.5px 4px rgba(26,28,31,0.04)",
                     }}
                     value={searchQuery || searchId}
                     onChange={(e) => { const v = e.target.value; setSearchQuery(v); setSearchId(v); setShowDropdown(true); }}
@@ -391,29 +399,30 @@ export default function DoctorDashboard() {
                   />
                   {showDropdown && searchPatients.length > 0 && (
                     <div className="absolute top-full right-0 mt-2 w-80 rounded-2xl z-50 overflow-hidden"
-                      style={{ background: "rgba(4,18,36,0.98)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.40), 0 0 0 1px rgba(0,122,255,0.15)" }}>
+                      style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)", boxShadow: "0 20px 60px rgba(26,28,31,0.12)", border: "1.5px solid rgba(194,198,213,0.22)" }}>
                       {searchPatients.map((p: any) => (
                         <button key={p.id} type="button"
                           onClick={() => handleSelectPatient(p.nationalId, p.fullName)}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                            style={{ background: "rgba(0,122,255,0.15)", border: "1px solid rgba(0,122,255,0.25)" }}>
-                            <UserIcon className="w-4 h-4 text-blue-400" />
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-blue-50/60"
+                          style={{ borderBottom: "1.5px solid rgba(194,198,213,0.10)" }}>
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ background: "linear-gradient(135deg, #0058bc, #0070eb)" }}>
+                            <UserIcon className="w-4 h-4 text-white" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold text-white truncate">{p.fullName}</p>
-                            <p className="text-[10px] text-white/40 font-mono">{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
+                            <p className="text-sm font-bold truncate" style={{ color: "#1a1c1f" }}>{p.fullName}</p>
+                            <p className="text-[10px] font-mono" style={{ color: "#424753" }}>{p.nationalId} · Age {new Date().getFullYear() - new Date(p.dateOfBirth).getFullYear()}</p>
                           </div>
-                          {p.riskLevel === "critical" && <span className="text-[9px] font-black text-red-400 px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(220,38,38,0.15)" }}>Critical</span>}
-                          {p.riskLevel === "high" && <span className="text-[9px] font-black text-amber-400 px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(245,158,11,0.15)" }}>High Risk</span>}
+                          {p.riskLevel === "critical" && <span className="text-[9px] font-black px-1.5 py-0.5 rounded-lg shrink-0 bg-red-100 text-red-700">Critical</span>}
+                          {p.riskLevel === "high" && <span className="text-[9px] font-black px-1.5 py-0.5 rounded-lg shrink-0 bg-amber-100 text-amber-700">High Risk</span>}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
                 <button type="submit"
-                  className="h-10 px-5 rounded-xl font-black text-sm text-white shrink-0"
-                  style={{ background: "linear-gradient(135deg, #007AFF, #004b9d)", boxShadow: "0 2px 12px rgba(0,122,255,0.30)" }}>
+                  className="h-10 px-5 rounded-xl font-black text-sm text-white shrink-0 transition-all hover:opacity-90"
+                  style={{ background: "linear-gradient(135deg, #0058bc, #0070eb)", boxShadow: "0 4px 16px rgba(0,88,188,0.28)" }}>
                   Load
                 </button>
               </form>
@@ -424,15 +433,15 @@ export default function DoctorDashboard() {
 
       {/* ── Empty state ── */}
       {!patientId && !isLoading && (
-        <div className="rounded-3xl border border-border bg-background flex flex-col items-center justify-center py-24 px-8 text-center">
-          <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: "linear-gradient(135deg, #007AFF15, #007AFF05)", border: "1px solid #007AFF20" }}>
-            <Stethoscope className="w-9 h-9 text-primary/50" />
+        <div className="rounded-3xl flex flex-col items-center justify-center py-24 px-8 text-center" style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1.5px solid rgba(194,198,213,0.18)", boxShadow: "0 10px 40px rgba(26,28,31,0.04)" }}>
+          <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: "linear-gradient(135deg, rgba(0,88,188,0.10), rgba(0,112,235,0.05))", border: "1.5px solid rgba(0,88,188,0.14)" }}>
+            <Stethoscope className="w-9 h-9" style={{ color: "#0058bc", opacity: 0.6 }} />
           </div>
-          <p className="text-xl font-bold text-foreground mb-2">No Patient Loaded</p>
-          <p className="text-sm text-muted-foreground mb-6 max-w-xs">Search by name or National ID to open a patient's clinical workspace.</p>
-          <div className="inline-flex items-center gap-3 bg-secondary rounded-2xl px-5 py-3">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Demo IDs</span>
-            <span className="text-xs font-mono text-foreground">1000000001 · 1000000003 · 1000000005 · 1000000023</span>
+          <p className="text-xl font-black mb-2" style={{ color: "#1a1c1f" }}>No Patient Loaded</p>
+          <p className="text-sm mb-6 max-w-xs" style={{ color: "#424753" }}>Search by name or National ID to open a patient's clinical workspace.</p>
+          <div className="inline-flex items-center gap-3 rounded-2xl px-5 py-3" style={{ background: "#f3f3f8", border: "1.5px solid rgba(194,198,213,0.20)" }}>
+            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#424753" }}>Demo IDs</span>
+            <span className="text-xs font-mono" style={{ color: "#1a1c1f" }}>1000000001 · 1000000003 · 1000000005 · 1000000023</span>
           </div>
         </div>
       )}
@@ -458,11 +467,11 @@ export default function DoctorDashboard() {
 
             {/* Allergy alert strip */}
             {patient.allergies?.length > 0 && (
-              <div className="rounded-2xl px-4 py-3 flex items-start gap-2.5" style={{ background: "linear-gradient(135deg, #dc2626, #991b1b)" }}>
-                <AlertCircle className="w-4 h-4 text-white shrink-0 mt-0.5" />
+              <div className="rounded-2xl px-4 py-3 flex items-start gap-2.5" style={{ background: "rgba(182,23,30,0.08)", border: "1.5px solid rgba(182,23,30,0.22)", backdropFilter: "blur(12px)" }}>
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#b6171e" }} />
                 <div>
-                  <p className="text-white text-xs font-black uppercase tracking-widest mb-0.5">Allergy Alert</p>
-                  <p className="text-white/90 text-xs leading-relaxed">{patient.allergies.join(" · ")}</p>
+                  <p className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: "#b6171e" }}>Allergy Alert</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "#7c0d11" }}>{patient.allergies.join(" · ")}</p>
                 </div>
               </div>
             )}
@@ -471,7 +480,7 @@ export default function DoctorDashboard() {
             <Card>
               <CardBody className="p-5">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-lg font-black text-white" style={{ background: "linear-gradient(135deg, #007AFF, #5856D6)" }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-lg font-black text-white" style={{ background: "linear-gradient(135deg, #0058bc, #0070eb)", boxShadow: "0 4px 14px rgba(0,88,188,0.28)" }}>
                     {patient.fullName.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -602,9 +611,9 @@ export default function DoctorDashboard() {
             )}
 
             {/* SSE live status indicator */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-secondary rounded-2xl">
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl" style={{ background: "rgba(255,255,255,0.80)", border: "1.5px solid rgba(194,198,213,0.18)", backdropFilter: "blur(12px)" }}>
               <div className={`w-2 h-2 rounded-full shrink-0 ${sseConnected ? "bg-emerald-400 animate-pulse" : "bg-gray-300"}`} />
-              <span className="text-[11px] font-medium text-muted-foreground">
+              <span className="text-[11px] font-semibold" style={{ color: "#424753" }}>
                 {sseConnected ? "Live clinical alerts connected" : "Connecting to live alerts…"}
               </span>
             </div>
@@ -615,8 +624,8 @@ export default function DoctorDashboard() {
           ─────────────────────────────────────────────────────────────────── */}
           <div className="flex-1 min-w-0 space-y-4">
 
-            {/* Tab bar */}
-            <div className="flex gap-1 bg-secondary p-1 rounded-2xl">
+            {/* Tab bar — iOS glass pills */}
+            <div className="flex gap-1 p-1 rounded-2xl" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1.5px solid rgba(194,198,213,0.18)", boxShadow: "0 4px 16px rgba(26,28,31,0.06)" }}>
               {TABS.map(tab => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -626,10 +635,10 @@ export default function DoctorDashboard() {
                     onClick={() => setActiveTab(tab.id)}
                     className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all"
                     style={isActive ? {
-                      background: "white",
-                      color: "#007AFF",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.10)",
-                    } : { color: "var(--muted-foreground)" }}
+                      background: "linear-gradient(135deg, #0058bc, #0070eb)",
+                      color: "#ffffff",
+                      boxShadow: "0 4px 14px rgba(0,88,188,0.28)",
+                    } : { color: "#424753" }}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
                     <span className="hidden sm:inline">{tab.label}</span>
@@ -648,19 +657,19 @@ export default function DoctorDashboard() {
               <div className="space-y-4">
                 {/* Priority action strip */}
                 {priorityItems.length > 0 && (
-                  <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a, #1e293b)" }}>
-                    <div className="px-5 py-3 flex items-center gap-2 border-b border-white/10">
-                      <Zap className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="text-[11px] font-black text-white/70 uppercase tracking-widest">AI Priority Actions</span>
+                  <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1.5px solid rgba(0,88,188,0.14)", boxShadow: "0 8px 32px rgba(0,88,188,0.08)" }}>
+                    <div className="px-5 py-3 flex items-center gap-2" style={{ borderBottom: "1.5px solid rgba(0,88,188,0.08)", background: "rgba(0,88,188,0.04)" }}>
+                      <Zap className="w-3.5 h-3.5" style={{ color: "#f59e0b" }} />
+                      <span className="text-[11px] font-black uppercase tracking-widest" style={{ color: "#0058bc" }}>AI Priority Actions</span>
                     </div>
-                    <div className="divide-y divide-white/5">
+                    <div style={{ borderTop: "none" }}>
                       {priorityItems.map((item, i) => (
-                        <div key={i} className="flex items-center gap-4 px-5 py-3.5">
+                        <div key={i} className="flex items-center gap-4 px-5 py-3.5" style={{ borderBottom: i < priorityItems.length - 1 ? "1.5px solid rgba(194,198,213,0.10)" : "none" }}>
                           <div className={`flex items-center gap-1.5 shrink-0 ${item.pulse ? "animate-pulse" : ""}`}>
                             <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                            <span className="text-[10px] font-black text-white/60 uppercase tracking-wider w-20">{item.label}</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider w-20" style={{ color: "#424753" }}>{item.label}</span>
                           </div>
-                          <p className="text-sm font-semibold text-white leading-snug">{item.text}</p>
+                          <p className="text-sm font-semibold leading-snug" style={{ color: "#1a1c1f" }}>{item.text}</p>
                         </div>
                       ))}
                     </div>
@@ -1335,13 +1344,13 @@ export default function DoctorDashboard() {
             {activeTab === "meds" && (
               <div className="space-y-4">
                 {/* Quick prescribe prompt */}
-                <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "linear-gradient(135deg, rgba(5,150,105,0.08), rgba(6,78,59,0.04))", border: "1px solid rgba(5,150,105,0.20)" }}>
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #059669, #064e3b)" }}>
+                <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1.5px solid rgba(5,150,105,0.18)", boxShadow: "0 8px 28px rgba(5,150,105,0.06)" }}>
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #059669, #064e3b)", boxShadow: "0 4px 12px rgba(5,150,105,0.25)" }}>
                     <Syringe className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-bold text-foreground text-sm">Prescribe New Medication</p>
-                    <p className="text-xs text-muted-foreground">AI drug interaction check + renal dose validation included.</p>
+                    <p className="font-bold text-sm" style={{ color: "#1a1c1f" }}>Prescribe New Medication</p>
+                    <p className="text-xs" style={{ color: "#424753" }}>AI drug interaction check + renal dose validation included.</p>
                   </div>
                   <PrescribeModal patientId={patient.id} patientAge={patientAge} creatinine={latestCreatinine} />
                 </div>
@@ -1953,8 +1962,8 @@ function PrescribeModal({ patientId, patientAge, creatinine }: { patientId: numb
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg overflow-hidden rounded-[2rem]" style={{ background: "hsl(var(--background))", border: "1px solid rgba(0,122,255,0.18)", boxShadow: "0 24px 64px rgba(0,0,0,0.60), 0 0 0 1px rgba(0,122,255,0.12)" }}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(26,28,31,0.30)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+          <div className="w-full max-w-lg overflow-hidden rounded-[2rem]" style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1.5px solid rgba(194,198,213,0.22)", boxShadow: "0 32px 80px rgba(26,28,31,0.18)" }}>
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div>
                 <h3 className="font-bold text-foreground text-base">Prescribe Medication</h3>
